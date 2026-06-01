@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_users_form_inherit_local" model="ir.ui.view">
+            <field name="name">res.users.form.inherit.local</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='tz']" position="after">
+                    <field name="calendar_type" />
+                </xpath>
+            </field>
+        </record>
+
+
+    <record id="res_users_form_preference_view" model="ir.ui.view">
+        <field name="name">res.users.form.view</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tz']" position="after">
+                <field name="calendar_type" />
+            </xpath>
+        </field>
+    </record>
+
+
+
+    </data>
+</odoo>

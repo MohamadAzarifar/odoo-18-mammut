@@ -1,0 +1,70 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* artarad_web_persian_calendar
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e-20220125\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-31 07:53+0000\n"
+"PO-Revision-Date: 2022-01-31 07:53+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: artarad_web_persian_calendar
+#: model_terms:ir.ui.view,arch_db:artarad_web_persian_calendar.view_form_artarad_sequence
+msgid ""
+"<b>Put j before any legend in order to use it in Jalaali Calendar.</b>"
+msgstr ""
+"<b>برای استفاده از تقویم شمسی، پیش از هر علامت یک j قرار دهید.</b>"
+
+
+#. module: artarad_web_persian_calendar
+#: model:ir.model.fields,field_description:artarad_web_persian_calendar.field_res_users__calendar_type
+msgid "Calendar Type"
+msgstr "نوع تقویم"
+
+#. module: artarad_web_persian_calendar
+#: code:addons/artarad_web_persian_calendar/models/ir_sequence.py:0
+#, python-format
+msgid "Invalid prefix or suffix for sequence '%s'"
+msgstr "پیشوند یا پسوند نامعتبر برای دنباله '%s'"
+
+#. module: artarad_web_persian_calendar
+#: model:ir.model.fields.selection,name:artarad_web_persian_calendar.selection__res_users__calendar_type__jalaali
+msgid "Jalaali"
+msgstr "شمسی"
+
+#. module: artarad_web_persian_calendar
+#: model:ir.model,name:artarad_web_persian_calendar.model_ir_sequence
+msgid "Sequence"
+msgstr "دنباله"
+
+#. module: artarad_web_persian_calendar
+#. openerp-web
+#: code:addons/artarad_web_persian_calendar/static/src/js/message.js:0
+#: code:addons/artarad_web_persian_calendar/static/src/js/message.js:0
+#, python-format
+msgid "Today"
+msgstr "امروز"
+
+#. module: artarad_web_persian_calendar
+#: model:ir.model,name:artarad_web_persian_calendar.model_res_users
+msgid "Users"
+msgstr "کاربران"
+
+#. module: artarad_web_persian_calendar
+#. openerp-web
+#: code:addons/artarad_web_persian_calendar/static/src/js/message.js:0
+#, python-format
+msgid "Yesterday"
+msgstr "دیروز"
+
+#. module: artarad_web_persian_calendar
+#: model:ir.model.fields.selection,name:artarad_web_persian_calendar.selection__res_users__calendar_type__gregorian
+msgid "Gregorian"
+msgstr "میلادی"

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_approval_return_to_edit_wizard,approval.return.to.edit.wizard user,model_approval_return_to_edit_wizard,base.group_user,1,1,1,1

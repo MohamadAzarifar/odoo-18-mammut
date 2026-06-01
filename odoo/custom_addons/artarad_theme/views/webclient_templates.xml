@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+        <template id="web_layout" inherit_id="web.layout">
+            <xpath expr="//html/head/t" position="after">
+                 <link  href="/artarad_theme/static/src/css/style.css" rel="stylesheet"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_request_view_form_documents_ext" model="ir.ui.view">
+        <field name="name">approval.request.view.form.documents.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="documents_approvals.approval_request_view_form"/>
+        <field name="priority" eval="120"/>
+        <field name="arch" type="xml">
+            <field name="documents_enabled" position="after">
+                <field name="documents_folder_id" invisible="1"/>
+                <field name="approval_ext_requester_can_edit" invisible="1"/>
+            </field>
+
+            <xpath expr="//header/widget[@name='attach_document'][@highlight='1']" position="replace"/>
+            <xpath expr="//header/widget[@name='attach_document'][not(@highlight)]" position="replace"/>
+
+            <!-- Attach first (before Documents stat); labels only — count stays on Documents button -->
+            <xpath expr="//div[@name='button_box']/button[@name='action_get_attachment_view']" position="before">
+                <widget name="attach_document_stat" string="Attach Document"
+                    action="message_post"
+                    invisible="(attachment_number &gt;= 1 and approval_ext_requester_can_edit) or not approval_ext_requester_can_edit"/>
+                <widget name="attach_document_stat" string="Attach Document"
+                    action="message_post"
+                    invisible="attachment_number &lt; 1 or not approval_ext_requester_can_edit"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

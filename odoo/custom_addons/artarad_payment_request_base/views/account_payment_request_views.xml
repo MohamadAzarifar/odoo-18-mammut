@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_payment_request_approve" model="ir.actions.server">
+        <field name="name">Approve</field>
+        <field name="model_id" ref="artarad_payment_request_base.model_artarad_account_payment_request" />
+        <field name="binding_model_id" ref="artarad_payment_request_base.model_artarad_account_payment_request" />
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('artarad_payment_request_base.group_artarad_payment_request_approver'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if all([rec.state == "submitted" for rec in records]):
+    for rec in records:
+        rec.action_approve()
+else:
+    raise UserError("All selected items must be in Submitted state!")
+        </field>
+    </record>
+
+    <record id="action_payment_request_schedule" model="ir.actions.server">
+        <field name="name">Schedule</field>
+        <field name="model_id" ref="artarad_payment_request_base.model_artarad_account_payment_request" />
+        <field name="binding_model_id" ref="artarad_payment_request_base.model_artarad_account_payment_request" />
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('artarad_payment_request_base.group_artarad_payment_request_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if all([rec.state == "approved" for rec in records]):
+    for rec in records:
+        rec.action_schedule()
+else:
+    raise UserError("All selected items must be in Approved state!")
+        </field>
+    </record>
+	
+    <record id="view_form_artarad_account_payment_request_reject_reason" model="ir.ui.view">
+        <field name="name">view.form.artarad.account.payment.request.reject.reason</field>
+        <field name="model">artarad.account.payment.request.reject.reason</field>
+        <field name="arch" type="xml">
+            <form>
+				<sheet>
+					<field name="reject_reason" />
+                </sheet>
+                <footer>
+                    <button string="Register" name="action_register_reject_reason" type="object" class="btn-primary"
+                        data-hotkey="q" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z" />
+                </footer>
+            </form>
+		</field>
+	</record>
+
+    <record id="view_tree_artarad_account_payment_request" model="ir.ui.view">
+        <field name="name">view.tree.artarad.account.payment.request</field>
+        <field name="model">artarad.account.payment.request</field>
+        <field name="arch" type="xml">
+            <list sample="1">
+                <field name="currency_id" column_invisible="1"/>
+                <field name="name"/>
+                <field name="request_for" />
+                <field name="related_documents_name" />
+                <field name="method" />
+                <field name="recipient_id" />
+                <field name="recipient_bank_account_id" context="{'default_partner_id': recipient_id}"/>
+                <field name="amount" />
+                <field name="due_date" />
+                <field name="state" decoration-muted="state == 'draft'"
+                                    decoration-warning="state == 'submitted'"
+                                    decoration-success="state in ('approved', 'scheduled')"
+                                    decoration-info="state == 'done'"
+                                    decoration-danger="state == 'rejected'"
+                                    widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_form_artarad_account_payment_request" model="ir.ui.view">
+        <field name="name">view.form.artarad.account.payment.request</field>
+        <field name="model">artarad.account.payment.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight"
+                        invisible="state != 'submitted'" groups="artarad_payment_request_base.group_artarad_payment_request_approver" />
+                    <button name="action_schedule" string="Schedule" type="object" class="oe_highlight"
+                        invisible="state != 'approved'" groups="artarad_payment_request_base.group_artarad_payment_request_manager" />
+                    <button name="action_done" string="Mark as Done" type="object" class="oe_highlight"
+                        invisible="state != 'scheduled'" groups="artarad_payment_request_base.group_artarad_payment_request_officer" />
+                    <button name="action_reject" string="Reject" type="object" class="btn btn-secondary"
+                        invisible="state not in ('submitted', 'approved', 'scheduled')" groups="artarad_payment_request_base.group_artarad_payment_request_approver" />
+                    <button name="action_draft" string="Reset to Draft" type="object" class="btn btn-secondary"
+                        invisible="state != 'rejected'" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,approved,scheduled,paid" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" />
+                            <field name="request_for" />
+                            <field name="method" />
+                            <field name="employee_id" />
+                        </group>
+
+                        <group>
+                            <field name="recipient_id" />
+                            <field name="recipient_bank_account_id" domain="[('partner_id', '=', recipient_id)]" />
+                            <label for="amount" />
+                            <div name="amount_div" class="o_row">
+                                <field name="amount"
+                                    readonly="state in ('approved', 'scheduled', 'done')" />
+                                <field name="currency_id" options="{'no_create': True, 'no_open': True}"
+                                    groups="base.group_multi_currency" />
+                            </div>
+                            <field name="due_date"
+                                readonly="state in ('approved', 'scheduled', 'done')" />
+
+                            <field name="scheduled_amount"
+                                required="state in ('approved', 'scheduled', 'done')"
+                                invisible="state not in ('approved', 'scheduled', 'done')"
+                                force_save="1" />
+                            <field name="scheduled_due_date"
+                                required="state in ('approved', 'scheduled', 'done')"
+                                invisible="state not in ('approved', 'scheduled', 'done')"
+                                force_save="1" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="description">
+                            <field name="description" />
+                        </page>
+                        <page string="Related Documents" name="related_documents" invisible="request_for == 'miscellaneous'">
+                        </page>
+                        <page string="Accounting"
+                            invisible="state in ('draft', 'submitted', 'rejected')">
+                            <field name="unpaid_scheduled_amount" invisible="1" />
+                            
+                            <group>
+                                <field name="journal_id"
+                                    required="state in ('approved', 'scheduled')" />
+                                <field name="responsible_id"
+                                    required="state in ('approved', 'scheduled')" />
+                                <field name="payment_ids"
+                                    context="{'default_partner_id': recipient_id, 'default_payment_type': 'outbound', 'default_partner_type': 'supplier', 'default_journal_id': journal_id, 'default_amount': unpaid_scheduled_amount}">
+                                    <list>
+                                        <field name="date" />
+                                        <field name="name" />
+                                        <field name="journal_id" />
+                                        <field name="payment_method_line_id" />
+                                        <field name="partner_id" />
+                                        <field name="amount" />
+                                        <field name="state" />
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Reject Reason" invisible="state != 'rejected'">
+                            <field name="reject_reason" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="o_attachment_preview" />
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_search_artarad_account_payment_request" model="ir.ui.view">
+        <field name="name">view.search.artarad.account.payment.request</field>
+        <field name="model">artarad.account.payment.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="related_documents_name"/>
+                <field name="amount"/>
+                <field name="recipient_id"/>
+                <field name="state"/>
+                <field name="create_uid"/>
+
+                <filter name="my_team" string="My Team" domain="[('employee_id.payment_request_manager_id', '=', uid)]" />
+                <separator/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]" />
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]" />
+                <filter name="scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]" />
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]" />
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]" />
+                <separator/>
+                <filter name="bill" string="Bill" domain="[('request_for', '=', 'bill')]" />
+                <filter name="expense" string="Expense" domain="[('request_for', '=', 'expense')]" />
+                <filter name="payslip" string="Payslip" domain="[('request_for', '=', 'payslip')]" />
+                <filter name="purchase" string="Purchase" domain="[('request_for', '=', 'purchase')]" />
+                <filter name="miscellaneous" string="Miscellaneous" domain="[('request_for', '=', 'miscellaneous')]" />
+                <separator/>
+                <filter name="cash" string="Cash" domain="[('method', '=', 'cash')]" />
+                <filter name="cheque" string="Cheque" domain="[('method', '=', 'cheque')]" />
+                <separator/>
+                <filter name="create_date" string="Create Date" date="create_date"/>
+                <filter name="scheduled_due_date" string="Scheduled Due Date" date="scheduled_due_date"/>
+                
+                <group expand="1" string="Group By">
+                    <filter name="state" string="State" context="{'group_by':'state'}"/>
+                    <filter name="recipient" string="Recipient" context="{'group_by':'recipient_id'}"/>
+                    <filter name="recipient_bank_account" string="Recipient Bank Account" context="{'group_by':'recipient_bank_account_id'}"/>
+                    <filter name="request_for" string="Request For" context="{'group_by':'request_for'}"/>
+                    <filter name="create_date" string="Create Date" context="{'group_by':'create_date:day,month,year'}"/>
+                    <filter name="due_date" string="Due Date" context="{'group_by':'due_date:day,month,year'}"/>
+                    <filter name="scheduled_due_date" string="Scheduled Due Date" context="{'group_by':'scheduled_due_date:day,month,year'}"/>
+                    <filter name="method" string="Method" context="{'group_by':'method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

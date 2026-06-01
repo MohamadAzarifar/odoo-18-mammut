@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_request_view_form_workflow_inherit" model="ir.ui.view">
+        <field name="name">approval.request.form.workflow.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="documents_approvals.approval_request_view_form"/>
+        <field name="priority" eval="110"/>
+        <field name="arch" type="xml">
+
+            <!-- Technical fields -->
+            <field name="documents_enabled" position="after">
+                <field name="approval_ext_can_return_for_edit" invisible="1"/>
+                <field name="approval_ext_requester_can_edit" invisible="1"/>
+            </field>
+
+            <!-- Remove Withdraw (header button) -->
+            <xpath expr="//button[@name='action_withdraw']" position="replace"/>
+
+            <!-- Submit from draft or editing (editing: request owner only) -->
+            <xpath expr="//button[@name='action_confirm' and @data-hotkey='q' and contains(@class, 'btn-primary')]" position="attributes">
+                <attribute name="invisible">attachment_number &lt; 1 or not approver_ids or request_status not in ('new', 'editing') or not approval_ext_requester_can_edit</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_confirm' and @data-hotkey='q' and not(contains(@class, 'btn-primary'))]" position="attributes">
+                <attribute name="invisible">attachment_number &gt;= 1 or not approver_ids or request_status not in ('new', 'editing') or not approval_ext_requester_can_edit</attribute>
+            </xpath>
+
+            <!-- Statusbar includes Editing between draft and submitted -->
+            <field name="request_status" position="attributes">
+                <attribute name="statusbar_visible">new,editing,pending,approved,refused</attribute>
+            </field>
+
+            <!-- Approvers: return for editing (pending, not yet approved themselves) -->
+            <xpath expr="//button[@name='action_refuse']" position="after">
+                <button name="action_open_return_to_edit_wizard" string="Return for editing" type="object"
+                    class="btn-secondary" data-hotkey="r"
+                    invisible="not approval_ext_can_return_for_edit"/>
+            </xpath>
+
+            <!-- Draft: editable; Editing: request owner only; otherwise readonly -->
+            <field name="name" position="attributes">
+                <attribute name="readonly">automated_sequence or not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="request_owner_id" position="attributes">
+                <attribute name="readonly">not change_request_owner or not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="category_id" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="date" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="date_start" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="date_end" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="location" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="reference" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="quantity" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="amount" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="product_line_ids" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <field name="reason" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit</attribute>
+            </field>
+            <!-- In editing: owner edits request fields, not the approver list (no add/remove lines) -->
+            <field name="approver_ids" position="attributes">
+                <attribute name="readonly">not approval_ext_requester_can_edit or request_status == 'editing'</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="approval_request_view_tree_workflow_inherit" model="ir.ui.view">
+        <field name="name">approval.request.tree.workflow.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_request_view_tree"/>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="decoration-info">request_status in ('new', 'editing')</attribute>
+            </list>
+            <field name="request_status" position="attributes">
+                <attribute name="decoration-info">request_status in ('new', 'editing')</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="approval_search_view_search_workflow_inherit" model="ir.ui.view">
+        <field name="name">approval.request.search.workflow.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_search_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='filter_refused_requests']" position="after">
+                <filter string="Returned for editing"
+                    name="filter_returned_editing_my"
+                    domain="[('request_status', '=', 'editing'), ('request_owner_id', '=', uid)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="approval_request_view_kanban_workflow_inherit" model="ir.ui.view">
+        <field name="name">approval.request.kanban.workflow.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_request_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_status']" position="after">
+                <field name="approval_ext_can_return_for_edit"/>
+            </xpath>
+            <xpath expr="//a[@name='action_withdraw']" position="replace"/>
+            <xpath expr="//a[@name='action_refuse']" position="after">
+                <a name="action_open_return_to_edit_wizard"
+                    type="object"
+                    invisible="not approval_ext_can_return_for_edit"
+                    role="menuitem"
+                    class="dropdown-item">Return for editing</a>
+            </xpath>
+        </field>
+    </record>
+</odoo>

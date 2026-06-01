@@ -1,0 +1,99 @@
+<odoo>
+    <data>
+
+        <record id="action_artarad_account_payment_request_my" model="ir.actions.act_window">
+            <field name="name">My Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">['|','|',('recipient_id.user_ids', 'in', uid), ('create_uid', '=', uid),('recipient_id', '=', False)]</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_to_submit" model="ir.actions.act_window">
+            <field name="name">To Submit Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'draft')]</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_to_approve" model="ir.actions.act_window">
+            <field name="name">To Approve Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'submitted'), '|', ('employee_id.payment_request_manager_id', '=', uid), ('employee_id.payment_request_parent_ids.payment_request_manager_id', 'in', [uid])]</field>
+            <field name="context">{'search_default_my_team': True}</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_to_schedule" model="ir.actions.act_window">
+            <field name="name">To Schedule Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'approved')]</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_to_pay" model="ir.actions.act_window">
+            <field name="name">To Pay Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'scheduled')]</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_all" model="ir.actions.act_window">
+            <field name="name">All Payment Requests</field>
+            <field name="res_model">artarad.account.payment.request</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record id="action_artarad_account_payment_request_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'artarad_payment_request_base', 'bin_size': False}</field>
+        </record>
+
+        ##################################################################
+
+        <menuitem id="menu_artarad_payment_request" name="Payment Request"
+            web_icon="artarad_payment_request_base,static/description/icon.png"
+            groups="artarad_payment_request_base.group_artarad_payment_request_user" />
+
+        <menuitem id="menu_artarad_account_payment_request_my" name="My Requests" parent="menu_artarad_payment_request"
+            action="action_artarad_account_payment_request_my" sequence="1" />
+
+        <menuitem id="menu_artarad_account_payment_request_management" name="Management"
+            parent="menu_artarad_payment_request" sequence="2" />
+
+        <menuitem id="menu_artarad_account_payment_request_to_submit" name="To Submit Requests"
+            parent="menu_artarad_account_payment_request_management"
+            action="action_artarad_account_payment_request_to_submit" sequence="1" />
+
+        <menuitem id="menu_artarad_account_payment_request_to_approve" name="To Approve Requests"
+            parent="menu_artarad_account_payment_request_management"
+            action="action_artarad_account_payment_request_to_approve" sequence="1"
+            groups="artarad_payment_request_base.group_artarad_payment_request_approver" />
+
+        <menuitem id="menu_artarad_account_payment_request_to_schedule" name="To Schedule Requests"
+            parent="menu_artarad_account_payment_request_management"
+            action="action_artarad_account_payment_request_to_schedule" sequence="2"
+            groups="artarad_payment_request_base.group_artarad_payment_request_manager" />
+
+        <menuitem id="menu_artarad_account_payment_request_to_pay" name="To Pay Requests"
+            parent="menu_artarad_account_payment_request_management"
+            action="action_artarad_account_payment_request_to_pay" sequence="3"
+            groups="artarad_payment_request_base.group_artarad_payment_request_officer" />
+
+        <menuitem id="menu_artarad_account_payment_request_all" name="All Requests"
+            parent="menu_artarad_account_payment_request_management" action="action_artarad_account_payment_request_all"
+            sequence="4" groups="artarad_payment_request_base.group_artarad_payment_request_approver,artarad_payment_request_base.group_artarad_payment_request_manager,artarad_payment_request_base.group_artarad_payment_request_officer" />
+
+        <menuitem id="menu_artarad_account_payment_request_config" name="Configurations"
+            parent="menu_artarad_payment_request" sequence="30"
+            groups="artarad_payment_request_base.group_artarad_payment_request_admin"/>
+
+        <menuitem id="menu_artarad_account_payment_request_settings" name="Settings"
+            parent="menu_artarad_account_payment_request_config"
+            action="action_artarad_account_payment_request_settings" sequence="1" />
+
+    </data>
+</odoo>

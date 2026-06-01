@@ -1,0 +1,5 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+access_artarad_account_payment,artarad_account_payment,account.model_account_payment,artarad_payment_request_base.group_artarad_payment_request_user,1,0,0,0
+
+access_artarad_account_payment_request,artarad_account_payment_request,model_artarad_account_payment_request,artarad_payment_request_base.group_artarad_payment_request_user,1,1,1,1
+access_artarad_account_payment_request_reject_reason,artarad_account_payment_request_reject_reason,model_artarad_account_payment_request_reject_reason,artarad_payment_request_base.group_artarad_payment_request_user,1,1,1,1

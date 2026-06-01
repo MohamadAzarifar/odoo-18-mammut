@@ -1,0 +1,166 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* approval_ext
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e-20250521\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-24 19:39+0000\n"
+"PO-Revision-Date: 2026-05-24 19:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: Persian\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+msgid "%(name)s asked you to update and resubmit this request."
+msgstr "«%(name)s» از شما خواسته است این درخواست را به‌روزرسانی و دوباره ارسال کنید."
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__approval_ext_can_return_for_edit
+msgid "Approval Ext Can Return For Edit"
+msgstr "امکان بازگشت برای ویرایش"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_approval_request
+msgid "Approval Request"
+msgstr "درخواست تأیید"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_request_view_form_documents_ext
+msgid "Attach Document"
+msgstr "پیوست سند"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
+msgid "Confirm"
+msgstr "تأیید"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__create_uid
+msgid "Created by"
+msgstr "ایجاد شده توسط"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__create_date
+msgid "Created on"
+msgstr "ایجاد شده در"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
+msgid "Describe what needs to be corrected..."
+msgstr "توضیح دهید چه چیزی باید اصلاح شود..."
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
+msgid "Discard"
+msgstr "انصراف"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__display_name
+msgid "Display Name"
+msgstr "نام نمایشی"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__documents_folder_id
+msgid "Documents Folder"
+msgstr "پوشه اسناد"
+
+#. module: approval_ext
+#: model:ir.model.fields.selection,name:approval_ext.selection__approval_request__request_status__editing
+msgid "Editing"
+msgstr "در حال ویرایش"
+
+#. module: approval_ext
+#: model:ir.model.fields,help:approval_ext.field_approval_return_to_edit_wizard__reason
+msgid ""
+"Explain what must be changed. The requester will see this in the chatter."
+msgstr ""
+"توضیح دهید چه چیزی باید تغییر کند. درخواست‌کننده این متن را در گفتگو "
+"خواهد دید."
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__id
+msgid "ID"
+msgstr "شناسه"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخرین به‌روزرسانی توسط"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخرین به‌روزرسانی در"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request.py:0
+msgid "New Request (#%s)"
+msgstr "درخواست جدید (#%s)"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+msgid "Please provide a reason."
+msgstr "لطفاً یک دلیل وارد کنید."
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__reason
+msgid "Reason"
+msgstr "دلیل"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__request_id
+msgid "Request"
+msgstr "درخواست"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__request_status
+msgid "Request Status"
+msgstr "وضعیت درخواست"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_approval_return_to_edit_wizard
+msgid "Return approval request for editing"
+msgstr "بازگرداندن درخواست تأیید برای ویرایش"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_request_view_form_workflow_inherit
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_request_view_kanban_workflow_inherit
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
+msgid "Return for editing"
+msgstr "بازگشت برای ویرایش"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__approval_ext_in_editing
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_search_view_search_workflow_inherit
+msgid "Returned for editing"
+msgstr "بازگردانده‌شده برای ویرایش"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+msgid ""
+"Withdraw is no longer available. Use \"Return for editing\" if you need "
+"changes from the requester."
+msgstr ""
+"واگرد دیگر در دسترس نیست. اگر به تغییرات از سوی درخواست‌کننده نیاز دارید "
+"از «بازگشت برای ویرایش» استفاده کنید."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
+msgid "You cannot send this request back for editing."
+msgstr "شما نمی‌توانید این درخواست را برای ویرایش برگردانید."

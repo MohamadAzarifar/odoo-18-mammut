@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+	<t t-name="artarad_web_persian_calendar.PCGanttRenderer.Header" t-inherit="web_gantt.GanttRenderer.Header" t-inherit-mode="extension">
+		<xpath expr="//t[@t-set='formats']" position="replace">
+			<t t-set="formats" t-value="{'week': 'cccc, jd', 'month': 'jdd', 'year': env.isSmall ? 'jMMM' : 'jMMMM'}"/>
+		</xpath>
+	</t>
+
+</templates>

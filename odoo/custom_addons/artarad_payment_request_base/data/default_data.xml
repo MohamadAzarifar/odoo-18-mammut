@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+
+        <record id="sequence_payment_request" model="ir.sequence">
+            <field name="name">Payment Request</field>
+            <field name="code">artarad.payment.request</field>
+            <field name="prefix">PR</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False" />
+        </record>
+
+        <record id="mail_activity_payment_request" model="mail.activity.type">
+            <field name="name">Payment Request Action</field>
+            <field name="icon">fa-dollar</field>
+            <field name="res_model">artarad.account.payment.request</field>
+        </record>
+
+    </data>
+</odoo>

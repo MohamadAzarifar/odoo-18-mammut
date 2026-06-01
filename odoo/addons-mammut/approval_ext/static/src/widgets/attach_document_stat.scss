@@ -1,0 +1,4 @@
+// Stat icon color is normally $primary; on btn-primary it must follow the button text color.
+.o-form-buttonbox .o_widget_attach_document_stat .oe_stat_button.btn-primary .o_button_icon {
+    color: inherit;
+}

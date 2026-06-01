@@ -1,0 +1,28 @@
+
+@font-face {
+    font-family: 'Noto';
+    src:
+      url('/artarad_theme/static/src/fonts/NotoSansArabic-Reg.ttf') format('truetype'),
+}
+
+.o_rtl{
+    font-family: 'Noto',Tahoma;
+}
+
+.o_web_client{
+    font-family: 'Noto',Tahoma;
+}
+
+textarea,input {
+
+font-family: 'Noto','Tahoma '!important;
+}
+
+.dropdown-menu {
+font-family: 'Noto','Tahoma '!important;
+}
+
+
+.flex-sm-row {
+direction:ltr !important;
+}
