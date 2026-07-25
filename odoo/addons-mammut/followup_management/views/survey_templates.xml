@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="survey_button_retake_hide_take_again"
+        inherit_id="survey.survey_button_retake"
+        name="Survey: hide take again button">
+        <xpath expr="//div[@t-if=&quot;not answer.is_session_answer and not (survey.certification and answer.scoring_success)&quot;]" position="attributes">
+            <attribute name="t-if">not answer.is_session_answer and not (survey.certification and answer.scoring_success) and not survey.hide_take_again</attribute>
+        </xpath>
+    </template>
+</odoo>

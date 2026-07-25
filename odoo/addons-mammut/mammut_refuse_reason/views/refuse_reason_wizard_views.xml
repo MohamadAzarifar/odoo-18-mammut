@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_approval_refuse_reason_wizard_form" model="ir.ui.view">
+        <field name="name">approval.refuse.reason.wizard.form</field>
+        <field name="model">approval.refuse.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Refuse Reason">
+                <group>
+                    <field name="request_id"/>
+                    <field name="reason" placeholder="Write the reason for refusal..."/>
+                </group>
+
+                <footer>
+                    <button name="action_submit_refuse_reason"
+                            string="Submit"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

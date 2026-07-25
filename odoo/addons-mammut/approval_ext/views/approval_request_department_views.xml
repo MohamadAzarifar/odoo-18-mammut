@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_request_view_form_department_domain" model="ir.ui.view">
+        <field name="name">approval.request.form.department.domain.ext</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_request_view_form"/>
+        <field name="arch" type="xml">
+            <field name="category_id" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create_edit': True}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

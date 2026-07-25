@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_graph_survey_scores" model="ir.ui.view">
+        <field name="name">followup.record.graph.survey.scores</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <graph string="Survey Scores by Type" type="bar" sample="1">
+                <field name="followup_type_id"/>
+                <field name="survey_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="followup_report_survey_scores_action" model="ir.actions.act_window">
+        <field name="name">Survey Scores by Type</field>
+        <field name="res_model">followup.record</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="followup_record_graph_survey_scores"/>
+        <field name="search_view_id" ref="followup_record_view_search_report"/>
+        <field name="domain">[('survey_completed', '=', True)]</field>
+    </record>
+</odoo>

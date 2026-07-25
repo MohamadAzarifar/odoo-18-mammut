@@ -6,21 +6,36 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0+e-20250521\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-24 19:39+0000\n"
-"PO-Revision-Date: 2026-05-24 19:39+0000\n"
+"POT-Creation-Date: 2026-06-01 20:59+0000\n"
+"PO-Revision-Date: 2026-06-01 20:59+0000\n"
 "Last-Translator: \n"
-"Language-Team: Persian\n"
-"Language: fa_IR\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: approval_ext
 #. odoo-python
 #: code:addons/approval_ext/models/approval_request_workflow.py:0
 msgid "%(name)s asked you to update and resubmit this request."
-msgstr "«%(name)s» از شما خواسته است این درخواست را به‌روزرسانی و دوباره ارسال کنید."
+msgstr ""
+"«%(name)s» از شما خواسته است این درخواست را به‌روزرسانی و دوباره ارسال کنید."
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_category_view_form_product_categories
+msgid "All departments when empty"
+msgstr "در صورت خالی بودن، همه دپارتمان‌ها"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_category_view_form_product_categories
+msgid "All products allowed when empty"
+msgstr "در صورت خالی بودن، همه محصولات مجاز هستند"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_approval_category
+msgid "Approval Category"
+msgstr "دسته‌بندی مصوبه"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_request__approval_ext_can_return_for_edit
@@ -28,14 +43,40 @@ msgid "Approval Ext Can Return For Edit"
 msgstr "امکان بازگشت برای ویرایش"
 
 #. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_product_line__approval_ext_product_id_domain
+msgid "Approval Ext Product Id Domain"
+msgstr "دامنه شناسه محصول تأیید"
+
+#. module: approval_ext
 #: model:ir.model,name:approval_ext.model_approval_request
 msgid "Approval Request"
-msgstr "درخواست تأیید"
+msgstr "درخواست مصوبه"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee__approval_delegation_ids
+msgid "Approval delegations"
+msgstr "تفویض‌های تأیید"
 
 #. module: approval_ext
 #: model_terms:ir.ui.view,arch_db:approval_ext.approval_request_view_form_documents_ext
 msgid "Attach Document"
 msgstr "پیوست سند"
+
+#. module: approval_ext
+#: model:ir.actions.act_window,name:approval_ext.product_category_approval_users_action
+#: model:ir.ui.menu,name:approval_ext.menu_product_category_approval_users
+msgid "Category approval users"
+msgstr "کاربران تأیید دسته محصول"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__company_id
+msgid "Company"
+msgstr "شرکت"
+
+#. module: approval_ext
+#: model_terms:ir.actions.act_window,help:approval_ext.product_category_approval_users_action
+msgid "Configure required approvers per product category"
+msgstr "تأییدکنندگان الزامی را برای هر دسته محصول پیکربندی کنید"
 
 #. module: approval_ext
 #: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
@@ -44,13 +85,38 @@ msgstr "تأیید"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__create_uid
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__create_uid
 msgid "Created by"
 msgstr "ایجاد شده توسط"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__create_date
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__create_date
 msgid "Created on"
 msgstr "ایجاد شده در"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__user_id
+msgid "Delegate"
+msgstr "نماینده"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid "Delegation periods for the same employee cannot overlap."
+msgstr "بازه‌های زمانی تفویض برای یک کارمند نمی‌توانند هم‌پوشانی داشته باشند."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid "Delegation start date must be on or before the end date."
+msgstr "تاریخ شروع تفویض باید قبل یا همزمان با تاریخ پایان باشد."
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_category__department_ids
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_category_view_form_product_categories
+msgid "Department access"
+msgstr "دسترسی دپارتمان"
 
 #. module: approval_ext
 #: model_terms:ir.ui.view,arch_db:approval_ext.approval_return_to_edit_wizard_view_form
@@ -64,6 +130,7 @@ msgstr "انصراف"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__display_name
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__display_name
 msgid "Display Name"
 msgstr "نام نمایشی"
 
@@ -78,25 +145,54 @@ msgid "Editing"
 msgstr "در حال ویرایش"
 
 #. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__approval_ext_effective_minimum
+msgid "Effective approval minimum"
+msgstr "حداقل مؤثر تأیید"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_hr_employee
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__employee_id
+msgid "Employee"
+msgstr "کارمند"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_hr_employee_approval_delegation
+msgid "Employee Approval Delegation"
+msgstr "تفویض تأیید کارمند"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.hr_employee_view_form_approval_delegation
+msgid "Employee Delegation"
+msgstr "تفویض کارمند"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__end_date
+msgid "End Date"
+msgstr "تاریخ پایان"
+
+#. module: approval_ext
 #: model:ir.model.fields,help:approval_ext.field_approval_return_to_edit_wizard__reason
 msgid ""
 "Explain what must be changed. The requester will see this in the chatter."
 msgstr ""
-"توضیح دهید چه چیزی باید تغییر کند. درخواست‌کننده این متن را در گفتگو "
-"خواهد دید."
+"توضیح دهید چه چیزی باید تغییر کند. درخواست‌کننده این متن را در گفتگو خواهد "
+"دید."
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__id
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__id
 msgid "ID"
 msgstr "شناسه"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__write_uid
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__write_uid
 msgid "Last Updated by"
 msgstr "آخرین به‌روزرسانی توسط"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__write_date
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__write_date
 msgid "Last Updated on"
 msgstr "آخرین به‌روزرسانی در"
 
@@ -109,8 +205,45 @@ msgstr "درخواست جدید (#%s)"
 #. module: approval_ext
 #. odoo-python
 #: code:addons/approval_ext/models/approval_request_workflow.py:0
+msgid ""
+"Only the request owner can modify or submit this request while it is being "
+"edited."
+msgstr ""
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_workflow.py:0
 msgid "Please provide a reason."
 msgstr "لطفاً یک دلیل وارد کنید."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_product_line.py:0
+msgid ""
+"Product \"%(product)s\" is not in an allowed product category for approval "
+"type \"%(category)s\"."
+msgstr ""
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_category__approval_ext_product_category_ids
+#: model:ir.model.fields,field_description:approval_ext.field_approval_product_line__approval_ext_product_category_ids
+msgid "Product Categories"
+msgstr "دسته‌بندی‌های محصول"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_product_category
+msgid "Product Category"
+msgstr "دسته بندی محصول"
+
+#. module: approval_ext
+#: model:ir.model,name:approval_ext.model_approval_product_line
+msgid "Product Line"
+msgstr "سطر محصول"
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_category_view_form_product_categories
+msgid "Product categories"
+msgstr "دسته‌بندی‌های محصول"
 
 #. module: approval_ext
 #: model:ir.model.fields,field_description:approval_ext.field_approval_return_to_edit_wizard__reason
@@ -126,6 +259,16 @@ msgstr "درخواست"
 #: model:ir.model.fields,field_description:approval_ext.field_approval_request__request_status
 msgid "Request Status"
 msgstr "وضعیت درخواست"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_approval_request__approval_ext_requester_can_edit
+msgid "Requester Can Edit"
+msgstr "درخواست‌کننده می‌تواند ویرایش کند"
+
+#. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_product_category__required_approver_user_ids
+msgid "Required approval users"
+msgstr "کاربران الزامی تأیید"
 
 #. module: approval_ext
 #: model:ir.model,name:approval_ext.model_approval_return_to_edit_wizard
@@ -150,17 +293,106 @@ msgid "Returned for editing"
 msgstr "بازگردانده‌شده برای ویرایش"
 
 #. module: approval_ext
+#: model:ir.model.fields,field_description:approval_ext.field_hr_employee_approval_delegation__start_date
+msgid "Start Date"
+msgstr "تاریخ شروع"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid "The delegate must be an internal user."
+msgstr "نماینده باید یک کاربر داخلی باشد."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid "The delegate must be different from the employee user."
+msgstr "نماینده باید با کاربر کارمند متفاوت باشد."
+
+#. module: approval_ext
+#: model_terms:ir.ui.view,arch_db:approval_ext.approval_category_view_form_product_categories
+msgid "Type Access"
+msgstr "دسترسی نوع"
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid ""
+"User \"%(user)s\" has an active outgoing delegation in this period and "
+"cannot act as a delegate."
+msgstr ""
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/hr_employee_delegation.py:0
+msgid ""
+"User \"%(user)s\" is already assigned as delegate for another employee in an"
+" overlapping period."
+msgstr ""
+
+#. module: approval_ext
+#: model:ir.model.fields,help:approval_ext.field_hr_employee_approval_delegation__user_id
+msgid "User who approves on behalf of the employee during this period."
+msgstr ""
+
+#. module: approval_ext
+#: model_terms:ir.actions.act_window,help:approval_ext.product_category_approval_users_action
+msgid ""
+"Users listed here must approve approval requests that include products\n"
+"                from the corresponding category."
+msgstr ""
+
+#. module: approval_ext
+#: model:ir.model.fields,help:approval_ext.field_product_category__required_approver_user_ids
+msgid ""
+"Users who must approve requests that include products from this category."
+msgstr "کاربرانی که باید درخواست‌های شامل محصولات این دسته را تأیید کنند."
+
+#. module: approval_ext
+#: model:ir.model.fields,help:approval_ext.field_approval_category__department_ids
+msgid ""
+"When empty, all internal users may start requests of this type. When set, an"
+" employee sees this type if their department is the configured department or"
+" a parent of it (e.g. IT sees types for IT/Helpdesk). Sub-departments do not"
+" see types assigned only to a parent department."
+msgstr ""
+
+#. module: approval_ext
+#: model:ir.model.fields,help:approval_ext.field_approval_category__approval_ext_product_category_ids
+#: model:ir.model.fields,help:approval_ext.field_approval_product_line__approval_ext_product_category_ids
+msgid ""
+"When set, approval requests of this type only allow products in these "
+"categories (including subcategories). Leave empty to allow all products."
+msgstr ""
+
+#. module: approval_ext
 #. odoo-python
 #: code:addons/approval_ext/models/approval_request_workflow.py:0
 msgid ""
 "Withdraw is no longer available. Use \"Return for editing\" if you need "
 "changes from the requester."
 msgstr ""
-"واگرد دیگر در دسترس نیست. اگر به تغییرات از سوی درخواست‌کننده نیاز دارید "
-"از «بازگشت برای ویرایش» استفاده کنید."
+"واگرد دیگر در دسترس نیست. اگر به تغییرات از سوی درخواست‌کننده نیاز دارید از "
+"«بازگشت برای ویرایش» استفاده کنید."
 
 #. module: approval_ext
 #. odoo-python
 #: code:addons/approval_ext/models/approval_request_workflow.py:0
 msgid "You cannot send this request back for editing."
 msgstr "شما نمی‌توانید این درخواست را برای ویرایش برگردانید."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request.py:0
+msgid "You cannot use approval type \"%(type)s\" with your employee department."
+msgstr "شما نمی‌توانید از نوع تأیید «%(type)s» برای دپارتمان کارمند خود استفاده کنید."
+
+#. module: approval_ext
+#. odoo-python
+#: code:addons/approval_ext/models/approval_request_category_approvers.py:0
+msgid ""
+"You need at least %(minimum)s approvers to confirm this request (including "
+"approvers required for selected product categories)."
+msgstr ""
+"برای تأیید این درخواست به حداقل %(minimum)s تأییدکننده نیاز دارید (شامل "
+"تأییدکنندگان الزامی برای دسته‌بندی‌های محصول انتخاب‌شده)."

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_product_line_view_tree_ext" model="ir.ui.view">
+        <field name="name">approval.product.line.list.product.domain.ext</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="approval_ext_product_category_ids" column_invisible="1"/>
+                <field name="approval_ext_product_id_domain" column_invisible="1"/>
+            </field>
+            <field name="product_id" position="attributes">
+                <attribute name="domain">approval_ext_product_id_domain</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True, 'no_create_edit': True}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="approval_product_line_view_tree_independent_ext" model="ir.ui.view">
+        <field name="name">approval.product.line.list.independent.product.domain.ext</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_tree_independent"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="approval_ext_product_category_ids" column_invisible="1"/>
+                <field name="approval_ext_product_id_domain" column_invisible="1"/>
+            </field>
+            <field name="product_id" position="attributes">
+                <attribute name="domain">approval_ext_product_id_domain</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True, 'no_create_edit': True}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="approval_product_line_view_form_ext" model="ir.ui.view">
+        <field name="name">approval.product.line.form.product.domain.ext</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="approval_ext_product_category_ids" invisible="1"/>
+                <field name="approval_ext_product_id_domain" invisible="1"/>
+            </field>
+            <field name="product_id" position="attributes">
+                <attribute name="domain">approval_ext_product_id_domain</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True, 'no_create_edit': True}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

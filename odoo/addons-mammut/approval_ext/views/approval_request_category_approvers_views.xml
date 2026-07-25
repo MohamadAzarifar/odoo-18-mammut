@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_request_view_form_category_approvers" model="ir.ui.view">
+        <field name="name">approval.request.view.form.category.approvers</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_request_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Effective minimum is used in Python only; keep invisible on the form. -->
+            <field name="approval_minimum" position="after">
+                <field name="approval_ext_effective_minimum" invisible="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>

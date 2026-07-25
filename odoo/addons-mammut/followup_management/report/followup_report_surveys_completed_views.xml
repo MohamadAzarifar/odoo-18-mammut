@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_graph_surveys_completed" model="ir.ui.view">
+        <field name="name">followup.record.graph.surveys.completed</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <graph string="Surveys Completed Over Time" type="line" sample="1">
+                <field name="survey_completed_date" interval="day"/>
+                <field name="followup_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="followup_report_surveys_completed_action" model="ir.actions.act_window">
+        <field name="name">Surveys Completed Over Time</field>
+        <field name="res_model">followup.record</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="followup_record_graph_surveys_completed"/>
+        <field name="search_view_id" ref="followup_record_view_search_report"/>
+        <field name="domain">[('survey_completed', '=', True)]</field>
+    </record>
+</odoo>

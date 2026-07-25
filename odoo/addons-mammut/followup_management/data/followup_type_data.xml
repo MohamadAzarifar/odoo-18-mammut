@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="followup_type_sales" model="followup.type">
+            <field name="name">Sales</field>
+            <field name="code">sales</field>
+        </record>
+        <record id="followup_type_delivery" model="followup.type">
+            <field name="name">Delivery</field>
+            <field name="code">delivery</field>
+        </record>
+        <record id="followup_type_onsite_service" model="followup.type">
+            <field name="name">On-site Service</field>
+            <field name="code">onsite_service</field>
+        </record>
+        <record id="followup_type_remote_service" model="followup.type">
+            <field name="name">Remote Service</field>
+            <field name="code">remote_service</field>
+        </record>
+    </data>
+</odoo>

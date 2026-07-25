@@ -1,0 +1,891 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* followup_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e-20250521\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-21 17:16+0000\n"
+"PO-Revision-Date: 2026-06-21 18:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Persian\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "A survey has already been started for this follow-up record."
+msgstr "برای این رکورد پیگیری، نظرسنجی قبلاً آغاز شده است."
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_needaction
+msgid "Action Needed"
+msgstr "اقدام لازم"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__active
+msgid "Active"
+msgstr "فعال"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_ids
+msgid "Activities"
+msgstr "فعالیت‌ها"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تزئین استثنای فعالیت"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_state
+msgid "Activity State"
+msgstr "وضعیت فعالیت"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "آیکون نوع فعالیت"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__status__answered
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Answered"
+msgstr "پاسخ داده شده"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_type_view_form
+msgid "Archived"
+msgstr "بایگانی شده"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__arrival_time
+msgid "Arrival Time"
+msgstr "زمان ورود"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_attachment_count
+msgid "Attachment Count"
+msgstr "تعداد پیوست"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__average_arrival_time
+msgid "Average Arrival Time"
+msgstr "میانگین زمان ورود"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__average_repair_time
+msgid "Average Repair Time"
+msgstr "میانگین زمان تعمیر"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__average_return_time
+msgid "Average Return Time"
+msgstr "میانگین زمان بازگشت"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__call_datetime
+msgid "Call DateTime"
+msgstr "تاریخ و زمان تماس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__call_history_ids
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Call History"
+msgstr "سابقه تماس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__call_status_id
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_call_status_view_form
+msgid "Call Status"
+msgstr "وضعیت تماس"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_call_status_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_call_statuses
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_call_status_view_list
+msgid "Call Statuses"
+msgstr "وضعیت‌های تماس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__followup_type_code
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__code
+msgid "Code"
+msgstr "کد"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__comment
+msgid "Comment"
+msgstr "توضیحات"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__customer_type__company
+msgid "Company"
+msgstr "شرکت"
+
+#. module: followup_management
+#: model:ir.ui.menu,name:followup_management.menu_followup_configuration
+msgid "Configuration"
+msgstr "پیکربندی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__contract_vehicle_delivery_date
+msgid "Contract Vehicle Delivery Date"
+msgstr "تاریخ تحویل خودرو طبق قرارداد"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__followup_count
+msgid "Count"
+msgstr "تعداد"
+
+#. module: followup_management
+#: model_terms:ir.actions.act_window,help:followup_management.followup_record_action
+msgid "Create a new follow-up record"
+msgstr "ایجاد رکورد پیگیری جدید"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Created Date"
+msgstr "تاریخ ایجاد"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__create_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__create_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__create_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__create_uid
+msgid "Created by"
+msgstr "ایجاد شده توسط"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__create_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__create_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__create_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__create_date
+msgid "Created on"
+msgstr "ایجاد شده در"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Creation Date"
+msgstr "تاریخ ایجاد"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_call_time
+msgid "Customer Call Time"
+msgstr "زمان تماس با مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_email
+msgid "Customer Email"
+msgstr "ایمیل مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_name
+msgid "Customer Full Name"
+msgstr "نام کامل مشتری"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Customer Information"
+msgstr "اطلاعات مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__partner_id
+msgid "Customer Partner"
+msgstr "مخاطب مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_phone
+msgid "Customer Phone"
+msgstr "تلفن مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_statement
+msgid "Customer Statement"
+msgstr "اظهارات مشتری"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__customer_type
+msgid "Customer Type"
+msgstr "نوع مشتری"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "Customer email is required to start the survey."
+msgstr "برای شروع نظرسنجی، ایمیل مشتری الزامی است."
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__dealer_address
+msgid "Dealer Address"
+msgstr "آدرس نمایندگی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__dealer_code
+msgid "Dealer Code"
+msgstr "کد نمایندگی"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Dealer Information"
+msgstr "اطلاعات نمایندگی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__dealer_name
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Dealer Name"
+msgstr "نام نمایندگی"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Delivery"
+msgstr "تحویل"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__display_name
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__display_name
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__display_name
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__display_name
+msgid "Display Name"
+msgstr "نام نمایشی"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__status__draft
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__followup_id
+#: model:ir.model.fields,field_description:followup_management.field_survey_user_input__followup_id
+#: model:ir.ui.menu,name:followup_management.menu_followup_root
+msgid "Follow Up"
+msgstr "پیگیری"
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_followup_record
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Follow Up Record"
+msgstr "رکورد پیگیری"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_record_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_records
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_list
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Follow Up Records"
+msgstr "رکوردهای پیگیری"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Follow Up Reports"
+msgstr "گزارش‌های پیگیری"
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_followup_call_history
+msgid "Follow-up Call History"
+msgstr "سابقه تماس پیگیری"
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_followup_call_status
+msgid "Follow-up Call Status"
+msgstr "وضعیت تماس پیگیری"
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_followup_type
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__followup_type_id
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_type_view_form
+msgid "Follow-up Type"
+msgstr "نوع پیگیری"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_type_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_types
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_type_view_list
+msgid "Follow-up Types"
+msgstr "انواع پیگیری"
+
+#. module: followup_management
+#: model:ir.model.constraint,message:followup_management.constraint_followup_type_code_unique
+msgid "Follow-up type code must be unique."
+msgstr "کد نوع پیگیری باید یکتا باشد."
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_created_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_created
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_created
+msgid "Follow-ups Over Time"
+msgstr "پیگیری‌ها در طول زمان"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_by_status_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_by_status
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_by_status
+msgid "Follow-ups by Status"
+msgstr "پیگیری‌ها بر اساس وضعیت"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_by_type_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_by_type
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_by_type
+msgid "Follow-ups by Type"
+msgstr "پیگیری‌ها بر اساس نوع"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_follower_ids
+msgid "Followers"
+msgstr "دنبال‌کنندگان"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "دنبال‌کنندگان (مخاطبان)"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "آیکون Font Awesome، مثلاً fa-tasks"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Group By"
+msgstr "گروه‌بندی بر اساس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__has_message
+msgid "Has Message"
+msgstr "دارای پیام"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_survey_survey__hide_take_again
+msgid "Hide Take Again Button"
+msgstr "مخفی کردن دکمه تکرار نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__id
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__id
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__id
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__id
+msgid "ID"
+msgstr "شناسه"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_exception_icon
+msgid "Icon"
+msgstr "آیکون"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "آیکون برای نشان دادن فعالیت استثنایی."
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "در صورت انتخاب، پیام‌های جدید نیاز به توجه شما دارند."
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__message_has_error
+#: model:ir.model.fields,help:followup_management.field_followup_record__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "در صورت انتخاب، برخی پیام‌ها خطای تحویل دارند."
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_survey_survey__hide_take_again
+msgid ""
+"If enabled, the \"Take Again\" / \"Retry\" button is hidden on the survey "
+"completion page."
+msgstr ""
+"در صورت فعال بودن، دکمه «تکرار» / «تلاش مجدد» در صفحه تکمیل نظرسنجی مخفی می‌شود."
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__includes_late_delivery_compensation
+msgid "Includes Late Delivery Compensation"
+msgstr "شامل جبران تأخیر در تحویل"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__includes_participation_profit
+msgid "Includes Participation Profit"
+msgstr "شامل سود مشارکت"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__customer_type__individual
+msgid "Individual"
+msgstr "شخص حقیقی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_is_follower
+msgid "Is Follower"
+msgstr "دنبال‌کننده است"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__kilometer_number
+msgid "Kilometer Number"
+msgstr "شماره کیلومتر"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__write_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__write_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__write_uid
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__write_uid
+msgid "Last Updated by"
+msgstr "آخرین بروزرسانی توسط"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__write_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__write_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__write_date
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__write_date
+msgid "Last Updated on"
+msgstr "آخرین بروزرسانی در"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_has_error
+msgid "Message Delivery error"
+msgstr "خطای تحویل پیام"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_ids
+msgid "Messages"
+msgstr "پیام‌ها"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "مهلت فعالیت من"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__name
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__name
+msgid "Name"
+msgstr "نام"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "New"
+msgstr "جدید"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "مهلت فعالیت بعدی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_summary
+msgid "Next Activity Summary"
+msgstr "خلاصه فعالیت بعدی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع فعالیت بعدی"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__status__no_answer
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "No Answer"
+msgstr "بدون پاسخ"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "No survey is linked to this follow-up record."
+msgstr "هیچ نظرسنجی به این رکورد پیگیری متصل نیست."
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "No survey response is linked to this follow-up record."
+msgstr "هیچ پاسخ نظرسنجی به این رکورد پیگیری متصل نیست."
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__status__not_cooperative
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Not Cooperative"
+msgstr "غیر همکار"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_needaction_counter
+msgid "Number of Actions"
+msgstr "تعداد اقدامات"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_has_error_counter
+msgid "Number of errors"
+msgstr "تعداد خطاها"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "تعداد پیام‌های نیازمند اقدام"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "تعداد پیام‌های دارای خطای تحویل"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "On-site Service"
+msgstr "سرویس در محل"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__paid_cost_replaced_parts
+msgid "Paid Cost for Replaced Parts"
+msgstr "هزینه پرداخت‌شده برای قطعات تعویض‌شده"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__reception_date
+msgid "Reception Date"
+msgstr "تاریخ پذیرش"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__reception_time
+msgid "Reception Time"
+msgstr "زمان پذیرش"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__name
+msgid "Reference"
+msgstr "مرجع"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__release_time
+msgid "Release Time"
+msgstr "زمان تحویل"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Remote Service"
+msgstr "سرویس از راه دور"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__repair_end_time
+msgid "Repair End Time"
+msgstr "زمان پایان تعمیر"
+
+#. module: followup_management
+#: model:ir.ui.menu,name:followup_management.menu_followup_reports
+msgid "Reports"
+msgstr "گزارش‌ها"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__activity_user_id
+msgid "Responsible User"
+msgstr "کاربر مسئول"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Retire Survey"
+msgstr "لغو نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطای تحویل پیامک"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_status__sequence
+msgid "Sequence"
+msgstr "ترتیب"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__service_labor_cost
+msgid "Service Labor Cost"
+msgstr "هزینه نیروی کار سرویس"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__services_provided_description
+msgid "Services Provided Description"
+msgstr "توضیحات خدمات ارائه‌شده"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__standard_repair_time
+msgid "Standard Repair Time"
+msgstr "زمان استاندارد تعمیر"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Start Survey"
+msgstr "شروع نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__status
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Status"
+msgstr "وضعیت"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"وضعیت بر اساس فعالیت‌ها\n"
+"معوق: مهلت گذشته است\n"
+"امروز: تاریخ فعالیت امروز است\n"
+"برنامه‌ریزی شده: فعالیت‌های آینده."
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_survey_survey
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Survey"
+msgstr "نظرسنجی"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid "Survey Answers"
+msgstr "پاسخ‌های نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_completed
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Survey Completed"
+msgstr "نظرسنجی تکمیل شده"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Survey Completed Date"
+msgstr "تاریخ تکمیل نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_completed_date
+msgid "Survey Completed On"
+msgstr "تاریخ تکمیل نظرسنجی"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search_report
+msgid "Survey Not Completed"
+msgstr "نظرسنجی تکمیل نشده"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_scoring_success
+msgid "Survey Passed"
+msgstr "قبولی در نظرسنجی"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_pivot_survey
+msgid "Survey Performance"
+msgstr "عملکرد نظرسنجی"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_survey_pivot_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_survey_pivot
+msgid "Survey Performance Analysis"
+msgstr "تحلیل عملکرد نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_user_input_id
+msgid "Survey Response"
+msgstr "پاسخ نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_score
+msgid "Survey Score (%)"
+msgstr "امتیاز نظرسنجی (%)"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_survey_scores_trend_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_survey_scores_trend
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_survey_scores_trend
+msgid "Survey Score Trend"
+msgstr "روند امتیاز نظرسنجی"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_survey_scores_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_survey_scores
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_survey_scores
+msgid "Survey Scores by Type"
+msgstr "امتیاز نظرسنجی بر اساس نوع"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__survey_submitted_date
+msgid "Survey Submitted Date"
+msgstr "تاریخ ارسال نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_type__survey_template_id
+msgid "Survey Template"
+msgstr "قالب نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model,name:followup_management.model_survey_user_input
+msgid "Survey User Input"
+msgstr "ورود کاربر نظرسنجی"
+
+#. module: followup_management
+#: model:ir.actions.act_window,name:followup_management.followup_report_surveys_completed_action
+#: model:ir.ui.menu,name:followup_management.menu_followup_report_surveys_completed
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_graph_surveys_completed
+msgid "Surveys Completed Over Time"
+msgstr "نظرسنجی‌های تکمیل‌شده در طول زمان"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid ""
+"The follow-up type \"%(type)s\" is not connected to a survey template. "
+"Please configure a survey under Follow Up > Configuration > Follow-up Types."
+msgstr ""
+"نوع پیگیری «%(type)s» به قالب نظرسنجی متصل نیست. "
+"لطفاً یک نظرسنجی در پیگیری > پیکربندی > انواع پیگیری تنظیم کنید."
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid ""
+"This will delete the current survey response and start a new one. Continue?"
+msgstr "این کار پاسخ فعلی نظرسنجی را حذف کرده و نظرسنجی جدیدی آغاز می‌کند. ادامه می‌دهید؟"
+
+#. module: followup_management
+#: model_terms:ir.actions.act_window,help:followup_management.followup_record_action
+msgid "Track customer follow-ups, call history, and linked surveys."
+msgstr "پیگیری‌های مشتری، سابقه تماس و نظرسنجی‌های مرتبط را مدیریت کنید."
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع فعالیت استثنایی در رکورد."
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__used_parts_description
+msgid "Used Parts Description"
+msgstr "توضیحات قطعات مصرف‌شده"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_call_history__user_id
+msgid "User"
+msgstr "کاربر"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__vin_chassis
+msgid "VIN / Chassis Number"
+msgstr "شماره VIN / شاسی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__vehicle_delivery_date
+msgid "Vehicle Delivery Date"
+msgstr "تاریخ تحویل خودرو"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "Vehicle Information"
+msgstr "اطلاعات خودرو"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__vehicle_stop_duration_days
+msgid "Vehicle Stop Duration at Dealer in Days"
+msgstr "مدت توقف خودرو در نمایندگی (روز)"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__vehicle_type
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Vehicle Type"
+msgstr "نوع خودرو"
+
+#. module: followup_management
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_form
+msgid "View Survey Answers"
+msgstr "مشاهده پاسخ‌های نظرسنجی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__warranty_status
+msgid "Warranty Status"
+msgstr "وضعیت گارانتی"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__website_message_ids
+msgid "Website Messages"
+msgstr "پیام‌های وب‌سایت"
+
+#. module: followup_management
+#: model:ir.model.fields,help:followup_management.field_followup_record__website_message_ids
+msgid "Website communication history"
+msgstr "سابقه ارتباطات وب‌سایت"
+
+#. module: followup_management
+#: model:ir.model.fields,field_description:followup_management.field_followup_record__work_order_number
+msgid "Work Order Number"
+msgstr "شماره دستور کار"
+
+#. module: followup_management
+#: model:ir.model.fields.selection,name:followup_management.selection__followup_record__status__wrong_number
+#: model_terms:ir.ui.view,arch_db:followup_management.followup_record_view_search
+msgid "Wrong Number"
+msgstr "شماره اشتباه"
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid ""
+"You cannot delete follow-up record \"%(reference)s\" because it has linked "
+"survey response(s). Use \"Retire Survey\" first to remove them."
+msgstr ""
+"نمی‌توانید رکورد پیگیری «%(reference)s» را حذف کنید زیرا پاسخ نظرسنجی مرتبط دارد. "
+"ابتدا از «لغو نظرسنجی» استفاده کنید."
+
+#. module: followup_management
+#. odoo-python
+#: code:addons/followup_management/models/followup_record.py:0
+msgid ""
+"You cannot delete follow-up record(s) linked to a survey response: %s. Use "
+"\"Retire Survey\" first to remove the survey, then delete the record."
+msgstr ""
+"نمی‌توانید رکورد(های) پیگیری متصل به پاسخ نظرسنجی را حذف کنید: %s. "
+"ابتدا از «لغو نظرسنجی» استفاده کنید، سپس رکورد را حذف کنید."
+
+#. module: followup_management
+#: model:followup.type,name:followup_management.followup_type_sales
+msgid "Sales"
+msgstr "فروش"
+
+#. module: followup_management
+#: model:followup.type,name:followup_management.followup_type_delivery
+msgid "Delivery"
+msgstr "تحویل"
+
+#. module: followup_management
+#: model:followup.type,name:followup_management.followup_type_onsite_service
+msgid "On-site Service"
+msgstr "سرویس در محل"
+
+#. module: followup_management
+#: model:followup.type,name:followup_management.followup_type_remote_service
+msgid "Remote Service"
+msgstr "سرویس از راه دور"
+
+#. module: followup_management
+#: model:followup.call.status,name:followup_management.followup_call_status_answered
+msgid "Answered"
+msgstr "پاسخ داده شده"
+
+#. module: followup_management
+#: model:followup.call.status,name:followup_management.followup_call_status_no_answer
+msgid "No Answer"
+msgstr "بدون پاسخ"
+
+#. module: followup_management
+#: model:followup.call.status,name:followup_management.followup_call_status_wrong_number
+msgid "Wrong Number"
+msgstr "شماره اشتباه"
+
+#. module: followup_management
+#: model:followup.call.status,name:followup_management.followup_call_status_not_cooperative
+msgid "Not Cooperative"
+msgstr "غیر همکار"
+

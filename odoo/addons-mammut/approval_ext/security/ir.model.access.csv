@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_approval_return_to_edit_wizard,approval.return.to.edit.wizard user,model_approval_return_to_edit_wizard,base.group_user,1,1,1,1
+access_hr_employee_approval_delegation_user,hr.employee.approval.delegation user,model_hr_employee_approval_delegation,base.group_user,1,0,0,0
+access_hr_employee_approval_delegation_hr_manager,hr.employee.approval.delegation manager,model_hr_employee_approval_delegation,hr.group_hr_manager,1,1,1,1

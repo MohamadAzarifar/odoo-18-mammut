@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="approval_product_line_view_tree_independent_inherit_estimated_cost" model="ir.ui.view">
+        <field name="name">approval.product.line.view.tree.independent.inherit.estimated.cost</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_tree_independent"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='product_uom_id']" position="after">
+                <field name="currency_id" />
+                <field name="estimated_cost" widget="monetary"/>
+                <field name="subtotal" widget="monetary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="approval_product_line_view_tree_inherit_estimated_cost" model="ir.ui.view">
+        <field name="name">approval.product.line.view.tree.inherit.estimated.cost</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='product_uom_id']" position="after">
+                <field name="currency_id" />
+                <field name="estimated_cost" widget="monetary"/>
+                <field name="subtotal" widget="monetary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="approval_product_line_view_form_inherit_estimated_cost" model="ir.ui.view">
+        <field name="name">approval.product.line.view.form.inherit.estimated.cost</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_line_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group/field[@name='company_id']" position="after">
+                <field name="currency_id" />
+            </xpath>
+            <xpath expr="//group/field[@name='product_uom_id']" position="after">
+                <field name="estimated_cost" widget="monetary"/>
+                <field name="subtotal" widget="monetary" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="approval_product_kanban_mobile_view_inherit_estimated_cost" model="ir.ui.view">
+        <field name="name">approval.product.kanban.mobile.inherit.estimated.cost</field>
+        <field name="model">approval.product.line</field>
+        <field name="inherit_id" ref="approvals.approval_product_kanban_mobile_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban/templates/t[@t-name='card']" position="inside">
+                <field name="estimated_cost" widget="monetary"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

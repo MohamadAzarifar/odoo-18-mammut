@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_pivot_survey" model="ir.ui.view">
+        <field name="name">followup.record.pivot.survey</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <pivot string="Survey Performance" sample="1">
+                <field name="followup_type_id" type="row"/>
+                <field name="status" type="col"/>
+                <field name="survey_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="followup_report_survey_pivot_action" model="ir.actions.act_window">
+        <field name="name">Survey Performance Analysis</field>
+        <field name="res_model">followup.record</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="view_id" ref="followup_record_pivot_survey"/>
+        <field name="search_view_id" ref="followup_record_view_search_report"/>
+        <field name="domain">[('survey_completed', '=', True)]</field>
+    </record>
+</odoo>

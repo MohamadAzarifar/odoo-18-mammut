@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_followup_record,access.followup.record,model_followup_record,base.group_system,1,1,1,1
+access_followup_type,access.followup.type,model_followup_type,base.group_system,1,1,1,1
+access_followup_call_status,access.followup.call.status,model_followup_call_status,base.group_system,1,1,1,1
+access_followup_call_history,access.followup.call.history,model_followup_call_history,base.group_system,1,1,1,1

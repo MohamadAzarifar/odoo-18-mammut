@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Approvals Documents Extension',
-    'version': '18.0.2.0.7',
+    'version': '18.0.2.0.24',
     'category': 'Productivity/Documents',
     'summary': 'Approvals: Documents folders + editing / restart workflow',
     'description': '''
@@ -16,13 +16,19 @@ Approvals enhancements:
             'approval_ext/static/src/widgets/attach_document_stat.js',
         ],
     },
-    'depends': ['documents_approvals', 'approvals'],
+    'depends': ['documents_approvals', 'approvals', 'hr'],
     'data': [
         'security/approval_security.xml',
         'security/ir.model.access.csv',
         'wizard/approval_return_to_edit_wizard_views.xml',
         'data/documents_folder_data.xml',
+        'views/hr_employee_delegation_views.xml',
+        'views/approval_category_views.xml',
+        'views/product_category_approval_views.xml',
+        'views/approval_product_line_views.xml',
+        'views/approval_request_department_views.xml',
         'views/approval_request_workflow_views.xml',
+        'views/approval_request_category_approvers_views.xml',
         'views/approval_request_views.xml',
     ],
     'post_init_hook': 'post_init_hook',

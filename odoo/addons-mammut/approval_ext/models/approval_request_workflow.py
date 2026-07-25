@@ -52,21 +52,6 @@ class ApprovalRequest(models.Model):
             return False
         return line.status not in ('approved', 'refused', 'cancel')
 
-    @api.depends('category_id', 'request_owner_id')
-    def _compute_approver_ids(self):
-        """Populate category approvers with sudo for the request owner.
-
-        New approvals grants create on approval.approver only via approval_ext
-        record rules (draft + owner). Recomputing category lines uses Command.create
-        and can still fail without sudo when rules do not match yet.
-        """
-        owned_by_user = self.filtered(lambda r: r.request_owner_id == self.env.user)
-        other = self - owned_by_user
-        if other:
-            super(ApprovalRequest, other)._compute_approver_ids()
-        if owned_by_user:
-            super(ApprovalRequest, owned_by_user.sudo())._compute_approver_ids()
-
     @api.depends('approver_ids.status', 'approver_ids.required', 'approval_ext_in_editing')
     def _compute_request_status(self):
         super()._compute_request_status()

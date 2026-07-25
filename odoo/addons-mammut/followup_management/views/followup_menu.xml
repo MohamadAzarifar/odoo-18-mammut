@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_followup_root"
+        name="Follow Up"
+        sequence="10"
+        groups="base.group_system"
+        web_icon="followup_management,static/description/icon.png"/>
+
+    <menuitem id="menu_followup_records"
+        name="Follow Up Records"
+        parent="menu_followup_root"
+        action="followup_record_action"
+        sequence="10"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_reports"
+        name="Reports"
+        parent="menu_followup_root"
+        sequence="50"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_created"
+        name="Follow-ups Over Time"
+        parent="menu_followup_reports"
+        action="followup_report_created_action"
+        sequence="10"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_surveys_completed"
+        name="Surveys Completed Over Time"
+        parent="menu_followup_reports"
+        action="followup_report_surveys_completed_action"
+        sequence="20"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_survey_scores"
+        name="Survey Scores by Type"
+        parent="menu_followup_reports"
+        action="followup_report_survey_scores_action"
+        sequence="30"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_survey_scores_trend"
+        name="Survey Score Trend"
+        parent="menu_followup_reports"
+        action="followup_report_survey_scores_trend_action"
+        sequence="40"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_by_status"
+        name="Follow-ups by Status"
+        parent="menu_followup_reports"
+        action="followup_report_by_status_action"
+        sequence="50"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_by_type"
+        name="Follow-ups by Type"
+        parent="menu_followup_reports"
+        action="followup_report_by_type_action"
+        sequence="60"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_report_survey_pivot"
+        name="Survey Performance Analysis"
+        parent="menu_followup_reports"
+        action="followup_report_survey_pivot_action"
+        sequence="70"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_configuration"
+        name="Configuration"
+        parent="menu_followup_root"
+        sequence="90"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_types"
+        name="Follow-up Types"
+        parent="menu_followup_configuration"
+        action="followup_type_action"
+        sequence="10"
+        groups="base.group_system"/>
+
+    <menuitem id="menu_followup_call_statuses"
+        name="Call Statuses"
+        parent="menu_followup_configuration"
+        action="followup_call_status_action"
+        sequence="20"
+        groups="base.group_system"/>
+</odoo>

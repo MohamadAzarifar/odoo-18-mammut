@@ -49,4 +49,16 @@
             ('request_status', '=', 'new'),
         ]</field>
     </record>
+
+    <!-- Core approvals has no manager unlink rule for product lines -->
+    <record id="approval_ext_product_line_manager_unlink" model="ir.rule">
+        <field name="name">Approval Product Line: manager unlink</field>
+        <field name="model_id" ref="approvals.model_approval_product_line"/>
+        <field name="groups" eval="[(4, ref('approvals.group_approval_manager'))]"/>
+        <field name="perm_read" eval="0"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
 </odoo>

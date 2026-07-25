@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_graph_survey_scores_trend" model="ir.ui.view">
+        <field name="name">followup.record.graph.survey.scores.trend</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <graph string="Survey Score Trend" type="line" sample="1">
+                <field name="survey_completed_date" interval="week"/>
+                <field name="survey_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="followup_report_survey_scores_trend_action" model="ir.actions.act_window">
+        <field name="name">Survey Score Trend</field>
+        <field name="res_model">followup.record</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="followup_record_graph_survey_scores_trend"/>
+        <field name="search_view_id" ref="followup_record_view_search_report"/>
+        <field name="domain">[('survey_completed', '=', True)]</field>
+    </record>
+</odoo>

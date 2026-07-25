@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_graph_by_status" model="ir.ui.view">
+        <field name="name">followup.record.graph.by.status</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <graph string="Follow-ups by Status" type="pie" sample="1">
+                <field name="status"/>
+                <field name="followup_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="followup_report_by_status_action" model="ir.actions.act_window">
+        <field name="name">Follow-ups by Status</field>
+        <field name="res_model">followup.record</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="followup_record_graph_by_status"/>
+        <field name="search_view_id" ref="followup_record_view_search_report"/>
+    </record>
+</odoo>

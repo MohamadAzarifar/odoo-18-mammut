@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models, _
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class ApprovalRequest(models.Model):
@@ -13,6 +14,34 @@ class ApprovalRequest(models.Model):
         domain="[('type', '=', 'folder')]",
         ondelete='set null',
     )
+
+    def _approval_ext_validate_category_id(self, category_id):
+        if not category_id:
+            return
+        category = self.env['approval.category'].browse(category_id)
+        if category.exists() and not category._approval_ext_is_selectable_for_user():
+            raise ValidationError(_(
+                'You cannot use approval type "%(type)s" with your employee department.',
+                type=category.display_name,
+            ))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._approval_ext_validate_category_id(vals.get('category_id'))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if 'category_id' in vals:
+            new_category_id = vals['category_id']
+            for request in self:
+                if request.category_id.id != new_category_id:
+                    request._approval_ext_validate_category_id(new_category_id)
+        res = super().write(vals)
+        if 'name' in vals:
+            for request in self:
+                request._rename_documents_folder_to_match()
+        return res
 
     def _get_approval_root_folder(self):
         self.ensure_one()
@@ -71,13 +100,6 @@ class ApprovalRequest(models.Model):
             return self.env['documents.document']
         self._create_missing_request_folder()
         return self.documents_folder_id or root
-
-    def write(self, vals):
-        res = super().write(vals)
-        if 'name' in vals:
-            for request in self:
-                request._rename_documents_folder_to_match()
-        return res
 
     def action_get_attachment_view(self):
         res = super().action_get_attachment_view()

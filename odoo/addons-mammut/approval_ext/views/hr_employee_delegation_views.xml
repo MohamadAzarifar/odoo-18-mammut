@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form_approval_delegation" model="ir.ui.view">
+        <field name="name">hr.employee.form.approval.delegation.ext</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Employee Delegation" name="approval_delegation">
+                    <field name="approval_delegation_ids"
+                        groups="hr.group_hr_manager"
+                        context="{'default_employee_id': id}">
+                        <list editable="bottom">
+                            <field name="employee_id" column_invisible="1"/>
+                            <field name="user_id"
+                                options="{'no_create': True, 'no_open': True}"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

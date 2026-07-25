@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="survey_survey_view_form_hide_take_again" model="ir.ui.view">
+        <field name="name">survey.survey.form.hide.take.again</field>
+        <field name="model">survey.survey</field>
+        <field name="inherit_id" ref="survey.survey_survey_view_form"/>
+        <field name="arch" type="xml">
+            <field name="users_login_required" position="after">
+                <field name="hide_take_again"/>
+            </field>
+        </field>
+    </record>
+</odoo>

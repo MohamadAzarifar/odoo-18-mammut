@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="followup_record_view_search_report" model="ir.ui.view">
+        <field name="name">followup.record.search.report</field>
+        <field name="model">followup.record</field>
+        <field name="arch" type="xml">
+            <search string="Follow Up Reports">
+                <field name="name"/>
+                <field name="followup_type_id"/>
+                <field name="customer_name"/>
+                <field name="dealer_name"/>
+                <filter string="Survey Completed" name="filter_survey_completed"
+                    domain="[('survey_completed', '=', True)]"/>
+                <filter string="Survey Not Completed" name="filter_survey_not_completed"
+                    domain="[('survey_completed', '=', False)]"/>
+                <separator/>
+                <filter string="Creation Date" name="filter_create_date" date="create_date"/>
+                <filter string="Survey Completed Date" name="filter_survey_completed_date"
+                    date="survey_completed_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Follow-up Type" name="groupby_followup_type"
+                        context="{'group_by': 'followup_type_id'}"/>
+                    <filter string="Status" name="groupby_status"
+                        context="{'group_by': 'status'}"/>
+                    <filter string="Created Date" name="groupby_create_date"
+                        context="{'group_by': 'create_date:month'}"/>
+                    <filter string="Survey Completed Date" name="groupby_survey_completed_date"
+                        context="{'group_by': 'survey_completed_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

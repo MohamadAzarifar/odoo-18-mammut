@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_category_approval_users_view_tree" model="ir.ui.view">
+        <field name="name">product.category.approval.users.list</field>
+        <field name="model">product.category</field>
+        <field name="groups_id" eval="[(4, ref('approvals.group_approval_manager'))]"/>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="required_approver_user_ids" widget="many2many_tags"
+                    groups="approvals.group_approval_manager"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="product_category_approval_users_view_form" model="ir.ui.view">
+        <field name="name">product.category.approval.users.form</field>
+        <field name="model">product.category</field>
+        <field name="groups_id" eval="[(4, ref('approvals.group_approval_manager'))]"/>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="required_approver_user_ids" widget="many2many_tags"
+                            groups="approvals.group_approval_manager"
+                            domain="[('share', '=', False), ('active', '=', True)]"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_category_approval_users_action" model="ir.actions.act_window">
+        <field name="name">Category approval users</field>
+        <field name="res_model">product.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('product_category_approval_users_view_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('product_category_approval_users_view_form')}),
+        ]"/>
+        <field name="groups_id" eval="[(4, ref('approvals.group_approval_manager'))]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure required approvers per product category
+            </p>
+            <p>
+                Users listed here must approve approval requests that include products
+                from the corresponding category.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_product_category_approval_users"
+        name="Category approval users"
+        parent="approvals.approvals_menu_config"
+        action="product_category_approval_users_action"
+        groups="approvals.group_approval_manager"
+        sequence="15"/>
+
+</odoo>
