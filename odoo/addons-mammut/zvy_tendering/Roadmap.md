@@ -29,15 +29,15 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 
 ### Scope
 
-- [ ] `__manifest__.py` with depends: `mail`, `product`, `purchase`, `approvals`, `portal`
-- [ ] Module category + groups (Planner, CM, CCE, Commission Manager/Expert, Admin) — [Architecture.md](Architecture.md) §5
-- [ ] ACL CSV stubs for models introduced in later phases (or create models empty and ACL as they land)
-- [ ] Multi-company record-rule pattern
-- [ ] Menus shell (Procurement & Tendering)
-- [ ] `res.company` / `res.config.settings`: high-value threshold, default bid window, signatory approval category
-- [ ] `product.category.zvy_is_commission_item`
-- [ ] `ir.sequence` for PR (and CE/case if needed)
-- [ ] `zvy.avl.entry` CRUD + views (active vendor by company / product / category)
+- [x] `__manifest__.py` with depends: `mail`, `product`, `purchase`, `approvals`, `portal`
+- [x] Module category + groups (Planner, CM, CCE, Commission Manager/Expert, Admin) — [Architecture.md](Architecture.md) §5
+- [x] ACL CSV stubs for models introduced in later phases (or create models empty and ACL as they land)
+- [x] Multi-company record-rule pattern
+- [x] Menus shell (Procurement & Tendering)
+- [x] `res.company` / `res.config.settings`: high-value threshold, default bid window, signatory approval category
+- [x] `product.category.zvy_is_commission_item`
+- [x] `ir.sequence` for PR (and CE/case if needed)
+- [x] `zvy.avl.entry` CRUD + views (active vendor by company / product / category)
 
 ### Stories / FRs
 
@@ -48,8 +48,8 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 
 ### Suggested tests
 
-- [ ] Settings write/read on company
-- [ ] AVL `active` filter; multi-company isolation
+- [x] Settings write/read on company
+- [x] AVL `active` filter; multi-company isolation
 
 ### Done when
 
@@ -312,7 +312,7 @@ Track throughout (PRD §7):
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 0 Foundation | Not started | |
+| 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Not started | |
 | 2 Inquiry & routing | Not started | |
 | 3 Commission & CE | Not started | |

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_zvy_tendering_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module': 'zvy_tendering'}</field>
+        </record>
+
+        <menuitem id="menu_zvy_tendering_root"
+                  name="Procurement &amp; Tendering"
+                  sequence="45"
+                  groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert,group_zvy_commission_manager,group_zvy_commission_expert,group_zvy_tendering_admin"/>
+
+        <!--
+            Purchase Requests / Commission are XML shells for Phase 1 / 3.
+            Odoo hides menus that have neither an action nor a visible child,
+            so they do not appear in the UI until those phases add items under them.
+        -->
+        <menuitem id="menu_zvy_purchase_requests"
+                  name="Purchase Requests"
+                  parent="menu_zvy_tendering_root"
+                  sequence="10"
+                  groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert"/>
+
+        <menuitem id="menu_zvy_commission"
+                  name="Commission"
+                  parent="menu_zvy_tendering_root"
+                  sequence="20"
+                  groups="group_zvy_commission_manager,group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_tendering_config"
+                  name="Configuration"
+                  parent="menu_zvy_tendering_root"
+                  sequence="90"
+                  groups="group_zvy_tendering_admin"/>
+
+        <menuitem id="menu_zvy_avl_entry"
+                  name="Approved Vendor List"
+                  parent="menu_zvy_tendering_config"
+                  action="action_zvy_avl_entry"
+                  sequence="10"
+                  groups="group_zvy_tendering_admin"/>
+
+        <menuitem id="menu_zvy_tendering_settings"
+                  name="Settings"
+                  parent="menu_zvy_tendering_config"
+                  action="action_zvy_tendering_settings"
+                  sequence="20"
+                  groups="group_zvy_tendering_admin"/>
+
+    </data>
+</odoo>

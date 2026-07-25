@@ -364,6 +364,8 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 | `group_zvy_commission_expert` | Commission Expert | Assigned case reviews |
 | `group_zvy_tendering_admin` | Administrator | Config, AVL admin, all records |
 
+Each role uses its own child `ir.module.category` under **Procurement & Tendering** so Access Rights shows them without debug mode (sibling groups in one category become boolean fields and are debug-only).
+
 Company **signatories** use standard Approvals groups / category approvers (no duplicate signatory group required). Portal suppliers use `base.group_portal` linked to `res.partner`.
 
 Implied hierarchy (example): Admin implies CM + Commission Manager + Expert groups as needed for support.

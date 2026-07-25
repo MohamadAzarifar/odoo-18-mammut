@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_avl_entry_list" model="ir.ui.view">
+        <field name="name">zvy.avl.entry.list</field>
+        <field name="model">zvy.avl.entry</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="product_id" optional="show"/>
+                <field name="categ_id" optional="show"/>
+                <field name="date_start" optional="hide"/>
+                <field name="date_end" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_avl_entry_form" model="ir.ui.view">
+        <field name="name">zvy.avl.entry.form</field>
+        <field name="model">zvy.avl.entry</field>
+        <field name="arch" type="xml">
+            <form string="AVL Entry">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="product_id"/>
+                            <field name="categ_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_avl_entry_search" model="ir.ui.view">
+        <field name="name">zvy.avl.entry.search</field>
+        <field name="model">zvy.avl.entry</field>
+        <field name="arch" type="xml">
+            <search string="Approved Vendor List">
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="categ_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                <filter string="Vendor" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                <filter string="Category" name="group_categ" context="{'group_by': 'categ_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_avl_entry" model="ir.actions.act_window">
+        <field name="name">Approved Vendor List</field>
+        <field name="res_model">zvy.avl.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_avl_entry_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add an approved vendor
+            </p>
+            <p>
+                Only vendors on the active AVL can be selected for inquiry quotes
+                and closed-envelope invitations.
+            </p>
+        </field>
+    </record>
+</odoo>

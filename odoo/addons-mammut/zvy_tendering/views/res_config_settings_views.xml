@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_config_settings_zvy_tendering" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.zvy.tendering</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app name="zvy_tendering" string="Procurement &amp; Tendering" data-string="Procurement &amp; Tendering">
+                    <block title="Routing &amp; Approvals">
+                        <setting string="High-Value Threshold"
+                                 help="Purchase requests at or above this amount are routed to the Holding Commission after quote approval.">
+                            <field name="zvy_high_value_threshold"/>
+                        </setting>
+                        <setting string="Default Bid Window"
+                                 help="Default hours used to suggest the bid deadline when a closed-envelope supplier list is approved.">
+                            <field name="zvy_default_bid_window_hours"/>
+                        </setting>
+                        <setting string="Signatory Approval Category"
+                                 help="Sequential approval category used for company signatory documents.">
+                            <field name="zvy_signatory_approval_category_id"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

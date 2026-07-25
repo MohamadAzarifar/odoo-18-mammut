@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_category_form_zvy_tendering" model="ir.ui.view">
+        <field name="name">product.category.form.zvy.tendering</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <group name="first" position="inside">
+                <field name="zvy_is_commission_item"/>
+            </group>
+        </field>
+    </record>
+</odoo>

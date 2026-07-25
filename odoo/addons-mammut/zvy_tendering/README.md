@@ -637,3 +637,85 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Final PO | Standard `purchase.order` |
 
 Details and model design: [Architecture.md](Architecture.md). Phasing and checklist: [Roadmap.md](Roadmap.md).
+
+---
+
+## 11. Manual testing
+
+Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
+
+**Current coverage:** Phase 0 — Foundation.
+
+### Prerequisites
+
+1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`).
+2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
+3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
+
+### Phase 0 — Foundation
+
+#### MT-0.1 Install & app shell
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Install the module | Install completes without errors |
+| 2 | Open the app switcher as Admin | **Procurement & Tendering** is listed |
+| 3 | Open the app | Only **Configuration** is visible (AVL + Settings). **Purchase Requests** and **Commission** are Phase 1 / 3 shells: Odoo hides menus with no action and no children, so they appear once those phases add items |
+| 4 | Open **Configuration** | **Approved Vendor List** and **Settings** are available |
+
+#### MT-0.2 Role groups
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a user form → **Access Rights** (debug **off**), set **Planner** only; save; log in as that user | **Configuration** is not available. The app itself may be absent until Phase 1 adds Purchase Request menus (empty parents stay hidden) |
+| 2 | Set **Administrator** on another user (or use Admin); save | That user sees **Configuration**; Admin implies all operational roles |
+| 3 | Assign Commercial Manager / Expert / Commission roles independently on separate users | Each role appears under Procurement & Tendering and can be combined (roles are not mutually exclusive) |
+
+#### MT-0.3 Tendering settings (PRD §8)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category |
+| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick an Approvals category; Save | Values persist after reopen |
+| 3 | Open the same company again | Fields match what was saved |
+
+#### MT-0.4 Commission flag on product category
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Open any **Product Category** form | **Commission Item** checkbox is visible |
+| 2 | Enable it and save; reopen | Flag remains checked |
+
+#### MT-0.5 Approved Vendor List (FR-9 foundation)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | **Configuration → Approved Vendor List → New** | Form: vendor, optional product / category, company, validity dates |
+| 2 | Create an active entry for the current company | Record appears in the list |
+| 3 | Archive the entry (Action → Archive) | Entry hidden from default list; visible with Archived filter |
+| 4 | Create entries scoped by product and by category | Both save; list/search can filter by partner, product, category |
+
+#### MT-0.6 Multi-company AVL isolation
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Create Company A and Company B; add one AVL vendor entry per company | Two entries exist (as Admin / multi-company user) |
+| 2 | Log in as a user allowed only on Company A, with Tendering Admin | User sees Company A’s AVL entry only; Company B’s entry is not in search results |
+
+#### MT-0.7 PR sequence (prep for Phase 1)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Technical → Sequences (or Settings with developer mode): find code `zvy.purchase.request` | Sequence exists with prefix `PR/%(year)s/` and padding 5 |
+
+### Later phases
+
+Not started in the roadmap — no manual scenarios yet:
+
+| Phase | Status | Manual scenarios |
+|-------|--------|------------------|
+| 1 PR & CM intake | Not started | — |
+| 2 Inquiry & routing | Not started | — |
+| 3 Commission & CE | Not started | — |
+| 4 Sign-off & PO | Not started | — |
+| 5 Supplier portal | Not started | — |

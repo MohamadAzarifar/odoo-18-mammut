@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--
+            Parent + one child category per role.
+
+            Odoo only shows Access Rights outside debug mode for application groups
+            that form a total implication chain (selection). Sibling roles in one
+            category become boolean fields and are hidden behind base.group_no_one.
+            Independent roles therefore each need their own child category.
+        -->
+        <record id="module_category_zvy_tendering" model="ir.module.category">
+            <field name="name">Procurement &amp; Tendering</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <record id="module_category_zvy_planner" model="ir.module.category">
+            <field name="name">Planner</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="module_category_zvy_commercial_manager" model="ir.module.category">
+            <field name="name">Commercial Manager</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="module_category_zvy_commercial_expert" model="ir.module.category">
+            <field name="name">Commercial Expert</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="module_category_zvy_commission_manager" model="ir.module.category">
+            <field name="name">Commission Manager</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="module_category_zvy_commission_expert" model="ir.module.category">
+            <field name="name">Commission Expert</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="module_category_zvy_tendering_admin" model="ir.module.category">
+            <field name="name">Administrator</field>
+            <field name="parent_id" ref="module_category_zvy_tendering"/>
+            <field name="sequence">90</field>
+        </record>
+
+        <record id="group_zvy_planner" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_planner"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Create and submit purchase requests; edit in draft and correction.</field>
+        </record>
+
+        <record id="group_zvy_commercial_manager" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_commercial_manager"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">CM queues, expert assignment, quote review, and PO creation.</field>
+        </record>
+
+        <record id="group_zvy_commercial_expert" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_commercial_expert"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Inquiry on assigned purchase request lines; AVL quotes and CE lists.</field>
+        </record>
+
+        <record id="group_zvy_commission_manager" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_commission_manager"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Holding commission cases, meetings, CE list approval, open and award.</field>
+        </record>
+
+        <record id="group_zvy_commission_expert" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_commission_expert"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Assigned commission case reviews and audit reports.</field>
+        </record>
+
+        <record id="group_zvy_tendering_admin" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_zvy_tendering_admin"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('group_zvy_planner')),
+                (4, ref('group_zvy_commercial_manager')),
+                (4, ref('group_zvy_commercial_expert')),
+                (4, ref('group_zvy_commission_manager')),
+                (4, ref('group_zvy_commission_expert')),
+            ]"/>
+            <field name="comment">Configuration, AVL administration, and all tendering records.</field>
+        </record>
+
+        <record id="rule_zvy_avl_entry_multi_company" model="ir.rule">
+            <field name="name">AVL Entry: multi-company</field>
+            <field name="model_id" ref="model_zvy_avl_entry"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+    </data>
+</odoo>
