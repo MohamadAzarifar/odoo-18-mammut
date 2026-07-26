@@ -11,6 +11,7 @@ _ALLOWED_TRANSITIONS = {
     'cm_review': {'rejected', 'correction', 'inquiry'},
     'inquiry': {'quote_review'},
     'quote_review': {'inquiry', 'commission', 'signatory'},
+    'commission': {'signatory', 'quote_review'},
 }
 
 
@@ -66,6 +67,18 @@ class ZvyPurchaseRequest(models.Model):
     commission_case_id = fields.Many2one(
         'zvy.commission.case',
         string='Commission Case',
+        copy=False,
+        readonly=True,
+    )
+    closed_envelope_id = fields.Many2one(
+        'zvy.closed.envelope',
+        string='Closed Envelope',
+        copy=False,
+        readonly=True,
+    )
+    award_partner_id = fields.Many2one(
+        'res.partner',
+        string='Awarded Vendor',
         copy=False,
         readonly=True,
     )
@@ -162,6 +175,8 @@ class ZvyPurchaseRequest(models.Model):
             'return_reason',
             'quote_reject_reason',
             'commission_case_id',
+            'closed_envelope_id',
+            'award_partner_id',
             'message_main_attachment_id',
         }
         if content_keys and not self.env.su:
@@ -251,14 +266,56 @@ class ZvyPurchaseRequest(models.Model):
                 raise UserError(_(
                     'Only assigned Commercial Experts can submit quotes.'
                 ))
-        self._check_quote_minima()
-        self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
-            'state': 'submitted',
-        })
+        if not self._ce_award_satisfies_inquiry():
+            self._check_quote_minima()
+            self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
+                'state': 'submitted',
+            })
         # CCE has read-only ACL on PR; state transition is authorized here.
         self.sudo().write({'state': 'quote_review'})
         self.sudo().message_post(body=_('Quote set submitted for CM review.'))
         return True
+
+    def action_create_closed_envelope(self):
+        self.ensure_one()
+        if self.state != 'inquiry':
+            raise UserError(_(
+                'Closed envelopes can only be created while the PR is in Inquiry.'
+            ))
+        if self.closed_envelope_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Closed Envelope'),
+                'res_model': 'zvy.closed.envelope',
+                'res_id': self.closed_envelope_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        if not self._user_is_assigned_expert() and not self.env.su:
+            is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+            is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+            if not (is_cm or is_admin):
+                raise UserError(_(
+                    'Only assigned Commercial Experts can create a closed envelope.'
+                ))
+        envelope = self.env['zvy.closed.envelope'].sudo().create({
+            'request_id': self.id,
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Closed Envelope'),
+            'res_model': 'zvy.closed.envelope',
+            'res_id': envelope.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def _ce_award_satisfies_inquiry(self):
+        self.ensure_one()
+        return bool(
+            self.closed_envelope_id
+            and self.closed_envelope_id.state == 'awarded'
+        )
 
     def action_approve_quotes(self):
         self.ensure_one()

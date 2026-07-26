@@ -15,8 +15,6 @@
                   sequence="45"
                   groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert,group_zvy_commission_manager,group_zvy_commission_expert,group_zvy_tendering_admin"/>
 
-        <!-- Commission is an XML shell for Phase 3.
-            Odoo hides menus that have neither an action nor a visible child. -->
         <menuitem id="menu_zvy_purchase_requests"
                   name="Purchase Requests"
                   parent="menu_zvy_tendering_root"
@@ -56,6 +54,48 @@
                   parent="menu_zvy_tendering_root"
                   sequence="20"
                   groups="group_zvy_commission_manager,group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_commission_cases"
+                  name="Cases"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_commission_case"
+                  sequence="10"
+                  groups="group_zvy_commission_manager,group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_commission_my_assignments"
+                  name="My Assignments"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_commission_case_my"
+                  sequence="20"
+                  groups="group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_commission_reviews"
+                  name="My Reviews"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_commission_review"
+                  sequence="30"
+                  groups="group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_commission_meetings"
+                  name="Meetings"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_commission_meeting"
+                  sequence="40"
+                  groups="group_zvy_commission_manager,group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_closed_envelopes"
+                  name="Closed Envelopes"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_closed_envelope"
+                  sequence="50"
+                  groups="group_zvy_commission_manager,group_zvy_commission_expert"/>
+
+        <menuitem id="menu_zvy_closed_envelopes_pending"
+                  name="CE Lists Pending"
+                  parent="menu_zvy_commission"
+                  action="action_zvy_closed_envelope_pending"
+                  sequence="60"
+                  groups="group_zvy_commission_manager"/>
 
         <menuitem id="menu_zvy_tendering_config"
                   name="Configuration"

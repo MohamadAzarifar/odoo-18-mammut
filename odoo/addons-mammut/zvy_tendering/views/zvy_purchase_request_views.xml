@@ -54,6 +54,9 @@
                     <button name="action_reject_quotes" string="Reject Quotes" type="object"
                             invisible="state != 'quote_review'"
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_create_closed_envelope" string="Closed Envelope" type="object"
+                            invisible="state != 'inquiry'"
+                            groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
                     <field name="state" widget="statusbar"
                             statusbar_visible="draft,submitted,inquiry,quote_review,commission,signatory,correction,rejected"/>
                 </header>
@@ -78,6 +81,8 @@
                             <field name="is_commission_item"/>
                             <field name="has_sole_source"/>
                             <field name="commission_case_id" invisible="not commission_case_id"/>
+                            <field name="closed_envelope_id" invisible="not closed_envelope_id"/>
+                            <field name="award_partner_id" invisible="not award_partner_id"/>
                         </group>
                     </group>
                     <group invisible="not reject_reason">

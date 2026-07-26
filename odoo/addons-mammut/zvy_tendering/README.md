@@ -264,8 +264,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Expert can create a closed-envelope document linked to the PR (or line set) and add AVL suppliers.
-- [ ] Submit moves list to Commission Manager approval (`list_pending`).
+- [x] Expert can create a closed-envelope document linked to the PR (or line set) and add AVL suppliers.
+- [x] Submit moves list to Commission Manager approval (`list_pending`).
 
 ---
 
@@ -325,8 +325,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Dashboard lists open `zvy.commission.case` records for high-value and/or commission-item PRs.
-- [ ] Flags are consistent with routing rules (FR-27).
+- [x] Dashboard lists open `zvy.commission.case` records for high-value and/or commission-item PRs.
+- [x] Flags are consistent with routing rules (FR-27).
 
 #### FR-16 Assign Commission Experts *(Story 16)*
 
@@ -338,8 +338,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Manager assigns one or more experts per case.
-- [ ] Assigned experts receive the case on their queue.
+- [x] Manager assigns one or more experts per case.
+- [x] Assigned experts receive the case on their queue.
 
 #### FR-17 Approve without meeting *(Story 17)*
 
@@ -351,8 +351,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] If all expert recommendations are approve (and no policy block), Manager can approve the case without scheduling a meeting.
-- [ ] Approved case advances PR toward signatory stage.
+- [x] If all expert recommendations are approve (and no policy block), Manager can approve the case without scheduling a meeting.
+- [x] Approved case advances PR toward signatory stage.
 
 #### FR-18 Meetings and MOM *(Story 18)*
 
@@ -364,9 +364,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Manager can create a meeting, link multiple cases, set date/time.
-- [ ] Manager can upload MOM attachment after the meeting.
-- [ ] Case outcome can be recorded after meeting.
+- [x] Manager can create a meeting, link multiple cases, set date/time.
+- [x] Manager can upload MOM attachment after the meeting.
+- [x] Case outcome can be recorded after meeting.
 
 #### FR-19 Select CE winner *(Story 19)*
 
@@ -378,8 +378,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Winner selection is allowed only after bids are opened.
-- [ ] Selected vendor is stored on the CE / PR award data used for PO creation.
+- [x] Winner selection is allowed only after bids are opened.
+- [x] Selected vendor is stored on the CE / PR award data used for PO creation.
 - [ ] Invited suppliers can be notified of results (portal phase).
 
 #### FR-20 Approve CE supplier list *(Story 20)*
@@ -392,9 +392,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Manager can approve or reject the submitted list.
-- [ ] Approval requires `opening_datetime` and `bid_deadline` (or equivalent).
-- [ ] Approval transitions CE to `portal_open` (FR-29).
+- [x] Manager can approve or reject the submitted list.
+- [x] Approval requires `opening_datetime` and `bid_deadline` (or equivalent).
+- [x] Approval transitions CE to `portal_open` (FR-29).
 
 ---
 
@@ -410,7 +410,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Expert sees only cases/reviews assigned to them.
+- [x] Expert sees only cases/reviews assigned to them.
 
 #### FR-22 Verify compliance *(Story 22)*
 
@@ -422,8 +422,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Expert can inspect quotes, PR lines, AVL status, and related attachments.
-- [ ] Review form captures notes on accuracy, policy, and suppliers.
+- [x] Expert can inspect quotes, PR lines, AVL status, and related attachments.
+- [x] Review form captures notes on accuracy, policy, and suppliers.
 
 #### FR-23 Submit audit report *(Story 23)*
 
@@ -435,9 +435,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Recommendation is one of: approve, reject, request corrections.
-- [ ] Submit notifies / queues for Commission Manager.
-- [ ] Corrections path can return work to company quote review as designed.
+- [x] Recommendation is one of: approve, reject, request corrections.
+- [x] Submit notifies / queues for Commission Manager.
+- [x] Corrections path can return work to company quote review as designed.
 
 ---
 
@@ -528,9 +528,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] On Commission Manager list approval → CE state `portal_open`.
+- [x] On Commission Manager list approval → CE state `portal_open`.
 - [ ] Invited suppliers gain portal access per FR-24 (when portal phase is live).
-- [ ] Until portal UI ships, backend may still accept manual sealed bid entry by Commission Manager.
+- [x] Until portal UI ships, backend may still accept manual sealed bid entry by Commission Manager.
 
 #### FR-30 Seal closed-envelope bids *(Story 30)*
 
@@ -542,9 +542,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Before opening: backend users other than Commission Manager (and authorized seal roles) cannot read bid amounts/attachments.
-- [ ] Portal supplier may always read **own** bid.
-- [ ] After `action_open_bids`, authorized roles can see bids for award.
+- [x] Before opening: backend users other than Commission Manager (and authorized seal roles) cannot read bid amounts/attachments.
+- [x] Portal supplier may always read **own** bid.
+- [x] After `action_open_bids`, authorized roles can see bids for award.
 
 ---
 
@@ -644,7 +644,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE.
 
 ### Prerequisites
 
@@ -653,6 +653,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
 5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
+6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
 
 ### Phase 0 — Foundation
 
@@ -662,7 +663,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | Install / upgrade the module | Completes without errors |
 | 2 | Open the app switcher as Admin | **Procurement & Tendering** is listed |
-| 3 | Open the app | **Purchase Requests** and **Configuration** are visible. **Commission** remains a Phase 3 shell (hidden until children exist) |
+| 3 | Open the app | **Purchase Requests** and **Configuration** are visible. **Commission** shows Cases / Meetings / Closed Envelopes for commission roles |
 | 4 | Open **Configuration** | **Approved Vendor List** and **Settings** are available |
 
 #### MT-0.2 Role groups
@@ -821,12 +822,53 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | **High value:** set threshold below PR total estimate; complete inquiry + quote review; **Approve Quotes** | State → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
 | 2 | **Commission item:** use a product category with **Commission Item** (or line flag); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
-| 3 | Open the linked commission case (Admin / CM read) | Shell record: open state, request link, routing reason flags (full UX in Phase 3) |
+| 3 | Open the linked commission case (Admin / Commission Manager) | Case in `open` with request link and routing reason flags; Assign Experts and decision buttons available |
+
+### Phase 3 — Holding Commission & closed envelope
+
+#### MT-3.1 Commission dashboard & assign experts (FR-15 / FR-16 / FR-21)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Commission Manager → **Commission → Cases** | High-value / commission-item cases from MT-2.7 appear |
+| 2 | Open a case; set Commission Experts; **Assign Experts** | State → `in_review`; draft reviews created; experts get activities |
+| 3 | As Commission Expert → **My Assignments** / **My Reviews** | Only assigned case/review visible |
+
+#### MT-3.2 Expert review & approve without meeting (FR-17 / FR-22 / FR-23)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Commission Expert, open review; fill accuracy/policy/suppliers notes; recommendation **Approve**; **Submit Review** | Review `submitted`; case chatter notes submission |
+| 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; PR → `signatory` (Approvals spawn deferred to Phase 4) |
+| 3 | On another case where an expert recommended corrections, try **Approve Without Meeting** | Blocked until all reviews approve |
+
+#### MT-3.3 Meeting + corrections (FR-18)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Commission Manager → **Meetings → New**; link open/in-review cases; set datetime; save | Linked cases move to `meeting`; MOM attachments can be uploaded |
+| 2 | On a meeting case, **Request Corrections** | Case `corrections`; PR → `quote_review` |
+
+#### MT-3.4 Closed envelope list (FR-11 / FR-20 / FR-29)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As CCE on an inquiry PR, **Closed Envelope**; add ≥1 AVL invite; **Submit List** | CE `list_pending`; linked on PR |
+| 2 | As Commission Manager, approve list without opening datetime | Validation error |
+| 3 | Set opening datetime (bid deadline optional); **Approve List** | State → `portal_open`; deadline defaults from Settings bid window if empty |
+
+#### MT-3.5 Sealed bids, open, award (FR-19 / FR-30)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Commission Manager, enter a manual bid with amount while `portal_open` | Bid stored |
+| 2 | As CCE (or non-manager), read the bid amount | Amount hidden / zero before open |
+| 3 | After opening datetime, **Open Bids**; set winner; **Select Winner** | CE `awarded`; PR `award_partner_id` set; PR → `quote_review`. Winner before open is blocked |
 
 ### Later phases
 
 | Phase | Status | Manual scenarios |
 |-------|--------|------------------|
-| 3 Commission & CE | Not started | — |
+| 3 Commission & CE | Done (manual bids) | MT-3.1–MT-3.5 |
 | 4 Sign-off & PO | Not started | — |
 | 5 Supplier portal | Not started | — |

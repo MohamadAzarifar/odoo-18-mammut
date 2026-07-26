@@ -48,6 +48,8 @@ class ZvyTenderingCommon(TransactionCase):
         cls.group_planner = cls.env.ref('zvy_tendering.group_zvy_planner')
         cls.group_cm = cls.env.ref('zvy_tendering.group_zvy_commercial_manager')
         cls.group_cce = cls.env.ref('zvy_tendering.group_zvy_commercial_expert')
+        cls.group_comm_mgr = cls.env.ref('zvy_tendering.group_zvy_commission_manager')
+        cls.group_comm_exp = cls.env.ref('zvy_tendering.group_zvy_commission_expert')
         cls.user_company_a = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'ZVY Admin Company A',
             'login': 'zvy_admin_company_a',
@@ -122,6 +124,40 @@ class ZvyTenderingCommon(TransactionCase):
             'name': 'ZVY Commercial Expert Other',
             'login': 'zvy_cce_other',
             'email': 'zvy_cce_other@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.group_cce.id,
+            ])],
+        })
+        cls.user_comm_mgr = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Commission Manager',
+            'login': 'zvy_comm_mgr',
+            'email': 'zvy_comm_mgr@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.group_comm_mgr.id,
+            ])],
+        })
+        cls.user_comm_exp = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Commission Expert',
+            'login': 'zvy_comm_exp',
+            'email': 'zvy_comm_exp@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.group_comm_exp.id,
+            ])],
+        })
+        cls.user_bidder = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Bidder Partner A',
+            'login': 'zvy_bidder_a',
+            'email': 'zvy_bidder_a@example.com',
+            'partner_id': cls.partner_a.id,
             'company_id': cls.company_a.id,
             'company_ids': [(6, 0, [cls.company_a.id])],
             'groups_id': [(6, 0, [

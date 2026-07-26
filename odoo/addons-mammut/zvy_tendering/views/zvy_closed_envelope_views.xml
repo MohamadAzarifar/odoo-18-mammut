@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_closed_envelope_list" model="ir.ui.view">
+        <field name="name">zvy.closed.envelope.list</field>
+        <field name="model">zvy.closed.envelope</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="opening_datetime"/>
+                <field name="bid_deadline"/>
+                <field name="winner_partner_id"/>
+                <field name="state" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_closed_envelope_form" model="ir.ui.view">
+        <field name="name">zvy.closed.envelope.form</field>
+        <field name="model">zvy.closed.envelope</field>
+        <field name="arch" type="xml">
+            <form string="Closed Envelope">
+                <header>
+                    <button name="action_submit_list" string="Submit List" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                    <button name="action_approve_list" string="Approve List" type="object"
+                            class="btn-primary"
+                            invisible="state != 'list_pending'"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_reject_list" string="Reject List" type="object"
+                            invisible="state != 'list_pending'"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_open_bids" string="Open Bids" type="object"
+                            class="btn-primary"
+                            invisible="state != 'portal_open'"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_select_winner" string="Select Winner" type="object"
+                            class="btn-primary"
+                            invisible="state != 'opened'"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('awarded', 'cancelled')"
+                            groups="zvy_tendering.group_zvy_commission_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,list_pending,portal_open,opened,awarded"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_id" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="opening_datetime"
+                                      readonly="state not in ('draft', 'list_pending')"/>
+                            <field name="bid_deadline"
+                                      readonly="state not in ('draft', 'list_pending')"/>
+                            <field name="winner_partner_id"
+                                      readonly="state != 'opened'"
+                                      domain="[('id', 'in', invite_partner_ids)]"/>
+                            <field name="list_reject_reason"
+                                      invisible="state != 'list_pending' and not list_reject_reason"
+                                      readonly="state != 'list_pending'"/>
+                        </group>
+                    </group>
+                    <group string="Invited Suppliers">
+                        <field name="invite_partner_ids" widget="many2many_tags"
+                                 readonly="state != 'draft'"
+                                 options="{'no_create': True}"/>
+                    </group>
+                    <notebook>
+                        <page string="Bids" name="bids">
+                            <field name="bid_ids"
+                                     readonly="state not in ('portal_open', 'opened')">
+                                <list editable="bottom">
+                                    <field name="partner_id" domain="[('id', 'in', parent.invite_partner_ids)]"/>
+                                    <field name="amount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="submitted_at"/>
+                                    <field name="source"/>
+                                    <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_closed_envelope_search" model="ir.ui.view">
+        <field name="name">zvy.closed.envelope.search</field>
+        <field name="model">zvy.closed.envelope</field>
+        <field name="arch" type="xml">
+            <search string="Closed Envelopes">
+                <field name="name"/>
+                <field name="request_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="List Pending" name="list_pending" domain="[('state', '=', 'list_pending')]"/>
+                <filter string="Portal Open" name="portal_open" domain="[('state', '=', 'portal_open')]"/>
+                <filter string="Opened" name="opened" domain="[('state', '=', 'opened')]"/>
+                <filter string="Awarded" name="awarded" domain="[('state', '=', 'awarded')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_closed_envelope" model="ir.actions.act_window">
+        <field name="name">Closed Envelopes</field>
+        <field name="res_model">zvy.closed.envelope</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_closed_envelope_search"/>
+    </record>
+
+    <record id="action_zvy_closed_envelope_pending" model="ir.actions.act_window">
+        <field name="name">CE Lists Pending</field>
+        <field name="res_model">zvy.closed.envelope</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'list_pending')]</field>
+        <field name="context">{'search_default_list_pending': 1}</field>
+    </record>
+</odoo>

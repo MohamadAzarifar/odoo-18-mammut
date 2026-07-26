@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Commission Case -->
+    <record id="view_zvy_commission_case_list" model="ir.ui.view">
+        <field name="name">zvy.commission.case.list</field>
+        <field name="model">zvy.commission.case</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="reason_high_value"/>
+                <field name="reason_commission_item"/>
+                <field name="expert_user_ids" widget="many2many_tags" optional="show"/>
+                <field name="state" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_commission_case_form" model="ir.ui.view">
+        <field name="name">zvy.commission.case.form</field>
+        <field name="model">zvy.commission.case</field>
+        <field name="arch" type="xml">
+            <form string="Commission Case">
+                <header>
+                    <button name="action_assign_experts" string="Assign Experts" type="object"
+                            class="btn-primary"
+                            invisible="state not in ('open', 'in_review', 'meeting')"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_approve_without_meeting" string="Approve Without Meeting" type="object"
+                            class="btn-primary"
+                            invisible="state not in ('in_review', 'meeting')"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_manager_approve" string="Approve" type="object"
+                            invisible="state not in ('in_review', 'meeting')"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_manager_corrections" string="Request Corrections" type="object"
+                            invisible="state not in ('in_review', 'meeting')"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_manager_reject" string="Reject" type="object"
+                            invisible="state not in ('open', 'in_review', 'meeting')"
+                            groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="open,in_review,meeting,approved,corrections,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="meeting_id"/>
+                        </group>
+                        <group>
+                            <field name="reason_high_value"/>
+                            <field name="reason_commission_item"/>
+                            <field name="manager_decision" readonly="1"/>
+                            <field name="manager_notes"
+                                      readonly="state in ('approved', 'rejected', 'corrections')"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="expert_user_ids" widget="many2many_tags"
+                                  readonly="state in ('approved', 'rejected', 'corrections')"
+                                  options="{'no_create': True}"/>
+                    </group>
+                    <notebook>
+                        <page string="Reviews" name="reviews">
+                            <field name="review_ids">
+                                <list>
+                                    <field name="expert_user_id"/>
+                                    <field name="recommendation"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_commission_case_search" model="ir.ui.view">
+        <field name="name">zvy.commission.case.search</field>
+        <field name="model">zvy.commission.case</field>
+        <field name="arch" type="xml">
+            <search string="Commission Cases">
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="expert_user_ids"/>
+                <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="In Review" name="in_review" domain="[('state', '=', 'in_review')]"/>
+                <filter string="Meeting" name="meeting" domain="[('state', '=', 'meeting')]"/>
+                <filter string="My Assignments" name="my_assignments"
+                        domain="[('expert_user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter string="High Value" name="high_value" domain="[('reason_high_value', '=', True)]"/>
+                <filter string="Commission Item" name="commission_item"
+                        domain="[('reason_commission_item', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_commission_case" model="ir.actions.act_window">
+        <field name="name">Commission Cases</field>
+        <field name="res_model">zvy.commission.case</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_commission_case_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No commission cases yet.
+            </p>
+            <p>Cases are created when high-value or commission-item PRs are routed after quote approval.</p>
+        </field>
+    </record>
+
+    <record id="action_zvy_commission_case_my" model="ir.actions.act_window">
+        <field name="name">My Assignments</field>
+        <field name="res_model">zvy.commission.case</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_commission_case_search"/>
+        <field name="domain">[('expert_user_ids', 'in', [uid])]</field>
+        <field name="context">{'search_default_my_assignments': 1}</field>
+    </record>
+
+    <!-- Commission Review -->
+    <record id="view_zvy_commission_review_list" model="ir.ui.view">
+        <field name="name">zvy.commission.review.list</field>
+        <field name="model">zvy.commission.review</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="case_id"/>
+                <field name="expert_user_id"/>
+                <field name="recommendation"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_commission_review_form" model="ir.ui.view">
+        <field name="name">zvy.commission.review.form</field>
+        <field name="model">zvy.commission.review</field>
+        <field name="arch" type="xml">
+            <form string="Commission Review">
+                <header>
+                    <button name="action_submit" string="Submit Review" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="zvy_tendering.group_zvy_commission_expert,zvy_tendering.group_zvy_tendering_admin"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="case_id" readonly="1"/>
+                            <field name="expert_user_id" readonly="1"/>
+                            <field name="recommendation" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group string="Audit Notes">
+                        <field name="notes_accuracy" readonly="state != 'draft'"/>
+                        <field name="notes_policy" readonly="state != 'draft'"/>
+                        <field name="notes_suppliers" readonly="state != 'draft'"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_zvy_commission_review" model="ir.actions.act_window">
+        <field name="name">Reviews</field>
+        <field name="res_model">zvy.commission.review</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('expert_user_id', '=', uid)]</field>
+    </record>
+
+    <!-- Commission Meeting -->
+    <record id="view_zvy_commission_meeting_list" model="ir.ui.view">
+        <field name="name">zvy.commission.meeting.list</field>
+        <field name="model">zvy.commission.meeting</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="datetime"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_commission_meeting_form" model="ir.ui.view">
+        <field name="name">zvy.commission.meeting.form</field>
+        <field name="model">zvy.commission.meeting</field>
+        <field name="arch" type="xml">
+            <form string="Commission Meeting">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="datetime"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes"/>
+                        <field name="mom_attachment_ids" widget="many2many_binary"/>
+                    </group>
+                    <notebook>
+                        <page string="Cases" name="cases">
+                            <field name="case_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="request_id"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_zvy_commission_meeting" model="ir.actions.act_window">
+        <field name="name">Meetings</field>
+        <field name="res_model">zvy.commission.meeting</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -48,47 +48,4 @@
             </form>
         </field>
     </record>
-
-    <record id="view_zvy_commission_case_list" model="ir.ui.view">
-        <field name="name">zvy.commission.case.list</field>
-        <field name="model">zvy.commission.case</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="request_id"/>
-                <field name="reason_high_value"/>
-                <field name="reason_commission_item"/>
-                <field name="state" widget="badge"/>
-                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_zvy_commission_case_form" model="ir.ui.view">
-        <field name="name">zvy.commission.case.form</field>
-        <field name="model">zvy.commission.case</field>
-        <field name="arch" type="xml">
-            <form string="Commission Case">
-                <header>
-                    <field name="state" widget="statusbar"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name"/>
-                        <h1><field name="name" readonly="1"/></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="request_id"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                        </group>
-                        <group>
-                            <field name="reason_high_value"/>
-                            <field name="reason_commission_item"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
 </odoo>

@@ -139,45 +139,45 @@ FR-5, 6, 8–10, 27 pass; quote-approved PRs land on the correct path (commissio
 
 #### Commission
 
-- [ ] `zvy.commission.case` dashboard (FR-15)
-- [ ] Assign Commission Experts (FR-16)
-- [ ] `zvy.commission.review`: accuracy / policy / suppliers notes; recommendation approve / reject / corrections (FR-21–23)
-- [ ] Approve without meeting when all experts approve (FR-17) → advance toward signatory
-- [ ] `zvy.commission.meeting`: link cases, datetime, MOM upload; record outcomes (FR-18)
-- [ ] Corrections path returns work to company quote review as designed
+- [x] `zvy.commission.case` dashboard (FR-15)
+- [x] Assign Commission Experts (FR-16)
+- [x] `zvy.commission.review`: accuracy / policy / suppliers notes; recommendation approve / reject / corrections (FR-21–23)
+- [x] Approve without meeting when all experts approve (FR-17) → advance toward signatory
+- [x] `zvy.commission.meeting`: link cases, datetime, MOM upload; record outcomes (FR-18)
+- [x] Corrections path returns work to company quote review as designed
 
 #### Closed envelope
 
-- [ ] `zvy.closed.envelope` + invite AVL partners (FR-11)
-- [ ] Submit list → `list_pending`
-- [ ] Commission Manager approve/reject list; require `opening_datetime` + `bid_deadline` (FR-20)
-- [ ] Approve → `portal_open` (FR-29); default bid window from settings
-- [ ] `zvy.closed.envelope.bid` with seal rules (FR-30); manual entry by Commission Manager
-- [ ] `action_open_bids` after opening; select winner (FR-19); store award for PO
-- [ ] Optional notify stubs for results (full mail in Phase 5)
+- [x] `zvy.closed.envelope` + invite AVL partners (FR-11)
+- [x] Submit list → `list_pending`
+- [x] Commission Manager approve/reject list; require `opening_datetime` + `bid_deadline` (FR-20)
+- [x] Approve → `portal_open` (FR-29); default bid window from settings
+- [x] `zvy.closed.envelope.bid` with seal rules (FR-30); manual entry by Commission Manager
+- [x] `action_open_bids` after opening; select winner (FR-19); store award for PO
+- [x] Optional notify stubs for results (full mail in Phase 5)
 
 ### Stories / FRs checklist
 
-- [ ] **Story 11 / FR-11** — CE supplier list by expert
-- [ ] **Story 15 / FR-15** — Commission Manager dashboard
-- [ ] **Story 16 / FR-16** — Assign Commission Experts
-- [ ] **Story 17 / FR-17** — Approve without meeting
-- [ ] **Story 18 / FR-18** — Meetings + MOM
-- [ ] **Story 19 / FR-19** — Select CE winner after open
-- [ ] **Story 20 / FR-20** — Approve CE supplier list
-- [ ] **Story 21 / FR-21** — Expert receives assignments
-- [ ] **Story 22 / FR-22** — Verify quotes / policy / AVL
-- [ ] **Story 23 / FR-23** — Submit audit report
-- [ ] **Story 29 / FR-29** — Auto `portal_open` on list approval
-- [ ] **Story 30 / FR-30** — Seal bids until opening
+- [x] **Story 11 / FR-11** — CE supplier list by expert
+- [x] **Story 15 / FR-15** — Commission Manager dashboard
+- [x] **Story 16 / FR-16** — Assign Commission Experts
+- [x] **Story 17 / FR-17** — Approve without meeting
+- [x] **Story 18 / FR-18** — Meetings + MOM
+- [x] **Story 19 / FR-19** — Select CE winner after open
+- [x] **Story 20 / FR-20** — Approve CE supplier list
+- [x] **Story 21 / FR-21** — Expert receives assignments
+- [x] **Story 22 / FR-22** — Verify quotes / policy / AVL
+- [x] **Story 23 / FR-23** — Submit audit report
+- [x] **Story 29 / FR-29** — Auto `portal_open` on list approval
+- [x] **Story 30 / FR-30** — Seal bids until opening
 
 ### Suggested tests
 
-- [ ] Bid amounts hidden from non-manager before open
-- [ ] Bidder (portal user later; sudo partner check now) can read own bid
-- [ ] List approval without deadlines fails
-- [ ] Winner selection blocked before open
-- [ ] Commission approve-without-meeting when all reviews approve
+- [x] Bid amounts hidden from non-manager before open
+- [x] Bidder (portal user later; sudo partner check now) can read own bid
+- [x] List approval without deadlines fails
+- [x] Winner selection blocked before open
+- [x] Commission approve-without-meeting when all reviews approve
 
 ### Done when
 
