@@ -16,6 +16,7 @@ access_zvy_purchase_request_line_cce,zvy.purchase.request.line commercial expert
 access_zvy_purchase_request_line_comm_mgr,zvy.purchase.request.line commission manager,model_zvy_purchase_request_line,group_zvy_commission_manager,1,0,0,0
 access_zvy_purchase_request_line_comm_exp,zvy.purchase.request.line commission expert,model_zvy_purchase_request_line,group_zvy_commission_expert,1,0,0,0
 access_zvy_purchase_request_line_admin,zvy.purchase.request.line admin,model_zvy_purchase_request_line,group_zvy_tendering_admin,1,1,1,1
+access_zvy_quote_planner,zvy.quote planner,model_zvy_quote,group_zvy_planner,1,0,0,0
 access_zvy_quote_cce,zvy.quote commercial expert,model_zvy_quote,group_zvy_commercial_expert,1,1,1,1
 access_zvy_quote_cm,zvy.quote commercial manager,model_zvy_quote,group_zvy_commercial_manager,1,1,1,1
 access_zvy_quote_comm_mgr,zvy.quote commission manager,model_zvy_quote,group_zvy_commission_manager,1,0,0,0

@@ -70,6 +70,9 @@ class TestZvyPurchaseRequestIntake(ZvyTenderingCommon):
             })],
         })
         self.assertEqual(pr.state, 'draft')
+        # UI form loads quote_ids / quote_count; planner needs read ACL on zvy.quote.
+        self.assertEqual(pr.line_ids.quote_count, 0)
+        self.assertFalse(pr.quote_ids)
         pr.action_submit()
         self.assertEqual(pr.state, 'submitted')
 
@@ -85,6 +88,14 @@ class TestZvyPurchaseRequestIntake(ZvyTenderingCommon):
                     'product_uom_qty': 1.0,
                     'price_estimate': 10.0,
                 })],
+            })
+
+        with self.assertRaises(AccessError):
+            self.env['zvy.quote'].with_user(self.user_planner).create({
+                'request_id': pr.id,
+                'line_id': pr.line_ids[:1].id,
+                'partner_id': self.partner_a.id,
+                'price_unit': 1.0,
             })
 
     def test_planner_own_record_rule_and_cm_sees_all(self):
