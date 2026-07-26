@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class ZvyPurchaseRequestLine(models.Model):
@@ -58,11 +59,34 @@ class ZvyPurchaseRequestLine(models.Model):
         store=True,
         readonly=False,
     )
+    expert_user_ids = fields.Many2many(
+        'res.users',
+        'zvy_pr_line_expert_rel',
+        'line_id',
+        'user_id',
+        string='Commercial Experts',
+        domain=lambda self: [
+            ('groups_id', 'in', [
+                self.env.ref('zvy_tendering.group_zvy_commercial_expert').id,
+            ]),
+        ],
+    )
+    quote_ids = fields.One2many(
+        'zvy.quote',
+        'line_id',
+        string='Quotes',
+    )
+    quote_count = fields.Integer(compute='_compute_quote_count')
 
-    @api.depends('product_uom_qty', 'price_estimate')
+    @api.depends('price_estimate', 'product_uom_qty')
     def _compute_price_subtotal(self):
         for line in self:
             line.price_subtotal = line.product_uom_qty * line.price_estimate
+
+    @api.depends('quote_ids')
+    def _compute_quote_count(self):
+        for line in self:
+            line.quote_count = len(line.quote_ids)
 
     @api.depends('product_id', 'product_id.categ_id.zvy_is_commission_item')
     def _compute_is_commission_item(self):
@@ -86,3 +110,27 @@ class ZvyPurchaseRequestLine(models.Model):
                 product = self.env['product.product'].browse(vals['product_id'])
                 vals['product_uom_id'] = product.uom_id.id
         return super().create(vals_list)
+
+    def write(self, vals):
+        if not self.env.su:
+            content_keys = set(vals) - {'expert_user_ids'}
+            if content_keys:
+                locked = self.filtered(
+                    lambda l: l.request_id.state not in ('draft', 'correction')
+                )
+                if locked:
+                    raise UserError(_(
+                        'Purchase request lines can only be edited in Draft or Correction.'
+                    ))
+            if 'expert_user_ids' in vals:
+                is_cm = self.env.user.has_group(
+                    'zvy_tendering.group_zvy_commercial_manager'
+                )
+                is_admin = self.env.user.has_group(
+                    'zvy_tendering.group_zvy_tendering_admin'
+                )
+                if not (is_cm or is_admin):
+                    raise UserError(_(
+                        'Only Commercial Managers can assign experts to lines.'
+                    ))
+        return super().write(vals)

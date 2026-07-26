@@ -177,12 +177,12 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
-        <!-- CCE: read company PRs (assignment filtering in Phase 2) -->
+        <!-- CCE: assigned lines / related PRs only -->
         <record id="rule_zvy_purchase_request_cce_all" model="ir.rule">
-            <field name="name">Purchase Request: commercial expert read</field>
+            <field name="name">Purchase Request: commercial expert assigned</field>
             <field name="model_id" ref="model_zvy_purchase_request"/>
             <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('line_ids.expert_user_ids', 'in', [user.id])]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="0"/>
@@ -190,14 +190,58 @@
         </record>
 
         <record id="rule_zvy_purchase_request_line_cce_all" model="ir.rule">
-            <field name="name">Purchase Request Line: commercial expert read</field>
+            <field name="name">Purchase Request Line: commercial expert assigned</field>
             <field name="model_id" ref="model_zvy_purchase_request_line"/>
             <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('expert_user_ids', 'in', [user.id])]</field>
             <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="0"/>
+            <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="0"/>
             <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Quote: multi-company -->
+        <record id="rule_zvy_quote_multi_company" model="ir.rule">
+            <field name="name">Quote: multi-company</field>
+            <field name="model_id" ref="model_zvy_quote"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_quote_cce_assigned" model="ir.rule">
+            <field name="name">Quote: commercial expert assigned line</field>
+            <field name="model_id" ref="model_zvy_quote"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[('line_id.expert_user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_quote_cm_all" model="ir.rule">
+            <field name="name">Quote: commercial manager all</field>
+            <field name="model_id" ref="model_zvy_quote"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Commission case: multi-company -->
+        <record id="rule_zvy_commission_case_multi_company" model="ir.rule">
+            <field name="name">Commission Case: multi-company</field>
+            <field name="model_id" ref="model_zvy_commission_case"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
         </record>
 
     </data>

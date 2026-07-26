@@ -33,4 +33,44 @@
             </form>
         </field>
     </record>
+
+    <record id="view_zvy_request_assign_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.assign.wizard.form</field>
+        <field name="model">zvy.request.assign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Commercial Experts">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="line_id" column_invisible="1"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="expert_user_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" string="Assign &amp; Start Inquiry" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_request_quote_reject_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.quote.reject.wizard.form</field>
+        <field name="model">zvy.request.quote.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Quotes">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                    <field name="reason" placeholder="Explain why these quotes are rejected..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Reject Quotes" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>

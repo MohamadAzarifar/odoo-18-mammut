@@ -644,14 +644,15 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing.
 
 ### Prerequisites
 
 1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`).
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
-4. Prepare two internal users for Phase 1: one with **Planner** only, one with **Commercial Manager** only (same company).
+4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
+5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
 
 ### Phase 0 — Foundation
 
@@ -761,13 +762,71 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Call `action_submit` on that id | State → `submitted`; appears in CM queue |
 | 3 | As a CM-only user, attempt `create` | Access denied (no create ACL) |
 
-### Later phases
+### Phase 2 — Inquiry & routing
 
-Not started in the roadmap — no manual scenarios yet:
+#### MT-2.1 Assign experts → inquiry (FR-5)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Planner, create a PR with ≥1 line; **Submit** | State `submitted`; appears in CM **Awaiting Review** |
+| 2 | As CM, open the PR → **Assign Experts** | Wizard lists each line with Commercial Expert many2many |
+| 3 | Leave experts blank and confirm | Validation: every line needs ≥1 expert |
+| 4 | Assign one or more Experts per line; confirm | State → `inquiry`; line `expert_user_ids` set; chatter notes assignment; assigned experts get a todo activity |
+| 5 | As CM, open the same PR again | **Assign Experts** still available (re-assign while in inquiry) |
+
+#### MT-2.2 Expert dashboard & isolation (FR-8)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As the assigned **Commercial Expert** → **Purchase Requests → My Assignments** | Only lines assigned to this user appear (parent in `inquiry` / `quote_review`) |
+| 2 | Open an assigned line / related PR | Can add quotes on assigned lines; product/qty edits are blocked |
+| 3 | As a second Expert **not** assigned to that PR | PR / line not visible; cannot create quotes on those lines |
+| 4 | As Expert, open **Awaiting Review** / **Quote Review** | Menus not available (CM-only) |
+
+#### MT-2.3 AVL-only quotes (FR-9 / BR-1)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As assigned Expert on an inquiry PR, open **Quotes** (or line quotes) → add a quote | Partner selector / save must use an active AVL vendor for company (+ product/category scope) |
+| 2 | Try to save a quote with a non-AVL vendor (e.g. via RPC or forced partner) | Validation error: vendor not on active AVL |
+| 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total |
+
+#### MT-2.4 Quote minima & submit (FR-10 / BR-2)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a standard (non–sole-source) line, record only 1–2 quotes; as Expert click **Submit Quotes** | Blocked until ≥3 quotes per standard line |
+| 2 | Add a third quote; **Submit Quotes** | State → `quote_review`; quotes move to `submitted`; chatter notes submit |
+| 3 | Create another PR with a **Sole Source** line; assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); state → `quote_review` |
+
+#### MT-2.5 CM reject quotes (FR-6)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As CM → **Purchase Requests → Quote Review** | Submitted PR from MT-2.4 appears |
+| 2 | Open PR → **Reject Quotes** without a reason | Wizard requires a reason |
+| 3 | Enter a reason and confirm | State → `inquiry`; reason stored; quotes back to `draft`; assigned experts get an activity; chatter logs reject |
+
+#### MT-2.6 CM approve → company path (FR-6 / FR-27)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Ensure company **high-value threshold** is above the PR total; lines are **not** commission items | Routing flags: not high value, not commission item |
+| 2 | Bring a PR through inquiry with valid quote minima → `quote_review` | Ready for CM |
+| 3 | As CM, **Approve Quotes** | State → `signatory` (Approvals spawn deferred to Phase 4); no commission case; chatter notes routing |
+
+#### MT-2.7 CM approve → Holding Commission (FR-27)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | **High value:** set threshold below PR total estimate; complete inquiry + quote review; **Approve Quotes** | State → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
+| 2 | **Commission item:** use a product category with **Commission Item** (or line flag); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
+| 3 | Open the linked commission case (Admin / CM read) | Shell record: open state, request link, routing reason flags (full UX in Phase 3) |
+
+### Later phases
 
 | Phase | Status | Manual scenarios |
 |-------|--------|------------------|
-| 2 Inquiry & routing | Not started | — |
 | 3 Commission & CE | Not started | — |
 | 4 Sign-off & PO | Not started | — |
 | 5 Supplier portal | Not started | — |

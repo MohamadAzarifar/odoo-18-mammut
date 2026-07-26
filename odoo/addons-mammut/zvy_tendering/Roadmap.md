@@ -99,31 +99,31 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 
 ### Scope
 
-- [ ] Line `expert_user_ids`; assign wizard/action (FR-5); PR → `inquiry`
-- [ ] Expert dashboard: only assigned lines (FR-8)
-- [ ] `zvy.quote` with AVL domain (FR-9 / BR-1)
-- [ ] Quote minima: ≥3 standard / ≥1 sole source before submit (FR-10 / BR-2)
-- [ ] Expert submit → `quote_review`
-- [ ] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
-- [ ] Compute `is_high_value`, `is_commission_item`, `has_sole_source`
-- [ ] On route to commission: create `zvy.commission.case` shell (full UX in Phase 3) **or** set state `commission` ready for Phase 3
-- [ ] On route to company path: set state `signatory` placeholder / spawn Approvals in Phase 4
+- [x] Line `expert_user_ids`; assign wizard/action (FR-5); PR → `inquiry`
+- [x] Expert dashboard: only assigned lines (FR-8)
+- [x] `zvy.quote` with AVL domain (FR-9 / BR-1)
+- [x] Quote minima: ≥3 standard / ≥1 sole source before submit (FR-10 / BR-2)
+- [x] Expert submit → `quote_review`
+- [x] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
+- [x] Compute `is_high_value`, `is_commission_item`, `has_sole_source`
+- [x] On route to commission: create `zvy.commission.case` shell (full UX in Phase 3) **or** set state `commission` ready for Phase 3
+- [x] On route to company path: set state `signatory` placeholder / spawn Approvals in Phase 4
 
 ### Stories / FRs checklist
 
-- [ ] **Story 5 / FR-5** — Assign lines to one or more Commercial Experts
-- [ ] **Story 6 / FR-6** — CM review quotes; approve → routing; reject → inquiry
-- [ ] **Story 8 / FR-8** — Expert sees only assigned items
-- [ ] **Story 9 / FR-9** — AVL-only supplier selection
-- [ ] **Story 10 / FR-10** — Quote minima and submit to CM
-- [ ] **Story 27 / FR-27** — Auto-route by high value / commission item vs company path
+- [x] **Story 5 / FR-5** — Assign lines to one or more Commercial Experts
+- [x] **Story 6 / FR-6** — CM review quotes; approve → routing; reject → inquiry
+- [x] **Story 8 / FR-8** — Expert sees only assigned items
+- [x] **Story 9 / FR-9** — AVL-only supplier selection
+- [x] **Story 10 / FR-10** — Quote minima and submit to CM
+- [x] **Story 27 / FR-27** — Auto-route by high value / commission item vs company path
 
 ### Suggested tests
 
-- [ ] Expert cannot edit unassigned lines
-- [ ] Non-AVL partner rejected on quote
-- [ ] Minima block/allow submit
-- [ ] Router: below threshold, no commission → company path; high value or commission flag → commission case
+- [x] Expert cannot edit unassigned lines
+- [x] Non-AVL partner rejected on quote
+- [x] Minima block/allow submit
+- [x] Router: below threshold, no commission → company path; high value or commission flag → commission case
 
 ### Done when
 
@@ -313,8 +313,8 @@ Track throughout (PRD §7):
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
-| 1 PR & CM intake | Not started | |
-| 2 Inquiry & routing | Not started | |
+| 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell |
 | 3 Commission & CE | Not started | |
 | 4 Sign-off & PO | Not started | |
 | 5 Supplier portal | Not started | |

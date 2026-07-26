@@ -1,0 +1,155 @@
+# -*- coding: utf-8 -*-
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
+
+
+class ZvyQuote(models.Model):
+    _name = 'zvy.quote'
+    _description = 'Inquiry Quote'
+    _order = 'id'
+
+    request_id = fields.Many2one(
+        'zvy.purchase.request',
+        string='Purchase Request',
+        required=True,
+        ondelete='cascade',
+        index=True,
+    )
+    line_id = fields.Many2one(
+        'zvy.purchase.request.line',
+        string='Request Line',
+        required=True,
+        ondelete='cascade',
+        index=True,
+    )
+    company_id = fields.Many2one(
+        related='request_id.company_id',
+        store=True,
+        index=True,
+    )
+    currency_id = fields.Many2one(related='request_id.currency_id')
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Vendor',
+        required=True,
+        ondelete='restrict',
+        domain="[]",
+    )
+    price_unit = fields.Monetary(
+        string='Unit Price',
+        currency_field='currency_id',
+        required=True,
+        default=0.0,
+    )
+    amount_total = fields.Monetary(
+        string='Total',
+        currency_field='currency_id',
+        compute='_compute_amount_total',
+        store=True,
+    )
+    attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'zvy_quote_ir_attachment_rel',
+        'quote_id',
+        'attachment_id',
+        string='Attachments',
+    )
+    expert_user_id = fields.Many2one(
+        'res.users',
+        string='Recorded By',
+        required=True,
+        default=lambda self: self.env.user,
+        index=True,
+    )
+    state = fields.Selection(
+        selection=[
+            ('draft', 'Draft'),
+            ('submitted', 'Submitted'),
+            ('accepted', 'Accepted'),
+            ('rejected', 'Rejected'),
+        ],
+        default='draft',
+        required=True,
+        copy=False,
+        index=True,
+    )
+
+    @api.depends('price_unit', 'line_id.product_uom_qty')
+    def _compute_amount_total(self):
+        for quote in self:
+            qty = quote.line_id.product_uom_qty or 0.0
+            quote.amount_total = quote.price_unit * qty
+
+    @api.onchange('line_id')
+    def _onchange_line_id(self):
+        if self.line_id:
+            self.request_id = self.line_id.request_id
+            return {'domain': {'partner_id': self._partner_domain_for_line(self.line_id)}}
+        return {'domain': {'partner_id': [('id', '=', False)]}}
+
+    @api.model
+    def _partner_domain_for_line(self, line):
+        if not line or not line.company_id:
+            return [('id', '=', False)]
+        return self.env['zvy.avl.entry']._avl_partner_domain(
+            line.company_id,
+            product=line.product_id,
+            categ=line.product_id.categ_id if line.product_id else None,
+        )
+
+    def _check_avl(self):
+        Avl = self.env['zvy.avl.entry']
+        for quote in self:
+            domain = Avl._avl_partner_domain(
+                quote.company_id,
+                product=quote.line_id.product_id,
+                categ=(
+                    quote.line_id.product_id.categ_id
+                    if quote.line_id.product_id else None
+                ),
+            )
+            allowed = self.env['res.partner'].search(domain)
+            if quote.partner_id not in allowed:
+                raise ValidationError(_(
+                    'Vendor %(vendor)s is not on the active AVL for this product/company.',
+                    vendor=quote.partner_id.display_name,
+                ))
+
+    def _check_can_edit(self):
+        if self.env.su:
+            return
+        is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+        is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        for quote in self:
+            if quote.request_id.state != 'inquiry':
+                raise UserError(_(
+                    'Quotes can only be edited while the purchase request is in Inquiry.'
+                ))
+            if is_cm or is_admin:
+                continue
+            if self.env.user not in quote.line_id.expert_user_ids:
+                raise UserError(_(
+                    'You can only edit quotes on lines assigned to you.'
+                ))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('line_id') and not vals.get('request_id'):
+                line = self.env['zvy.purchase.request.line'].browse(vals['line_id'])
+                vals['request_id'] = line.request_id.id
+        quotes = super().create(vals_list)
+        quotes._check_can_edit()
+        quotes._check_avl()
+        return quotes
+
+    def write(self, vals):
+        self._check_can_edit()
+        res = super().write(vals)
+        if {'partner_id', 'line_id', 'company_id'} & set(vals):
+            self._check_avl()
+        return res
+
+    def unlink(self):
+        self._check_can_edit()
+        return super().unlink()

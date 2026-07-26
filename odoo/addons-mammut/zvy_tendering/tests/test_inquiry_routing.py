@@ -1,0 +1,149 @@
+# -*- coding: utf-8 -*-
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests import tagged
+
+from .common import ZvyTenderingCommon
+
+
+@tagged('post_install', '-at_install')
+class TestZvyInquiryRouting(ZvyTenderingCommon):
+
+    def test_expert_cannot_edit_unassigned_lines_or_quotes(self):
+        pr = self._submit_and_assign(experts=self.user_cce)
+        line = pr.line_ids[0]
+
+        with self.assertRaises(AccessError):
+            self.env['zvy.purchase.request.line'].with_user(self.user_cce_other).browse(
+                line.id
+            ).read(['product_id'])
+
+        try:
+            self.env['zvy.quote'].with_user(self.user_cce_other).with_company(
+                self.company_a
+            ).create({
+                'line_id': line.id,
+                'partner_id': self.partner_a.id,
+                'price_unit': 12.0,
+            })
+        except (AccessError, UserError):
+            pass
+        else:
+            self.fail('Unassigned expert should not create quotes on this line')
+
+        # Assigned expert can create a quote.
+        quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(
+            self.company_a
+        ).create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 12.0,
+        })
+        self.assertEqual(quote.state, 'draft')
+
+        # Content edit on line still blocked outside draft/correction.
+        with self.assertRaises(UserError):
+            line.with_user(self.user_cce).write({'product_uom_qty': 99.0})
+
+    def test_non_avl_partner_rejected_on_quote(self):
+        pr = self._submit_and_assign()
+        with self.assertRaises(ValidationError):
+            self.env['zvy.quote'].with_user(self.user_cce).with_company(
+                self.company_a
+            ).create({
+                'line_id': pr.line_ids[0].id,
+                'partner_id': self.partner_non_avl.id,
+                'price_unit': 10.0,
+            })
+
+    def test_quote_minima_block_and_allow_submit(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_b.id,
+            'price_unit': 11.0,
+        })
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cce).action_submit_quotes()
+
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_c.id,
+            'price_unit': 12.0,
+        })
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+        self.assertTrue(all(q.state == 'submitted' for q in pr.sudo().quote_ids))
+
+    def test_sole_source_allows_one_quote(self):
+        pr = self._create_draft_pr(line_vals=[{
+            'product_id': self.product.id,
+            'product_uom_qty': 1.0,
+            'product_uom_id': self.product.uom_id.id,
+            'price_estimate': 20.0,
+            'sole_source': True,
+        }])
+        pr = self._submit_and_assign(pr=pr)
+        self._add_quotes(pr, count=1)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+
+    def test_cm_reject_quotes_returns_to_inquiry(self):
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cm)._action_reject_quotes('   ')
+
+        pr.with_user(self.user_cm)._action_reject_quotes('Prices too high')
+        self.assertEqual(pr.state, 'inquiry')
+        self.assertEqual(pr.quote_reject_reason, 'Prices too high')
+        self.assertTrue(all(q.state == 'draft' for q in pr.sudo().quote_ids))
+
+    def test_router_company_path_signatory_stub(self):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._submit_and_assign()
+        self.assertFalse(pr.is_high_value)
+        self.assertFalse(pr.is_commission_item)
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        self.assertFalse(pr.commission_case_id)
+
+    def test_router_high_value_creates_commission_case(self):
+        self.company_a.zvy_high_value_threshold = 50.0
+        pr = self._submit_and_assign()
+        self.assertTrue(pr.is_high_value)
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'commission')
+        self.assertTrue(pr.commission_case_id)
+        self.assertTrue(pr.commission_case_id.reason_high_value)
+        self.assertTrue(pr.commission_case_id.name.startswith('CASE/'))
+
+    def test_router_commission_item_creates_case(self):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._create_draft_pr(line_vals=[{
+            'product_id': self.product_commission.id,
+            'product_uom_qty': 1.0,
+            'product_uom_id': self.product_commission.uom_id.id,
+            'price_estimate': 10.0,
+        }])
+        pr = self._submit_and_assign(pr=pr)
+        self.assertTrue(pr.is_commission_item)
+        self.assertFalse(pr.is_high_value)
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'commission')
+        self.assertTrue(pr.commission_case_id.reason_commission_item)

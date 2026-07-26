@@ -11,9 +11,10 @@
                 <field name="amount_total"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="state" widget="badge"
-                        decoration-info="state == 'submitted'"
-                        decoration-warning="state in ('correction', 'cm_review')"
+                        decoration-info="state in ('submitted', 'inquiry', 'quote_review')"
+                        decoration-warning="state in ('correction', 'cm_review', 'signatory')"
                         decoration-danger="state == 'rejected'"
+                        decoration-success="state in ('commission', 'po_ready', 'done')"
                         decoration-muted="state == 'draft'"/>
                 <field name="is_high_value" optional="hide"/>
                 <field name="is_commission_item" optional="hide"/>
@@ -38,8 +39,23 @@
                     <button name="action_return_correction" string="Return for Correction" type="object"
                             invisible="state not in ('submitted', 'cm_review')"
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_assign_experts" string="Assign Experts" type="object"
+                            class="btn-primary"
+                            invisible="state not in ('submitted', 'cm_review', 'inquiry')"
+                            groups="zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_submit_quotes" string="Submit Quotes" type="object"
+                            class="btn-primary"
+                            invisible="state != 'inquiry'"
+                            groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_approve_quotes" string="Approve Quotes" type="object"
+                            class="btn-primary"
+                            invisible="state != 'quote_review'"
+                            groups="zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_reject_quotes" string="Reject Quotes" type="object"
+                            invisible="state != 'quote_review'"
+                            groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <field name="state" widget="statusbar"
-                            statusbar_visible="draft,submitted,cm_review,correction,rejected"/>
+                            statusbar_visible="draft,submitted,inquiry,quote_review,commission,signatory,correction,rejected"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -61,6 +77,7 @@
                             <field name="is_high_value"/>
                             <field name="is_commission_item"/>
                             <field name="has_sole_source"/>
+                            <field name="commission_case_id" invisible="not commission_case_id"/>
                         </group>
                     </group>
                     <group invisible="not reject_reason">
@@ -68,6 +85,9 @@
                     </group>
                     <group invisible="not return_reason">
                         <field name="return_reason" readonly="1"/>
+                    </group>
+                    <group invisible="not quote_reject_reason">
+                        <field name="quote_reject_reason" readonly="1"/>
                     </group>
                     <notebook>
                         <page string="Lines" name="lines">
@@ -81,6 +101,54 @@
                                     <field name="price_subtotal"/>
                                     <field name="sole_source"/>
                                     <field name="is_commission_item"/>
+                                    <field name="expert_user_ids" widget="many2many_tags" optional="show"/>
+                                    <field name="quote_count" optional="show"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="product_id"/>
+                                            <field name="product_uom_qty"/>
+                                            <field name="product_uom_id"/>
+                                            <field name="price_estimate"/>
+                                            <field name="price_subtotal"/>
+                                            <field name="currency_id" invisible="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="sole_source"/>
+                                            <field name="is_commission_item"/>
+                                            <field name="expert_user_ids" widget="many2many_tags"/>
+                                        </group>
+                                    </group>
+                                    <notebook>
+                                        <page string="Quotes" name="line_quotes">
+                                            <field name="quote_ids">
+                                                <list editable="bottom">
+                                                    <field name="partner_id"/>
+                                                    <field name="price_unit"/>
+                                                    <field name="amount_total"/>
+                                                    <field name="currency_id" column_invisible="1"/>
+                                                    <field name="expert_user_id"/>
+                                                    <field name="state"/>
+                                                    <field name="request_id" column_invisible="1"/>
+                                                </list>
+                                            </field>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Quotes" name="quotes"
+                              groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
+                            <field name="quote_ids" readonly="state != 'inquiry'">
+                                <list editable="bottom">
+                                    <field name="line_id"/>
+                                    <field name="partner_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="amount_total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="expert_user_id"/>
+                                    <field name="state"/>
                                 </list>
                             </field>
                         </page>
@@ -108,6 +176,8 @@
                 <filter string="CM Review" name="cm_review" domain="[('state', '=', 'cm_review')]"/>
                 <filter string="Awaiting Review" name="awaiting_review"
                         domain="[('state', 'in', ('submitted', 'cm_review'))]"/>
+                <filter string="Inquiry" name="inquiry" domain="[('state', '=', 'inquiry')]"/>
+                <filter string="Quote Review" name="quote_review" domain="[('state', '=', 'quote_review')]"/>
                 <filter string="Correction" name="correction" domain="[('state', '=', 'correction')]"/>
                 <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
                 <separator/>
@@ -117,6 +187,85 @@
                 <filter string="Requester" name="group_requester" context="{'group_by': 'requester_id'}"/>
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_request_line_list" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.line.list</field>
+        <field name="model">zvy.purchase.request.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="request_id"/>
+                <field name="product_id"/>
+                <field name="product_uom_qty"/>
+                <field name="product_uom_id"/>
+                <field name="price_estimate"/>
+                <field name="price_subtotal"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="sole_source"/>
+                <field name="expert_user_ids" widget="many2many_tags"/>
+                <field name="quote_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_request_line_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.line.form</field>
+        <field name="model">zvy.purchase.request.line</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Request Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="request_id"/>
+                            <field name="product_id"/>
+                            <field name="product_uom_qty"/>
+                            <field name="product_uom_id"/>
+                            <field name="price_estimate"/>
+                            <field name="price_subtotal"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="sole_source"/>
+                            <field name="is_commission_item"/>
+                            <field name="expert_user_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Quotes" name="quotes">
+                            <field name="quote_ids">
+                                <list editable="bottom">
+                                    <field name="partner_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="amount_total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="expert_user_id"/>
+                                    <field name="state"/>
+                                    <field name="request_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_request_line_search" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.line.search</field>
+        <field name="model">zvy.purchase.request.line</field>
+        <field name="arch" type="xml">
+            <search string="Request Lines">
+                <field name="request_id"/>
+                <field name="product_id"/>
+                <field name="expert_user_ids"/>
+                <filter string="My Assignments" name="my_assignments"
+                        domain="[('expert_user_ids', 'in', [uid])]"/>
+                <filter string="In Inquiry" name="in_inquiry"
+                        domain="[('request_id.state', '=', 'inquiry')]"/>
+                <filter string="Quote Review" name="in_quote_review"
+                        domain="[('request_id.state', '=', 'quote_review')]"/>
             </search>
         </field>
     </record>
@@ -133,7 +282,7 @@
             </p>
             <p>
                 Planners draft and submit requests; Commercial Managers review,
-                reject, or return them for correction.
+                assign experts, and approve quote sets.
             </p>
         </field>
     </record>
@@ -151,6 +300,43 @@
             </p>
             <p>
                 New and CM-review purchase requests appear here for Commercial Managers.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_request_quote_review" model="ir.actions.act_window">
+        <field name="name">Quote Review</field>
+        <field name="res_model">zvy.purchase.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_purchase_request_search"/>
+        <field name="domain">[('state', '=', 'quote_review')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quote sets awaiting review
+            </p>
+            <p>
+                Submitted quote sets appear here for Commercial Manager approval.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_request_line_my_assignments" model="ir.actions.act_window">
+        <field name="name">My Assignments</field>
+        <field name="res_model">zvy.purchase.request.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_purchase_request_line_search"/>
+        <field name="domain">[
+            ('expert_user_ids', 'in', [uid]),
+            ('request_id.state', 'in', ('inquiry', 'quote_review')),
+        ]</field>
+        <field name="context">{'search_default_my_assignments': 1, 'search_default_in_inquiry': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No lines assigned to you
+            </p>
+            <p>
+                Lines assigned for inquiry appear here so you can collect AVL quotes.
             </p>
         </field>
     </record>

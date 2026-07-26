@@ -37,6 +37,20 @@
                   sequence="20"
                   groups="group_zvy_commercial_manager"/>
 
+        <menuitem id="menu_zvy_purchase_request_quote_review"
+                  name="Quote Review"
+                  parent="menu_zvy_purchase_requests"
+                  action="action_zvy_purchase_request_quote_review"
+                  sequence="30"
+                  groups="group_zvy_commercial_manager"/>
+
+        <menuitem id="menu_zvy_purchase_request_my_assignments"
+                  name="My Assignments"
+                  parent="menu_zvy_purchase_requests"
+                  action="action_zvy_purchase_request_line_my_assignments"
+                  sequence="40"
+                  groups="group_zvy_commercial_expert"/>
+
         <menuitem id="menu_zvy_commission"
                   name="Commission"
                   parent="menu_zvy_tendering_root"

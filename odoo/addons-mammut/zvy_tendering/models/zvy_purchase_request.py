@@ -2,14 +2,15 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-# States reachable via Phase 1 actions. Later phases unlock the rest.
 _INTAKE_EDITABLE_STATES = ('draft', 'correction')
 _CM_INTAKE_STATES = ('submitted', 'cm_review')
-_PHASE1_ALLOWED_TRANSITIONS = {
+_ALLOWED_TRANSITIONS = {
     'draft': {'submitted'},
     'correction': {'submitted'},
-    'submitted': {'rejected', 'correction'},
-    'cm_review': {'rejected', 'correction'},
+    'submitted': {'rejected', 'correction', 'inquiry'},
+    'cm_review': {'rejected', 'correction', 'inquiry'},
+    'inquiry': {'quote_review'},
+    'quote_review': {'inquiry', 'commission', 'signatory'},
 }
 
 
@@ -57,6 +58,17 @@ class ZvyPurchaseRequest(models.Model):
         string='Lines',
         copy=True,
     )
+    quote_ids = fields.One2many(
+        'zvy.quote',
+        'request_id',
+        string='Quotes',
+    )
+    commission_case_id = fields.Many2one(
+        'zvy.commission.case',
+        string='Commission Case',
+        copy=False,
+        readonly=True,
+    )
     state = fields.Selection(
         selection=[
             ('draft', 'Draft'),
@@ -100,6 +112,7 @@ class ZvyPurchaseRequest(models.Model):
     )
     reject_reason = fields.Text(copy=False)
     return_reason = fields.Text(copy=False)
+    quote_reject_reason = fields.Text(copy=False)
 
     @api.depends('line_ids.price_subtotal')
     def _compute_amount_total(self):
@@ -136,18 +149,19 @@ class ZvyPurchaseRequest(models.Model):
             new_state = vals['state']
             for request in self:
                 if new_state != request.state:
-                    allowed = _PHASE1_ALLOWED_TRANSITIONS.get(request.state, set())
+                    allowed = _ALLOWED_TRANSITIONS.get(request.state, set())
                     if new_state not in allowed:
                         raise UserError(_(
                             'Transition from %(current)s to %(target)s is not allowed.',
                             current=request.state,
                             target=new_state,
                         ))
-        # Content edits only in draft/correction; CM may still write state/reasons.
         content_keys = set(vals) - {
             'state',
             'reject_reason',
             'return_reason',
+            'quote_reject_reason',
+            'commission_case_id',
             'message_main_attachment_id',
         }
         if content_keys and not self.env.su:
@@ -211,6 +225,64 @@ class ZvyPurchaseRequest(models.Model):
             'context': {'default_request_id': self.id},
         }
 
+    def action_assign_experts(self):
+        self.ensure_one()
+        if self.state not in _CM_INTAKE_STATES and self.state != 'inquiry':
+            raise UserError(_(
+                'Experts can only be assigned from submitted, CM review, or inquiry.'
+            ))
+        return {
+            'name': _('Assign Commercial Experts'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.assign.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_request_id': self.id},
+        }
+
+    def action_submit_quotes(self):
+        self.ensure_one()
+        if self.state != 'inquiry':
+            raise UserError(_('Quotes can only be submitted from Inquiry.'))
+        if not self._user_is_assigned_expert() and not self.env.su:
+            is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+            is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+            if not (is_cm or is_admin):
+                raise UserError(_(
+                    'Only assigned Commercial Experts can submit quotes.'
+                ))
+        self._check_quote_minima()
+        self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
+            'state': 'submitted',
+        })
+        # CCE has read-only ACL on PR; state transition is authorized here.
+        self.sudo().write({'state': 'quote_review'})
+        self.sudo().message_post(body=_('Quote set submitted for CM review.'))
+        return True
+
+    def action_approve_quotes(self):
+        self.ensure_one()
+        if self.state != 'quote_review':
+            raise UserError(_('Only quote-review requests can have quotes approved.'))
+        self.quote_ids.filtered(lambda q: q.state == 'submitted').sudo().write({
+            'state': 'accepted',
+        })
+        self.message_post(body=_('Quotes approved; routing purchase request.'))
+        return self._action_route_after_quotes()
+
+    def action_reject_quotes(self):
+        self.ensure_one()
+        if self.state != 'quote_review':
+            raise UserError(_('Only quote-review requests can have quotes rejected.'))
+        return {
+            'name': _('Reject Quotes'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.quote.reject.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_request_id': self.id},
+        }
+
     def _action_reject(self, reason):
         self.ensure_one()
         if not reason or not reason.strip():
@@ -240,6 +312,106 @@ class ZvyPurchaseRequest(models.Model):
         })
         self.message_post(body=_('Returned for correction: %s') % reason.strip())
         self._notify_planner('return', reason.strip())
+
+    def _action_assign_experts(self, line_assignments):
+        """Assign experts and move to inquiry.
+
+        :param line_assignments: dict {line_id: [user_id, ...]}
+        """
+        self.ensure_one()
+        if self.state not in _CM_INTAKE_STATES and self.state != 'inquiry':
+            raise UserError(_(
+                'Experts can only be assigned from submitted, CM review, or inquiry.'
+            ))
+        if not self.line_ids:
+            raise ValidationError(_('Cannot assign experts on a request with no lines.'))
+        for line in self.line_ids:
+            expert_ids = line_assignments.get(line.id, [])
+            if not expert_ids:
+                raise ValidationError(_(
+                    'Assign at least one Commercial Expert to every line.'
+                ))
+            line.write({'expert_user_ids': [(6, 0, expert_ids)]})
+        if self.state != 'inquiry':
+            self.write({'state': 'inquiry'})
+        experts = self.line_ids.mapped('expert_user_ids')
+        self.message_post(body=_('Commercial experts assigned; inquiry started.'))
+        for expert in experts:
+            self.activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=expert.id,
+                summary=_('Inquiry assignment on %s') % self.name,
+                note=_(
+                    'You have been assigned to collect quotes for purchase request %s.'
+                ) % self.name,
+            )
+        return True
+
+    def _action_reject_quotes(self, reason):
+        self.ensure_one()
+        if not reason or not reason.strip():
+            raise ValidationError(_('A quote reject reason is required.'))
+        if self.state != 'quote_review':
+            raise UserError(_('Only quote-review requests can have quotes rejected.'))
+        reason = reason.strip()
+        self.quote_ids.filtered(
+            lambda q: q.state in ('submitted', 'accepted')
+        ).sudo().write({'state': 'draft'})
+        self.write({
+            'state': 'inquiry',
+            'quote_reject_reason': reason,
+        })
+        self.message_post(body=_('Quotes rejected: %s') % reason)
+        experts = self.line_ids.mapped('expert_user_ids')
+        for expert in experts:
+            self.activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=expert.id,
+                summary=_('Quotes rejected on %s') % self.name,
+                note=_(
+                    'Quotes on purchase request %s were rejected.\nReason: %s'
+                ) % (self.name, reason),
+            )
+        return True
+
+    def _check_quote_minima(self):
+        self.ensure_one()
+        for line in self.line_ids:
+            count = len(line.quote_ids.filtered(lambda q: q.state != 'rejected'))
+            required = 1 if line.sole_source else 3
+            if count < required:
+                raise ValidationError(_(
+                    'Line %(product)s requires at least %(required)s quote(s); '
+                    'found %(count)s.',
+                    product=line.product_id.display_name,
+                    required=required,
+                    count=count,
+                ))
+
+    def _action_route_after_quotes(self):
+        self.ensure_one()
+        if self.is_commission_item or self.is_high_value:
+            case = self.env['zvy.commission.case'].sudo().create({
+                'request_id': self.id,
+                'reason_high_value': self.is_high_value,
+                'reason_commission_item': self.is_commission_item,
+            })
+            self.write({
+                'commission_case_id': case.id,
+                'state': 'commission',
+            })
+            self.message_post(body=_(
+                'Routed to Holding Commission (%s).'
+            ) % case.name)
+        else:
+            # Phase 4 will spawn approval.request; stub state only for now.
+            self.write({'state': 'signatory'})
+            self.message_post(body=_('Routed to company signatory path.'))
+        return True
+
+    def _user_is_assigned_expert(self):
+        self.ensure_one()
+        return self.env.user in self.line_ids.mapped('expert_user_ids')
 
     def _notify_planner(self, event, reason):
         """Post chatter already done by caller; schedule activity for the planner."""
