@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_request_reject_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.reject.wizard.form</field>
+        <field name="model">zvy.request.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Purchase Request">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                    <field name="reason" placeholder="Explain why this request is rejected..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Reject" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_request_return_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.return.wizard.form</field>
+        <field name="model">zvy.request.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Return for Correction">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                    <field name="reason" placeholder="Explain what needs to be corrected..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Return" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

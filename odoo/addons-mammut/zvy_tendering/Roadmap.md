@@ -63,29 +63,29 @@ Module installs cleanly; Admin can maintain AVL and thresholds; role groups assi
 
 ### Scope
 
-- [ ] Models: `zvy.purchase.request`, `zvy.purchase.request.line`
-- [ ] States: `draft`, `submitted`, `cm_review`, `correction`, `rejected` (other states stubbed or blocked until later)
-- [ ] Actions: submit, reject (mandatory reason), return for correction (mandatory reason)
-- [ ] Sequence number on create (FR-1)
-- [ ] CM dashboard / list filters for new & awaiting review
-- [ ] Planner notifications (mail/activity) on reject, return, and relevant terminal outcomes (FR-2)
-- [ ] Chatter logging for reject/return
-- [ ] Web service: create + `action_submit` via RPC (FR-1)
-- [ ] Record rules: planner own PRs; CM all company PRs
+- [x] Models: `zvy.purchase.request`, `zvy.purchase.request.line`
+- [x] States: `draft`, `submitted`, `cm_review`, `correction`, `rejected` (other states stubbed or blocked until later)
+- [x] Actions: submit, reject (mandatory reason), return for correction (mandatory reason)
+- [x] Sequence number on create (FR-1)
+- [x] CM dashboard / list filters for new & awaiting review
+- [x] Planner notifications (mail/activity) on reject, return, and relevant terminal outcomes (FR-2)
+- [x] Chatter logging for reject/return
+- [x] Web service: create + `action_submit` via RPC (FR-1)
+- [x] Record rules: planner own PRs; CM all company PRs
 
 ### Stories / FRs checklist
 
-- [ ] **Story 1 / FR-1** — Create PR (UI + web service); unique sequence; draft → submitted
-- [ ] **Story 2 / FR-2** — Notify planner on reject / return / outcomes; edit & resubmit from `correction`
-- [ ] **Story 3 / FR-3** — CM dashboard of new / awaiting review PRs
-- [ ] **Story 4 / FR-4** — Reject (terminal) or return with mandatory reason; logged
+- [x] **Story 1 / FR-1** — Create PR (UI + web service); unique sequence; draft → submitted
+- [x] **Story 2 / FR-2** — Notify planner on reject / return / outcomes; edit & resubmit from `correction`
+- [x] **Story 3 / FR-3** — CM dashboard of new / awaiting review PRs
+- [x] **Story 4 / FR-4** — Reject (terminal) or return with mandatory reason; logged
 
 ### Suggested tests
 
-- [ ] Submit moves to CM queue
-- [ ] Reject requires reason → `rejected`
-- [ ] Return → `correction`; planner can resubmit
-- [ ] RPC create/submit with ACL user
+- [x] Submit moves to CM queue
+- [x] Reject requires reason → `rejected`
+- [x] Return → `correction`; planner can resubmit
+- [x] RPC create/submit with ACL user
 
 ### Done when
 

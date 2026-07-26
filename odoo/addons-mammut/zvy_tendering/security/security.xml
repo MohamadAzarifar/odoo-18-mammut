@@ -110,5 +110,95 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
+        <!-- Purchase Request: multi-company (global) -->
+        <record id="rule_zvy_purchase_request_multi_company" model="ir.rule">
+            <field name="name">Purchase Request: multi-company</field>
+            <field name="model_id" ref="model_zvy_purchase_request"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_multi_company" model="ir.rule">
+            <field name="name">Purchase Request Line: multi-company</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Planner: own PRs only -->
+        <record id="rule_zvy_purchase_request_planner_own" model="ir.rule">
+            <field name="name">Purchase Request: planner own</field>
+            <field name="model_id" ref="model_zvy_purchase_request"/>
+            <field name="groups" eval="[(4, ref('group_zvy_planner'))]"/>
+            <field name="domain_force">[('requester_id', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_planner_own" model="ir.rule">
+            <field name="name">Purchase Request Line: planner own</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_planner'))]"/>
+            <field name="domain_force">[('request_id.requester_id', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- CM: all company PRs (company scope via multi-company rule) -->
+        <record id="rule_zvy_purchase_request_cm_all" model="ir.rule">
+            <field name="name">Purchase Request: commercial manager all</field>
+            <field name="model_id" ref="model_zvy_purchase_request"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_cm_all" model="ir.rule">
+            <field name="name">Purchase Request Line: commercial manager all</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- CCE: read company PRs (assignment filtering in Phase 2) -->
+        <record id="rule_zvy_purchase_request_cce_all" model="ir.rule">
+            <field name="name">Purchase Request: commercial expert read</field>
+            <field name="model_id" ref="model_zvy_purchase_request"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_cce_all" model="ir.rule">
+            <field name="name">Purchase Request Line: commercial expert read</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
     </data>
 </odoo>

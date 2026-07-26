@@ -644,13 +644,14 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake.
 
 ### Prerequisites
 
 1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`).
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
+4. Prepare two internal users for Phase 1: one with **Planner** only, one with **Commercial Manager** only (same company).
 
 ### Phase 0 — Foundation
 
@@ -658,16 +659,16 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Install the module | Install completes without errors |
+| 1 | Install / upgrade the module | Completes without errors |
 | 2 | Open the app switcher as Admin | **Procurement & Tendering** is listed |
-| 3 | Open the app | Only **Configuration** is visible (AVL + Settings). **Purchase Requests** and **Commission** are Phase 1 / 3 shells: Odoo hides menus with no action and no children, so they appear once those phases add items |
+| 3 | Open the app | **Purchase Requests** and **Configuration** are visible. **Commission** remains a Phase 3 shell (hidden until children exist) |
 | 4 | Open **Configuration** | **Approved Vendor List** and **Settings** are available |
 
 #### MT-0.2 Role groups
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | On a user form → **Access Rights** (debug **off**), set **Planner** only; save; log in as that user | **Configuration** is not available. The app itself may be absent until Phase 1 adds Purchase Request menus (empty parents stay hidden) |
+| 1 | On a user form → **Access Rights** (debug **off**), set **Planner** only; save; log in as that user | Sees **Purchase Requests** (All Requests). **Configuration** is not available |
 | 2 | Set **Administrator** on another user (or use Admin); save | That user sees **Configuration**; Admin implies all operational roles |
 | 3 | Assign Commercial Manager / Expert / Commission roles independently on separate users | Each role appears under Procurement & Tendering and can be combined (roles are not mutually exclusive) |
 
@@ -702,11 +703,63 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | Create Company A and Company B; add one AVL vendor entry per company | Two entries exist (as Admin / multi-company user) |
 | 2 | Log in as a user allowed only on Company A, with Tendering Admin | User sees Company A’s AVL entry only; Company B’s entry is not in search results |
 
-#### MT-0.7 PR sequence (prep for Phase 1)
+#### MT-0.7 PR sequence
 
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | Technical → Sequences (or Settings with developer mode): find code `zvy.purchase.request` | Sequence exists with prefix `PR/%(year)s/` and padding 5 |
+
+### Phase 1 — PR & CM intake
+
+#### MT-1.1 Create & submit PR (FR-1)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Log in as **Planner** → **Purchase Requests → All Requests → New** | Form opens in `draft`; requester defaults to current user |
+| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate; optional sole source) | Line subtotals and header total estimate compute |
+| 3 | Save | Number is assigned (e.g. `PR/2026/00001`), not `New` |
+| 4 | Click **Submit** | State → `submitted`; chatter notes submission |
+| 5 | Try **Submit** again, or edit description while submitted | Submit/edit blocked (only draft/correction are editable) |
+
+#### MT-1.2 CM queue (FR-3)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Log in as **Commercial Manager** → **Purchase Requests → Awaiting Review** | Submitted PR from MT-1.1 appears (domain: `submitted` / `cm_review`) |
+| 2 | Open the PR | Header, lines, and status are visible; **Reject** and **Return for Correction** are available |
+| 3 | As Planner, open **Awaiting Review** | Menu is not available (CM-only) |
+
+#### MT-1.3 Reject with reason (FR-4 / FR-2)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As CM on a submitted PR, click **Reject** without a reason and confirm | Wizard requires a reason |
+| 2 | Enter a reason and confirm | State → `rejected`; reason stored; chatter logs reject |
+| 3 | Switch to Planner | Activity / notification references the PR and reason; PR is no longer editable |
+
+#### MT-1.4 Return for correction & resubmit (FR-4 / FR-2)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Planner, create and submit another PR | State `submitted` |
+| 2 | As CM, **Return for Correction** with a mandatory reason | State → `correction`; reason stored; chatter logs return; planner gets activity |
+| 3 | As Planner, edit description or lines; **Submit** again | State → `submitted`; PR reappears in CM **Awaiting Review** |
+
+#### MT-1.5 Planner own-record isolation
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Planner A, create a draft PR | Visible under All Requests (My Requests) |
+| 2 | As Planner B (same company), open All Requests | Planner A’s PR is not visible |
+| 3 | As CM, open All Requests / Awaiting Review | Sees both planners’ company PRs |
+
+#### MT-1.6 Web service create + submit (FR-1)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As an integration / Planner user, call XML-RPC or JSON-RPC `create` on `zvy.purchase.request` with header + `line_ids` | Record created in `draft` with sequence number |
+| 2 | Call `action_submit` on that id | State → `submitted`; appears in CM queue |
+| 3 | As a CM-only user, attempt `create` | Access denied (no create ACL) |
 
 ### Later phases
 
@@ -714,7 +767,6 @@ Not started in the roadmap — no manual scenarios yet:
 
 | Phase | Status | Manual scenarios |
 |-------|--------|------------------|
-| 1 PR & CM intake | Not started | — |
 | 2 Inquiry & routing | Not started | — |
 | 3 Commission & CE | Not started | — |
 | 4 Sign-off & PO | Not started | — |

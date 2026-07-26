@@ -15,16 +15,27 @@
                   sequence="45"
                   groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert,group_zvy_commission_manager,group_zvy_commission_expert,group_zvy_tendering_admin"/>
 
-        <!--
-            Purchase Requests / Commission are XML shells for Phase 1 / 3.
-            Odoo hides menus that have neither an action nor a visible child,
-            so they do not appear in the UI until those phases add items under them.
-        -->
+        <!-- Commission is an XML shell for Phase 3.
+            Odoo hides menus that have neither an action nor a visible child. -->
         <menuitem id="menu_zvy_purchase_requests"
                   name="Purchase Requests"
                   parent="menu_zvy_tendering_root"
                   sequence="10"
                   groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert"/>
+
+        <menuitem id="menu_zvy_purchase_request_all"
+                  name="All Requests"
+                  parent="menu_zvy_purchase_requests"
+                  action="action_zvy_purchase_request"
+                  sequence="10"
+                  groups="group_zvy_planner,group_zvy_commercial_manager,group_zvy_commercial_expert"/>
+
+        <menuitem id="menu_zvy_purchase_request_cm_queue"
+                  name="Awaiting Review"
+                  parent="menu_zvy_purchase_requests"
+                  action="action_zvy_purchase_request_cm_queue"
+                  sequence="20"
+                  groups="group_zvy_commercial_manager"/>
 
         <menuitem id="menu_zvy_commission"
                   name="Commission"
