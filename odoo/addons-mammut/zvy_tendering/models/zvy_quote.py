@@ -28,6 +28,10 @@ class ZvyQuote(models.Model):
         index=True,
     )
     currency_id = fields.Many2one(related='request_id.currency_id')
+    request_state = fields.Selection(
+        related='request_id.state',
+        string='Request Status',
+    )
     partner_id = fields.Many2one(
         'res.partner',
         string='Vendor',

@@ -21,6 +21,10 @@ class ZvyPurchaseRequestLine(models.Model):
         index=True,
     )
     currency_id = fields.Many2one(related='request_id.currency_id')
+    request_state = fields.Selection(
+        related='request_id.state',
+        string='Request Status',
+    )
     product_id = fields.Many2one(
         'product.product',
         string='Product',

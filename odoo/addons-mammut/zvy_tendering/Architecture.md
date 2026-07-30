@@ -15,6 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
+| Version | `18.0.1.3.1` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -135,15 +136,18 @@ Key actions: `action_submit`, `action_reject`, `action_return_correction`, `acti
 | Field | Type | Notes |
 |-------|------|--------|
 | `request_id` | Many2one | Parent PR |
+| `request_state` | Selection (related) | `request_id.state`; drives form/list `readonly` attrs |
 | `product_id` | Many2one `product.product` | |
 | `product_uom_qty` | Float | |
 | `product_uom_id` | Many2one `uom.uom` | |
 | `price_estimate` | Monetary | Planner estimate |
 | `sole_source` | Boolean | Forces ≥1 quote; CEO in chain (FR-14) |
 | `is_commission_item` | Boolean | Line override and/or related from category |
-| `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5) |
+| `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO |
 | `awarded_partner_id` | Many2one | Denormalized winner |
+
+**Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
 #### `zvy.quote`
 
@@ -152,6 +156,7 @@ Expert-collected offer (standard inquiry path).
 | Field | Type | Notes |
 |-------|------|--------|
 | `request_id` | Many2one | |
+| `request_state` | Selection (related) | `request_id.state`; drives form `readonly` attrs |
 | `line_id` | Many2one | Optional: quote per line |
 | `partner_id` | Many2one | Domain: active AVL (BR-1 / FR-9) |
 | `price_unit` / `amount_total` | Monetary | |
@@ -159,6 +164,8 @@ Expert-collected offer (standard inquiry path).
 | `attachment_ids` | Many2many / binary | |
 | `state` | Selection | e.g. `draft`, `submitted`, `accepted`, `rejected` |
 | `expert_user_id` | Many2one | Who recorded it |
+
+**Editability:** `_check_can_edit` allows create/write/unlink only while PR is `inquiry` (and, for non-CM/Admin, only on lines assigned to the user). Views grey out quote fields when `request_state != 'inquiry'` (standalone quote form and Quotes one2many on PR / line).
 
 #### `zvy.avl.entry`
 
@@ -376,7 +383,7 @@ Implied hierarchy (example): Admin implies CM + Commission Manager + Expert grou
 |-------|----------------|
 | Multi-company | `company_id in company_ids` (or False) on all company-scoped models |
 | Planner | Own PRs (`requester_id = user`) |
-| Commercial Expert | Lines where `user in expert_user_ids`; related PR read-only for context |
+| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only; product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
 | Commercial Manager | All company PRs |
 | Commission Expert | Cases where `user in expert_user_ids` |
 | Commission Manager | All open commission cases / CE for company |
@@ -452,6 +459,7 @@ Automated tests (PRD §7) mapped to design:
 |------|--------|
 | Quote minima | Standard line blocks submit with &lt;3 quotes; sole source allows 1 |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite |
+| Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
 | Router | High value / commission → case; else → approval.request |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |

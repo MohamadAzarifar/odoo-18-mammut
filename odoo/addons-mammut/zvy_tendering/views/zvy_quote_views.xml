@@ -27,22 +27,24 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,accepted,rejected"/>
                 </header>
                 <sheet>
+                    <field name="request_state" invisible="1"/>
                     <group>
                         <group>
                             <field name="request_id" readonly="1"/>
-                            <field name="line_id"/>
-                            <field name="partner_id"/>
+                            <field name="line_id" readonly="request_state != 'inquiry'"/>
+                            <field name="partner_id" readonly="request_state != 'inquiry'"/>
                             <field name="expert_user_id" readonly="1"/>
                         </group>
                         <group>
-                            <field name="price_unit"/>
+                            <field name="price_unit" readonly="request_state != 'inquiry'"/>
                             <field name="amount_total"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <field name="attachment_ids" widget="many2many_binary"/>
+                        <field name="attachment_ids" widget="many2many_binary"
+                                readonly="request_state != 'inquiry'"/>
                     </group>
                 </sheet>
             </form>

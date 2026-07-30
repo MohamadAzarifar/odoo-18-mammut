@@ -226,6 +226,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [ ] Expert dashboard lists only assigned lines/PRs.
 - [ ] Expert cannot edit unassigned lines.
+- [ ] On assigned lines (inquiry/quote review), product/qty and other intake fields are read-only in the UI; experts can still add/edit quotes while the PR is in `inquiry`.
 
 #### FR-9 AVL-only suppliers *(Story 9)*
 
@@ -780,7 +781,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As the assigned **Commercial Expert** → **Purchase Requests → My Assignments** | Only lines assigned to this user appear (parent in `inquiry` / `quote_review`) |
-| 2 | Open an assigned line / related PR | Can add quotes on assigned lines; product/qty edits are blocked |
+| 2 | Open an assigned line / related PR | Can add quotes on assigned lines; product/qty/expert fields are greyed out (read-only), not editable-then-rejected |
 | 3 | As a second Expert **not** assigned to that PR | PR / line not visible; cannot create quotes on those lines |
 | 4 | As Expert, open **Awaiting Review** / **Quote Review** | Menus not available (CM-only) |
 
