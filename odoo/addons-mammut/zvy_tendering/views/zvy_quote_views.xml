@@ -24,7 +24,9 @@
         <field name="arch" type="xml">
             <form string="Inquiry Quote">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,accepted,rejected"/>
+                    <field name="state" widget="statusbar"
+                            statusbar_visible="draft,submitted,accepted,rejected"
+                            readonly="1"/>
                 </header>
                 <sheet>
                     <field name="request_state" invisible="1"/>

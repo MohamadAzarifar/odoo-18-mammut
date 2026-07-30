@@ -44,6 +44,62 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         with self.assertRaises(UserError):
             line.with_user(self.user_cce).write({'product_uom_qty': 99.0})
 
+    def test_expert_cannot_set_recorded_by_or_state(self):
+        pr = self._submit_and_assign(experts=self.user_cce)
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+
+        quote = Quote.create({
+            'line_id': pr.line_ids[0].id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+            'expert_user_id': self.user_cm.id,
+            'state': 'accepted',
+        })
+        self.assertEqual(quote.expert_user_id, self.user_cce)
+        self.assertEqual(quote.state, 'draft')
+
+        with self.assertRaises(UserError):
+            quote.write({'state': 'submitted'})
+        with self.assertRaises(UserError):
+            quote.write({'expert_user_id': self.user_cm.id})
+
+    def test_expert_adds_quote_through_line(self):
+        """The line form saves quotes as a one2many command on the line itself."""
+        pr = self._submit_and_assign(experts=self.user_cce)
+        line = pr.line_ids[0].with_user(self.user_cce).with_company(self.company_a)
+
+        line.write({
+            'quote_ids': [(0, 0, {
+                'partner_id': self.partner_a.id,
+                'price_unit': 15.0,
+            })],
+        })
+        self.assertEqual(len(line.quote_ids), 1)
+        self.assertEqual(line.quote_ids.request_id, pr)
+
+        # Other line content stays locked outside draft/correction.
+        with self.assertRaises(UserError):
+            line.write({'product_uom_qty': 5.0})
+
+    def test_quote_set_on_request_editable_by_cm_only(self):
+        pr = self._submit_and_assign(experts=self.user_cce)
+        self.assertFalse(pr.with_user(self.user_cce).can_edit_quotes)
+
+        cm_pr = pr.with_user(self.user_cm).with_company(self.company_a)
+        self.assertTrue(cm_pr.can_edit_quotes)
+        cm_pr.write({
+            'quote_ids': [(0, 0, {
+                'line_id': pr.line_ids[0].id,
+                'partner_id': self.partner_a.id,
+                'price_unit': 20.0,
+            })],
+        })
+        self.assertEqual(len(pr.quote_ids), 1)
+
+        # Header content on the PR is still locked outside draft/correction.
+        with self.assertRaises(UserError):
+            cm_pr.write({'description': 'changed'})
+
     def test_quote_vendor_selection_limited_to_avl(self):
         pr = self._submit_and_assign()
         quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(

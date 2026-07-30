@@ -781,7 +781,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As the assigned **Commercial Expert** → **Purchase Requests → My Assignments** | Only lines assigned to this user appear (parent in `inquiry` / `quote_review`) |
-| 2 | Open an assigned line / related PR | Can add quotes on assigned lines; product/qty/expert fields are greyed out (read-only), not editable-then-rejected |
+| 2 | Open an assigned line / related PR | Can add and save quotes on assigned lines; product/qty/expert fields are greyed out (read-only), not editable-then-rejected |
 | 3 | As a second Expert **not** assigned to that PR | PR / line not visible; cannot create quotes on those lines |
 | 4 | As Expert, open **Awaiting Review** / **Quote Review** | Menus not available (CM-only) |
 
@@ -789,9 +789,10 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As assigned Expert on an inquiry PR, open **Quotes** (or line quotes) → add a quote | Vendor dropdown lists **only** active AVL vendors for the company (+ product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
+| 1 | As assigned Expert → **My Assignments** → open a line → **Quotes** → add a quote and save | Quote saves while the PR is in `inquiry`; vendor dropdown lists **only** active AVL vendors for the company (+ product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
+| 1b | As the same Expert, open the PR → **Quotes** tab | Read-only, with a hint pointing to My Assignments (experts cannot write the PR); as CM the same tab is editable in `inquiry` |
 | 2 | Try to save a quote with a non-AVL vendor (e.g. via RPC or forced partner) | Validation error: vendor not on active AVL |
-| 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total |
+| 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total; **Recorded By** = current Expert (read-only); **State** = Draft (read-only, advanced by Submit Quotes / CM actions) |
 
 #### MT-2.4 Quote minima & submit (FR-10 / BR-2)
 

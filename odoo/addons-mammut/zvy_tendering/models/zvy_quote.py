@@ -43,6 +43,7 @@ class ZvyQuote(models.Model):
         'res.partner',
         string='Allowed Vendors',
         compute='_compute_allowed_partner_ids',
+        depends_context=('uid', 'company'),
         help='Active AVL vendors for this company and the line product/category.',
     )
     price_unit = fields.Monetary(
@@ -69,6 +70,7 @@ class ZvyQuote(models.Model):
         string='Recorded By',
         required=True,
         default=lambda self: self.env.user,
+        readonly=True,
         index=True,
     )
     state = fields.Selection(
@@ -81,6 +83,7 @@ class ZvyQuote(models.Model):
         default='draft',
         required=True,
         copy=False,
+        readonly=True,
         index=True,
     )
 
@@ -151,19 +154,40 @@ class ZvyQuote(models.Model):
                     'You can only edit quotes on lines assigned to you.'
                 ))
 
+    def _assert_system_fields_unchanged(self, vals):
+        """Recorded By and State are set by defaults / workflow actions only."""
+        if self.env.su:
+            return
+        forbidden = {'expert_user_id', 'state'} & set(vals)
+        if forbidden:
+            raise UserError(_(
+                'Quote fields Recorded By and State are set by the system and '
+                'cannot be edited manually.'
+            ))
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('line_id') and not vals.get('request_id'):
                 line = self.env['zvy.purchase.request.line'].browse(vals['line_id'])
                 vals['request_id'] = line.request_id.id
+            if not self.env.su:
+                # Always attribute the quote to the user who creates it;
+                # State always starts as draft (workflow actions advance it).
+                vals['expert_user_id'] = self.env.user.id
+                vals['state'] = 'draft'
         quotes = super().create(vals_list)
         quotes._check_can_edit()
         quotes._check_avl()
         return quotes
 
     def write(self, vals):
-        self._check_can_edit()
+        self._assert_system_fields_unchanged(vals)
+        # Workflow state transitions (submit / approve / reject) use sudo and
+        # skip the inquiry edit guard — they only change state.
+        content_keys = set(vals) - {'state'}
+        if content_keys or not self.env.su:
+            self._check_can_edit()
         res = super().write(vals)
         if {'partner_id', 'line_id', 'company_id'} & set(vals):
             self._check_avl()

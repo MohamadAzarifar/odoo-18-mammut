@@ -77,6 +77,7 @@
                                      readonly="state not in ('draft', 'correction')"/>
                             <field name="currency_id" readonly="state not in ('draft', 'correction')"/>
                             <field name="amount_total"/>
+                            <field name="can_edit_quotes" invisible="1"/>
                             <field name="is_high_value"/>
                             <field name="is_commission_item"/>
                             <field name="has_sole_source"/>
@@ -134,8 +135,8 @@
                                                     <field name="price_unit"/>
                                                     <field name="amount_total"/>
                                                     <field name="currency_id" column_invisible="1"/>
-                                                    <field name="expert_user_id"/>
-                                                    <field name="state"/>
+                                                    <field name="expert_user_id" readonly="1"/>
+                                                    <field name="state" readonly="1"/>
                                                     <field name="request_id" column_invisible="1"/>
                                                 </list>
                                             </field>
@@ -146,7 +147,13 @@
                         </page>
                         <page string="Quotes" name="quotes"
                               groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
-                            <field name="quote_ids" readonly="state != 'inquiry'">
+                            <div class="alert alert-info" role="alert"
+                                 invisible="can_edit_quotes or state != 'inquiry'"
+                                 groups="zvy_tendering.group_zvy_commercial_expert">
+                                Collect quotes from <b>Purchase Requests → My Assignments</b>,
+                                on the lines assigned to you.
+                            </div>
+                            <field name="quote_ids" readonly="not can_edit_quotes">
                                 <list editable="bottom">
                                     <field name="line_id" domain="[('request_id', '=', parent.id)]"/>
                                     <field name="allowed_partner_ids" column_invisible="1"/>
@@ -154,8 +161,8 @@
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
                                     <field name="currency_id" column_invisible="1"/>
-                                    <field name="expert_user_id"/>
-                                    <field name="state"/>
+                                    <field name="expert_user_id" readonly="1"/>
+                                    <field name="state" readonly="1"/>
                                 </list>
                             </field>
                         </page>
@@ -255,8 +262,8 @@
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
                                     <field name="currency_id" column_invisible="1"/>
-                                    <field name="expert_user_id"/>
-                                    <field name="state"/>
+                                    <field name="expert_user_id" readonly="1"/>
+                                    <field name="state" readonly="1"/>
                                     <field name="request_id" column_invisible="1"/>
                                 </list>
                             </field>

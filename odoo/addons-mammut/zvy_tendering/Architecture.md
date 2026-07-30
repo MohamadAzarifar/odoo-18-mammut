@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.3.2` |
+| Version | `18.0.1.3.4` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -128,6 +128,7 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `reject_reason` / `return_reason` | Text | Mandatory on reject/return |
 | `award_partner_id` | Many2one | Winning vendor when single award |
 | `quote_ids` | One2many | → `zvy.quote` |
+| `can_edit_quotes` | Boolean (compute) | `inquiry` + CM/Admin; gates the Quotes tab (experts have no PR write) |
 
 Key actions: `action_submit`, `action_reject`, `action_return_correction`, `action_assign_experts`, `action_approve_quotes`, `action_reject_quotes`, `_action_route_after_quotes`, `action_create_po`.
 
@@ -149,6 +150,8 @@ Key actions: `action_submit`, `action_reject`, `action_return_correction`, `acti
 
 **Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
+`quote_ids` is **exempt** from that content lock on both `zvy.purchase.request.line` and `zvy.purchase.request`: saving a quote in a one2many issues a `write` on the parent, and inquiry is precisely when the parent is locked. Quote editability is delegated to `zvy.quote._check_can_edit` (state + assignment), so the parent lock must not double-guard it.
+
 #### `zvy.quote`
 
 Expert-collected offer (standard inquiry path).
@@ -163,10 +166,10 @@ Expert-collected offer (standard inquiry path).
 | `price_unit` / `amount_total` | Monetary | |
 | `currency_id` | Many2one | |
 | `attachment_ids` | Many2many / binary | |
-| `state` | Selection | e.g. `draft`, `submitted`, `accepted`, `rejected` |
-| `expert_user_id` | Many2one | Who recorded it |
+| `expert_user_id` | Many2one | Who recorded it; default `env.user`; readonly (system-set) |
+| `state` | Selection | e.g. `draft`, `submitted`, `accepted`, `rejected`; readonly — advanced only by workflow actions (`sudo`) |
 
-**Editability:** `_check_can_edit` allows create/write/unlink only while PR is `inquiry` (and, for non-CM/Admin, only on lines assigned to the user). Views grey out quote fields when `request_state != 'inquiry'` (standalone quote form and Quotes one2many on PR / line).
+**Editability:** `_check_can_edit` allows create/write/unlink only while PR is `inquiry` (and, for non-CM/Admin, only on lines assigned to the user). Views grey out quote fields when `request_state != 'inquiry'` (standalone quote form and Quotes one2many on PR / line). `expert_user_id` and `state` are field- and view-readonly; create forces them to the current user / `draft`, and non-`sudo` writes to those keys raise — workflow actions (`Submit Quotes`, approve/reject) advance `state` via `sudo`.
 
 #### `zvy.avl.entry`
 
@@ -182,6 +185,8 @@ Approved Vendor List maintained in Odoo (no external sync).
 | `date_start` / `date_end` | Date | Optional validity |
 
 Domain helper: `_avl_partner_domain(company, product=None, categ=None)` used by quote and CE invite fields.
+
+Computed fields that read `self.env.user` (`allowed_partner_ids`, `can_edit_quotes`) must declare `depends_context=('uid', ...)`; without it the cache serves the first user’s value to everyone in the same transaction.
 
 Vendor pickers must never be filtered by an `onchange`-returned domain (unsupported since Odoo 17 — it silently lists every contact). Each model exposes a non-stored computed `allowed_partner_ids` and the vendor field declares `domain="[('id', 'in', allowed_partner_ids)]"`: `zvy.quote` scopes by line company/product/category, `zvy.closed.envelope` by company. Views that let a vendor be picked must load the helper field (`invisible="1"` / `column_invisible="1"`). Server-side `_check_avl` / `_check_invite_avl` reuse the same helper so UI and validation cannot drift.
 
@@ -386,7 +391,7 @@ Implied hierarchy (example): Admin implies CM + Commission Manager + Expert grou
 |-------|----------------|
 | Multi-company | `company_id in company_ids` (or False) on all company-scoped models |
 | Planner | Own PRs (`requester_id = user`) |
-| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only; product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
+| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL, so the PR Quotes tab is read-only for them); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
 | Commercial Manager | All company PRs |
 | Commission Expert | Cases where `user in expert_user_ids` |
 | Commission Manager | All open commission cases / CE for company |
@@ -462,6 +467,7 @@ Automated tests (PRD §7) mapped to design:
 |------|--------|
 | Quote minima | Standard line blocks submit with &lt;3 quotes; sole source allows 1 |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
+| Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; PR Quotes tab editable for CM/Admin only |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
 | Router | High value / commission → case; else → approval.request |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |

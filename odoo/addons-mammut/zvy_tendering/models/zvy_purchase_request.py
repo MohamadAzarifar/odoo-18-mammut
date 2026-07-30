@@ -123,6 +123,13 @@ class ZvyPurchaseRequest(models.Model):
         compute='_compute_routing_flags',
         store=True,
     )
+    can_edit_quotes = fields.Boolean(
+        string='Can Edit Quotes Here',
+        compute='_compute_can_edit_quotes',
+        depends_context=('uid',),
+        help='Experts collect quotes from their assigned lines; only CM/Admin may '
+             'edit the quote set on the request itself (they alone can write the PR).',
+    )
     reject_reason = fields.Text(copy=False)
     return_reason = fields.Text(copy=False)
     quote_reject_reason = fields.Text(copy=False)
@@ -144,6 +151,15 @@ class ZvyPurchaseRequest(models.Model):
             request.is_high_value = bool(threshold and request.amount_total >= threshold)
             request.is_commission_item = any(request.line_ids.mapped('is_commission_item'))
             request.has_sole_source = any(request.line_ids.mapped('sole_source'))
+
+    @api.depends('state')
+    def _compute_can_edit_quotes(self):
+        is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+        is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        for request in self:
+            request.can_edit_quotes = (
+                request.state == 'inquiry' and (is_cm or is_admin)
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -178,6 +194,7 @@ class ZvyPurchaseRequest(models.Model):
             'closed_envelope_id',
             'award_partner_id',
             'message_main_attachment_id',
+            'quote_ids',
         }
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)

@@ -61,6 +61,7 @@ class ZvyClosedEnvelope(models.Model):
         'res.partner',
         string='Allowed Vendors',
         compute='_compute_allowed_partner_ids',
+        depends_context=('uid', 'company'),
         help='Active AVL vendors for this company.',
     )
     opening_datetime = fields.Datetime(string='Opening Datetime', copy=False)

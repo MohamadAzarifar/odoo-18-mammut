@@ -125,6 +125,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Assigned line product/qty locked outside draft/correction (server + view readonly)
 - [x] Non-AVL partner rejected on quote
 - [x] Quote vendor dropdown lists only AVL vendors for the line’s company/product
+- [x] Expert saves a quote from the line one2many while the PR is in inquiry (parent content lock exempts `quote_ids`)
 - [x] Minima block/allow submit
 - [x] Router: below threshold, no commission → company path; high value or commission flag → commission case
 
@@ -317,7 +318,7 @@ Track throughout (PRD §7):
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
-| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`) |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`) |
 | 3 Commission & CE | Not started | |
 | 4 Sign-off & PO | Not started | |
 | 5 Supplier portal | Not started | |

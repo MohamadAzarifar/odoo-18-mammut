@@ -117,7 +117,9 @@ class ZvyPurchaseRequestLine(models.Model):
 
     def write(self, vals):
         if not self.env.su:
-            content_keys = set(vals) - {'expert_user_ids'}
+            # Quotes carry their own state/assignment guard (zvy.quote._check_can_edit),
+            # so collecting them must stay possible while the PR is in inquiry.
+            content_keys = set(vals) - {'expert_user_ids', 'quote_ids'}
             if content_keys:
                 locked = self.filtered(
                     lambda l: l.request_id.state not in ('draft', 'correction')
