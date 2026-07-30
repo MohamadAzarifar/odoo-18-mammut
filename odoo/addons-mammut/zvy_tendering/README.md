@@ -239,7 +239,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [ ] Quote and CE supplier fields are domain-restricted to active `zvy.avl.entry` matching product/category (and company).
-- [ ] Non-AVL partners cannot be selected.
+- [ ] Non-AVL partners cannot be selected — they are absent from the dropdown, not merely rejected on save.
 
 #### FR-10 Quote collection minima *(Story 10)*
 
@@ -789,7 +789,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As assigned Expert on an inquiry PR, open **Quotes** (or line quotes) → add a quote | Partner selector / save must use an active AVL vendor for company (+ product/category scope) |
+| 1 | As assigned Expert on an inquiry PR, open **Quotes** (or line quotes) → add a quote | Vendor dropdown lists **only** active AVL vendors for the company (+ product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
 | 2 | Try to save a quote with a non-AVL vendor (e.g. via RPC or forced partner) | Validation error: vendor not on active AVL |
 | 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total |
 

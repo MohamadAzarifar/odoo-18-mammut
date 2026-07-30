@@ -55,6 +55,13 @@ class ZvyClosedEnvelope(models.Model):
         'envelope_id',
         'partner_id',
         string='Invited Suppliers',
+        domain="[('id', 'in', allowed_partner_ids)]",
+    )
+    allowed_partner_ids = fields.Many2many(
+        'res.partner',
+        string='Allowed Vendors',
+        compute='_compute_allowed_partner_ids',
+        help='Active AVL vendors for this company.',
     )
     opening_datetime = fields.Datetime(string='Opening Datetime', copy=False)
     bid_deadline = fields.Datetime(string='Bid Deadline', copy=False)
@@ -94,6 +101,15 @@ class ZvyClosedEnvelope(models.Model):
     def _invite_partner_domain(self):
         self.ensure_one()
         return self.env['zvy.avl.entry']._avl_partner_domain(self.company_id)
+
+    @api.depends('company_id')
+    def _compute_allowed_partner_ids(self):
+        Partner = self.env['res.partner']
+        Avl = self.env['zvy.avl.entry']
+        for envelope in self:
+            envelope.allowed_partner_ids = Partner.search(
+                Avl._avl_partner_domain(envelope.company_id)
+            )
 
     @api.constrains('invite_partner_ids', 'company_id')
     def _check_invite_avl(self):

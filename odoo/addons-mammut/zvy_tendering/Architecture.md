@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.3.1` |
+| Version | `18.0.1.3.2` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -158,7 +158,8 @@ Expert-collected offer (standard inquiry path).
 | `request_id` | Many2one | |
 | `request_state` | Selection (related) | `request_id.state`; drives form `readonly` attrs |
 | `line_id` | Many2one | Optional: quote per line |
-| `partner_id` | Many2one | Domain: active AVL (BR-1 / FR-9) |
+| `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s company/product/category |
+| `partner_id` | Many2one | Domain: `[('id', 'in', allowed_partner_ids)]` (BR-1 / FR-9) |
 | `price_unit` / `amount_total` | Monetary | |
 | `currency_id` | Many2one | |
 | `attachment_ids` | Many2many / binary | |
@@ -181,6 +182,8 @@ Approved Vendor List maintained in Odoo (no external sync).
 | `date_start` / `date_end` | Date | Optional validity |
 
 Domain helper: `_avl_partner_domain(company, product=None, categ=None)` used by quote and CE invite fields.
+
+Vendor pickers must never be filtered by an `onchange`-returned domain (unsupported since Odoo 17 — it silently lists every contact). Each model exposes a non-stored computed `allowed_partner_ids` and the vendor field declares `domain="[('id', 'in', allowed_partner_ids)]"`: `zvy.quote` scopes by line company/product/category, `zvy.closed.envelope` by company. Views that let a vendor be picked must load the helper field (`invisible="1"` / `column_invisible="1"`). Server-side `_check_avl` / `_check_invite_avl` reuse the same helper so UI and validation cannot drift.
 
 #### `zvy.commission.case`
 
@@ -223,7 +226,7 @@ Closed-envelope tender linked to a PR (or line set).
 |-------|------|--------|
 | `request_id` | Many2one | |
 | `state` | Selection | See §3.2 |
-| `invite_partner_ids` | Many2many | AVL-only |
+| `invite_partner_ids` | Many2many | AVL-only; domain `[('id', 'in', allowed_partner_ids)]` + `_check_invite_avl` |
 | `opening_datetime` | Datetime | Required on list approval (FR-20) |
 | `bid_deadline` | Datetime | Required on list approval; default window from settings |
 | `bid_ids` | One2many | → `zvy.closed.envelope.bid` |
@@ -458,7 +461,7 @@ Automated tests (PRD §7) mapped to design:
 | Area | Assert |
 |------|--------|
 | Quote minima | Standard line blocks submit with &lt;3 quotes; sole source allows 1 |
-| AVL domain | Non-AVL partner cannot be set on quote / CE invite |
+| AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
 | Router | High value / commission → case; else → approval.request |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |

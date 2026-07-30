@@ -37,7 +37,13 @@ class ZvyQuote(models.Model):
         string='Vendor',
         required=True,
         ondelete='restrict',
-        domain="[]",
+        domain="[('id', 'in', allowed_partner_ids)]",
+    )
+    allowed_partner_ids = fields.Many2many(
+        'res.partner',
+        string='Allowed Vendors',
+        compute='_compute_allowed_partner_ids',
+        help='Active AVL vendors for this company and the line product/category.',
     )
     price_unit = fields.Monetary(
         string='Unit Price',
@@ -84,35 +90,44 @@ class ZvyQuote(models.Model):
             qty = quote.line_id.product_uom_qty or 0.0
             quote.amount_total = quote.price_unit * qty
 
+    @api.depends(
+        'line_id',
+        'line_id.product_id',
+        'line_id.company_id',
+        'request_id.company_id',
+    )
+    def _compute_allowed_partner_ids(self):
+        Partner = self.env['res.partner']
+        for quote in self:
+            quote.allowed_partner_ids = Partner.search(
+                self._partner_domain_for_line(quote.line_id)
+            )
+
     @api.onchange('line_id')
     def _onchange_line_id(self):
         if self.line_id:
             self.request_id = self.line_id.request_id
-            return {'domain': {'partner_id': self._partner_domain_for_line(self.line_id)}}
-        return {'domain': {'partner_id': [('id', '=', False)]}}
+        if self.partner_id and self.partner_id not in self.allowed_partner_ids:
+            self.partner_id = False
 
     @api.model
     def _partner_domain_for_line(self, line):
-        if not line or not line.company_id:
+        if not line:
+            return [('id', '=', False)]
+        company = line.company_id or line.request_id.company_id
+        if not company:
             return [('id', '=', False)]
         return self.env['zvy.avl.entry']._avl_partner_domain(
-            line.company_id,
+            company,
             product=line.product_id,
             categ=line.product_id.categ_id if line.product_id else None,
         )
 
     def _check_avl(self):
-        Avl = self.env['zvy.avl.entry']
         for quote in self:
-            domain = Avl._avl_partner_domain(
-                quote.company_id,
-                product=quote.line_id.product_id,
-                categ=(
-                    quote.line_id.product_id.categ_id
-                    if quote.line_id.product_id else None
-                ),
+            allowed = self.env['res.partner'].search(
+                self._partner_domain_for_line(quote.line_id)
             )
-            allowed = self.env['res.partner'].search(domain)
             if quote.partner_id not in allowed:
                 raise ValidationError(_(
                     'Vendor %(vendor)s is not on the active AVL for this product/company.',

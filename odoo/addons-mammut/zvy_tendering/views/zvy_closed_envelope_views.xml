@@ -72,6 +72,7 @@
                         </group>
                     </group>
                     <group string="Invited Suppliers">
+                        <field name="allowed_partner_ids" invisible="1"/>
                         <field name="invite_partner_ids" widget="many2many_tags"
                                  readonly="state != 'draft'"
                                  options="{'no_create': True}"/>

@@ -32,7 +32,9 @@
                         <group>
                             <field name="request_id" readonly="1"/>
                             <field name="line_id" readonly="request_state != 'inquiry'"/>
-                            <field name="partner_id" readonly="request_state != 'inquiry'"/>
+                            <field name="allowed_partner_ids" invisible="1"/>
+                            <field name="partner_id" readonly="request_state != 'inquiry'"
+                                    options="{'no_create': True}"/>
                             <field name="expert_user_id" readonly="1"/>
                         </group>
                         <group>

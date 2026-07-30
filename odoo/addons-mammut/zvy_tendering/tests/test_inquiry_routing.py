@@ -44,6 +44,23 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         with self.assertRaises(UserError):
             line.with_user(self.user_cce).write({'product_uom_qty': 99.0})
 
+    def test_quote_vendor_selection_limited_to_avl(self):
+        pr = self._submit_and_assign()
+        quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(
+            self.company_a
+        ).new({'line_id': pr.line_ids[0].id})
+
+        allowed = quote.allowed_partner_ids._origin
+        self.assertIn(self.partner_a, allowed)
+        self.assertNotIn(self.partner_non_avl, allowed)
+        # partner_b is on company A's AVL too; company B-only entries stay out.
+        self.assertIn(self.partner_b, allowed)
+
+        # Without a line there is nothing to scope the AVL by.
+        self.assertFalse(
+            self.env['zvy.quote'].with_user(self.user_cce).new({}).allowed_partner_ids
+        )
+
     def test_non_avl_partner_rejected_on_quote(self):
         pr = self._submit_and_assign()
         with self.assertRaises(ValidationError):

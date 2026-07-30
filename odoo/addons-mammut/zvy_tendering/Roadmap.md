@@ -102,7 +102,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Line `expert_user_ids`; assign wizard/action (FR-5); PR → `inquiry`
 - [x] Expert dashboard: only assigned lines (FR-8)
 - [x] Assigned-line / quote forms: product/qty/expert (and quote fields outside inquiry) UI-readonly via `request_state` — no edit-then-error UX
-- [x] `zvy.quote` with AVL domain (FR-9 / BR-1)
+- [x] `zvy.quote` with AVL domain (FR-9 / BR-1) — vendor picker filtered by computed `allowed_partner_ids`, not an onchange domain
 - [x] Quote minima: ≥3 standard / ≥1 sole source before submit (FR-10 / BR-2)
 - [x] Expert submit → `quote_review`
 - [x] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
@@ -124,6 +124,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Expert cannot edit unassigned lines
 - [x] Assigned line product/qty locked outside draft/correction (server + view readonly)
 - [x] Non-AVL partner rejected on quote
+- [x] Quote vendor dropdown lists only AVL vendors for the line’s company/product
 - [x] Minima block/allow submit
 - [x] Router: below threshold, no commission → company path; high value or commission flag → commission case
 
@@ -316,7 +317,7 @@ Track throughout (PRD §7):
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
-| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`) |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`) |
 | 3 Commission & CE | Not started | |
 | 4 Sign-off & PO | Not started | |
 | 5 Supplier portal | Not started | |

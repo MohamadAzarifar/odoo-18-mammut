@@ -129,7 +129,8 @@
                                         <page string="Quotes" name="line_quotes">
                                             <field name="quote_ids">
                                                 <list editable="bottom">
-                                                    <field name="partner_id"/>
+                                                    <field name="allowed_partner_ids" column_invisible="1"/>
+                                                    <field name="partner_id" options="{'no_create': True}"/>
                                                     <field name="price_unit"/>
                                                     <field name="amount_total"/>
                                                     <field name="currency_id" column_invisible="1"/>
@@ -147,8 +148,9 @@
                               groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
                             <field name="quote_ids" readonly="state != 'inquiry'">
                                 <list editable="bottom">
-                                    <field name="line_id"/>
-                                    <field name="partner_id"/>
+                                    <field name="line_id" domain="[('request_id', '=', parent.id)]"/>
+                                    <field name="allowed_partner_ids" column_invisible="1"/>
+                                    <field name="partner_id" options="{'no_create': True}"/>
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
                                     <field name="currency_id" column_invisible="1"/>
@@ -248,7 +250,8 @@
                         <page string="Quotes" name="quotes">
                             <field name="quote_ids" readonly="request_state != 'inquiry'">
                                 <list editable="bottom">
-                                    <field name="partner_id"/>
+                                    <field name="allowed_partner_ids" column_invisible="1"/>
+                                    <field name="partner_id" options="{'no_create': True}"/>
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
                                     <field name="currency_id" column_invisible="1"/>
