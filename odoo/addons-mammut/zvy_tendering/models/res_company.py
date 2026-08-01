@@ -20,3 +20,11 @@ class ResCompany(models.Model):
         string='Signatory Approval Category',
         help='Approval category used for sequential company signatory documents.',
     )
+    zvy_sole_source_approver_ids = fields.Many2many(
+        'res.users',
+        'zvy_company_sole_source_approver_rel',
+        'company_id',
+        'user_id',
+        string='Sole-Source Approvers',
+        help='Users (e.g. CEO) required in the signatory chain for sole-source PRs (FR-14).',
+    )

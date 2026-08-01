@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_approval_request_form_zvy_tendering" model="ir.ui.view">
+        <field name="name">approval.request.form.inherit.zvy.tendering</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="approvals.approval_request_view_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_open_zvy_purchase_request" type="object"
+                        class="oe_stat_button" icon="fa-shopping-cart"
+                        invisible="not zvy_purchase_request_id">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Purchase Request</span>
+                    </div>
+                </button>
+            </div>
+            <field name="reference" position="after">
+                <field name="zvy_purchase_request_id" readonly="1"
+                         invisible="not zvy_purchase_request_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

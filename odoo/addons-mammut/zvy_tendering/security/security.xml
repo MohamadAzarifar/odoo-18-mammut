@@ -61,7 +61,7 @@
         <record id="group_zvy_commercial_manager" model="res.groups">
             <field name="name">User</field>
             <field name="category_id" ref="module_category_zvy_commercial_manager"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('purchase.group_purchase_user'))]"/>
             <field name="comment">CM queues, expert assignment, quote review, and PO creation.</field>
         </record>
 
@@ -359,6 +359,29 @@
             <field name="model_id" ref="model_zvy_purchase_request"/>
             <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
             <field name="domain_force">[('commission_case_id.expert_user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Linked Approvals: CM / Admin can open PR signatory documents -->
+        <record id="rule_zvy_approval_request_cm_linked" model="ir.rule">
+            <field name="name">Approval Request: CM/Admin linked PR</field>
+            <field name="model_id" ref="approvals.model_approval_request"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager')), (4, ref('group_zvy_tendering_admin'))]"/>
+            <field name="domain_force">[('zvy_purchase_request_id', '!=', False)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_approval_approver_cm_linked" model="ir.rule">
+            <field name="name">Approval Approver: CM/Admin linked PR</field>
+            <field name="model_id" ref="approvals.model_approval_approver"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager')), (4, ref('group_zvy_tendering_admin'))]"/>
+            <field name="domain_force">[('request_id.zvy_purchase_request_id', '!=', False)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="0"/>

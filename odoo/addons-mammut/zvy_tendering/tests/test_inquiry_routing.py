@@ -280,8 +280,11 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertFalse(pr.is_commission_item)
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'signatory')
+        self.assertTrue(pr.sudo().approval_request_id)
+        self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')
         self.assertFalse(pr.commission_case_id)
 
     def test_router_high_value_creates_commission_case(self):
@@ -290,6 +293,7 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(pr.is_high_value)
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id)
@@ -309,6 +313,15 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertFalse(pr.is_high_value)
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id.reason_commission_item)
+
+    def test_approve_quotes_requires_award(self):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cm).action_approve_quotes()

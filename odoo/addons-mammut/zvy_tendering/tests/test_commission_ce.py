@@ -16,6 +16,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id)
@@ -38,6 +39,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         case.action_approve_without_meeting()
         self.assertEqual(case.state, 'approved')
         self.assertEqual(pr.state, 'signatory')
+        self.assertTrue(pr.sudo().approval_request_id)
 
     def test_approve_without_meeting_blocked_if_not_all_approve(self):
         pr, case = self._route_to_commission()

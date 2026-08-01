@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Command
 
 _INTAKE_EDITABLE_STATES = ('draft', 'correction')
 _CM_INTAKE_STATES = ('submitted', 'cm_review')
@@ -8,10 +11,12 @@ _ALLOWED_TRANSITIONS = {
     'draft': {'submitted'},
     'correction': {'submitted'},
     'submitted': {'rejected', 'correction', 'inquiry'},
-    'cm_review': {'rejected', 'correction', 'inquiry'},
+    'cm_review': {'rejected', 'correction', 'inquiry', 'signatory'},
     'inquiry': {'quote_review'},
     'quote_review': {'inquiry', 'commission', 'signatory'},
     'commission': {'signatory', 'quote_review'},
+    'signatory': {'po_ready', 'cm_review'},
+    'po_ready': {'done'},
 }
 
 
@@ -82,6 +87,23 @@ class ZvyPurchaseRequest(models.Model):
         copy=False,
         readonly=True,
     )
+    approval_request_id = fields.Many2one(
+        'approval.request',
+        string='Signatory Approval',
+        copy=False,
+        readonly=True,
+        groups='zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin',
+    )
+    purchase_order_ids = fields.One2many(
+        'purchase.order',
+        'zvy_purchase_request_id',
+        string='Purchase Orders',
+        copy=False,
+        readonly=True,
+    )
+    purchase_order_count = fields.Integer(
+        compute='_compute_purchase_order_count',
+    )
     state = fields.Selection(
         selection=[
             ('draft', 'Draft'),
@@ -134,6 +156,11 @@ class ZvyPurchaseRequest(models.Model):
     return_reason = fields.Text(copy=False)
     quote_reject_reason = fields.Text(copy=False)
 
+    @api.depends('purchase_order_ids')
+    def _compute_purchase_order_count(self):
+        for request in self:
+            request.purchase_order_count = len(request.sudo().purchase_order_ids)
+
     @api.depends('line_ids.price_subtotal')
     def _compute_amount_total(self):
         for request in self:
@@ -185,6 +212,19 @@ class ZvyPurchaseRequest(models.Model):
                             current=request.state,
                             target=new_state,
                         ))
+                # FR-28: no po_ready while linked approval is still pending.
+                if new_state == 'po_ready':
+                    approval = request.approval_request_id
+                    if vals.get('approval_request_id'):
+                        approval = self.env['approval.request'].browse(
+                            vals['approval_request_id']
+                        )
+                    if approval and approval.request_status != 'approved':
+                        raise UserError(_(
+                            'Purchase request %(name)s cannot enter PO Ready '
+                            'while signatory approval is still pending.',
+                            name=request.name,
+                        ))
         content_keys = set(vals) - {
             'state',
             'reject_reason',
@@ -193,6 +233,7 @@ class ZvyPurchaseRequest(models.Model):
             'commission_case_id',
             'closed_envelope_id',
             'award_partner_id',
+            'approval_request_id',
             'message_main_attachment_id',
             'quote_ids',
         }
@@ -363,9 +404,24 @@ class ZvyPurchaseRequest(models.Model):
         self.ensure_one()
         if self.state != 'quote_review':
             raise UserError(_('Only quote-review requests can have quotes approved.'))
-        self.quote_ids.filtered(lambda q: q.state == 'submitted').sudo().write({
-            'state': 'accepted',
-        })
+        if not self._ce_award_satisfies_inquiry():
+            missing = self.sudo().line_ids.filtered(lambda l: not l.awarded_quote_id)
+            if missing:
+                raise ValidationError(_(
+                    'Select an awarded quote on every line before approving. '
+                    'Missing: %s'
+                ) % ', '.join(missing.mapped('product_id.display_name')))
+            for line in self.sudo().line_ids:
+                awarded = line.awarded_quote_id
+                awarded.sudo().write({'state': 'accepted'})
+                line.quote_ids.filtered(
+                    lambda q: q.state == 'submitted' and q != awarded
+                ).sudo().write({'state': 'rejected'})
+        else:
+            if not self.award_partner_id:
+                raise ValidationError(_(
+                    'Closed-envelope award vendor is required before approving.'
+                ))
         self.message_post(body=_('Quotes approved; routing purchase request.'))
         return self._action_route_after_quotes()
 
@@ -456,6 +512,7 @@ class ZvyPurchaseRequest(models.Model):
         self.quote_ids.filtered(
             lambda q: q.state in ('submitted', 'accepted')
         ).sudo().write({'state': 'draft'})
+        self.sudo().line_ids.write({'awarded_quote_id': False})
         self.write({
             'state': 'inquiry',
             'quote_reject_reason': reason,
@@ -482,6 +539,20 @@ class ZvyPurchaseRequest(models.Model):
         # Experts only read their own lines; assignment spans the whole PR.
         return self.env.user in self.sudo().line_ids.expert_user_ids
 
+    def _has_award_data(self):
+        self.ensure_one()
+        if self._ce_award_satisfies_inquiry():
+            return bool(self.award_partner_id)
+        lines = self.sudo().line_ids
+        return bool(lines) and all(line.awarded_quote_id for line in lines)
+
+    def _user_is_cm_or_admin(self):
+        return (
+            self.env.su
+            or self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+            or self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        )
+
     def _action_route_after_quotes(self):
         self.ensure_one()
         if self.is_commission_item or self.is_high_value:
@@ -498,10 +569,236 @@ class ZvyPurchaseRequest(models.Model):
                 'Routed to Holding Commission (%s).'
             ) % case.name)
         else:
-            # Phase 4 will spawn approval.request; stub state only for now.
-            self.write({'state': 'signatory'})
-            self.message_post(body=_('Routed to company signatory path.'))
+            self._action_spawn_signatory_approval()
         return True
+
+    def _action_spawn_signatory_approval(self):
+        """Create sequential approval.request and move PR to signatory (FR-12/14)."""
+        self.ensure_one()
+        category = self.company_id.zvy_signatory_approval_category_id
+        if not category:
+            raise UserError(_(
+                'Configure the Signatory Approval Category on the company '
+                'before routing to company signatories.'
+            ))
+        if not category.approver_sequence:
+            raise UserError(_(
+                'Signatory Approval Category "%s" must use Approvers Sequence '
+                'so signatories approve in order.'
+            ) % category.display_name)
+        if not category.approver_ids and not (
+            self.has_sole_source and self.company_id.zvy_sole_source_approver_ids
+        ):
+            raise UserError(_(
+                'Signatory Approval Category "%s" has no approvers configured.'
+            ) % category.display_name)
+
+        Approval = self.env['approval.request'].sudo()
+        request = Approval.create({
+            'name': _('Signatory: %s') % self.name,
+            'category_id': category.id,
+            'request_owner_id': self.env.user.id,
+            'reference': self.name,
+            'amount': self.amount_total,
+            'reason': self.description or '',
+            'zvy_purchase_request_id': self.id,
+        })
+        if self.has_sole_source:
+            self._inject_sole_source_approvers(request)
+
+        if not request.approver_ids:
+            raise UserError(_(
+                'Cannot spawn signatory approval without any approvers.'
+            ))
+
+        request.action_confirm()
+        self.write({
+            'approval_request_id': request.id,
+            'state': 'signatory',
+        })
+        self.message_post(body=_(
+            'Routed to company signatory path (%s).'
+        ) % request.display_name)
+        return request
+
+    def _inject_sole_source_approvers(self, approval_request):
+        """Ensure company sole-source / CEO approvers are last required in chain."""
+        self.ensure_one()
+        ceo_users = self.company_id.zvy_sole_source_approver_ids
+        if not ceo_users:
+            raise UserError(_(
+                'Sole-source purchase requests require Sole-Source Approvers '
+                'configured on the company (FR-14).'
+            ))
+        existing = approval_request.approver_ids.mapped('user_id')
+        max_seq = max(approval_request.approver_ids.mapped('sequence') or [10])
+        commands = []
+        seq = max_seq
+        for user in ceo_users:
+            if user in existing:
+                # Mark existing as required and push to the end.
+                approver = approval_request.approver_ids.filtered(
+                    lambda a, u=user: a.user_id == u
+                )[:1]
+                seq += 10
+                commands.append(Command.update(approver.id, {
+                    'required': True,
+                    'sequence': seq,
+                }))
+            else:
+                seq += 10
+                commands.append(Command.create({
+                    'user_id': user.id,
+                    'required': True,
+                    'sequence': seq,
+                    'status': 'new',
+                }))
+        if commands:
+            approval_request.write({'approver_ids': commands})
+
+    def action_resubmit_signatory(self):
+        self.ensure_one()
+        if not self._user_is_cm_or_admin():
+            raise UserError(_(
+                'Only Commercial Managers can resubmit to signatories.'
+            ))
+        if self.state != 'cm_review':
+            raise UserError(_(
+                'Only CM-review requests can be resubmitted to signatories.'
+            ))
+        if not self._has_award_data():
+            raise UserError(_(
+                'Award data is required before resubmitting to signatories.'
+            ))
+        self._action_spawn_signatory_approval()
+        return True
+
+    def action_create_po(self):
+        self.ensure_one()
+        if not self._user_is_cm_or_admin():
+            raise UserError(_(
+                'Only Commercial Managers can create purchase orders.'
+            ))
+        if self.state != 'po_ready':
+            raise UserError(_(
+                'Purchase orders can only be created when the request is PO Ready.'
+            ))
+        if not self._has_award_data():
+            raise UserError(_(
+                'Award data is required before creating purchase orders.'
+            ))
+        if self.approval_request_id and self.approval_request_id.request_status != 'approved':
+            raise UserError(_(
+                'Signatory approval must be fully approved before creating POs.'
+            ))
+
+        orders = self.env['purchase.order']
+        if self._ce_award_satisfies_inquiry():
+            orders = self._create_po_from_ce_award()
+        else:
+            orders = self._create_po_from_awarded_quotes()
+
+        self.write({'state': 'done'})
+        self.message_post(body=_(
+            'Purchase order(s) created: %s'
+        ) % ', '.join(orders.mapped('name')))
+        return self.action_open_purchase_orders()
+
+    def _create_po_from_awarded_quotes(self):
+        self.ensure_one()
+        grouped = defaultdict(lambda: self.env['zvy.purchase.request.line'])
+        for line in self.sudo().line_ids:
+            partner = line.awarded_quote_id.partner_id
+            grouped[partner] |= line
+
+        orders = self.env['purchase.order']
+        PurchaseOrder = self.env['purchase.order'].sudo()
+        PurchaseLine = self.env['purchase.order.line'].sudo()
+        for partner, lines in grouped.items():
+            po = PurchaseOrder.create(self._prepare_purchase_order_vals(partner))
+            for line in lines:
+                quote = line.awarded_quote_id
+                PurchaseLine.create({
+                    'order_id': po.id,
+                    'product_id': line.product_id.id,
+                    'name': line.product_id.display_name,
+                    'product_qty': line.product_uom_qty,
+                    'product_uom': line.product_uom_id.id,
+                    'price_unit': quote.price_unit,
+                    'date_planned': fields.Datetime.now(),
+                })
+            orders |= po
+        return orders
+
+    def _create_po_from_ce_award(self):
+        self.ensure_one()
+        partner = self.award_partner_id
+        PurchaseOrder = self.env['purchase.order'].sudo()
+        PurchaseLine = self.env['purchase.order.line'].sudo()
+        po = PurchaseOrder.create(self._prepare_purchase_order_vals(partner))
+
+        envelope = self.closed_envelope_id
+        winning_bid = envelope.bid_ids.filtered(
+            lambda b: b.partner_id == partner
+        )[:1]
+        lines = self.sudo().line_ids
+        for line in lines:
+            if len(lines) == 1 and winning_bid and winning_bid.amount:
+                price_unit = winning_bid.amount / (line.product_uom_qty or 1.0)
+            else:
+                price_unit = line.price_estimate or 0.0
+            PurchaseLine.create({
+                'order_id': po.id,
+                'product_id': line.product_id.id,
+                'name': line.product_id.display_name,
+                'product_qty': line.product_uom_qty,
+                'product_uom': line.product_uom_id.id,
+                'price_unit': price_unit,
+                'date_planned': fields.Datetime.now(),
+            })
+        return po
+
+    def _prepare_purchase_order_vals(self, partner):
+        self.ensure_one()
+        return {
+            'partner_id': partner.id,
+            'company_id': self.company_id.id,
+            'currency_id': self.currency_id.id,
+            'origin': self.name,
+            'payment_term_id': partner.property_supplier_payment_term_id.id,
+            'fiscal_position_id': self.env['account.fiscal.position'].with_company(
+                self.company_id
+            )._get_fiscal_position(partner).id,
+            'zvy_purchase_request_id': self.id,
+        }
+
+    def action_open_purchase_orders(self):
+        self.ensure_one()
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Orders'),
+            'res_model': 'purchase.order',
+            'view_mode': 'list,form',
+            'domain': [('zvy_purchase_request_id', '=', self.id)],
+            'context': {'default_zvy_purchase_request_id': self.id},
+        }
+        if len(self.purchase_order_ids) == 1:
+            action['view_mode'] = 'form'
+            action['res_id'] = self.purchase_order_ids.id
+        return action
+
+    def action_open_approval_request(self):
+        self.ensure_one()
+        if not self.approval_request_id:
+            raise UserError(_('No signatory approval is linked to this request.'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Signatory Approval'),
+            'res_model': 'approval.request',
+            'res_id': self.approval_request_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def _notify_planner(self, event, reason):
         """Post chatter already done by caller; schedule activity for the planner."""

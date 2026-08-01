@@ -214,9 +214,9 @@ class ZvyCommissionCase(models.Model):
             'manager_decision': 'approve',
         })
         pr = self.request_id.sudo()
-        pr.write({'state': 'signatory'})
         pr.message_post(body=_(
-            'Holding Commission approved (%s); routed to company signatory path.'
+            'Holding Commission approved (%s).'
         ) % self.name)
+        pr._action_spawn_signatory_approval()
         self.message_post(body=_('Case approved; PR advanced to signatory.'))
         return True

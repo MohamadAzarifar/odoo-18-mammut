@@ -165,6 +165,43 @@ class ZvyTenderingCommon(TransactionCase):
                 cls.group_cce.id,
             ])],
         })
+        cls.user_signatory = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Signatory',
+            'login': 'zvy_signatory',
+            'email': 'zvy_signatory@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.env.ref('approvals.group_approval_user').id,
+            ])],
+        })
+        cls.user_ceo = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY CEO',
+            'login': 'zvy_ceo',
+            'email': 'zvy_ceo@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.env.ref('approvals.group_approval_user').id,
+            ])],
+        })
+        cls.signatory_category = cls.env['approval.category'].create({
+            'name': 'ZVY Signatory Category',
+            'company_id': cls.company_a.id,
+            'approver_sequence': True,
+            'approval_minimum': 1,
+            'has_amount': 'optional',
+            'has_reference': 'optional',
+            'approver_ids': [(0, 0, {
+                'user_id': cls.user_signatory.id,
+                'required': True,
+                'sequence': 10,
+            })],
+        })
+        cls.company_a.zvy_signatory_approval_category_id = cls.signatory_category
+        cls.company_a.zvy_sole_source_approver_ids = [(6, 0, [cls.user_ceo.id])]
 
     def _create_draft_pr(self, user=None, company=None, **extra):
         user = user or self.user_planner
@@ -217,3 +254,31 @@ class ZvyTenderingCommon(TransactionCase):
                     'price_unit': 10.0 + i,
                 })
         return quotes
+
+    def _award_quotes(self, pr, partner=None):
+        """Select an awarded quote per line (defaults to first submitted quote)."""
+        partner = partner or self.partner_a
+        for line in pr.sudo().line_ids:
+            quote = line.quote_ids.filtered(
+                lambda q: q.state == 'submitted' and q.partner_id == partner
+            )[:1]
+            if not quote:
+                quote = line.quote_ids.filtered(lambda q: q.state == 'submitted')[:1]
+            line.with_user(self.user_cm).write({'awarded_quote_id': quote.id})
+
+    def _approve_all_signatories(self, pr):
+        """Approve every pending/waiting approver in sequence until request is approved."""
+        approval = pr.approval_request_id.sudo()
+        self.assertTrue(approval)
+        # Sequential: keep approving the current pending approver.
+        for _ in range(len(approval.approver_ids) + 1):
+            approval.invalidate_recordset()
+            if approval.request_status == 'approved':
+                break
+            pending = approval.approver_ids.filtered(lambda a: a.status == 'pending')
+            self.assertTrue(pending, 'Expected a pending approver')
+            pending[0].with_user(pending[0].user_id).action_approve()
+        pr.invalidate_recordset()
+        self.assertEqual(approval.request_status, 'approved')
+        self.assertEqual(pr.state, 'po_ready')
+        return approval

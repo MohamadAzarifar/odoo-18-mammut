@@ -21,3 +21,8 @@ class ResConfigSettings(models.TransientModel):
         string='Signatory Approval Category',
         readonly=False,
     )
+    zvy_sole_source_approver_ids = fields.Many2many(
+        related='company_id.zvy_sole_source_approver_ids',
+        string='Sole-Source Approvers',
+        readonly=False,
+    )

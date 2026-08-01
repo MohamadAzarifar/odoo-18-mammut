@@ -206,9 +206,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] “Create PO” is available only when PR is `po_ready` and a winning vendor / awarded quotes exist.
-- [ ] System creates one or more `purchase.order` records from awarded lines.
-- [ ] On success, PR moves to `done`.
+- [x] “Create PO” is available only when PR is `po_ready` and a winning vendor / awarded quotes exist.
+- [x] System creates one or more `purchase.order` records from awarded lines.
+- [x] On success, PR moves to `done`.
 
 ---
 
@@ -284,8 +284,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Signatory work is driven by a linked sequential `approval.request` (configured category).
-- [ ] A signatory is not asked to act before prior approvers complete.
+- [x] Signatory work is driven by a linked sequential `approval.request` (configured category).
+- [x] A signatory is not asked to act before prior approvers complete.
 
 #### FR-13 Approve or reject *(Story 13)*
 
@@ -297,9 +297,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Approver can open PR context (summary, amounts, attachments) from the approval document.
-- [ ] Approve advances the chain; full approval → PR `po_ready`.
-- [ ] Refuse returns PR to CM (`cm_review`) with reason.
+- [x] Approver can open PR context (summary, amounts, attachments) from the approval document.
+- [x] Approve advances the chain; full approval → PR `po_ready`.
+- [x] Refuse returns PR to CM (`cm_review`) with reason.
 
 #### FR-14 CEO on Sole Source *(Story 14)*
 
@@ -311,8 +311,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Any PR with sole-source line(s) includes CEO in the signatory chain before `po_ready`.
-- [ ] Applies also after Commission approval when that path was used.
+- [x] Any PR with sole-source line(s) includes CEO in the signatory chain before `po_ready`.
+- [x] Applies also after Commission approval when that path was used.
 
 ---
 
@@ -518,8 +518,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] PR cannot enter `po_ready` while linked approval is still pending.
-- [ ] Approvals module sequential rules are respected; no bypass action for unauthorized roles.
+- [x] PR cannot enter `po_ready` while linked approval is still pending.
+- [x] Approvals module sequential rules are respected; no bypass action for unauthorized roles.
 
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
@@ -647,7 +647,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO.
 
 ### Prerequisites
 
@@ -657,6 +657,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
 5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
+7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Add ≥1 **Sole-Source Approver** (e.g. CEO user with Approvals access). Commercial Manager implies Purchase User so they can open created POs.
 
 ### Phase 0 — Foundation
 
@@ -681,8 +682,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category |
-| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick an Approvals category; Save | Values persist after reopen |
+| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category, sole-source approvers |
+| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick a sequential Approvals category, set sole-source approver(s); Save | Values persist after reopen |
 | 3 | Open the same company again | Fields match what was saved |
 
 #### MT-0.4 Commission flag on product category
@@ -821,7 +822,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | Ensure company **high-value threshold** is above the PR total; lines are **not** commission items | Routing flags: not high value, not commission item |
 | 2 | Bring a PR through inquiry with valid quote minima → `quote_review` | Ready for CM |
-| 3 | As CM, **Approve Quotes** | State → `signatory` (Approvals spawn deferred to Phase 4); no commission case; chatter notes routing |
+| 3 | As CM, on each line set **Awarded Quote**; **Approve Quotes** | Winning quote → `accepted`; other submitted → `rejected`; state → `signatory`; linked sequential `approval.request` created; chatter notes routing |
+| 4 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
 
 #### MT-2.7 CM approve → Holding Commission (FR-27)
 
@@ -846,7 +848,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As Commission Expert, open review; fill accuracy/policy/suppliers notes; recommendation **Approve**; **Submit Review** | Review `submitted`; case chatter notes submission |
-| 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; PR → `signatory` (Approvals spawn deferred to Phase 4) |
+| 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; PR → `signatory` with linked sequential `approval.request` |
 | 3 | On another case where an expert recommended corrections, try **Approve Without Meeting** | Blocked until all reviews approve |
 
 #### MT-3.3 Meeting + corrections (FR-18)
@@ -872,10 +874,56 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | As CCE (or non-manager), read the bid amount | Amount hidden / zero before open |
 | 3 | After opening datetime, **Open Bids**; set winner; **Select Winner** | CE `awarded`; PR `award_partner_id` set; PR → `quote_review`. Winner before open is blocked |
 
+### Phase 4 — Sign-off & Purchase Order
+
+#### MT-4.1 Company path → sequential approval (FR-12 / FR-13 / FR-28)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Complete MT-2.6 (company path; award quotes; approve) | PR `signatory`; **Signatory** smart button opens linked `approval.request` |
+| 2 | Open the approval as the **first** signatory | Status pending for that user; later approvers are waiting (sequential) |
+| 3 | As a later approver, try to approve before prior signatories | Blocked (cannot approve while waiting) |
+| 4 | Approve in order until the chain completes | Approval `approved`; PR → `po_ready`; chatter notes sign-off complete |
+| 5 | As Admin/CM, try to force PR to `po_ready` while approval is still pending | Transition blocked (FR-28) |
+
+#### MT-4.2 Refuse → CM review & resubmit (FR-13 / BR-8)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On another company-path PR in `signatory`, as a pending signatory click **Refuse** | Approval `refused`; PR → `cm_review` (not Planner); chatter notes refuse |
+| 2 | As CM on that PR | **Resubmit to Signatories**, Reject, Return for Correction, Assign Experts available |
+| 3 | **Resubmit to Signatories** | New `approval.request` spawned; PR → `signatory` again |
+| 4 | Complete the new chain | PR → `po_ready` |
+
+#### MT-4.3 Sole source includes CEO (FR-14 / BR-5)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Create a PR with a **Sole Source** line; collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** company Sole-Source Approver(s) as required, last in sequence |
+| 2 | Approve category signatories only | PR stays `signatory` until CEO / sole-source approver(s) approve |
+| 3 | CEO approves last | PR → `po_ready` |
+| 4 | Repeat after a Holding Commission approve (high-value sole-source PR) | Same CEO inject on the post-commission signatory document |
+
+#### MT-4.4 Create PO (FR-7 / BR-6)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a `po_ready` PR with awarded quotes, as **Commercial Expert** try **Create PO** | Not available / refused |
+| 2 | As CM on a `signatory` (not yet `po_ready`) PR, try **Create PO** | Not available / blocked |
+| 3 | As CM on `po_ready`, **Create PO** | One or more draft `purchase.order` created (grouped by awarded vendor); lines use awarded quote prices; `origin` = PR number; `zvy_purchase_request_id` set; PR → `done`; **POs** smart button opens the order(s) |
+| 4 | CE path: after MT-3.5 award + CM **Approve Quotes** (no line awards needed) → signatory → approve → **Create PO** | Single PO to `award_partner_id`; PR → `done` |
+
+#### MT-4.5 Commission → signatory → PO (end-to-end)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Route a high-value PR through commission (MT-3.2 approve without meeting) | PR `signatory` with approval linked |
+| 2 | Complete signatory chain | PR `po_ready` |
+| 3 | As CM, **Create PO** | PO(s) created; PR `done` |
+
 ### Later phases
 
 | Phase | Status | Manual scenarios |
 |-------|--------|------------------|
-| 3 Commission & CE | Done (manual bids) | MT-3.1–MT-3.5 |
-| 4 Sign-off & PO | Not started | — |
+| 4 Sign-off & PO | Done | MT-4.1–MT-4.5 |
 | 5 Supplier portal | Not started | — |

@@ -57,10 +57,32 @@
                     <button name="action_create_closed_envelope" string="Closed Envelope" type="object"
                             invisible="state != 'inquiry'"
                             groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_resubmit_signatory" string="Resubmit to Signatories" type="object"
+                            class="btn-primary"
+                            invisible="state != 'cm_review' or not approval_request_id"
+                            groups="zvy_tendering.group_zvy_commercial_manager"/>
+                    <button name="action_create_po" string="Create PO" type="object"
+                            class="btn-primary"
+                            invisible="state != 'po_ready'"
+                            groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <field name="state" widget="statusbar"
-                            statusbar_visible="draft,submitted,inquiry,quote_review,commission,signatory,correction,rejected"/>
+                            statusbar_visible="draft,submitted,cm_review,inquiry,quote_review,commission,signatory,po_ready,done,correction,rejected"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_approval_request" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o"
+                                invisible="not approval_request_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Signatory</span>
+                            </div>
+                        </button>
+                        <button name="action_open_purchase_orders" type="object"
+                                class="oe_stat_button" icon="fa-credit-card"
+                                invisible="purchase_order_count == 0">
+                            <field name="purchase_order_count" widget="statinfo" string="POs"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -78,6 +100,7 @@
                             <field name="currency_id" readonly="state not in ('draft', 'correction')"/>
                             <field name="amount_total"/>
                             <field name="can_edit_quotes" invisible="1"/>
+                            <field name="approval_request_id" invisible="1"/>
                             <field name="is_high_value"/>
                             <field name="is_commission_item"/>
                             <field name="has_sole_source"/>
@@ -97,19 +120,25 @@
                     </group>
                     <notebook>
                         <page string="Lines" name="lines">
-                            <field name="line_ids" readonly="state not in ('draft', 'correction')">
+                            <field name="line_ids" readonly="state not in ('draft', 'correction', 'quote_review')">
                                 <list editable="bottom">
-                                    <field name="product_id"/>
-                                    <field name="product_uom_qty"/>
-                                    <field name="product_uom_id"/>
-                                    <field name="price_estimate"/>
+                                    <field name="product_id" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="product_uom_qty" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="product_uom_id" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="price_estimate" readonly="parent.state not in ('draft', 'correction')"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="price_subtotal"/>
-                                    <field name="sole_source"/>
-                                    <field name="is_commission_item"/>
+                                    <field name="sole_source" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="is_commission_item" readonly="parent.state not in ('draft', 'correction')"/>
                                     <field name="expert_user_ids" widget="many2many_tags" readonly="1" optional="show"/>
                                     <field name="quote_count" optional="show"/>
                                     <field name="quotes_submitted" optional="show"/>
+                                    <field name="awarded_quote_id"
+                                              domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
+                                              readonly="parent.state != 'quote_review'"
+                                              optional="show"
+                                              groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                                    <field name="awarded_partner_id" optional="hide" readonly="1"/>
                                 </list>
                                 <form>
                                     <group>
@@ -125,6 +154,12 @@
                                             <field name="sole_source"/>
                                             <field name="is_commission_item"/>
                                             <field name="expert_user_ids" widget="many2many_tags" readonly="1"/>
+                                            <field name="awarded_quote_id"
+                                                      domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
+                                                      readonly="request_state != 'quote_review'"
+                                                      groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                                            <field name="awarded_partner_id" readonly="1"/>
+                                            <field name="request_state" invisible="1"/>
                                         </group>
                                     </group>
                                     <notebook>

@@ -87,6 +87,19 @@ class ZvyPurchaseRequestLine(models.Model):
         store=True,
         help='Set once the assigned expert submits the quote set for this line.',
     )
+    awarded_quote_id = fields.Many2one(
+        'zvy.quote',
+        string='Awarded Quote',
+        copy=False,
+        domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]",
+        help='Winning quote selected by the Commercial Manager in quote review.',
+    )
+    awarded_partner_id = fields.Many2one(
+        'res.partner',
+        string='Awarded Vendor',
+        related='awarded_quote_id.partner_id',
+        store=True,
+    )
 
     @api.depends('price_estimate', 'product_uom_qty')
     def _compute_price_subtotal(self):
@@ -131,9 +144,18 @@ class ZvyPurchaseRequestLine(models.Model):
 
     def write(self, vals):
         if not self.env.su:
+            is_cm = self.env.user.has_group(
+                'zvy_tendering.group_zvy_commercial_manager'
+            )
+            is_admin = self.env.user.has_group(
+                'zvy_tendering.group_zvy_tendering_admin'
+            )
             # Quotes carry their own state/assignment guard (zvy.quote._check_can_edit),
             # so collecting them must stay possible while the PR is in inquiry.
-            content_keys = set(vals) - {'expert_user_ids', 'quote_ids'}
+            # Awarded quote is set by CM/Admin during quote review.
+            content_keys = set(vals) - {
+                'expert_user_ids', 'quote_ids', 'awarded_quote_id',
+            }
             if content_keys:
                 locked = self.filtered(
                     lambda l: l.request_id.state not in ('draft', 'correction')
@@ -142,18 +164,41 @@ class ZvyPurchaseRequestLine(models.Model):
                     raise UserError(_(
                         'Purchase request lines can only be edited in Draft or Correction.'
                     ))
+            if 'awarded_quote_id' in vals:
+                if not (is_cm or is_admin):
+                    raise UserError(_(
+                        'Only Commercial Managers can select the awarded quote.'
+                    ))
+                not_review = self.filtered(
+                    lambda l: l.request_id.state != 'quote_review'
+                )
+                if not_review:
+                    raise UserError(_(
+                        'Awarded quotes can only be set during Quote Review.'
+                    ))
             if 'expert_user_ids' in vals:
-                is_cm = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_commercial_manager'
-                )
-                is_admin = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_tendering_admin'
-                )
                 if not (is_cm or is_admin):
                     raise UserError(_(
                         'Only Commercial Managers can assign experts to lines.'
                     ))
-        return super().write(vals)
+        res = super().write(vals)
+        if 'awarded_quote_id' in vals:
+            self._check_awarded_quote()
+        return res
+
+    def _check_awarded_quote(self):
+        for line in self:
+            quote = line.awarded_quote_id
+            if not quote:
+                continue
+            if quote.line_id != line:
+                raise ValidationError(_(
+                    'Awarded quote must belong to the same purchase request line.'
+                ))
+            if quote.state not in ('submitted', 'accepted'):
+                raise ValidationError(_(
+                    'Awarded quote must be submitted or accepted.'
+                ))
 
     def _check_quote_minima(self):
         """≥3 quotes per standard line, ≥1 for sole source (FR-10 / BR-2)."""

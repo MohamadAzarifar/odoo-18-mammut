@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Mammut Procurement & Tendering',
-    'version': '18.0.1.4.0',
+    'version': '18.0.1.5.0',
     'category': 'Procurement & Tendering',
     'summary': 'Purchase requests, AVL inquiry, holding commission, and closed-envelope tenders',
     'description': """
@@ -28,6 +28,7 @@ holding commission review, closed-envelope tenders, and company signatory approv
         'views/zvy_quote_views.xml',
         'views/zvy_commission_views.xml',
         'views/zvy_closed_envelope_views.xml',
+        'views/approval_request_views.xml',
         'views/product_category_views.xml',
         'views/res_config_settings_views.xml',
         'wizard/request_wizard_views.xml',

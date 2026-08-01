@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.4.0` |
+| Version | `18.0.1.5.0` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -41,7 +41,8 @@ zvy_tendering/
 │   ├── product_category.py          # commission flag
 │   ├── res_company.py
 │   ├── res_config_settings.py
-│   └── approval_request.py          # bridge hooks (refuse → CM, approve → po_ready)
+│   ├── approval_request.py          # bridge hooks (refuse → CM, approve → po_ready)
+│   └── purchase_order.py            # zvy_purchase_request_id traceability
 ├── wizard/
 │   ├── request_reject_wizard.py
 │   ├── request_return_wizard.py
@@ -150,8 +151,8 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `is_commission_item` | Boolean | Line override and/or related from category |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
-| `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO |
-| `awarded_partner_id` | Many2one | Denormalized winner |
+| `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
+| `awarded_partner_id` | Many2one | Related from awarded quote |
 
 **Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
@@ -261,7 +262,7 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_high_value_threshold` (Monetary), `zvy_default_bid_window_hours` (Integer), `zvy_signatory_approval_category_id` (Many2one `approval.category`) |
+| `res.company` | `zvy_high_value_threshold` (Monetary), `zvy_default_bid_window_hours` (Integer), `zvy_signatory_approval_category_id` (Many2one `approval.category`), `zvy_sole_source_approver_ids` (Many2many `res.users`) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.category` | `zvy_is_commission_item` (Boolean) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse → PR `cm_review`; on full approve → PR `po_ready` |
@@ -413,7 +414,7 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 
 - PR remains `zvy.purchase.request`; never replace with `approval.request` or `purchase.requisition` (PRD non-goals).
 - `_action_spawn_signatory_approval`: create sequential `approval.request` from `company.zvy_signatory_approval_category_id`, link via `zvy_purchase_request_id` / `approval_request_id`.
-- Sole source: ensure CEO (or category sole-source approvers) is in the sequence before completion.
+- Sole source: ensure `company.zvy_sole_source_approver_ids` (e.g. CEO) are required last-sequence approvers before completion.
 - Approve chain complete → PR `po_ready`.
 - Refuse → PR `cm_review` with reason (BR-8); optionally mirror [mammut_refuse_reason](../mammut_refuse_reason) UX.
 - FR-28: no transition to `po_ready` while approval pending.
@@ -456,6 +457,7 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | High-value threshold | `res.company.zvy_high_value_threshold` | FR-27 / BR-3 |
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | FR-12..14 |
+| Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
 | Commission on category | `product.category.zvy_is_commission_item` | BR-4 |
 | Commission / sole source on line | Line flags | BR-4 / BR-5 |
 | PR sequence | `ir.sequence` | FR-1 |

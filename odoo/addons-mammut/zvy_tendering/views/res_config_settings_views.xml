@@ -21,6 +21,10 @@
                                  help="Sequential approval category used for company signatory documents.">
                             <field name="zvy_signatory_approval_category_id"/>
                         </setting>
+                        <setting string="Sole-Source Approvers"
+                                 help="Users (for example the CEO) who must approve every sole-source purchase request before PO Ready.">
+                            <field name="zvy_sole_source_approver_ids" widget="many2many_tags"/>
+                        </setting>
                     </block>
                 </app>
             </xpath>

@@ -197,29 +197,29 @@ FR-11, 15–23, 29–30 pass with **manual** bids; sealed integrity holds; appro
 
 ### Scope
 
-- [ ] Spawn sequential `approval.request` from company signatory category (FR-12)
-- [ ] Link PR ↔ approval; PR context from approval form (FR-13)
-- [ ] Full approval → `po_ready`; refuse → `cm_review` with reason (BR-8)
-- [ ] Sole source always includes CEO / sole-source approvers in chain, including after commission (FR-14)
-- [ ] Enforce no `po_ready` while approval pending (FR-28)
-- [ ] After commission approval, enter same signatory path
-- [ ] `action_create_po`: CM only, `po_ready` + award data → one or more `purchase.order`; PR → `done` (FR-7 / BR-6)
-- [ ] Optional `purchase.order.zvy_purchase_request_id` for traceability
+- [x] Spawn sequential `approval.request` from company signatory category (FR-12)
+- [x] Link PR ↔ approval; PR context from approval form (FR-13)
+- [x] Full approval → `po_ready`; refuse → `cm_review` with reason (BR-8)
+- [x] Sole source always includes CEO / sole-source approvers in chain, including after commission (FR-14)
+- [x] Enforce no `po_ready` while approval pending (FR-28)
+- [x] After commission approval, enter same signatory path
+- [x] `action_create_po`: CM only, `po_ready` + award data → one or more `purchase.order`; PR → `done` (FR-7 / BR-6)
+- [x] Optional `purchase.order.zvy_purchase_request_id` for traceability
 
 ### Stories / FRs checklist
 
-- [ ] **Story 7 / FR-7** — Create PO after approvals
-- [ ] **Story 12 / FR-12** — Sequential signatory documents
-- [ ] **Story 13 / FR-13** — Approve or refuse → CM
-- [ ] **Story 14 / FR-14** — CEO on all sole source
-- [ ] **Story 28 / FR-28** — Sequential enforcement; no unauthorized bypass
+- [x] **Story 7 / FR-7** — Create PO after approvals
+- [x] **Story 12 / FR-12** — Sequential signatory documents
+- [x] **Story 13 / FR-13** — Approve or refuse → CM
+- [x] **Story 14 / FR-14** — CEO on all sole source
+- [x] **Story 28 / FR-28** — Sequential enforcement; no unauthorized bypass
 
 ### Suggested tests
 
-- [ ] Signatory bridge: approve → `po_ready`; refuse → `cm_review`
-- [ ] Sole-source PR includes CEO before `po_ready`
-- [ ] Cannot create PO from non-`po_ready` or without award
-- [ ] Non-CM cannot create PO
+- [x] Signatory bridge: approve → `po_ready`; refuse → `cm_review`
+- [x] Sole-source PR includes CEO before `po_ready`
+- [x] Cannot create PO from non-`po_ready` or without award
+- [x] Non-CM cannot create PO
 
 ### Done when
 
@@ -321,6 +321,6 @@ Track throughout (PRD §7):
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
 | 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`) |
-| 3 Commission & CE | Not started | |
-| 4 Sign-off & PO | Not started | |
+| 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
+| 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
 | 5 Supplier portal | Not started | |

@@ -1,0 +1,131 @@
+# -*- coding: utf-8 -*-
+from odoo.exceptions import UserError, ValidationError
+from odoo.tests import tagged
+
+from .common import ZvyTenderingCommon
+
+
+@tagged('post_install', '-at_install')
+class TestZvySignatoryBridge(ZvyTenderingCommon):
+
+    def _route_to_signatory(self, sole_source=False):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        line_vals = [{
+            'product_id': self.product.id,
+            'product_uom_qty': 2.0,
+            'product_uom_id': self.product.uom_id.id,
+            'price_estimate': 50.0,
+            'sole_source': sole_source,
+        }]
+        pr = self._create_draft_pr(line_vals=line_vals)
+        pr = self._submit_and_assign(pr=pr)
+        self._add_quotes(pr, count=1 if sole_source else 3)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        self.assertTrue(pr.sudo().approval_request_id)
+        return pr
+
+    def test_approve_moves_to_po_ready(self):
+        pr = self._route_to_signatory()
+        self._approve_all_signatories(pr)
+        self.assertEqual(pr.state, 'po_ready')
+
+    def test_refuse_returns_to_cm_review(self):
+        pr = self._route_to_signatory()
+        approval = pr.sudo().approval_request_id
+        pending = approval.approver_ids.filtered(lambda a: a.status == 'pending')
+        pending[0].with_user(pending[0].user_id).action_refuse()
+        self.assertEqual(approval.request_status, 'refused')
+        self.assertEqual(pr.state, 'cm_review')
+
+    def test_resubmit_signatory_after_refuse(self):
+        pr = self._route_to_signatory()
+        approval = pr.sudo().approval_request_id
+        pending = approval.approver_ids.filtered(lambda a: a.status == 'pending')
+        pending[0].with_user(pending[0].user_id).action_refuse()
+        self.assertEqual(pr.state, 'cm_review')
+
+        pr.with_user(self.user_cm).action_resubmit_signatory()
+        self.assertEqual(pr.state, 'signatory')
+        self.assertTrue(pr.sudo().approval_request_id)
+        self.assertNotEqual(pr.sudo().approval_request_id, approval)
+        self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')
+
+    def test_sole_source_includes_ceo(self):
+        pr = self._route_to_signatory(sole_source=True)
+        approval = pr.sudo().approval_request_id
+        approver_users = approval.approver_ids.mapped('user_id')
+        self.assertIn(self.user_signatory, approver_users)
+        self.assertIn(self.user_ceo, approver_users)
+        ceo_approver = approval.approver_ids.filtered(
+            lambda a: a.user_id == self.user_ceo
+        )
+        self.assertTrue(ceo_approver.required)
+        # CEO must be last in sequence.
+        self.assertEqual(
+            ceo_approver.sequence,
+            max(approval.approver_ids.mapped('sequence')),
+        )
+
+        # Signatory first, then CEO.
+        self._approve_all_signatories(pr)
+        self.assertEqual(pr.state, 'po_ready')
+
+    def test_cannot_create_po_from_non_po_ready(self):
+        pr = self._route_to_signatory()
+        with self.assertRaises(UserError):
+            pr.with_user(self.user_cm).action_create_po()
+
+    def test_non_cm_cannot_create_po(self):
+        pr = self._route_to_signatory()
+        self._approve_all_signatories(pr)
+        with self.assertRaises(UserError):
+            pr.with_user(self.user_cce).action_create_po()
+
+    def test_create_po_from_awarded_quotes(self):
+        pr = self._route_to_signatory()
+        self._approve_all_signatories(pr)
+        action = pr.with_user(self.user_cm).action_create_po()
+        self.assertEqual(pr.state, 'done')
+        self.assertEqual(len(pr.sudo().purchase_order_ids), 1)
+        po = pr.sudo().purchase_order_ids
+        self.assertEqual(po.partner_id, self.partner_a)
+        self.assertEqual(po.zvy_purchase_request_id, pr)
+        self.assertEqual(po.origin, pr.name)
+        self.assertEqual(len(po.order_line), 1)
+        self.assertEqual(po.order_line.price_unit, pr.line_ids.awarded_quote_id.price_unit)
+        self.assertEqual(action['res_model'], 'purchase.order')
+
+    def test_cannot_force_po_ready_while_approval_pending(self):
+        pr = self._route_to_signatory()
+        self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')
+        with self.assertRaises(UserError):
+            pr.sudo().write({'state': 'po_ready'})
+
+    def test_commission_path_to_po(self):
+        self.company_a.zvy_high_value_threshold = 1.0
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'commission')
+        case = pr.commission_case_id.with_user(self.user_comm_mgr)
+        case.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
+        case.action_assign_experts()
+        review = case.review_ids[0]
+        review.with_user(self.user_comm_exp).write({
+            'recommendation': 'approve',
+            'notes_accuracy': 'ok',
+            'notes_policy': 'ok',
+            'notes_suppliers': 'ok',
+        })
+        review.with_user(self.user_comm_exp).action_submit()
+        case.action_approve_without_meeting()
+        self.assertEqual(pr.state, 'signatory')
+        self._approve_all_signatories(pr)
+        pr.with_user(self.user_cm).action_create_po()
+        self.assertEqual(pr.state, 'done')
+        self.assertTrue(pr.sudo().purchase_order_ids)
