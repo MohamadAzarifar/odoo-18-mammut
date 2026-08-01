@@ -46,7 +46,7 @@
                     <button name="action_submit_quotes" string="Submit Quotes" type="object"
                             class="btn-primary"
                             invisible="state != 'inquiry'"
-                            groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
+                            groups="zvy_tendering.group_zvy_commercial_expert"/>
                     <button name="action_approve_quotes" string="Approve Quotes" type="object"
                             class="btn-primary"
                             invisible="state != 'quote_review'"
@@ -109,6 +109,7 @@
                                     <field name="is_commission_item"/>
                                     <field name="expert_user_ids" widget="many2many_tags" readonly="1" optional="show"/>
                                     <field name="quote_count" optional="show"/>
+                                    <field name="quotes_submitted" optional="show"/>
                                 </list>
                                 <form>
                                     <group>
@@ -220,6 +221,12 @@
                 <field name="sole_source"/>
                 <field name="expert_user_ids" widget="many2many_tags"/>
                 <field name="quote_count"/>
+                <field name="request_state" column_invisible="1"/>
+                <field name="quotes_submitted" widget="boolean_toggle" readonly="1"/>
+                <button name="action_submit_quotes" type="object" string="Submit Quotes"
+                        icon="fa-paper-plane" class="btn-link"
+                        invisible="quotes_submitted or request_state != 'inquiry'"
+                        groups="zvy_tendering.group_zvy_commercial_expert"/>
             </list>
         </field>
     </record>
@@ -229,8 +236,17 @@
         <field name="model">zvy.purchase.request.line</field>
         <field name="arch" type="xml">
             <form string="Purchase Request Line">
+                <header>
+                    <button name="action_submit_quotes" string="Submit Quotes" type="object"
+                            class="btn-primary"
+                            invisible="request_state != 'inquiry' or quotes_submitted"
+                            groups="zvy_tendering.group_zvy_commercial_expert"/>
+                    <field name="quotes_submitted" invisible="1"/>
+                </header>
                 <sheet>
                     <field name="request_state" invisible="1"/>
+                    <widget name="web_ribbon" title="Quotes Submitted" bg_color="text-bg-success"
+                            invisible="not quotes_submitted"/>
                     <group>
                         <group>
                             <field name="request_id" readonly="1"/>

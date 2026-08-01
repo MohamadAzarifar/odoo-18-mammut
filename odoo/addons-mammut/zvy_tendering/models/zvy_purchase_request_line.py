@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ZvyPurchaseRequestLine(models.Model):
@@ -81,6 +81,12 @@ class ZvyPurchaseRequestLine(models.Model):
         string='Quotes',
     )
     quote_count = fields.Integer(compute='_compute_quote_count')
+    quotes_submitted = fields.Boolean(
+        string='Quotes Submitted',
+        compute='_compute_quotes_submitted',
+        store=True,
+        help='Set once the assigned expert submits the quote set for this line.',
+    )
 
     @api.depends('price_estimate', 'product_uom_qty')
     def _compute_price_subtotal(self):
@@ -91,6 +97,14 @@ class ZvyPurchaseRequestLine(models.Model):
     def _compute_quote_count(self):
         for line in self:
             line.quote_count = len(line.quote_ids)
+
+    @api.depends('quote_ids.state')
+    def _compute_quotes_submitted(self):
+        for line in self:
+            live = line.quote_ids.filtered(lambda q: q.state != 'rejected')
+            line.quotes_submitted = bool(live) and all(
+                quote.state != 'draft' for quote in live
+            )
 
     @api.depends('product_id', 'product_id.categ_id.zvy_is_commission_item')
     def _compute_is_commission_item(self):
@@ -140,3 +154,55 @@ class ZvyPurchaseRequestLine(models.Model):
                         'Only Commercial Managers can assign experts to lines.'
                     ))
         return super().write(vals)
+
+    def _check_quote_minima(self):
+        """≥3 quotes per standard line, ≥1 for sole source (FR-10 / BR-2)."""
+        for line in self:
+            count = len(line.quote_ids.filtered(lambda q: q.state != 'rejected'))
+            required = 1 if line.sole_source else 3
+            if count < required:
+                raise ValidationError(_(
+                    'Line %(product)s requires at least %(required)s quote(s); '
+                    'found %(count)s.',
+                    product=line.product_id.display_name,
+                    required=required,
+                    count=count,
+                ))
+
+    def action_submit_quotes(self):
+        """Assigned expert submits the quote set collected on these lines."""
+        if not self:
+            return True
+        is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        for line in self:
+            if line.request_id.state != 'inquiry':
+                raise UserError(_(
+                    'Quotes can only be submitted while the purchase request '
+                    'is in Inquiry.'
+                ))
+            if line.quotes_submitted:
+                raise UserError(_(
+                    'Quotes for %s were already submitted.'
+                ) % line.product_id.display_name)
+            if not self.env.su and not is_admin:
+                if self.env.user not in line.expert_user_ids:
+                    raise UserError(_(
+                        'Only the assigned Commercial Expert can submit quotes '
+                        'for %s.'
+                    ) % line.product_id.display_name)
+        self._check_quote_minima()
+        self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
+            'state': 'submitted',
+        })
+        # Experts have no write access on the PR; aggregate as superuser.
+        author = self.env.user.partner_id.id
+        for request in self.sudo().mapped('request_id'):
+            lines = self.sudo().filtered(lambda l: l.request_id == request)
+            request.message_post(
+                body=_('Quotes submitted for: %s') % ', '.join(
+                    lines.mapped('product_id.display_name')
+                ),
+                author_id=author,
+            )
+            request._try_advance_to_quote_review()
+        return True

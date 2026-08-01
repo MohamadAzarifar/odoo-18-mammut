@@ -128,6 +128,98 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
                 'price_unit': 10.0,
             })
 
+    def test_split_assignment_submits_per_line(self):
+        """Two experts, one line each: PR advances only when both submit."""
+        pr = self._create_draft_pr(line_vals=[
+            {
+                'product_id': self.product.id,
+                'product_uom_qty': 1.0,
+                'product_uom_id': self.product.uom_id.id,
+                'price_estimate': 10.0,
+            },
+            {
+                'product_id': self.product.id,
+                'product_uom_qty': 2.0,
+                'product_uom_id': self.product.uom_id.id,
+                'price_estimate': 20.0,
+            },
+        ])
+        pr.action_submit()
+        line_a, line_b = pr.line_ids
+        pr.with_user(self.user_cm)._action_assign_experts({
+            line_a.id: [self.user_cce.id],
+            line_b.id: [self.user_cce_other.id],
+        })
+
+        for line, expert in ((line_a, self.user_cce), (line_b, self.user_cce_other)):
+            Quote = self.env['zvy.quote'].with_user(expert).with_company(self.company_a)
+            for partner in (self.partner_a, self.partner_b, self.partner_c):
+                Quote.create({
+                    'line_id': line.id,
+                    'partner_id': partner.id,
+                    'price_unit': 10.0,
+                })
+
+        # Expert A submits only their own line; the PR must stay in inquiry.
+        line_a.with_user(self.user_cce).action_submit_quotes()
+        self.assertTrue(line_a.quotes_submitted)
+        self.assertFalse(line_b.quotes_submitted)
+        self.assertEqual(pr.state, 'inquiry')
+
+        # Expert A cannot submit the line assigned to someone else.
+        try:
+            line_b.with_user(self.user_cce).action_submit_quotes()
+        except (UserError, AccessError):
+            pass
+        else:
+            self.fail('Expert must not submit a line assigned to another expert')
+
+        line_b.with_user(self.user_cce_other).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+        self.assertTrue(all(q.state == 'submitted' for q in pr.sudo().quote_ids))
+
+    def test_expert_submits_partial_assignment_from_request(self):
+        """Request-level submit only touches the caller's own lines (no AccessError)."""
+        pr = self._create_draft_pr(line_vals=[
+            {
+                'product_id': self.product.id,
+                'product_uom_qty': 1.0,
+                'product_uom_id': self.product.uom_id.id,
+                'price_estimate': 10.0,
+            },
+            {
+                'product_id': self.product.id,
+                'product_uom_qty': 2.0,
+                'product_uom_id': self.product.uom_id.id,
+                'price_estimate': 20.0,
+            },
+        ])
+        pr.action_submit()
+        line_a, line_b = pr.line_ids
+        pr.with_user(self.user_cm)._action_assign_experts({
+            line_a.id: [self.user_cce.id],
+            line_b.id: [self.user_cce_other.id],
+        })
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        for partner in (self.partner_a, self.partner_b, self.partner_c):
+            Quote.create({
+                'line_id': line_a.id,
+                'partner_id': partner.id,
+                'price_unit': 10.0,
+            })
+
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertTrue(line_a.quotes_submitted)
+        self.assertFalse(line_b.quotes_submitted)
+        self.assertEqual(pr.state, 'inquiry')
+
+    def test_cm_cannot_submit_quotes(self):
+        pr = self._submit_and_assign(experts=self.user_cce)
+        self._add_quotes(pr)
+        with self.assertRaises(UserError):
+            pr.with_user(self.user_cm).action_submit_quotes()
+        self.assertEqual(pr.state, 'inquiry')
+
     def test_quote_minima_block_and_allow_submit(self):
         pr = self._submit_and_assign()
         Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)

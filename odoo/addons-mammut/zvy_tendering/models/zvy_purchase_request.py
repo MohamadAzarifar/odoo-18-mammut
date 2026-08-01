@@ -273,24 +273,49 @@ class ZvyPurchaseRequest(models.Model):
         }
 
     def action_submit_quotes(self):
+        """Submit every line assigned to the caller (FR-10).
+
+        Experts normally submit per line from My Assignments; this keeps the
+        request-level entry point working for multi-line assignments.
+        """
         self.ensure_one()
         if self.state != 'inquiry':
             raise UserError(_('Quotes can only be submitted from Inquiry.'))
-        if not self._user_is_assigned_expert() and not self.env.su:
-            is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+        if self._ce_award_satisfies_inquiry():
+            self._try_advance_to_quote_review()
+            return True
+        lines = self.sudo().line_ids
+        if not self.env.su:
             is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
-            if not (is_cm or is_admin):
+            if not is_admin:
+                lines = lines.filtered(
+                    lambda l: self.env.user in l.expert_user_ids
+                )
+                if not lines:
+                    raise UserError(_(
+                        'Only assigned Commercial Experts can submit quotes.'
+                    ))
+            lines = lines.filtered(lambda l: not l.quotes_submitted)
+            if not lines:
                 raise UserError(_(
-                    'Only assigned Commercial Experts can submit quotes.'
+                    'Your quote sets on this request were already submitted.'
                 ))
-        if not self._ce_award_satisfies_inquiry():
-            self._check_quote_minima()
-            self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
-                'state': 'submitted',
-            })
-        # CCE has read-only ACL on PR; state transition is authorized here.
-        self.sudo().write({'state': 'quote_review'})
-        self.sudo().message_post(body=_('Quote set submitted for CM review.'))
+        return lines.with_env(self.env).action_submit_quotes()
+
+    def _try_advance_to_quote_review(self):
+        """Move to quote review once every line has submitted its quote set."""
+        for request in self.sudo():
+            if request.state != 'inquiry':
+                continue
+            if not request._ce_award_satisfies_inquiry():
+                if not request.line_ids:
+                    continue
+                if not all(request.line_ids.mapped('quotes_submitted')):
+                    continue
+            request.write({'state': 'quote_review'})
+            request.message_post(body=_(
+                'All quote sets submitted; request ready for CM review.'
+            ))
         return True
 
     def action_create_closed_envelope(self):
@@ -450,17 +475,12 @@ class ZvyPurchaseRequest(models.Model):
 
     def _check_quote_minima(self):
         self.ensure_one()
-        for line in self.line_ids:
-            count = len(line.quote_ids.filtered(lambda q: q.state != 'rejected'))
-            required = 1 if line.sole_source else 3
-            if count < required:
-                raise ValidationError(_(
-                    'Line %(product)s requires at least %(required)s quote(s); '
-                    'found %(count)s.',
-                    product=line.product_id.display_name,
-                    required=required,
-                    count=count,
-                ))
+        self.sudo().line_ids._check_quote_minima()
+
+    def _user_is_assigned_expert(self):
+        self.ensure_one()
+        # Experts only read their own lines; assignment spans the whole PR.
+        return self.env.user in self.sudo().line_ids.expert_user_ids
 
     def _action_route_after_quotes(self):
         self.ensure_one()
@@ -482,10 +502,6 @@ class ZvyPurchaseRequest(models.Model):
             self.write({'state': 'signatory'})
             self.message_post(body=_('Routed to company signatory path.'))
         return True
-
-    def _user_is_assigned_expert(self):
-        self.ensure_one()
-        return self.env.user in self.line_ids.mapped('expert_user_ids')
 
     def _notify_planner(self, event, reason):
         """Post chatter already done by caller; schedule activity for the planner."""

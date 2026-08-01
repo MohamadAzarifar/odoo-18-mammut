@@ -254,6 +254,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [ ] Standard line: submit blocked until ≥3 quotes recorded.
 - [ ] Sole-source line: ≥1 quote required.
 - [ ] Submit sends quote set to CM quote review.
+- [ ] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
+- [ ] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
 
 #### FR-11 Closed-envelope supplier list *(Story 11)*
 
@@ -798,9 +800,12 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | On a standard (non–sole-source) line, record only 1–2 quotes; as Expert click **Submit Quotes** | Blocked until ≥3 quotes per standard line |
-| 2 | Add a third quote; **Submit Quotes** | State → `quote_review`; quotes move to `submitted`; chatter notes submit |
-| 3 | Create another PR with a **Sole Source** line; assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); state → `quote_review` |
+| 1 | As Expert → **My Assignments** → open a line with only 1–2 quotes → **Submit Quotes** | Blocked until ≥3 quotes on that line |
+| 2 | Add a third quote; **Submit Quotes** (from the line form or the row button in My Assignments) | Line shows **Quotes Submitted**; quotes move to `submitted`; chatter notes which line was submitted |
+| 3 | When **every** line of the PR is submitted | PR state → `quote_review` automatically; chatter notes all quote sets submitted |
+| 4 | On a PR whose lines are split between two Experts, have only one submit | PR stays in `inquiry` until the second Expert submits their line |
+| 5 | As **CM**, try **Submit Quotes** | Not available / refused — the CM reviews, Experts submit |
+| 6 | Create another PR with a **Sole Source** line; assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); line submitted and PR → `quote_review` |
 
 #### MT-2.5 CM reject quotes (FR-6)
 

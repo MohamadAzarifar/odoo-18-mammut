@@ -105,6 +105,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] `zvy.quote` with AVL domain (FR-9 / BR-1) — vendor picker filtered by computed `allowed_partner_ids`, not an onchange domain
 - [x] Quote minima: ≥3 standard / ≥1 sole source before submit (FR-10 / BR-2)
 - [x] Expert submit → `quote_review`
+- [x] Per-line submit by the assigned expert; PR advances to `quote_review` only when all lines are submitted (CM cannot submit)
 - [x] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
 - [x] Compute `is_high_value`, `is_commission_item`, `has_sole_source`
 - [x] On route to commission: create `zvy.commission.case` shell (full UX in Phase 3) **or** set state `commission` ready for Phase 3
@@ -127,6 +128,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Quote vendor dropdown lists only AVL vendors for the line’s company/product
 - [x] Expert saves a quote from the line one2many while the PR is in inquiry (parent content lock exempts `quote_ids`)
 - [x] Minima block/allow submit
+- [x] Split assignment: each expert submits their own line; PR advances only when all lines are in (no cross-line `AccessError`)
 - [x] Router: below threshold, no commission → company path; high value or commission flag → commission case
 
 ### Done when
@@ -318,7 +320,7 @@ Track throughout (PRD §7):
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
-| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`) |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`) |
 | 3 Commission & CE | Not started | |
 | 4 Sign-off & PO | Not started | |
 | 5 Supplier portal | Not started | |
