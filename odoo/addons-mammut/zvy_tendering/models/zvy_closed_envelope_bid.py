@@ -7,6 +7,13 @@ class ZvyClosedEnvelopeBid(models.Model):
     _name = 'zvy.closed.envelope.bid'
     _description = 'Closed Envelope Bid'
     _order = 'id'
+    _sql_constraints = [
+        (
+            'envelope_partner_uniq',
+            'unique(envelope_id, partner_id)',
+            'Only one bid per supplier is allowed on a closed envelope.',
+        ),
+    ]
 
     _SEALED_FIELDS = ('amount', 'notes', 'attachment_ids')
 
@@ -85,8 +92,12 @@ class ZvyClosedEnvelopeBid(models.Model):
                 return True
             if user.has_group('zvy_tendering.group_zvy_commission_expert'):
                 return True
-        # Portal / partner check (Phase 5); allow commercial users linked to partner.
-        if user.partner_id and user.partner_id == self.partner_id:
+        # Portal / partner check: bidder may always read own bid.
+        if user.partner_id and (
+            user.partner_id == self.partner_id
+            or user.partner_id.commercial_partner_id
+            == self.partner_id.commercial_partner_id
+        ):
             return True
         return False
 
@@ -111,6 +122,76 @@ class ZvyClosedEnvelopeBid(models.Model):
                 else:
                     values[fname] = 0.0
         return records
+
+    @api.model
+    def _portal_bidding_open(self, envelope):
+        """True when portal suppliers may submit/update/withdraw bids."""
+        if not envelope or envelope.state != 'portal_open':
+            return False
+        now = fields.Datetime.now()
+        if envelope.bid_deadline and now > envelope.bid_deadline:
+            return False
+        return True
+
+    @api.model
+    def _portal_upsert_bid(self, envelope, partner, amount, notes=None, attachment_ids=None):
+        """Create or update a sealed portal bid (call under sudo from controllers)."""
+        if not envelope._portal_partner_matches(partner):
+            raise UserError(_('You are not invited to this tender.'))
+        if not self._portal_bidding_open(envelope):
+            raise UserError(_(
+                'Bidding is closed for this tender (deadline passed or bids opened).'
+            ))
+        try:
+            amount = float(amount)
+        except (TypeError, ValueError):
+            raise UserError(_('Please provide a valid bid amount.')) from None
+        if amount <= 0:
+            raise UserError(_('Bid amount must be greater than zero.'))
+        invite_partner = envelope._portal_invite_partner(partner)
+        if not invite_partner:
+            raise UserError(_('You are not invited to this tender.'))
+        Bid = self.sudo()
+        bid = Bid.search([
+            ('envelope_id', '=', envelope.id),
+            ('partner_id', '=', invite_partner.id),
+        ], limit=1)
+        vals = {
+            'amount': amount,
+            'notes': notes or False,
+            'source': 'portal',
+            'submitted_at': fields.Datetime.now(),
+        }
+        if attachment_ids is not None:
+            vals['attachment_ids'] = [(6, 0, list(attachment_ids))]
+        if bid:
+            bid.write(vals)
+        else:
+            vals.update({
+                'envelope_id': envelope.id,
+                'partner_id': invite_partner.id,
+            })
+            bid = Bid.create(vals)
+        return bid
+
+    @api.model
+    def _portal_withdraw_bid(self, envelope, partner):
+        """Withdraw (unlink) the supplier's own portal bid while bidding is open."""
+        if not envelope._portal_partner_matches(partner):
+            raise UserError(_('You are not invited to this tender.'))
+        if not self._portal_bidding_open(envelope):
+            raise UserError(_(
+                'Bids can only be withdrawn while the tender is open for bidding.'
+            ))
+        invite_partner = envelope._portal_invite_partner(partner)
+        bid = self.sudo().search([
+            ('envelope_id', '=', envelope.id),
+            ('partner_id', '=', invite_partner.id),
+        ], limit=1)
+        if not bid:
+            raise UserError(_('No bid found to withdraw.'))
+        bid.unlink()
+        return True
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -69,7 +69,7 @@ Security groups and technical mapping: see [Architecture.md](Architecture.md).
 | Expert inquiry, AVL, quote minima, CE supplier list | Yes | 8–11 |
 | Sequential company signatories + CEO on sole source | Yes | 12–14 |
 | Commission case, experts, meeting/MOM, CE approve & award | Yes | 15–23 |
-| Supplier portal (view, bid, notify) | Yes (later phase) | 24–26 |
+| Supplier portal (view, bid, notify) | Yes | 24–26 |
 | Auto-route, sequential lock, portal_open, bid seal | Yes | 27–30 |
 
 Delivery phasing: [Roadmap.md](Roadmap.md).
@@ -383,7 +383,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] Winner selection is allowed only after bids are opened.
 - [x] Selected vendor is stored on the CE / PR award data used for PO creation.
-- [ ] Invited suppliers can be notified of results (portal phase).
+- [x] Invited suppliers can be notified of results (portal phase).
 
 #### FR-20 Approve CE supplier list *(Story 20)*
 
@@ -456,9 +456,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Portal user linked to vendor partner sees `/my/tenders` invitations only for themselves.
-- [ ] Detail shows reference, deadlines, line summary, downloadable published documents.
-- [ ] Non-invited portal users see nothing / 403.
+- [x] Portal user linked to vendor partner sees `/my/tenders` invitations only for themselves.
+- [x] Detail shows reference, deadlines, line summary, downloadable published documents.
+- [x] Non-invited portal users see nothing / 403.
 
 #### FR-25 Submit bids *(Story 25)*
 
@@ -470,10 +470,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Bid (price, currency, notes, attachments) accepted while CE is `portal_open` and before `bid_deadline`.
-- [ ] Update/withdraw allowed only before deadline and before official opening.
-- [ ] After deadline or open: submit rejected with clear error.
-- [ ] Bid stored as sealed `zvy.closed.envelope.bid`; other suppliers never see it.
+- [x] Bid (price, currency, notes, attachments) accepted while CE is `portal_open` and before `bid_deadline`.
+- [x] Update/withdraw allowed only before deadline and before official opening.
+- [x] After deadline or open: submit rejected with clear error.
+- [x] Bid stored as sealed `zvy.closed.envelope.bid`; other suppliers never see it.
 
 #### FR-26 Supplier notifications *(Story 26)*
 
@@ -485,9 +485,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Email (and optional portal note) on portal open / invitation available.
-- [ ] Notification when buyer posts a clarification on that supplier’s invitation/bid.
-- [ ] Notification of result (awarded / not awarded / cancelled) after winner selection.
+- [x] Email (and optional portal note) on portal open / invitation available.
+- [x] Notification when buyer posts a clarification on that supplier’s invitation/bid.
+- [x] Notification of result (awarded / not awarded / cancelled) after winner selection.
 
 ---
 
@@ -532,7 +532,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] On Commission Manager list approval → CE state `portal_open`.
-- [ ] Invited suppliers gain portal access per FR-24 (when portal phase is live).
+- [x] Invited suppliers gain portal access per FR-24 (when portal phase is live).
 - [x] Until portal UI ships, backend may still accept manual sealed bid entry by Commission Manager.
 
 #### FR-30 Seal closed-envelope bids *(Story 30)*
@@ -647,7 +647,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal.
 
 ### Prerequisites
 
@@ -658,6 +658,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
 7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Add ≥1 **Sole-Source Approver** (e.g. CEO user with Approvals access). Commercial Manager implies Purchase User so they can open created POs.
+8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
 
 ### Phase 0 — Foundation
 
@@ -921,9 +922,51 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Complete signatory chain | PR `po_ready` |
 | 3 | As CM, **Create PO** | PO(s) created; PR `done` |
 
-### Later phases
+### Phase 5 — Supplier portal
 
-| Phase | Status | Manual scenarios |
-|-------|--------|------------------|
-| 4 Sign-off & PO | Done | MT-4.1–MT-4.5 |
-| 5 Supplier portal | Not started | — |
+#### MT-5.1 Portal view & isolation (FR-24)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Complete MT-3.4 through **Approve List** (`portal_open`); optionally attach **Published Documents** on the CE | CE open for bidding; invitees notified (see MT-5.4) |
+| 2 | Log in as an **invited** portal vendor → `/my` | **Tenders** entry appears with a non-zero count |
+| 3 | Open `/my/tenders` | Only this vendor’s invitations appear (reference, deadlines, status) |
+| 4 | Open the tender detail | Shows reference, bid deadline, opening datetime, PR line summary, downloadable published documents |
+| 5 | Log in as a **non-invited** portal user → `/my/tenders` | Empty list (no invitations) |
+| 6 | As non-invited user, open `/my/tenders/<id>` for an invite-only CE (guessed id) | Redirected / access denied (not readable) |
+
+#### MT-5.2 Submit / update / withdraw sealed bid (FR-25 / FR-30)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As invited portal vendor on a `portal_open` tender before deadline, enter amount (+ optional notes / attachments); **Submit bid** | Bid stored as `zvy.closed.envelope.bid` with `source=portal`; success message shown |
+| 2 | Change amount / notes; **Update bid** | Same bid updated; `submitted_at` refreshed |
+| 3 | As a **second** invited portal vendor, open the same tender | Sees only own bid form — never sees the first vendor’s amount |
+| 4 | As Commission Manager / CCE in backend before open | First vendor’s amount sealed for non-managers (FR-30 unchanged) |
+| 5 | As first vendor, **Withdraw bid** while still open | Bid removed; can submit again while window is open |
+
+#### MT-5.3 Deadline and post-open rejection (FR-25)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a CE still `portal_open`, set **Bid Deadline** in the past (as CM/Admin); as portal vendor try submit/update/withdraw | Clear error: bidding closed |
+| 2 | Restore a future deadline; submit a bid; after **Opening Datetime**, as CM **Open Bids** | CE → `opened` |
+| 3 | As portal vendor, try submit / update / withdraw | Clear error: bidding closed / cannot withdraw |
+
+#### MT-5.4 Notifications (FR-26)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On **Approve List** (MT-3.4 / MT-5.1) | Each invited partner with email receives invitation mail with portal link; CE chatter notes portal open |
+| 2 | As Commission Manager on `portal_open` / `opened` CE → **Post Clarification**; enter body; confirm | Clarification on CE chatter; invitees receive clarification mail |
+| 3 | After open + **Select Winner** | Winner receives awarded mail; other invitees receive not-awarded mail |
+| 4 | On another CE in `portal_open`, **Cancel** | Invitees receive cancelled mail; portal detail shows cancelled banner |
+
+#### MT-5.5 Portal CE path end-to-end (no manual bid)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Inquiry PR → CE list → approve → portal open (MT-3.4) | Invitees can bid on `/my/tenders` |
+| 2 | ≥1 invited vendor submits a sealed portal bid (MT-5.2) | Bid `source=portal` visible to CM after open |
+| 3 | After opening datetime: **Open Bids** → set winner → **Select Winner** | CE `awarded`; PR `award_partner_id` + `quote_review` |
+| 4 | Continue MT-4.4 CE path (approve quotes → signatory → **Create PO**) | PO to winner without relying on manual CM bid entry |

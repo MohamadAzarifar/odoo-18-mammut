@@ -9,7 +9,7 @@ class ZvyClosedEnvelope(models.Model):
     _name = 'zvy.closed.envelope'
     _description = 'Closed Envelope Tender'
     _order = 'id desc'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(
         string='Reference',
@@ -78,6 +78,19 @@ class ZvyClosedEnvelope(models.Model):
         tracking=True,
     )
     list_reject_reason = fields.Text(string='List Reject Reason', copy=False)
+    published_document_ids = fields.Many2many(
+        'ir.attachment',
+        'zvy_ce_published_document_rel',
+        'envelope_id',
+        'attachment_id',
+        string='Published Documents',
+        help='Tender documents downloadable by invited suppliers on the portal.',
+    )
+
+    def _compute_access_url(self):
+        super()._compute_access_url()
+        for envelope in self:
+            envelope.access_url = '/my/tenders/%s' % envelope.id
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -131,6 +144,79 @@ class ZvyClosedEnvelope(models.Model):
                     'Only AVL vendors may be invited: %s'
                 ) % ', '.join(bad.mapped('display_name')))
 
+    def _portal_partner_matches(self, partner):
+        """Whether partner (or its commercial entity) is on the invite list."""
+        self.ensure_one()
+        if not partner:
+            return False
+        commercial = partner.commercial_partner_id
+        return bool(self.invite_partner_ids.filtered(
+            lambda p: p == partner or p.commercial_partner_id == commercial
+        ))
+
+    def _portal_invite_partner(self, partner):
+        """Return the invite-list partner matching the given portal partner."""
+        self.ensure_one()
+        if not partner:
+            return self.env['res.partner']
+        commercial = partner.commercial_partner_id
+        return self.invite_partner_ids.filtered(
+            lambda p: p == partner or p.commercial_partner_id == commercial
+        )[:1]
+
+    @api.model
+    def _get_portal_domain(self, user=None):
+        user = user or self.env.user
+        partner = user.partner_id.commercial_partner_id
+        return [
+            ('invite_partner_ids', 'child_of', [partner.id]),
+            ('state', 'in', ['portal_open', 'opened', 'awarded', 'cancelled']),
+        ]
+
+    def _send_portal_mail(self, template_xmlid, partners, extra_ctx=None):
+        """Send a mail.template to each partner (skips partners without email)."""
+        self.ensure_one()
+        template = self.env.ref(template_xmlid, raise_if_not_found=False)
+        if not template:
+            return
+        extra_ctx = extra_ctx or {}
+        for partner in partners:
+            if not partner.email:
+                continue
+            template.with_context(
+                partner=partner,
+                partner_to_id=partner.id,
+                **extra_ctx,
+            ).send_mail(
+                self.id,
+                force_send=False,
+                email_values={
+                    'email_to': partner.email,
+                    'recipient_ids': [(4, partner.id)],
+                },
+            )
+
+    def _notify_invited_partners(self, event, partners=None, clarification_body=None):
+        """Notify invitees for portal events (FR-26)."""
+        self.ensure_one()
+        partners = partners if partners is not None else self.invite_partner_ids
+        template_map = {
+            'invite': 'zvy_tendering.mail_template_ce_invite',
+            'clarification': 'zvy_tendering.mail_template_ce_clarification',
+            'awarded': 'zvy_tendering.mail_template_ce_awarded',
+            'not_awarded': 'zvy_tendering.mail_template_ce_not_awarded',
+            'cancelled': 'zvy_tendering.mail_template_ce_cancelled',
+        }
+        xmlid = template_map.get(event)
+        if not xmlid:
+            return
+        self._portal_ensure_token()
+        self._send_portal_mail(
+            xmlid,
+            partners,
+            extra_ctx={'clarification_body': clarification_body or ''},
+        )
+
     def action_submit_list(self):
         for envelope in self:
             if envelope.state != 'draft':
@@ -183,10 +269,11 @@ class ZvyClosedEnvelope(models.Model):
             deadline = fields.Datetime.to_datetime(opening) + timedelta(hours=hours)
             vals['bid_deadline'] = deadline
         self.write(vals)
+        self._portal_ensure_token()
         self.message_post(body=_(
-            'Invite list approved; bidding open until %s (opening %s). '
-            'Portal notifications deferred to Phase 5.'
+            'Invite list approved; bidding open until %s (opening %s).'
         ) % (self.bid_deadline, self.opening_datetime))
+        self._notify_invited_partners('invite')
         return True
 
     def action_reject_list(self):
@@ -249,6 +336,10 @@ class ZvyClosedEnvelope(models.Model):
         pr.message_post(body=_(
             'Closed envelope awarded to %s.'
         ) % self.winner_partner_id.display_name)
+        winner = self.winner_partner_id
+        losers = self.invite_partner_ids - winner
+        self._notify_invited_partners('awarded', partners=winner)
+        self._notify_invited_partners('not_awarded', partners=losers)
         return True
 
     def action_cancel(self):
@@ -259,6 +350,40 @@ class ZvyClosedEnvelope(models.Model):
                 ))
             envelope.write({'state': 'cancelled'})
             envelope.message_post(body=_('Closed envelope cancelled.'))
+            envelope._notify_invited_partners('cancelled')
+        return True
+    def action_post_clarification(self):
+        """Open wizard to post a clarification to invited suppliers."""
+        self.ensure_one()
+        if self.state not in ('portal_open', 'opened'):
+            raise UserError(_(
+                'Clarifications can only be posted while bidding is open or bids are opened.'
+            ))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Post Clarification'),
+            'res_model': 'zvy.ce.clarification.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_envelope_id': self.id,
+            },
+        }
+
+    def _post_clarification(self, body):
+        self.ensure_one()
+        body = (body or '').strip()
+        if not body:
+            raise ValidationError(_('Clarification body is required.'))
+        if self.state not in ('portal_open', 'opened'):
+            raise UserError(_(
+                'Clarifications can only be posted while bidding is open or bids are opened.'
+            ))
+        self.message_post(
+            body=_('Clarification: %s') % body,
+            subtype_xmlid='mail.mt_note',
+        )
+        self._notify_invited_partners('clarification', clarification_body=body)
         return True
 
     def _ensure_commission_manager(self):

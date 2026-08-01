@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_menu_tender" name="Portal layout: tenders menu" inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'tender'" t-attf-class="breadcrumb-item #{'active ' if not envelope else ''}">
+                <a t-if="envelope" t-attf-href="/my/tenders?{{ keep_query() }}">Tenders</a>
+                <t t-else="">Tenders</t>
+            </li>
+            <li t-if="envelope" class="breadcrumb-item active">
+                <t t-esc="envelope.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_tender" name="My Tenders" inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_vendor_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_vendor_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Tenders</t>
+                <t t-set="text">View invitations and submit sealed bids</t>
+                <t t-set="url" t-value="'/my/tenders'"/>
+                <t t-set="placeholder_count" t-value="'tender_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_tenders" name="My Tenders">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Tenders</t>
+            </t>
+            <t t-if="not tenders">
+                <p class="alert alert-warning">There are currently no tender invitations for your account.</p>
+            </t>
+            <t t-if="tenders" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th class="text-end">Bid Deadline</th>
+                        <th class="text-end">Opening</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <t t-foreach="tenders" t-as="tender">
+                    <tr>
+                        <td>
+                            <a t-att-href="tender.get_portal_url()">
+                                <t t-esc="tender.name"/>
+                            </a>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="tender.bid_deadline"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="tender.opening_datetime"/>
+                        </td>
+                        <td class="text-center">
+                            <span t-field="tender.state"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_tender" name="Tender Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="zvy_tendering.group_zvy_commission_manager,zvy_tendering.group_zvy_tendering_admin">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url" t-value="'/odoo/zvy.closed.envelope/%s' % envelope.id"/>
+                </t>
+            </t>
+
+            <div class="container py-3">
+                <div t-if="error" class="alert alert-danger" role="alert">
+                    <t t-esc="error"/>
+                </div>
+                <div t-if="success" class="alert alert-success" role="alert">
+                    <t t-esc="success"/>
+                </div>
+
+                <div t-if="envelope.state == 'awarded'" class="alert alert-info" role="alert">
+                    <t t-if="envelope.winner_partner_id == request.env.user.partner_id
+                             or envelope.winner_partner_id.commercial_partner_id == request.env.user.partner_id.commercial_partner_id">
+                        Your bid was awarded for this tender.
+                    </t>
+                    <t t-else="">
+                        This tender has been awarded. Your bid was not selected.
+                    </t>
+                </div>
+                <div t-if="envelope.state == 'cancelled'" class="alert alert-warning" role="alert">
+                    This tender has been cancelled.
+                </div>
+
+                <h3 t-field="envelope.name"/>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Bid deadline:</strong>
+                        <span t-field="envelope.bid_deadline"/>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Opening:</strong>
+                        <span t-field="envelope.opening_datetime"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    <span t-field="envelope.state"/>
+                </div>
+
+                <h4 class="mt-4">Line summary</h4>
+                <t t-if="not lines">
+                    <p class="text-muted">No purchase request lines.</p>
+                </t>
+                <t t-else="">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-end">Qty</th>
+                                <th>UoM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="lines" t-as="line">
+                                <td><span t-field="line.product_id.display_name"/></td>
+                                <td class="text-end"><span t-field="line.product_uom_qty"/></td>
+                                <td><span t-field="line.product_uom_id"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+
+                <h4 class="mt-4">Published documents</h4>
+                <t t-if="not published_documents">
+                    <p class="text-muted">No documents published for this tender.</p>
+                </t>
+                <ul t-else="" class="list-unstyled">
+                    <li t-foreach="published_documents" t-as="doc">
+                        <a t-attf-href="/my/tenders/#{envelope.id}/document/#{doc.id}?access_token=#{envelope.access_token}">
+                            <t t-esc="doc.name"/>
+                        </a>
+                    </li>
+                </ul>
+
+                <h4 class="mt-4">Your sealed bid</h4>
+                <t t-if="bidding_open">
+                    <form method="POST" t-attf-action="/my/tenders/#{envelope.id}/bid"
+                          enctype="multipart/form-data" class="o_portal_tender_bid_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="access_token" t-att-value="envelope.access_token"/>
+                        <div class="mb-3">
+                            <label class="form-label" for="amount">Bid amount (<t t-esc="envelope.currency_id.name"/>)</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" name="amount" id="amount"
+                                   required="required"
+                                   t-att-value="own_bid.amount if own_bid else ''"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="notes">Notes</label>
+                            <textarea class="form-control" name="notes" id="notes" rows="3"
+                                      t-esc="own_bid.notes if own_bid else ''"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="attachments">Attachments</label>
+                            <input type="file" class="form-control" name="attachments" id="attachments" multiple="multiple"/>
+                            <t t-if="own_bid and own_bid.attachment_ids">
+                                <small class="text-muted">
+                                    Current files:
+                                    <t t-esc="', '.join(own_bid.attachment_ids.mapped('name'))"/>.
+                                    Uploading new files replaces them.
+                                </small>
+                            </t>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <t t-if="own_bid">Update bid</t>
+                            <t t-else="">Submit bid</t>
+                        </button>
+                    </form>
+                    <form t-if="own_bid" method="POST" t-attf-action="/my/tenders/#{envelope.id}/withdraw" class="mt-2">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="access_token" t-att-value="envelope.access_token"/>
+                        <button type="submit" class="btn btn-secondary">Withdraw bid</button>
+                    </form>
+                </t>
+                <t t-else="">
+                    <t t-if="own_bid">
+                        <p>
+                            Submitted amount:
+                            <span t-field="own_bid.amount" t-options="{'widget': 'monetary', 'display_currency': envelope.currency_id}"/>
+                            on <span t-field="own_bid.submitted_at"/>.
+                        </p>
+                        <p t-if="own_bid.notes"><t t-esc="own_bid.notes"/></p>
+                    </t>
+                    <t t-else="">
+                        <p class="text-muted">Bidding is closed. You did not submit a bid.</p>
+                    </t>
+                </t>
+
+                <div class="mt-4">
+                    <t t-call="portal.message_thread">
+                        <t t-set="object" t-value="envelope"/>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_ce_invite" model="mail.template">
+            <field name="name">Tendering: Closed Envelope Invitation</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="subject">Invitation to tender {{ object.name }}</field>
+            <field name="description">Sent to invited suppliers when the CE portal opens</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="ctx.get('partner') and ctx['partner'].name or ''">Supplier</t>,
+        <br/><br/>
+        You are invited to submit a sealed bid for tender
+        <span style="font-weight:bold;" t-out="object.name or ''">CE/PR</span>
+        from <t t-out="object.company_id.name or ''">Company</t>.
+        <br/><br/>
+        Bid deadline: <t t-out="object.bid_deadline or ''"/>
+        <br/>
+        Opening: <t t-out="object.opening_datetime or ''"/>
+        <br/><br/>
+        <a t-att-href="object.get_portal_url()"
+           target="_blank"
+           style="padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px">
+            View tender
+        </a>
+        <br/><br/>
+        Best regards,
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ (ctx.get('partner') and ctx['partner'].lang) or object.env.user.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <record id="mail_template_ce_clarification" model="mail.template">
+            <field name="name">Tendering: Closed Envelope Clarification</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="subject">Clarification on tender {{ object.name }}</field>
+            <field name="description">Sent when a clarification is posted on a closed envelope</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="ctx.get('partner') and ctx['partner'].name or ''">Supplier</t>,
+        <br/><br/>
+        A clarification has been posted on tender
+        <span style="font-weight:bold;" t-out="object.name or ''">CE/PR</span>:
+        <br/><br/>
+        <t t-out="ctx.get('clarification_body') or ''"/>
+        <br/><br/>
+        <a t-att-href="object.get_portal_url()"
+           target="_blank"
+           style="padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px">
+            View tender
+        </a>
+        <br/><br/>
+        Best regards,
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ (ctx.get('partner') and ctx['partner'].lang) or object.env.user.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <record id="mail_template_ce_awarded" model="mail.template">
+            <field name="name">Tendering: Closed Envelope Awarded</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="subject">You were awarded tender {{ object.name }}</field>
+            <field name="description">Sent to the winning supplier after award</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="ctx.get('partner') and ctx['partner'].name or ''">Supplier</t>,
+        <br/><br/>
+        Congratulations. Your bid for tender
+        <span style="font-weight:bold;" t-out="object.name or ''">CE/PR</span>
+        has been selected.
+        <br/><br/>
+        <a t-att-href="object.get_portal_url()"
+           target="_blank"
+           style="padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px">
+            View tender
+        </a>
+        <br/><br/>
+        Best regards,
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ (ctx.get('partner') and ctx['partner'].lang) or object.env.user.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <record id="mail_template_ce_not_awarded" model="mail.template">
+            <field name="name">Tendering: Closed Envelope Not Awarded</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="subject">Result for tender {{ object.name }}</field>
+            <field name="description">Sent to non-winning invited suppliers after award</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="ctx.get('partner') and ctx['partner'].name or ''">Supplier</t>,
+        <br/><br/>
+        Thank you for participating in tender
+        <span style="font-weight:bold;" t-out="object.name or ''">CE/PR</span>.
+        Your bid was not selected.
+        <br/><br/>
+        <a t-att-href="object.get_portal_url()"
+           target="_blank"
+           style="padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px">
+            View tender
+        </a>
+        <br/><br/>
+        Best regards,
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ (ctx.get('partner') and ctx['partner'].lang) or object.env.user.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <record id="mail_template_ce_cancelled" model="mail.template">
+            <field name="name">Tendering: Closed Envelope Cancelled</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="subject">Tender {{ object.name }} cancelled</field>
+            <field name="description">Sent to invited suppliers when a closed envelope is cancelled</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="ctx.get('partner') and ctx['partner'].name or ''">Supplier</t>,
+        <br/><br/>
+        Tender <span style="font-weight:bold;" t-out="object.name or ''">CE/PR</span>
+        has been cancelled.
+        <br/><br/>
+        Best regards,
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ (ctx.get('partner') and ctx['partner'].lang) or object.env.user.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

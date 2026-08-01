@@ -14,18 +14,22 @@ class ZvyTenderingCommon(TransactionCase):
         cls.partner_a = cls.env['res.partner'].create({
             'name': 'AVL Vendor A',
             'supplier_rank': 1,
+            'email': 'vendor_a@example.com',
         })
         cls.partner_b = cls.env['res.partner'].create({
             'name': 'AVL Vendor B',
             'supplier_rank': 1,
+            'email': 'vendor_b@example.com',
         })
         cls.partner_c = cls.env['res.partner'].create({
             'name': 'AVL Vendor C',
             'supplier_rank': 1,
+            'email': 'vendor_c@example.com',
         })
         cls.partner_non_avl = cls.env['res.partner'].create({
             'name': 'Non AVL Vendor',
             'supplier_rank': 1,
+            'email': 'non_avl@example.com',
         })
         cls.Avl = cls.env['zvy.avl.entry']
         cls.avl_a = cls.Avl.create({
@@ -202,6 +206,53 @@ class ZvyTenderingCommon(TransactionCase):
         })
         cls.company_a.zvy_signatory_approval_category_id = cls.signatory_category
         cls.company_a.zvy_sole_source_approver_ids = [(6, 0, [cls.user_ceo.id])]
+
+        # Portal suppliers (true base.group_portal users on commercial child contacts)
+        cls.partner_portal_outsider = cls.env['res.partner'].create({
+            'name': 'Portal Outsider Vendor',
+            'supplier_rank': 1,
+            'email': 'outsider@example.com',
+        })
+        cls.partner_a_contact = cls.env['res.partner'].create({
+            'name': 'Portal Contact A',
+            'parent_id': cls.partner_a.id,
+            'email': 'portal_contact_a@example.com',
+            'type': 'contact',
+        })
+        cls.partner_b_contact = cls.env['res.partner'].create({
+            'name': 'Portal Contact B',
+            'parent_id': cls.partner_b.id,
+            'email': 'portal_contact_b@example.com',
+            'type': 'contact',
+        })
+        portal_group = cls.env.ref('base.group_portal')
+        cls.user_portal_a = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Portal Vendor A',
+            'login': 'zvy_portal_a',
+            'email': 'zvy_portal_a@example.com',
+            'partner_id': cls.partner_a_contact.id,
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [portal_group.id])],
+        })
+        cls.user_portal_b = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Portal Vendor B',
+            'login': 'zvy_portal_b',
+            'email': 'zvy_portal_b@example.com',
+            'partner_id': cls.partner_b_contact.id,
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [portal_group.id])],
+        })
+        cls.user_portal_outsider = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Portal Outsider',
+            'login': 'zvy_portal_outsider',
+            'email': 'zvy_portal_outsider@example.com',
+            'partner_id': cls.partner_portal_outsider.id,
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [portal_group.id])],
+        })
 
     def _create_draft_pr(self, user=None, company=None, **extra):
         user = user or self.user_planner

@@ -235,26 +235,26 @@ FR-7, 12–14, 28 pass; end-to-end company path and commission→signatory→PO 
 
 ### Scope
 
-- [ ] Portal controllers: `/my/tenders` list + detail (FR-24)
-- [ ] Invitation isolation: non-invited → empty / 403
-- [ ] Bid submit/update/withdraw while `portal_open` and before `bid_deadline` (FR-25)
-- [ ] Reject submit after deadline or after open with clear error
-- [ ] Store as `zvy.closed.envelope.bid` (`source=portal`); seal rules unchanged (FR-30)
-- [ ] Mail (+ optional portal note): portal open / invitation; clarification; award / not awarded / cancelled (FR-26)
-- [ ] Published tender documents downloadable on detail page
+- [x] Portal controllers: `/my/tenders` list + detail (FR-24)
+- [x] Invitation isolation: non-invited → empty / 403
+- [x] Bid submit/update/withdraw while `portal_open` and before `bid_deadline` (FR-25)
+- [x] Reject submit after deadline or after open with clear error
+- [x] Store as `zvy.closed.envelope.bid` (`source=portal`); seal rules unchanged (FR-30)
+- [x] Mail (+ optional portal note): portal open / invitation; clarification; award / not awarded / cancelled (FR-26)
+- [x] Published tender documents downloadable on detail page
 
 ### Stories / FRs checklist
 
-- [ ] **Story 24 / FR-24** — Portal view tenders / RFQs
-- [ ] **Story 25 / FR-25** — Submit sealed bids before deadline
-- [ ] **Story 26 / FR-26** — Results & clarification notifications
+- [x] **Story 24 / FR-24** — Portal view tenders / RFQs
+- [x] **Story 25 / FR-25** — Submit sealed bids before deadline
+- [x] **Story 26 / FR-26** — Results & clarification notifications
 
 ### Suggested tests
 
-- [ ] Portal isolation (invited vs not)
-- [ ] Bid seal: other suppliers never see amounts
-- [ ] Deadline and pre-open update rules
-- [ ] Notification triggers on open / result
+- [x] Portal isolation (invited vs not)
+- [x] Bid seal: other suppliers never see amounts
+- [x] Deadline and pre-open update rules
+- [x] Notification triggers on open / result
 
 ### Done when
 
@@ -323,4 +323,4 @@ Track throughout (PRD §7):
 | 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`) |
 | 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
 | 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
-| 5 Supplier portal | Not started | |
+| 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |

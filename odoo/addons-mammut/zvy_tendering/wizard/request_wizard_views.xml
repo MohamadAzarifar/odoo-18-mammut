@@ -73,4 +73,21 @@
             </form>
         </field>
     </record>
+
+    <record id="view_zvy_ce_clarification_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.ce.clarification.wizard.form</field>
+        <field name="model">zvy.ce.clarification.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Post Clarification">
+                <group>
+                    <field name="envelope_id" invisible="1"/>
+                    <field name="body" placeholder="Clarification for invited suppliers..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Post Clarification" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>

@@ -41,6 +41,9 @@
                             class="btn-primary"
                             invisible="state != 'opened'"
                             groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_post_clarification" string="Post Clarification" type="object"
+                            invisible="state not in ('portal_open', 'opened')"
+                            groups="zvy_tendering.group_zvy_commission_manager,zvy_tendering.group_zvy_tendering_admin"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             invisible="state in ('awarded', 'cancelled')"
                             groups="zvy_tendering.group_zvy_commission_manager,zvy_tendering.group_zvy_tendering_admin"/>
@@ -57,6 +60,7 @@
                             <field name="request_id" readonly="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="currency_id" invisible="1"/>
+                            <field name="access_url" invisible="1"/>
                         </group>
                         <group>
                             <field name="opening_datetime"
@@ -76,6 +80,10 @@
                         <field name="invite_partner_ids" widget="many2many_tags"
                                  readonly="state != 'draft'"
                                  options="{'no_create': True}"/>
+                    </group>
+                    <group string="Published Documents">
+                        <field name="published_document_ids" widget="many2many_binary"
+                                 readonly="state in ('awarded', 'cancelled')"/>
                     </group>
                     <notebook>
                         <page string="Bids" name="bids">
