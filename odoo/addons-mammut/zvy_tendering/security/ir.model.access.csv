@@ -4,28 +4,33 @@ access_zvy_avl_entry_cm,zvy.avl.entry commercial manager,model_zvy_avl_entry,gro
 access_zvy_avl_entry_cce,zvy.avl.entry commercial expert,model_zvy_avl_entry,group_zvy_commercial_expert,1,0,0,0
 access_zvy_avl_entry_comm_mgr,zvy.avl.entry commission manager,model_zvy_avl_entry,group_zvy_commission_manager,1,0,0,0
 access_zvy_avl_entry_comm_exp,zvy.avl.entry commission expert,model_zvy_avl_entry,group_zvy_commission_expert,1,0,0,0
+access_zvy_avl_entry_signatory,zvy.avl.entry signatory,model_zvy_avl_entry,group_zvy_signatory,1,0,0,0
 access_zvy_purchase_request_planner,zvy.purchase.request planner,model_zvy_purchase_request,group_zvy_planner,1,1,1,1
 access_zvy_purchase_request_cm,zvy.purchase.request commercial manager,model_zvy_purchase_request,group_zvy_commercial_manager,1,1,0,0
 access_zvy_purchase_request_cce,zvy.purchase.request commercial expert,model_zvy_purchase_request,group_zvy_commercial_expert,1,0,0,0
 access_zvy_purchase_request_comm_mgr,zvy.purchase.request commission manager,model_zvy_purchase_request,group_zvy_commission_manager,1,0,0,0
 access_zvy_purchase_request_comm_exp,zvy.purchase.request commission expert,model_zvy_purchase_request,group_zvy_commission_expert,1,0,0,0
+access_zvy_purchase_request_signatory,zvy.purchase.request signatory,model_zvy_purchase_request,group_zvy_signatory,1,0,0,0
 access_zvy_purchase_request_admin,zvy.purchase.request admin,model_zvy_purchase_request,group_zvy_tendering_admin,1,1,1,1
 access_zvy_purchase_request_line_planner,zvy.purchase.request.line planner,model_zvy_purchase_request_line,group_zvy_planner,1,1,1,1
 access_zvy_purchase_request_line_cm,zvy.purchase.request.line commercial manager,model_zvy_purchase_request_line,group_zvy_commercial_manager,1,1,0,0
 access_zvy_purchase_request_line_cce,zvy.purchase.request.line commercial expert,model_zvy_purchase_request_line,group_zvy_commercial_expert,1,1,0,0
 access_zvy_purchase_request_line_comm_mgr,zvy.purchase.request.line commission manager,model_zvy_purchase_request_line,group_zvy_commission_manager,1,0,0,0
 access_zvy_purchase_request_line_comm_exp,zvy.purchase.request.line commission expert,model_zvy_purchase_request_line,group_zvy_commission_expert,1,0,0,0
+access_zvy_purchase_request_line_signatory,zvy.purchase.request.line signatory,model_zvy_purchase_request_line,group_zvy_signatory,1,0,0,0
 access_zvy_purchase_request_line_admin,zvy.purchase.request.line admin,model_zvy_purchase_request_line,group_zvy_tendering_admin,1,1,1,1
 access_zvy_quote_planner,zvy.quote planner,model_zvy_quote,group_zvy_planner,1,0,0,0
 access_zvy_quote_cce,zvy.quote commercial expert,model_zvy_quote,group_zvy_commercial_expert,1,1,1,1
 access_zvy_quote_cm,zvy.quote commercial manager,model_zvy_quote,group_zvy_commercial_manager,1,1,1,1
 access_zvy_quote_comm_mgr,zvy.quote commission manager,model_zvy_quote,group_zvy_commission_manager,1,0,0,0
 access_zvy_quote_comm_exp,zvy.quote commission expert,model_zvy_quote,group_zvy_commission_expert,1,0,0,0
+access_zvy_quote_signatory,zvy.quote signatory,model_zvy_quote,group_zvy_signatory,1,0,0,0
 access_zvy_quote_admin,zvy.quote admin,model_zvy_quote,group_zvy_tendering_admin,1,1,1,1
 access_zvy_commission_case_cm,zvy.commission.case commercial manager,model_zvy_commission_case,group_zvy_commercial_manager,1,0,0,0
 access_zvy_commission_case_admin,zvy.commission.case admin,model_zvy_commission_case,group_zvy_tendering_admin,1,1,1,1
 access_zvy_commission_case_comm_mgr,zvy.commission.case commission manager,model_zvy_commission_case,group_zvy_commission_manager,1,1,1,0
 access_zvy_commission_case_comm_exp,zvy.commission.case commission expert,model_zvy_commission_case,group_zvy_commission_expert,1,0,0,0
+access_zvy_commission_case_signatory,zvy.commission.case signatory,model_zvy_commission_case,group_zvy_signatory,1,0,0,0
 access_zvy_commission_review_admin,zvy.commission.review admin,model_zvy_commission_review,group_zvy_tendering_admin,1,1,1,1
 access_zvy_commission_review_comm_mgr,zvy.commission.review commission manager,model_zvy_commission_review,group_zvy_commission_manager,1,1,1,0
 access_zvy_commission_review_comm_exp,zvy.commission.review commission expert,model_zvy_commission_review,group_zvy_commission_expert,1,1,0,0
@@ -37,6 +42,7 @@ access_zvy_closed_envelope_comm_mgr,zvy.closed.envelope commission manager,model
 access_zvy_closed_envelope_comm_exp,zvy.closed.envelope commission expert,model_zvy_closed_envelope,group_zvy_commission_expert,1,0,0,0
 access_zvy_closed_envelope_cce,zvy.closed.envelope commercial expert,model_zvy_closed_envelope,group_zvy_commercial_expert,1,1,1,0
 access_zvy_closed_envelope_cm,zvy.closed.envelope commercial manager,model_zvy_closed_envelope,group_zvy_commercial_manager,1,0,0,0
+access_zvy_closed_envelope_signatory,zvy.closed.envelope signatory,model_zvy_closed_envelope,group_zvy_signatory,1,0,0,0
 access_zvy_closed_envelope_bid_admin,zvy.closed.envelope.bid admin,model_zvy_closed_envelope_bid,group_zvy_tendering_admin,1,1,1,1
 access_zvy_closed_envelope_bid_comm_mgr,zvy.closed.envelope.bid commission manager,model_zvy_closed_envelope_bid,group_zvy_commission_manager,1,1,1,1
 access_zvy_closed_envelope_bid_comm_exp,zvy.closed.envelope.bid commission expert,model_zvy_closed_envelope_bid,group_zvy_commission_expert,1,0,0,0

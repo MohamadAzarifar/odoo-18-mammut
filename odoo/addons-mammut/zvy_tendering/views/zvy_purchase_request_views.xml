@@ -145,7 +145,7 @@
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                               readonly="parent.state != 'quote_review'"
                                               options="{'no_create': True, 'no_create_edit': True}"
-                                              groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                                              groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
                                 </list>
                                 <form>
@@ -166,7 +166,7 @@
                                                       domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                                       readonly="request_state != 'quote_review'"
                                                       options="{'no_create': True, 'no_create_edit': True}"
-                                                      groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                                                      groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                             <field name="awarded_partner_id" readonly="1"/>
                                             <field name="request_state" invisible="1"/>
                                         </group>
@@ -199,7 +199,7 @@
                             </field>
                         </page>
                         <page string="Quotes" name="quotes"
-                              groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
+                              groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory">
                             <div class="alert alert-info" role="alert"
                                  invisible="can_edit_quotes or state != 'inquiry'"
                                  groups="zvy_tendering.group_zvy_commercial_expert">
@@ -329,7 +329,7 @@
                                     domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                     readonly="request_state != 'quote_review'"
                                     options="{'no_create': True, 'no_create_edit': True}"
-                                    groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
+                                    groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                         </group>
                     </group>
                     <notebook>

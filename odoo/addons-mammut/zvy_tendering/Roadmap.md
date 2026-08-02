@@ -30,7 +30,7 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 ### Scope
 
 - [x] `__manifest__.py` with depends: `mail`, `product`, `purchase`, `approvals`, `portal`
-- [x] Module category + groups (Planner, CM, CCE, Commission Manager/Expert, Admin) — [Architecture.md](Architecture.md) §5
+- [x] Module category + groups (Planner, CM, CCE, Signatory, Commission Manager/Expert, Admin) — [Architecture.md](Architecture.md) §5
 - [x] ACL CSV stubs for models introduced in later phases (or create models empty and ACL as they land)
 - [x] Multi-company record-rule pattern
 - [x] Menus shell (Procurement & Tendering)
@@ -198,7 +198,7 @@ FR-11, 15–23, 29–30 pass with **manual** bids; sealed integrity holds; appro
 ### Scope
 
 - [x] Spawn sequential `approval.request` from company signatory category (FR-12)
-- [x] Link PR ↔ approval; PR context from approval form (FR-13)
+- [x] Link PR ↔ approval; PR context from approval form via Signatory role (approver-only, read-only) (FR-13)
 - [x] Full approval → `po_ready`; refuse → `cm_review` with reason (BR-8)
 - [x] Sole source always includes CEO / sole-source approvers in chain, including after commission (FR-14)
 - [x] Enforce no `po_ready` while approval pending (FR-28)
@@ -220,6 +220,7 @@ FR-11, 15–23, 29–30 pass with **manual** bids; sealed integrity holds; appro
 - [x] Sole-source PR includes CEO before `po_ready`
 - [x] Cannot create PO from non-`po_ready` or without award
 - [x] Non-CM cannot create PO
+- [x] Signatory can read linked PR/lines/quotes; cannot write; non-approver Signatory cannot read
 
 ### Done when
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .common import ZvyTenderingCommon
@@ -131,3 +131,39 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         pr.with_user(self.user_cm).action_create_po()
         self.assertEqual(pr.state, 'done')
         self.assertTrue(pr.sudo().purchase_order_ids)
+
+    def test_signatory_can_read_linked_pr_context(self):
+        pr = self._route_to_signatory()
+        pr_as_sig = pr.with_user(self.user_signatory)
+        self.assertEqual(pr_as_sig.name, pr.name)
+        self.assertTrue(pr_as_sig.line_ids)
+        self.assertTrue(pr_as_sig.quote_ids)
+        self.assertTrue(pr_as_sig.line_ids.awarded_quote_id)
+        # Form loads sole_source / allowed_partner_ids which touch AVL.
+        self.assertTrue(isinstance(pr_as_sig.line_ids.sole_source, bool))
+        self.assertTrue(pr_as_sig.quote_ids.allowed_partner_ids)
+
+    def test_signatory_cannot_write_pr(self):
+        pr = self._route_to_signatory()
+        with self.assertRaises(AccessError):
+            pr.with_user(self.user_signatory).check_access('write')
+        with self.assertRaises(AccessError):
+            self.env['zvy.purchase.request'].with_user(
+                self.user_signatory
+            ).check_access('write')
+
+    def test_non_approver_signatory_cannot_read_pr(self):
+        pr = self._route_to_signatory()
+        with self.assertRaises(AccessError):
+            pr.with_user(self.user_signatory_other).read(['name'])
+
+    def test_signatory_opens_pr_from_approval(self):
+        pr = self._route_to_signatory()
+        approval = pr.sudo().approval_request_id
+        action = approval.with_user(self.user_signatory).action_open_zvy_purchase_request()
+        self.assertEqual(action['res_model'], 'zvy.purchase.request')
+        self.assertEqual(action['res_id'], pr.id)
+        opened = self.env['zvy.purchase.request'].with_user(
+            self.user_signatory
+        ).browse(action['res_id'])
+        self.assertEqual(opened.name, pr.name)

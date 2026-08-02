@@ -52,6 +52,7 @@ class ZvyTenderingCommon(TransactionCase):
         cls.group_planner = cls.env.ref('zvy_tendering.group_zvy_planner')
         cls.group_cm = cls.env.ref('zvy_tendering.group_zvy_commercial_manager')
         cls.group_cce = cls.env.ref('zvy_tendering.group_zvy_commercial_expert')
+        cls.group_signatory = cls.env.ref('zvy_tendering.group_zvy_signatory')
         cls.group_comm_mgr = cls.env.ref('zvy_tendering.group_zvy_commission_manager')
         cls.group_comm_exp = cls.env.ref('zvy_tendering.group_zvy_commission_expert')
         cls.user_company_a = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -177,7 +178,7 @@ class ZvyTenderingCommon(TransactionCase):
             'company_ids': [(6, 0, [cls.company_a.id])],
             'groups_id': [(6, 0, [
                 cls.env.ref('base.group_user').id,
-                cls.env.ref('approvals.group_approval_user').id,
+                cls.group_signatory.id,
             ])],
         })
         cls.user_ceo = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -188,7 +189,18 @@ class ZvyTenderingCommon(TransactionCase):
             'company_ids': [(6, 0, [cls.company_a.id])],
             'groups_id': [(6, 0, [
                 cls.env.ref('base.group_user').id,
-                cls.env.ref('approvals.group_approval_user').id,
+                cls.group_signatory.id,
+            ])],
+        })
+        cls.user_signatory_other = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'ZVY Signatory Other',
+            'login': 'zvy_signatory_other',
+            'email': 'zvy_signatory_other@example.com',
+            'company_id': cls.company_a.id,
+            'company_ids': [(6, 0, [cls.company_a.id])],
+            'groups_id': [(6, 0, [
+                cls.env.ref('base.group_user').id,
+                cls.group_signatory.id,
             ])],
         })
         cls.signatory_category = cls.env['approval.category'].create({

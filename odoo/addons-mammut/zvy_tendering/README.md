@@ -301,7 +301,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Approver can open PR context (summary, amounts, attachments) from the approval document.
+- [x] Approver has the **Signatory** tendering role (`group_zvy_signatory`) and can open PR context (summary, amounts, lines, quotes, awarded quote) from the approval document; PR is read-only.
 - [x] Approve advances the chain; full approval → PR `po_ready`.
 - [x] Refuse returns PR to CM (`cm_review`) with reason.
 
@@ -659,11 +659,11 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`).
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
-3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
+3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Signatory, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
 5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
-7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Add ≥1 **Sole-Source Approver** (e.g. CEO user with Approvals access). Commercial Manager implies Purchase User so they can open created POs.
+7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Assign the **Signatory** role to those approvers and to Sole-Source Approver(s) (e.g. CEO). Commercial Manager implies Purchase User so they can open created POs.
 8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
 
 ### Phase 0 — Foundation
@@ -683,7 +683,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | On a user form → **Access Rights** (debug **off**), set **Planner** only; save; log in as that user | Sees **Purchase Requests** (All Requests). **Configuration** is not available |
 | 2 | Set **Administrator** on another user (or use Admin); save | That user sees **Configuration**; Admin implies all operational roles |
-| 3 | Assign Commercial Manager / Expert / Commission roles independently on separate users | Each role appears under Procurement & Tendering and can be combined (roles are not mutually exclusive) |
+| 3 | Assign Commercial Manager / Expert / Signatory / Commission roles independently on separate users | Each role appears under Procurement & Tendering and can be combined (roles are not mutually exclusive). **Signatory** has no Tendering menus; opens PR from Approvals only |
 
 #### MT-0.3 Tendering settings (PRD §8)
 

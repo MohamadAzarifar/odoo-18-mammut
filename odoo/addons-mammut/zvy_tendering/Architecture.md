@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.5.0` |
+| Version | `18.0.1.6.9` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -381,15 +381,16 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 | `group_zvy_planner` | Planner | Create/submit own PRs; edit in `draft`/`correction` |
 | `group_zvy_commercial_manager` | Commercial Manager | CM queues, assign, quote review, create PO |
 | `group_zvy_commercial_expert` | Commercial Expert | Inquiry on assigned lines |
+| `group_zvy_signatory` | Signatory | Read-only PR context from Approvals when user is an approver |
 | `group_zvy_commission_manager` | Commission Manager | Cases, meetings, CE list/open/award |
 | `group_zvy_commission_expert` | Commission Expert | Assigned case reviews |
 | `group_zvy_tendering_admin` | Administrator | Config, AVL admin, all records |
 
 Each role uses its own child `ir.module.category` under **Procurement & Tendering** so Access Rights shows them without debug mode (sibling groups in one category become boolean fields and are debug-only).
 
-Company **signatories** use standard Approvals groups / category approvers (no duplicate signatory group required). Portal suppliers use `base.group_portal` linked to `res.partner`.
+`group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must also be listed on the Signatory Approval Category (or sole-source approvers). No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
 
-Implied hierarchy (example): Admin implies CM + Commission Manager + Expert groups as needed for support.
+Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager + Expert groups as needed for support.
 
 ### 5.2 Record rules (intent)
 
@@ -399,12 +400,13 @@ Implied hierarchy (example): Admin implies CM + Commission Manager + Expert grou
 | Planner | Own PRs (`requester_id = user`) |
 | Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL, so the PR Quotes tab is read-only for them); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
 | Commercial Manager | All company PRs |
+| Signatory | PRs (and lines/quotes/linked commission case & CE) where `user` is on `approval_request_id.approver_ids`; **read-only** (no write/create/unlink). Also read-only AVL (form computes sole_source / quote allowed vendors). |
 | Commission Expert | Cases where `user in expert_user_ids` |
 | Commission Manager | All open commission cases / CE for company |
 | Sealed bids | Until CE `opened`/`awarded`: amount/attachments readable only by Commission Manager (and admin); portal: `partner_id = user.partner_id` |
 | Portal invitations | CE visible only if partner in `invite_partner_ids` |
 
-ACL CSV: CRUD matrix per model × group (experts create quotes; planners create PRs; CM create PO via action; suppliers no backend model write except portal controllers using `sudo` with checks).
+ACL CSV: CRUD matrix per model × group (experts create quotes; planners create PRs; CM create PO via action; signatories read-only PR context; suppliers no backend model write except portal controllers using `sudo` with checks).
 
 ---
 
