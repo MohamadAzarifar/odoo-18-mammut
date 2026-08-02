@@ -72,7 +72,8 @@
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_approval_request" type="object"
                                 class="oe_stat_button" icon="fa-pencil-square-o"
-                                invisible="not approval_request_id">
+                                invisible="not approval_request_id"
+                                groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Signatory</span>
                             </div>

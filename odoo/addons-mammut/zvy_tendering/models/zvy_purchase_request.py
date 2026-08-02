@@ -92,7 +92,6 @@ class ZvyPurchaseRequest(models.Model):
         string='Signatory Approval',
         copy=False,
         readonly=True,
-        groups='zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin',
     )
     purchase_order_ids = fields.One2many(
         'purchase.order',
