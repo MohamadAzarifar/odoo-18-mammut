@@ -72,8 +72,9 @@
                     <div class="alert alert-info" role="alert"
                          invisible="state != 'quote_review'"
                          groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
-                        Select an <b>Awarded Quote</b> on every line, then use
-                        <b>Approve Quotes</b> (or <b>Reject Quotes</b>) in the header.
+                        Use <b>Select as Awarded</b> on each line’s winning quote
+                        (or set <b>Awarded Quote</b>), then click <b>Approve Quotes</b>
+                        (or <b>Reject Quotes</b>) in the header.
                     </div>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_approval_request" type="object"
@@ -143,6 +144,7 @@
                                     <field name="awarded_quote_id"
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                               readonly="parent.state != 'quote_review'"
+                                              options="{'no_create': True, 'no_create_edit': True}"
                                               groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
                                 </list>
@@ -163,6 +165,7 @@
                                             <field name="awarded_quote_id"
                                                       domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                                       readonly="request_state != 'quote_review'"
+                                                      options="{'no_create': True, 'no_create_edit': True}"
                                                       groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                             <field name="awarded_partner_id" readonly="1"/>
                                             <field name="request_state" invisible="1"/>
@@ -170,7 +173,7 @@
                                     </group>
                                     <notebook>
                                         <page string="Quotes" name="line_quotes">
-                                            <field name="quote_ids">
+                                            <field name="quote_ids" readonly="request_state != 'inquiry'">
                                                 <list editable="bottom">
                                                     <field name="allowed_partner_ids" column_invisible="1"/>
                                                     <field name="partner_id" options="{'no_create': True}"/>
@@ -179,7 +182,15 @@
                                                     <field name="currency_id" column_invisible="1"/>
                                                     <field name="expert_user_id" readonly="1"/>
                                                     <field name="state" readonly="1"/>
+                                                    <field name="is_awarded" column_invisible="1"/>
+                                                    <field name="request_state" column_invisible="1"/>
                                                     <field name="request_id" column_invisible="1"/>
+                                                    <button name="action_select_as_awarded" type="object"
+                                                            string="Select as Awarded"
+                                                            icon="fa-trophy"
+                                                            class="btn-link"
+                                                            invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                                                            groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                                 </list>
                                             </field>
                                         </page>
@@ -205,6 +216,14 @@
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="expert_user_id" readonly="1"/>
                                     <field name="state" readonly="1"/>
+                                    <field name="is_awarded" column_invisible="1"/>
+                                    <field name="request_state" column_invisible="1"/>
+                                    <button name="action_select_as_awarded" type="object"
+                                            string="Select as Awarded"
+                                            icon="fa-trophy"
+                                            class="btn-link"
+                                            invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                                            groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                 </list>
                             </field>
                         </page>
@@ -306,6 +325,11 @@
                             <field name="sole_source" readonly="1"/>
                             <field name="is_commission_item" readonly="1"/>
                             <field name="expert_user_ids" widget="many2many_tags" readonly="1"/>
+                            <field name="awarded_quote_id"
+                                    domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
+                                    readonly="request_state != 'quote_review'"
+                                    options="{'no_create': True, 'no_create_edit': True}"
+                                    groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                         </group>
                     </group>
                     <notebook>
@@ -319,7 +343,15 @@
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="expert_user_id" readonly="1"/>
                                     <field name="state" readonly="1"/>
+                                    <field name="is_awarded" column_invisible="1"/>
+                                    <field name="request_state" column_invisible="1"/>
                                     <field name="request_id" column_invisible="1"/>
+                                    <button name="action_select_as_awarded" type="object"
+                                            string="Select as Awarded"
+                                            icon="fa-trophy"
+                                            class="btn-link"
+                                            invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                                            groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                 </list>
                             </field>
                         </page>

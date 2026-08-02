@@ -86,6 +86,29 @@ class ZvyQuote(models.Model):
         readonly=True,
         index=True,
     )
+    is_awarded = fields.Boolean(
+        string='Awarded',
+        compute='_compute_is_awarded',
+        help='True when this quote is the awarded quote on its request line.',
+    )
+
+    @api.depends('partner_id', 'partner_id.name', 'price_unit', 'currency_id')
+    def _compute_display_name(self):
+        for quote in self:
+            vendor = quote.partner_id.display_name or _('Unknown vendor')
+            if quote.currency_id:
+                price = quote.currency_id.format(quote.price_unit)
+            else:
+                price = str(quote.price_unit)
+            quote.display_name = '%s (%s)' % (vendor, price)
+
+    @api.depends('line_id.awarded_quote_id')
+    def _compute_is_awarded(self):
+        for quote in self:
+            quote.is_awarded = bool(
+                quote.line_id.awarded_quote_id
+                and quote.line_id.awarded_quote_id == quote
+            )
 
     @api.depends('price_unit', 'line_id.product_uom_qty')
     def _compute_amount_total(self):
@@ -196,3 +219,45 @@ class ZvyQuote(models.Model):
     def unlink(self):
         self._check_can_edit()
         return super().unlink()
+
+    def action_select_as_awarded(self):
+        """CM selects this quote as the award; reject sibling quotes on the line."""
+        self.ensure_one()
+        if not self.env.su:
+            is_cm = self.env.user.has_group(
+                'zvy_tendering.group_zvy_commercial_manager'
+            )
+            is_admin = self.env.user.has_group(
+                'zvy_tendering.group_zvy_tendering_admin'
+            )
+            if not (is_cm or is_admin):
+                raise UserError(_(
+                    'Only Commercial Managers can select the awarded quote.'
+                ))
+        if self.request_id.state != 'quote_review':
+            raise UserError(_(
+                'Awarded quotes can only be selected during Quote Review.'
+            ))
+        if self.state not in ('submitted', 'accepted', 'rejected'):
+            raise UserError(_(
+                'Only submitted quotes can be selected as awarded.'
+            ))
+        line = self.line_id.sudo()
+        # Allow changing the winner: restore previously rejected quotes first.
+        (line.quote_ids - self).filtered(
+            lambda q: q.state == 'rejected'
+        ).sudo().write({'state': 'submitted'})
+        if self.state == 'rejected':
+            self.sudo().write({'state': 'submitted'})
+        siblings = (line.quote_ids - self).filtered(lambda q: q.state != 'draft')
+        siblings.sudo().write({'state': 'rejected'})
+        if self.state != 'submitted':
+            self.sudo().write({'state': 'submitted'})
+        line.write({'awarded_quote_id': self.id})
+        self.request_id.message_post(body=_(
+            'Awarded quote selected for %(product)s: %(vendor)s.'
+        ) % {
+            'product': line.product_id.display_name,
+            'vendor': self.partner_id.display_name,
+        })
+        return True

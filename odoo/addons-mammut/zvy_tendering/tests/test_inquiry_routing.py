@@ -361,3 +361,31 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertEqual(line.awarded_quote_id, quote)
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'signatory')
+
+    def test_select_as_awarded_rejects_siblings_and_display_name(self):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        line = pr.line_ids[:1]
+        quotes = line.quote_ids.filtered(lambda q: q.state == 'submitted')
+        self.assertGreaterEqual(len(quotes), 2)
+        first, second = quotes[0], quotes[1]
+
+        self.assertIn(first.partner_id.name, first.display_name)
+
+        first.with_user(self.user_cm).action_select_as_awarded()
+        self.assertEqual(line.awarded_quote_id, first)
+        self.assertEqual(first.state, 'submitted')
+        self.assertTrue(first.is_awarded)
+        siblings = quotes - first
+        self.assertTrue(all(q.state == 'rejected' for q in siblings))
+
+        second.with_user(self.user_cm).action_select_as_awarded()
+        self.assertEqual(line.awarded_quote_id, second)
+        self.assertEqual(second.state, 'submitted')
+        self.assertEqual(first.state, 'rejected')
+        self.assertFalse(first.is_awarded)
+
+        with self.assertRaises(UserError):
+            first.with_user(self.user_planner).action_select_as_awarded()
