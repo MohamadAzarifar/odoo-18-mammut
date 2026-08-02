@@ -54,6 +54,7 @@ class ZvyPurchaseRequest(models.Model):
         string='Requester',
         required=True,
         default=lambda self: self.env.user,
+        readonly=True,
         tracking=True,
         index=True,
     )
@@ -197,9 +198,14 @@ class ZvyPurchaseRequest(models.Model):
             if vals.get('company_id') and not vals.get('currency_id'):
                 company = self.env['res.company'].browse(vals['company_id'])
                 vals['currency_id'] = company.currency_id.id
+            # Requester is always the creating user (not spoofable via RPC/UI).
+            if not self.env.su:
+                vals['requester_id'] = self.env.user.id
         return super().create(vals_list)
 
     def write(self, vals):
+        if 'requester_id' in vals and not self.env.su:
+            raise UserError(_('The requester cannot be changed.'))
         if 'state' in vals:
             new_state = vals['state']
             for request in self:

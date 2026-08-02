@@ -92,7 +92,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="requester_id" readonly="state not in ('draft', 'correction')"/>
+                            <field name="requester_id"/>
                             <field name="description" readonly="state not in ('draft', 'correction')"/>
                         </group>
                         <group>
