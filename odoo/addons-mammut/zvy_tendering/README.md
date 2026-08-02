@@ -118,10 +118,14 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Planner can create a PR with header (requester, company, description) and one or more lines (product, qty, UoM, estimate, sole-source flag where applicable).
-- [ ] PR starts in `draft`; Planner can submit → `submitted` / CM queue.
-- [ ] External systems can create/submit equivalent PRs via documented web service (XML-RPC/JSON-RPC or REST as implemented).
-- [ ] Each PR receives a unique sequence number.
+- [x] Planner can create a PR with header (requester, company, description) and one or more lines (product, qty, UoM, estimate).
+- [x] **Requester** defaults to the creating user, is read-only on the form, and cannot be changed (UI or RPC); create always forces `requester_id = env.user`.
+- [x] Line **Sole Source** and **Commission Item** are computed and read-only (not planner-editable):
+  - Sole Source = product has exactly one active AVL vendor for the PR company.
+  - Commission Item = product category has **Commission Item** checked.
+- [x] PR starts in `draft`; Planner can submit → `submitted` / CM queue.
+- [x] External systems can create/submit equivalent PRs via documented web service (XML-RPC/JSON-RPC or REST as implemented).
+- [x] Each PR receives a unique sequence number.
 
 #### FR-2 Planner notifications *(Story 2)*
 
@@ -251,11 +255,11 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Standard line: submit blocked until ≥3 quotes recorded.
-- [ ] Sole-source line: ≥1 quote required.
-- [ ] Submit sends quote set to CM quote review.
-- [ ] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
-- [ ] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
+- [x] Standard line: submit blocked until ≥3 quotes recorded.
+- [x] Sole-source line (exactly one active AVL vendor for the product/company): ≥1 quote required.
+- [x] Submit sends quote set to CM quote review.
+- [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
+- [x] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
 
 #### FR-11 Closed-envelope supplier list *(Story 11)*
 
@@ -311,7 +315,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Any PR with sole-source line(s) includes CEO in the signatory chain before `po_ready`.
+- [x] Sole-source lines are detected automatically from AVL (exactly one active vendor for the product/company); planners cannot toggle the flag.
+- [x] Any PR with sole-source line(s) includes CEO / company sole-source approver(s) in the signatory chain before `po_ready`.
 - [x] Applies also after Commission approval when that path was used.
 
 ---
@@ -503,10 +508,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] After quote approval: if `is_commission_item` **or** `is_high_value` → create/open commission case.
-- [ ] Else → spawn company sequential signatory path.
-- [ ] `is_high_value` = total ≥ company configurable threshold.
-- [ ] `is_commission_item` from line flag and/or product category flag.
+- [x] After quote approval: if `is_commission_item` **or** `is_high_value` → create/open commission case.
+- [x] Else → spawn company sequential signatory path.
+- [x] `is_high_value` = total ≥ company configurable threshold.
+- [x] `is_commission_item` = any line whose product category has **Commission Item** (computed on the line; not a manual line override).
 
 #### FR-28 Sequential approval enforcement *(Story 28)*
 
@@ -556,10 +561,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | ID | Rule |
 |----|------|
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
-| BR-2 | Standard lines require ≥3 quotes before expert submit; sole source ≥1. |
+| BR-2 | Standard lines require ≥3 quotes before expert submit; sole source (exactly one AVL vendor) ≥1. |
 | BR-3 | High-value threshold is company-configurable (not hard-coded). |
-| BR-4 | Commission items (line or category) force Holding Commission path. |
-| BR-5 | Sole source always requires CEO in signatory chain before PO. |
+| BR-4 | Commission items (product category **Commission Item**) force Holding Commission path; line flag is computed, not editable. |
+| BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data set; only Commercial Manager. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns control to Commercial Manager, not Planner (unless CM then returns). |
@@ -585,9 +590,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Setting | Purpose |
 |---------|---------|
 | High-value threshold | Triggers Holding Commission routing |
-| Commission item on product category / line | Triggers Holding Commission routing |
+| Commission Item on product category | Sets line/header `is_commission_item` (computed); triggers Holding Commission routing |
+| Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
-| CEO / sole-source approvers | Via category (or equivalent) for FR-14 |
+| CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
 | Default bid window | Suggests `bid_deadline` when CE opens |
 
 ---
@@ -693,6 +699,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | Open any **Product Category** form | **Commission Item** checkbox is visible |
 | 2 | Enable it and save; reopen | Flag remains checked |
+| 3 | As Planner, create a PR line with a product in that category | Line **Commission Item** is checked and read-only; header `is_commission_item` is true |
 
 #### MT-0.5 Approved Vendor List (FR-9 foundation)
 
@@ -702,6 +709,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Create an active entry for the current company | Record appears in the list |
 | 3 | Archive the entry (Action → Archive) | Entry hidden from default list; visible with Archived filter |
 | 4 | Create entries scoped by product and by category | Both save; list/search can filter by partner, product, category |
+| 5 | Ensure a product has **exactly one** active AVL vendor for the company; add that product on a draft PR line | Line **Sole Source** is checked and read-only |
+| 6 | Add a second active AVL vendor that covers the same product; reopen the draft line | **Sole Source** clears automatically |
 
 #### MT-0.6 Multi-company AVL isolation
 
@@ -722,11 +731,12 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Log in as **Planner** → **Purchase Requests → All Requests → New** | Form opens in `draft`; requester defaults to current user |
-| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate; optional sole source) | Line subtotals and header total estimate compute |
-| 3 | Save | Number is assigned (e.g. `PR/2026/00001`), not `New` |
-| 4 | Click **Submit** | State → `submitted`; chatter notes submission |
-| 5 | Try **Submit** again, or edit description while submitted | Submit/edit blocked (only draft/correction are editable) |
+| 1 | Log in as **Planner** → **Purchase Requests → All Requests → New** | Form opens in `draft`; **Requester** is current user and not editable |
+| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate) | Line subtotals and header total estimate compute; **Sole Source** / **Commission Item** are read-only and filled from AVL / product category |
+| 3 | Try to change **Requester** (UI) | Field remains locked to the creating user |
+| 4 | Save | Number is assigned (e.g. `PR/2026/00001`), not `New` |
+| 5 | Click **Submit** | State → `submitted`; chatter notes submission |
+| 6 | Try **Submit** again, or edit description while submitted | Submit/edit blocked (only draft/correction are editable) |
 
 #### MT-1.2 CM queue (FR-3)
 
@@ -764,7 +774,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As an integration / Planner user, call XML-RPC or JSON-RPC `create` on `zvy.purchase.request` with header + `line_ids` | Record created in `draft` with sequence number |
+| 1 | As an integration / Planner user, call XML-RPC or JSON-RPC `create` on `zvy.purchase.request` with header + `line_ids` (optionally passing another `requester_id`) | Record created in `draft` with sequence number; **requester is always the authenticated user** (spoofed `requester_id` ignored) |
 | 2 | Call `action_submit` on that id | State → `submitted`; appears in CM queue |
 | 3 | As a CM-only user, attempt `create` | Access denied (no create ACL) |
 
@@ -785,7 +795,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As the assigned **Commercial Expert** → **Purchase Requests → My Assignments** | Only lines assigned to this user appear (parent in `inquiry` / `quote_review`) |
-| 2 | Open an assigned line / related PR | Can add and save quotes on assigned lines; product/qty/expert fields are greyed out (read-only), not editable-then-rejected |
+| 2 | Open an assigned line / related PR | Can add and save quotes on assigned lines; product/qty/expert/**Sole Source**/**Commission Item** fields are greyed out (read-only), not editable-then-rejected |
 | 3 | As a second Expert **not** assigned to that PR | PR / line not visible; cannot create quotes on those lines |
 | 4 | As Expert, open **Awaiting Review** / **Quote Review** | Menus not available (CM-only) |
 
@@ -807,7 +817,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 3 | When **every** line of the PR is submitted | PR state → `quote_review` automatically; chatter notes all quote sets submitted |
 | 4 | On a PR whose lines are split between two Experts, have only one submit | PR stays in `inquiry` until the second Expert submits their line |
 | 5 | As **CM**, try **Submit Quotes** | Not available / refused — the CM reviews, Experts submit |
-| 6 | Create another PR with a **Sole Source** line; assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); line submitted and PR → `quote_review` |
+| 6 | Create another PR whose product has **exactly one** active AVL vendor (Sole Source auto-checked); assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); line submitted and PR → `quote_review` |
 
 #### MT-2.5 CM reject quotes (FR-6)
 
@@ -831,7 +841,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | **High value:** set threshold below PR total estimate; complete inquiry + quote review; **Approve Quotes** | State → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
-| 2 | **Commission item:** use a product category with **Commission Item** (or line flag); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
+| 2 | **Commission item:** use a product whose category has **Commission Item** (line flag auto-checked, read-only); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
 | 3 | Open the linked commission case (Admin / Commission Manager) | Case in `open` with request link and routing reason flags; Assign Experts and decision buttons available |
 
 ### Phase 3 — Holding Commission & closed envelope
@@ -900,7 +910,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Create a PR with a **Sole Source** line; collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** company Sole-Source Approver(s) as required, last in sequence |
+| 1 | Create a PR with a product that has exactly one active AVL vendor (**Sole Source** auto-checked); collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** company Sole-Source Approver(s) as required, last in sequence |
 | 2 | Approve category signatories only | PR stays `signatory` until CEO / sole-source approver(s) approve |
 | 3 | CEO approves last | PR → `po_ready` |
 | 4 | Repeat after a Holding Commission approve (high-value sole-source PR) | Same CEO inject on the post-commission signatory document |

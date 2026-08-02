@@ -103,8 +103,8 @@
                             <field name="can_edit_quotes" invisible="1"/>
                             <field name="approval_request_id" invisible="1"/>
                             <field name="is_high_value"/>
-                            <field name="is_commission_item"/>
-                            <field name="has_sole_source"/>
+                            <field name="is_commission_item" readonly="1"/>
+                            <field name="has_sole_source" readonly="1"/>
                             <field name="commission_case_id" invisible="not commission_case_id"/>
                             <field name="closed_envelope_id" invisible="not closed_envelope_id"/>
                             <field name="award_partner_id" invisible="not award_partner_id"/>
@@ -129,8 +129,8 @@
                                     <field name="price_estimate" readonly="parent.state not in ('draft', 'correction')"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="price_subtotal"/>
-                                    <field name="sole_source" readonly="parent.state not in ('draft', 'correction')"/>
-                                    <field name="is_commission_item" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="sole_source" readonly="1"/>
+                                    <field name="is_commission_item" readonly="1"/>
                                     <field name="expert_user_ids" widget="many2many_tags" readonly="1" optional="show"/>
                                     <field name="quote_count" optional="show"/>
                                     <field name="quotes_submitted" optional="show"/>
@@ -152,8 +152,8 @@
                                             <field name="currency_id" invisible="1"/>
                                         </group>
                                         <group>
-                                            <field name="sole_source"/>
-                                            <field name="is_commission_item"/>
+                                            <field name="sole_source" readonly="1"/>
+                                            <field name="is_commission_item" readonly="1"/>
                                             <field name="expert_user_ids" widget="many2many_tags" readonly="1"/>
                                             <field name="awarded_quote_id"
                                                       domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
@@ -298,10 +298,8 @@
                             <field name="currency_id" invisible="1"/>
                         </group>
                         <group>
-                            <field name="sole_source"
-                                    readonly="request_state not in ('draft', 'correction')"/>
-                            <field name="is_commission_item"
-                                    readonly="request_state not in ('draft', 'correction')"/>
+                            <field name="sole_source" readonly="1"/>
+                            <field name="is_commission_item" readonly="1"/>
                             <field name="expert_user_ids" widget="many2many_tags" readonly="1"/>
                         </group>
                     </group>

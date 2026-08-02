@@ -10,14 +10,16 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
 
     def _route_to_signatory(self, sole_source=False):
         self.company_a.zvy_high_value_threshold = 100000.0
+        if sole_source:
+            self._ensure_sole_source_avl()
         line_vals = [{
             'product_id': self.product.id,
             'product_uom_qty': 2.0,
             'product_uom_id': self.product.uom_id.id,
             'price_estimate': 50.0,
-            'sole_source': sole_source,
         }]
         pr = self._create_draft_pr(line_vals=line_vals)
+        self.assertEqual(pr.has_sole_source, sole_source)
         pr = self._submit_and_assign(pr=pr)
         self._add_quotes(pr, count=1 if sole_source else 3)
         pr.with_user(self.user_cce).action_submit_quotes()

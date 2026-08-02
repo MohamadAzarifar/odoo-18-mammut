@@ -74,3 +74,50 @@ class ZvyAvlEntry(models.Model):
             domain = expression.AND([domain, expression.OR(scope_parts)])
         partner_ids = self.search(domain).mapped('partner_id').ids
         return [('id', 'in', partner_ids)]
+
+    @api.model
+    def _avl_partner_count(self, company, product=None, categ=None):
+        """Distinct active AVL vendors for company/product/category scope."""
+        domain = self._avl_partner_domain(company, product=product, categ=categ)
+        if domain and domain[0][:2] == ('id', 'in'):
+            return len(domain[0][2])
+        return self.env['res.partner'].search_count(domain)
+
+    def _trigger_pr_line_sole_source_recompute(self):
+        """Refresh sole-source flags on draft/correction lines for touched companies."""
+        companies = self.mapped('company_id')
+        if not companies:
+            return
+        lines = self.env['zvy.purchase.request.line'].sudo().search([
+            ('company_id', 'in', companies.ids),
+            ('request_id.state', 'in', ('draft', 'correction')),
+        ])
+        if lines:
+            lines._compute_sole_source()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._trigger_pr_line_sole_source_recompute()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if any(key in vals for key in (
+            'active', 'partner_id', 'company_id', 'product_id', 'categ_id',
+            'date_start', 'date_end',
+        )):
+            self._trigger_pr_line_sole_source_recompute()
+        return res
+
+    def unlink(self):
+        companies = self.mapped('company_id')
+        res = super().unlink()
+        if companies:
+            lines = self.env['zvy.purchase.request.line'].sudo().search([
+                ('company_id', 'in', companies.ids),
+                ('request_id.state', 'in', ('draft', 'correction')),
+            ])
+            if lines:
+                lines._compute_sole_source()
+        return res

@@ -55,13 +55,16 @@ class ZvyPurchaseRequestLine(models.Model):
     )
     sole_source = fields.Boolean(
         string='Sole Source',
-        help='Forces a minimum of one quote and includes CEO in the signatory chain.',
+        compute='_compute_sole_source',
+        store=True,
+        help='True when the product has exactly one active AVL vendor for the '
+             'request company. Forces ≥1 quote and includes CEO in the signatory chain.',
     )
     is_commission_item = fields.Boolean(
         string='Commission Item',
         compute='_compute_is_commission_item',
         store=True,
-        readonly=False,
+        help='True when the product category is marked as a commission item.',
     )
     expert_user_ids = fields.Many2many(
         'res.users',
@@ -126,13 +129,21 @@ class ZvyPurchaseRequestLine(models.Model):
                 line.product_id.categ_id.zvy_is_commission_item
             )
 
+    @api.depends('product_id', 'company_id')
+    def _compute_sole_source(self):
+        Avl = self.env['zvy.avl.entry']
+        for line in self:
+            if not line.product_id or not line.company_id:
+                line.sole_source = False
+                continue
+            line.sole_source = Avl._avl_partner_count(
+                line.company_id, product=line.product_id,
+            ) == 1
+
     @api.onchange('product_id')
     def _onchange_product_id(self):
         if self.product_id:
             self.product_uom_id = self.product_id.uom_id
-            self.is_commission_item = bool(
-                self.product_id.categ_id.zvy_is_commission_item
-            )
 
     @api.model_create_multi
     def create(self, vals_list):

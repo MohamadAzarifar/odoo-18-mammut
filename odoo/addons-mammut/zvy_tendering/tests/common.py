@@ -254,6 +254,18 @@ class ZvyTenderingCommon(TransactionCase):
             'groups_id': [(6, 0, [portal_group.id])],
         })
 
+    def _ensure_sole_source_avl(self, product=None, company=None, partner=None):
+        """Leave exactly one active AVL vendor for product/company (sole source)."""
+        product = product or self.product
+        company = company or self.company_a
+        partner = partner or self.partner_a
+        self.Avl.search([('company_id', '=', company.id)]).write({'active': False})
+        return self.Avl.create({
+            'partner_id': partner.id,
+            'company_id': company.id,
+            'product_id': product.id,
+        })
+
     def _create_draft_pr(self, user=None, company=None, **extra):
         user = user or self.user_planner
         company = company or self.company_a

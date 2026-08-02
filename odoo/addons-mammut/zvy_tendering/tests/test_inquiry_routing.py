@@ -248,17 +248,37 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(all(q.state == 'submitted' for q in pr.sudo().quote_ids))
 
     def test_sole_source_allows_one_quote(self):
+        self._ensure_sole_source_avl()
         pr = self._create_draft_pr(line_vals=[{
             'product_id': self.product.id,
             'product_uom_qty': 1.0,
             'product_uom_id': self.product.uom_id.id,
             'price_estimate': 20.0,
-            'sole_source': True,
         }])
+        self.assertTrue(pr.line_ids.sole_source)
         pr = self._submit_and_assign(pr=pr)
         self._add_quotes(pr, count=1)
         pr.with_user(self.user_cce).action_submit_quotes()
         self.assertEqual(pr.state, 'quote_review')
+
+    def test_line_flags_computed_from_avl_and_category(self):
+        """Sole source / commission are derived; not settable by the planner."""
+        pr = self._create_draft_pr()
+        line = pr.line_ids
+        self.assertFalse(line.sole_source)
+        self.assertFalse(line.is_commission_item)
+
+        self._ensure_sole_source_avl()
+        self.assertTrue(line.sole_source)
+
+        pr_comm = self._create_draft_pr(line_vals=[{
+            'product_id': self.product_commission.id,
+            'product_uom_qty': 1.0,
+            'product_uom_id': self.product_commission.uom_id.id,
+            'price_estimate': 10.0,
+        }])
+        self.assertTrue(pr_comm.line_ids.is_commission_item)
+        self.assertTrue(pr_comm.is_commission_item)
 
     def test_cm_reject_quotes_returns_to_inquiry(self):
         pr = self._submit_and_assign()
