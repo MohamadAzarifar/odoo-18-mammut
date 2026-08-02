@@ -345,3 +345,19 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         with self.assertRaises(ValidationError):
             pr.with_user(self.user_cm).action_approve_quotes()
+
+    def test_cm_can_set_awarded_quote_via_pr_form(self):
+        """UI saves awarded quotes through parent line_ids write (quote_review)."""
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+        line = pr.line_ids[:1]
+        quote = line.quote_ids.filtered(lambda q: q.state == 'submitted')[:1]
+        pr.with_user(self.user_cm).write({
+            'line_ids': [(1, line.id, {'awarded_quote_id': quote.id})],
+        })
+        self.assertEqual(line.awarded_quote_id, quote)
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')

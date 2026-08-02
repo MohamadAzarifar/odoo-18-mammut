@@ -156,7 +156,7 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 
 **Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
-`quote_ids` is **exempt** from that content lock on both `zvy.purchase.request.line` and `zvy.purchase.request`: saving a quote in a one2many issues a `write` on the parent, and inquiry is precisely when the parent is locked. Quote editability is delegated to `zvy.quote._check_can_edit` (state + assignment), so the parent lock must not double-guard it.
+`quote_ids` and `line_ids` are **exempt** from the parent PR content lock: saving a quote or setting `awarded_quote_id` in a one2many issues a `write` on the parent while inquiry / quote review has the header locked. Editability is delegated to `zvy.quote._check_can_edit` and `zvy.purchase.request.line.write` (state + role), so the parent lock must not double-guard those one2manys.
 
 #### `zvy.quote`
 

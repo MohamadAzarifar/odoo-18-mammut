@@ -230,6 +230,9 @@ class ZvyPurchaseRequest(models.Model):
                             'while signatory approval is still pending.',
                             name=request.name,
                         ))
+        # line_ids / quote_ids are exempt: one2many edits (awarded quote, inquiry
+        # quotes) write through the parent while the PR is locked. Guards live on
+        # zvy.purchase.request.line and zvy.quote.
         content_keys = set(vals) - {
             'state',
             'reject_reason',
@@ -241,6 +244,7 @@ class ZvyPurchaseRequest(models.Model):
             'approval_request_id',
             'message_main_attachment_id',
             'quote_ids',
+            'line_ids',
         }
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)

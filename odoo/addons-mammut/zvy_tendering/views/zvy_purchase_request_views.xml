@@ -69,6 +69,12 @@
                             statusbar_visible="draft,submitted,cm_review,inquiry,quote_review,commission,signatory,po_ready,done,correction,rejected"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-info" role="alert"
+                         invisible="state != 'quote_review'"
+                         groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
+                        Select an <b>Awarded Quote</b> on every line, then use
+                        <b>Approve Quotes</b> (or <b>Reject Quotes</b>) in the header.
+                    </div>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_approval_request" type="object"
                                 class="oe_stat_button" icon="fa-pencil-square-o"
@@ -137,7 +143,6 @@
                                     <field name="awarded_quote_id"
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                               readonly="parent.state != 'quote_review'"
-                                              optional="show"
                                               groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
                                 </list>

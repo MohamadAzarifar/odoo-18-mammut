@@ -833,8 +833,9 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | Ensure company **high-value threshold** is above the PR total; lines are **not** commission items | Routing flags: not high value, not commission item |
 | 2 | Bring a PR through inquiry with valid quote minima → `quote_review` | Ready for CM |
-| 3 | As CM, on each line set **Awarded Quote**; **Approve Quotes** | Winning quote → `accepted`; other submitted → `rejected`; state → `signatory`; linked sequential `approval.request` created; chatter notes routing |
-| 4 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
+| 3 | As CM → **Purchase Requests → Quote Review** → open the PR | Status is `quote_review`; header shows **Approve Quotes** / **Reject Quotes**; info banner explains the steps |
+| 4 | On the **Lines** tab, set **Awarded Quote** on every line; click header **Approve Quotes** | Winning quote → `accepted`; other submitted → `rejected`; state → `signatory`; linked sequential `approval.request` created; chatter notes routing |
+| 5 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
 
 #### MT-2.7 CM approve → Holding Commission (FR-27)
 
