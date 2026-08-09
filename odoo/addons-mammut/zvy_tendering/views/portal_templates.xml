@@ -150,14 +150,22 @@
                 <h4 class="mt-4">Your sealed bid</h4>
                 <t t-if="bidding_open">
                     <form method="POST" t-attf-action="/my/tenders/#{envelope.id}/bid"
-                          enctype="multipart/form-data" class="o_portal_tender_bid_form">
+                          enctype="multipart/form-data"
+                          class="o_portal_tender_bid_form"
+                          t-att-data-envelope-id="envelope.id"
+                          t-att-data-access-token="envelope.access_token">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <input type="hidden" name="access_token" t-att-value="envelope.access_token"/>
                         <div class="mb-3">
-                            <label class="form-label" for="amount">Bid amount (<t t-esc="envelope.currency_id.name"/>)</label>
+                            <label class="form-label" for="amount">Bid amount</label>
+                            <span class="text-muted">(<t t-esc="envelope.currency_id.name"/>)</span>
                             <input type="number" step="0.01" min="0.01" class="form-control" name="amount" id="amount"
                                    required="required"
                                    t-att-value="own_bid.amount if own_bid else ''"/>
+                            <div class="form-text">
+                                <div class="o_bid_amount_formatted text-muted" t-esc="amount_formatted"/>
+                                <div class="o_bid_amount_words text-muted" t-esc="amount_words"/>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="notes">Notes</label>
@@ -192,6 +200,11 @@
                             Submitted amount:
                             <span t-field="own_bid.amount" t-options="{'widget': 'monetary', 'display_currency': envelope.currency_id}"/>
                             on <span t-field="own_bid.submitted_at"/>.
+                        </p>
+                        <p t-if="amount_formatted or amount_words" class="text-muted mb-1">
+                            <span t-esc="amount_formatted"/>
+                            <t t-if="amount_formatted and amount_words"> — </t>
+                            <span t-esc="amount_words"/>
                         </p>
                         <p t-if="own_bid.notes"><t t-esc="own_bid.notes"/></p>
                     </t>

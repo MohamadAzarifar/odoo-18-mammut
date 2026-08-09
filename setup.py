@@ -39,6 +39,8 @@ setup(
         'libsass',
         'MarkupSafe',
         'num2words',
+        'num2fawords',
+        'jdatetime',
         'ofxparse',
         'openpyxl',
         'passlib',

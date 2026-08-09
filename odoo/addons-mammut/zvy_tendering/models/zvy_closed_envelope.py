@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+import logging
 from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
+
+try:
+    from num2fawords import words as _fa_words
+except ImportError:  # pragma: no cover - optional at runtime if not installed
+    _fa_words = None
+    _logger.debug("num2fawords is not installed; Persian amount-in-words unavailable.")
 
 
 class ZvyClosedEnvelope(models.Model):
@@ -163,6 +172,100 @@ class ZvyClosedEnvelope(models.Model):
         return self.invite_partner_ids.filtered(
             lambda p: p == partner or p.commercial_partner_id == commercial
         )[:1]
+
+    def _portal_amount_preview(self, amount):
+        """Return formatted currency amount and amount-in-words for portal UI.
+
+        :return: dict with keys ``formatted`` and ``words`` (empty strings if invalid)
+        """
+        self.ensure_one()
+        currency = self.currency_id
+        if not currency:
+            return {'formatted': '', 'words': ''}
+        try:
+            amount = float(amount)
+        except (TypeError, ValueError):
+            return {'formatted': '', 'words': ''}
+        if amount <= 0:
+            return {'formatted': '', 'words': ''}
+
+        formatted = currency.format(amount)
+        lang = (self.env.lang or '').lower()
+        if lang.startswith('fa') and _fa_words is not None:
+            words = self._amount_to_persian_words(amount, currency)
+        elif currency.name == 'IRR':
+            # Avoid core mislabel "Dinar" as IRR unit (use Rial).
+            words = self._amount_to_words_with_labels(amount, currency)
+        else:
+            words = currency.amount_to_text(amount)
+        return {'formatted': formatted, 'words': words}
+
+    @api.model
+    def _currency_amount_labels(self, currency):
+        """Unit/subunit labels for amount-in-words (IRR unit is Rial, not Dinar)."""
+        currency.ensure_one()
+        if currency.name == 'IRR':
+            return _('Rial'), _('Dinar')
+        return (
+            currency.currency_unit_label or currency.name,
+            currency.currency_subunit_label or '',
+        )
+
+    @api.model
+    def _amount_to_words_with_labels(self, amount, currency):
+        """amount_to_text using corrected unit/subunit labels (for IRR)."""
+        from odoo import tools
+        try:
+            from num2words import num2words
+        except ImportError:
+            unit_label, _subunit = self._currency_amount_labels(currency)
+            return '%s %s' % (amount, unit_label)
+
+        def _num2words(number, lang_iso):
+            try:
+                return num2words(number, lang=lang_iso).title()
+            except NotImplementedError:
+                return num2words(number, lang='en').title()
+
+        unit_label, subunit_label = self._currency_amount_labels(currency)
+        integral, _sep, fractional = f"{amount:.{currency.decimal_places}f}".partition('.')
+        integer_value = int(integral)
+        lang = tools.get_lang(self.env)
+        if currency.is_zero(amount - integer_value):
+            return _(
+                '%(integral_amount)s %(currency_unit)s',
+                integral_amount=_num2words(integer_value, lang.iso_code),
+                currency_unit=unit_label,
+            )
+        return _(
+            '%(integral_amount)s %(currency_unit)s and %(fractional_amount)s %(currency_subunit)s',
+            integral_amount=_num2words(integer_value, lang.iso_code),
+            currency_unit=unit_label,
+            fractional_amount=_num2words(int(fractional or 0), lang.iso_code),
+            currency_subunit=subunit_label,
+        )
+
+    @api.model
+    def _amount_to_persian_words(self, amount, currency):
+        """Persian amount-in-words using num2fawords + currency unit labels."""
+        currency.ensure_one()
+        unit_label, subunit_label = self._currency_amount_labels(currency)
+        integral, _sep, fractional = f"{amount:.{currency.decimal_places}f}".partition('.')
+        integer_value = int(integral)
+        fractional_value = int(fractional or 0)
+        if currency.is_zero(amount - integer_value):
+            return _(
+                '%(integral_amount)s %(currency_unit)s',
+                integral_amount=_fa_words(integer_value),
+                currency_unit=unit_label,
+            )
+        return _(
+            '%(integral_amount)s %(currency_unit)s and %(fractional_amount)s %(currency_subunit)s',
+            integral_amount=_fa_words(integer_value),
+            currency_unit=unit_label,
+            fractional_amount=_fa_words(fractional_value),
+            currency_subunit=subunit_label,
+        )
 
     @api.model
     def _get_portal_domain(self, user=None):

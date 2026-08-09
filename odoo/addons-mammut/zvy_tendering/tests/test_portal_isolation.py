@@ -52,6 +52,41 @@ class TestZvyPortalIsolation(ZvyTenderingCommon):
         # Invited can read
         envelope.with_user(self.user_portal_a).check_access('read')
 
+    def test_portal_amount_preview_format_and_words(self):
+        _pr, envelope = self._create_portal_open_ce()
+        empty = envelope._portal_amount_preview(0)
+        self.assertEqual(empty['formatted'], '')
+        self.assertEqual(empty['words'], '')
+
+        preview = envelope._portal_amount_preview(1500.5)
+        self.assertTrue(preview['formatted'])
+        self.assertTrue(preview['words'])
+        self.assertIn('1', preview['formatted'])
+
+        fa_preview = envelope.with_context(lang='fa_IR')._portal_amount_preview(1234)
+        self.assertTrue(fa_preview['formatted'])
+        self.assertTrue(fa_preview['words'])
+        # Persian digits-to-words should contain Persian letters when num2fawords is available
+        try:
+            import num2fawords  # noqa: F401
+        except ImportError:
+            self.skipTest('num2fawords not installed')
+        self.assertRegex(fa_preview['words'], r'[\u0600-\u06FF]')
+
+        irr = self.env.ref('base.IRR')
+        self.assertEqual(irr.currency_unit_label, 'Rial')
+        unit, _subunit = envelope._currency_amount_labels(irr)
+        self.assertEqual(unit, 'Rial')
+        irr_words = envelope.with_context(lang='fa_IR')._amount_to_persian_words(1500, irr)
+        self.assertTrue(
+            irr_words.endswith('ریال') or irr_words.endswith('Rial'),
+            irr_words,
+        )
+        self.assertFalse(
+            irr_words.endswith('دینار') or irr_words.endswith('Dinar'),
+            irr_words,
+        )
+
     def test_portal_bid_seal_other_supplier(self):
         _pr, envelope = self._create_portal_open_ce()
         Bid = self.env['zvy.closed.envelope.bid']

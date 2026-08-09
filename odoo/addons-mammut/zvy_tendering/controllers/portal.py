@@ -30,6 +30,9 @@ class TenderingCustomerPortal(portal.CustomerPortal):
         bidding_open = Bid._portal_bidding_open(envelope)
         # Line summary via sudo — portal has no PR ACL (Architecture §5).
         lines = envelope.sudo().request_id.line_ids
+        amount_preview = envelope._portal_amount_preview(
+            own_bid.amount if own_bid else 0
+        ) if own_bid else {'formatted': '', 'words': ''}
         values = {
             'envelope': envelope,
             'page_name': 'tender',
@@ -37,6 +40,8 @@ class TenderingCustomerPortal(portal.CustomerPortal):
             'bidding_open': bidding_open,
             'lines': lines,
             'published_documents': envelope.published_document_ids,
+            'amount_formatted': amount_preview.get('formatted') or '',
+            'amount_words': amount_preview.get('words') or '',
             'error': kwargs.get('error'),
             'success': kwargs.get('success'),
         }
@@ -110,6 +115,22 @@ class TenderingCustomerPortal(portal.CustomerPortal):
 
         values = self._tender_get_page_view_values(envelope_sudo, access_token, **kw)
         return request.render('zvy_tendering.portal_my_tender', values)
+
+    @http.route(
+        ['/my/tenders/<int:envelope_id>/amount_preview'],
+        type='json',
+        auth='user',
+        website=True,
+    )
+    def portal_my_tender_amount_preview(self, envelope_id, amount=None, access_token=None, **kw):
+        try:
+            envelope_sudo = self._document_check_access(
+                'zvy.closed.envelope', envelope_id, access_token=access_token
+            )
+            self._ensure_tender_invite_access(envelope_sudo)
+        except (AccessError, MissingError):
+            return {'formatted': '', 'words': ''}
+        return envelope_sudo._portal_amount_preview(amount)
 
     @http.route(
         ['/my/tenders/<int:envelope_id>/bid'],

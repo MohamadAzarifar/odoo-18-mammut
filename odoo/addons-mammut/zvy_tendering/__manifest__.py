@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Mammut Procurement & Tendering',
-    'version': '18.0.1.6.9',
+    'version': '18.0.1.6.11',
     'category': 'Procurement & Tendering',
     'summary': 'Purchase requests, AVL inquiry, holding commission, and closed-envelope tenders',
     'description': """
@@ -19,10 +19,14 @@ holding commission review, closed-envelope tenders, and company signatory approv
         'approvals',
         'portal',
     ],
+    'external_dependencies': {
+        'python': ['num2fawords'],
+    },
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
+        'data/res_currency_data.xml',
         'data/mail_template_data.xml',
         'views/zvy_avl_views.xml',
         'views/zvy_purchase_request_views.xml',
@@ -36,6 +40,11 @@ holding commission review, closed-envelope tenders, and company signatory approv
         'wizard/request_wizard_views.xml',
         'views/menus.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'zvy_tendering/static/src/js/portal_tender_bid.js',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

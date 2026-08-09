@@ -1,0 +1,770 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* zvy_tendering
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-09 10:00+0000\n"
+"PO-Revision-Date: 2026-08-09 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
+msgid "Tenders"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
+msgid "View invitations and submit sealed bids"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "There are currently no tender invitations for your account."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Reference"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Bid Deadline"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Opening"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Status"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Your bid was awarded for this tender."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "This tender has been awarded. Your bid was not selected."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "This tender has been cancelled."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Bid deadline:"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Opening:"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Status:"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Line summary"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "No purchase request lines."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Product"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Qty"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "UoM"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Published documents"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "No documents published for this tender."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Your sealed bid"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Bid amount"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Notes"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Attachments"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Current files:"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Uploading new files replaces them."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Update bid"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Submit bid"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Withdraw bid"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Submitted amount:"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "on"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Bidding is closed. You did not submit a bid."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Newest"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "You are not invited to this tender."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Your sealed bid has been submitted."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Your bid has been withdrawn."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Please provide a valid bid amount."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bid amount must be greater than zero."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bidding is closed for this tender (deadline passed or bids opened)."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bids can only be withdrawn while the tender is open for bidding."
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "No bid found to withdraw."
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__list_pending
+msgid "List Pending"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__portal_open
+msgid "Portal Open"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__opened
+msgid "Opened"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__awarded
+msgid "Awarded"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Manual"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Portal"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Closed Envelope Tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Closed Envelope Bid"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Bid Amount"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Invited Suppliers"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Opening Datetime"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Published Documents"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Winner"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Bids"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_root
+msgid "Procurement & Tendering"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_requests
+msgid "Purchase Requests"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_all
+msgid "All Requests"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_cm_queue
+msgid "Awaiting Review"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_quote_review
+msgid "Quote Review"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_my_assignments
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_my_assignments
+msgid "My Assignments"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission
+msgid "Commission"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_cases
+msgid "Cases"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_reviews
+msgid "My Reviews"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_meetings
+msgid "Meetings"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes
+msgid "Closed Envelopes"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes_pending
+msgid "CE Lists Pending"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_config
+msgid "Configuration"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_avl_entry
+msgid "Approved Vendor List"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_settings
+msgid "Settings"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_invite
+msgid "Tendering: Closed Envelope Invitation"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_clarification
+msgid "Tendering: Closed Envelope Clarification"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_awarded
+msgid "Tendering: Closed Envelope Awarded"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_not_awarded
+msgid "Tendering: Closed Envelope Not Awarded"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_cancelled
+msgid "Tendering: Closed Envelope Cancelled"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_invite
+msgid "Invitation to tender {{ object.name }}"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_clarification
+msgid "Clarification on tender {{ object.name }}"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_awarded
+msgid "You were awarded tender {{ object.name }}"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_not_awarded
+msgid "Result for tender {{ object.name }}"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_cancelled
+msgid "Tender {{ object.name }} cancelled"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_invite
+msgid "Sent to invited suppliers when the CE portal opens"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_clarification
+msgid "Sent when a clarification is posted on a closed envelope"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_awarded
+msgid "Sent to the winning supplier after award"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_not_awarded
+msgid "Sent to non-winning invited suppliers after award"
+msgstr ""
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_cancelled
+msgid "Sent to invited suppliers when a closed envelope is cancelled"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "View tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Best regards,"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "You are invited to submit a sealed bid for tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "from"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "A clarification has been posted on tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Congratulations. Your bid for tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "has been selected."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Thank you for participating in tender"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Your bid was not selected."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "has been cancelled."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Dear"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Supplier"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Company"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "CE/PR"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "%(integral_amount)s %(currency_unit)s"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: model:res.currency,currency_unit_label:base.IRR
+msgid "Rial"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: model:res.currency,currency_subunit_label:base.IRR
+msgid "Dinar"
+msgstr ""
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid ""
+"%(integral_amount)s %(currency_unit)s and %(fractional_amount)s %(currency_subunit)s"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "New"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only draft lists can be submitted."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only pending lists can be approved."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only pending lists can be rejected."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Bids can only be opened from Portal Open."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Opening datetime is missing."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Bids unsealed / opened."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Closed envelope cancelled."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Post Clarification"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Clarification body is required."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Clarification: %s"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Invite list rejected: %s"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only one bid per supplier is allowed on a closed envelope."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Bid partner must be on the closed-envelope invite list."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only Commission Managers can enter sealed bids manually."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Only Commission Managers can edit sealed bid content."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Sealed bid content cannot be changed in this envelope state."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"Bids can only be entered when the envelope is open for bidding or already opened."
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Purchase Request"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid "Closed Envelope"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        You are invited to submit a sealed bid for tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        from <t t-out=\"object.company_id.name or ''\">Company</t>.\n"
+"        <br/><br/>\n"
+"        Bid deadline: <t t-out=\"object.bid_deadline or ''\"/>\n"
+"        <br/>\n"
+"        Opening: <t t-out=\"object.opening_datetime or ''\"/>\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\"\n"
+"           target=\"_blank\"\n"
+"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        A clarification has been posted on tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>:\n"
+"        <br/><br/>\n"
+"        <t t-out=\"ctx.get('clarification_body') or ''\"/>\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\"\n"
+"           target=\"_blank\"\n"
+"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Congratulations. Your bid for tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        has been selected.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\"\n"
+"           target=\"_blank\"\n"
+"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Thank you for participating in tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>.\n"
+"        Your bid was not selected.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\"\n"
+"           target=\"_blank\"\n"
+"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>"
+msgstr ""
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Tender <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        has been cancelled.\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>"
+msgstr ""
+
