@@ -103,7 +103,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Expert dashboard: only assigned lines (FR-8)
 - [x] Assigned-line / quote forms: product/qty/expert (and quote fields outside inquiry) UI-readonly via `request_state` — no edit-then-error UX
 - [x] `zvy.quote` with AVL domain (FR-9 / BR-1) — vendor picker filtered by computed `allowed_partner_ids`, not an onchange domain
-- [x] Quote minima: ≥3 standard / ≥1 sole source before submit (FR-10 / BR-2)
+- [x] Quote minima: ≥3 standard, or ≥1 with a shortfall reason; ≥1 sole source before submit (FR-10 / BR-2)
 - [x] Expert submit → `quote_review`
 - [x] Per-line submit by the assigned expert; PR advances to `quote_review` only when all lines are submitted (CM cannot submit)
 - [x] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
@@ -322,11 +322,12 @@ Track throughout (PRD §7):
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
-| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`) |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`); fewer than 3 quotes allowed with a stored shortfall reason (`18.0.1.8.0`) |
 | 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
 | 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |
 | Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
+| Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
 
 ---
 
@@ -339,3 +340,14 @@ Does not reopen Phases 0–5. Specs: [README.md](README.md) FR-1, FR-10, FR-11, 
 - [x] Enquiry PRs: quote inquiry only; Tendering PRs: closed envelope only
 - [x] Mixed PRs cannot submit to CM; UI wizard / `action_split_mixed` (Enquiry stays, Tendering new PR)
 - [x] Tests for defaults, split, and path guards
+
+---
+
+## Post-MVP delta — Quote shortfall reason (`18.0.1.8.0`)
+
+Does not reopen Phases 0–5. Specs: [README.md](README.md) FR-10 / BR-2; [Architecture.md](Architecture.md).
+
+- [x] Standard Enquiry lines may submit 1–2 quotes when the expert provides a justification
+- [x] UI **Submit Quotes** opens a wizard; RPC without a reason still raises
+- [x] Zero quotes remain blocked; sole source still ≥1 without a reason
+- [x] Reason stored on the line (`quote_shortfall_reason`) for CM review

@@ -95,6 +95,11 @@ class ZvyPurchaseRequestLine(models.Model):
         store=True,
         help='Set once the assigned expert submits the quote set for this line.',
     )
+    quote_shortfall_reason = fields.Text(
+        string='Fewer Quotes Reason',
+        copy=False,
+        help='Required when submitting fewer than 3 quotes on a non-sole-source line.',
+    )
     awarded_quote_id = fields.Many2one(
         'zvy.quote',
         string='Awarded Quote',
@@ -221,19 +226,49 @@ class ZvyPurchaseRequestLine(models.Model):
                     'Awarded quote must be submitted or accepted.'
                 ))
 
+    def _live_quote_count(self):
+        self.ensure_one()
+        return len(self.quote_ids.filtered(lambda q: q.state != 'rejected'))
+
+    def _needs_quote_shortfall_reason(self):
+        """True when 1–2 quotes on a standard line and no justification yet."""
+        self.ensure_one()
+        if self.sole_source:
+            return False
+        count = self._live_quote_count()
+        if count < 1 or count >= 3:
+            return False
+        return not (self.quote_shortfall_reason or '').strip()
+
     def _check_quote_minima(self):
-        """≥3 quotes per standard line, ≥1 for sole source (FR-10 / BR-2)."""
+        """≥1 quote always; ≥3 on standard lines unless a shortfall reason is set (FR-10 / BR-2)."""
         for line in self:
-            count = len(line.quote_ids.filtered(lambda q: q.state != 'rejected'))
-            required = 1 if line.sole_source else 3
-            if count < required:
+            count = line._live_quote_count()
+            if count < 1:
                 raise ValidationError(_(
-                    'Line %(product)s requires at least %(required)s quote(s); '
-                    'found %(count)s.',
+                    'Line %(product)s requires at least 1 quote; found %(count)s.',
                     product=line.product_id.display_name,
-                    required=required,
                     count=count,
                 ))
+            if line.sole_source:
+                continue
+            if count < 3 and not (line.quote_shortfall_reason or '').strip():
+                raise ValidationError(_(
+                    'Line %(product)s has %(count)s quote(s). Record at least 3, '
+                    'or provide a reason for submitting fewer.',
+                    product=line.product_id.display_name,
+                    count=count,
+                ))
+
+    def _action_open_quote_shortfall_wizard(self):
+        return {
+            'name': _('Fewer than 3 Quotes'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.quote.shortfall.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_line_ids': [(6, 0, self.ids)]},
+        }
 
     def action_submit_quotes(self):
         """Assigned expert submits the quote set collected on these lines."""
@@ -260,6 +295,10 @@ class ZvyPurchaseRequestLine(models.Model):
                         'Only the assigned Commercial Expert can submit quotes '
                         'for %s.'
                     ) % line.product_id.display_name)
+        if self.env.context.get('zvy_ui_submit'):
+            shortfall = self.filtered(lambda l: l._needs_quote_shortfall_reason())
+            if shortfall:
+                return shortfall._action_open_quote_shortfall_wizard()
         self._check_quote_minima()
         self.quote_ids.filtered(lambda q: q.state == 'draft').sudo().write({
             'state': 'submitted',
@@ -268,10 +307,16 @@ class ZvyPurchaseRequestLine(models.Model):
         author = self.env.user.partner_id.id
         for request in self.sudo().mapped('request_id'):
             lines = self.sudo().filtered(lambda l: l.request_id == request)
+            details = []
+            for line in lines:
+                name = line.product_id.display_name
+                reason = (line.quote_shortfall_reason or '').strip()
+                if reason and not line.sole_source and line._live_quote_count() < 3:
+                    details.append(_('%s (%s)') % (name, reason))
+                else:
+                    details.append(name)
             request.message_post(
-                body=_('Quotes submitted for: %s') % ', '.join(
-                    lines.mapped('product_id.display_name')
-                ),
+                body=_('Quotes submitted for: %s') % ', '.join(details),
                 author_id=author,
             )
             request._try_advance_to_quote_review()

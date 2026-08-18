@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Mammut Procurement & Tendering',
-    'version': '18.0.1.7.0',
+    'version': '18.0.1.8.0',
     'category': 'Procurement & Tendering',
     'summary': 'Purchase requests, AVL inquiry, holding commission, and closed-envelope tenders',
     'description': """

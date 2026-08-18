@@ -48,6 +48,7 @@
                     <button name="action_submit_quotes" string="Submit Quotes" type="object"
                             class="btn-primary"
                             invisible="state != 'inquiry' or procurement_type != 'enquiry'"
+                            context="{'zvy_ui_submit': True}"
                             groups="zvy_tendering.group_zvy_commercial_expert"/>
                     <button name="action_approve_quotes" string="Approve Quotes" type="object"
                             class="btn-primary"
@@ -160,6 +161,7 @@
                                     <field name="expert_user_ids" widget="many2many_tags" readonly="1" optional="show"/>
                                     <field name="quote_count" optional="show"/>
                                     <field name="quotes_submitted" optional="show"/>
+                                    <field name="quote_shortfall_reason" optional="hide"/>
                                     <field name="awarded_quote_id"
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                               readonly="parent.state != 'quote_review'"
@@ -188,6 +190,8 @@
                                                       options="{'no_create': True, 'no_create_edit': True}"
                                                       groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                             <field name="awarded_partner_id" readonly="1"/>
+                                            <field name="quote_shortfall_reason" readonly="1"
+                                                   invisible="not quote_shortfall_reason"/>
                                             <field name="request_state" invisible="1"/>
                                         </group>
                                     </group>
@@ -306,11 +310,13 @@
                 <field name="sole_source"/>
                 <field name="expert_user_ids" widget="many2many_tags"/>
                 <field name="quote_count"/>
+                <field name="quote_shortfall_reason" optional="hide"/>
                 <field name="request_state" column_invisible="1"/>
                 <field name="quotes_submitted" widget="boolean_toggle" readonly="1"/>
                 <button name="action_submit_quotes" type="object" string="Submit Quotes"
                         icon="fa-paper-plane" class="btn-link"
                         invisible="quotes_submitted or request_state != 'inquiry' or procurement_type != 'enquiry'"
+                        context="{'zvy_ui_submit': True}"
                         groups="zvy_tendering.group_zvy_commercial_expert"/>
             </list>
         </field>
@@ -325,6 +331,7 @@
                     <button name="action_submit_quotes" string="Submit Quotes" type="object"
                             class="btn-primary"
                             invisible="request_state != 'inquiry' or quotes_submitted or procurement_type != 'enquiry'"
+                            context="{'zvy_ui_submit': True}"
                             groups="zvy_tendering.group_zvy_commercial_expert"/>
                     <field name="quotes_submitted" invisible="1"/>
                 </header>
@@ -356,6 +363,8 @@
                                     readonly="request_state != 'quote_review'"
                                     options="{'no_create': True, 'no_create_edit': True}"
                                     groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
+                            <field name="quote_shortfall_reason" readonly="1"
+                                   invisible="not quote_shortfall_reason"/>
                         </group>
                     </group>
                     <notebook>

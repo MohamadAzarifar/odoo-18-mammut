@@ -261,6 +261,75 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self.assertEqual(pr.state, 'quote_review')
 
+    def test_quote_shortfall_reason_allows_submit(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_b.id,
+            'price_unit': 11.0,
+        })
+        line.sudo().write({
+            'quote_shortfall_reason': 'Only two AVL vendors responded',
+        })
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+        self.assertEqual(
+            line.quote_shortfall_reason,
+            'Only two AVL vendors responded',
+        )
+        self.assertTrue(all(q.state == 'submitted' for q in pr.sudo().quote_ids))
+
+    def test_quote_shortfall_zero_quotes_still_blocked(self):
+        pr = self._submit_and_assign()
+        line = pr.line_ids[0]
+        line.sudo().write({
+            'quote_shortfall_reason': 'No vendors available',
+        })
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'inquiry')
+
+    def test_quote_shortfall_ui_opens_wizard(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_b.id,
+            'price_unit': 11.0,
+        })
+        action = pr.with_user(self.user_cce).with_context(
+            zvy_ui_submit=True,
+        ).action_submit_quotes()
+        self.assertEqual(action['res_model'], 'zvy.request.quote.shortfall.wizard')
+        self.assertEqual(action['target'], 'new')
+        self.assertEqual(pr.state, 'inquiry')
+
+        wizard = self.env['zvy.request.quote.shortfall.wizard'].with_user(
+            self.user_cce
+        ).create({
+            'line_ids': [(6, 0, line.ids)],
+            'reason': 'Only two AVL vendors responded',
+        })
+        wizard.action_confirm()
+        self.assertEqual(pr.state, 'quote_review')
+        self.assertEqual(
+            line.quote_shortfall_reason,
+            'Only two AVL vendors responded',
+        )
+
     def test_line_flags_computed_from_avl_and_product(self):
         """Sole source / commission are derived; not settable by the planner."""
         pr = self._create_draft_pr()

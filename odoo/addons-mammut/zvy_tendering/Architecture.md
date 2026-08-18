@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.7.0` |
+| Version | `18.0.1.8.0` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -48,6 +48,7 @@ zvy_tendering/
 │   ├── request_return_wizard.py
 │   ├── request_assign_wizard.py
 │   ├── request_quote_reject_wizard.py
+│   ├── request_quote_shortfall_wizard.py  # <3 quotes justification (FR-10)
 │   ├── request_split_wizard.py      # mixed enquiry/tendering (FR-31)
 │   └── ce_clarification_wizard.py
 ├── security/
@@ -141,7 +142,7 @@ Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_ret
 
 `action_submit` blocks mixed Enquiry+Tendering PRs (FR-31). UI (`zvy_ui_submit` context) opens `zvy.request.split.wizard`; RPC raises `ValidationError` and callers must invoke `action_split_mixed` then submit each PR. Split keeps Enquiry lines on the original sequence and moves Tendering lines to a new draft PR; neither is auto-submitted.
 
-**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
+**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). Standard lines require ≥3 quotes **or** ≥1 quote plus `quote_shortfall_reason`; sole source requires ≥1. UI submit (`zvy_ui_submit`) with 1–2 quotes and no reason opens `zvy.request.quote.shortfall.wizard`; RPC raises `ValidationError`. The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
 
 Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_quote_minima`, `_try_advance_to_quote_review`) must read lines with `sudo`: experts can only read the lines assigned to them, so a plain `self.line_ids` raises `AccessError` on split-assignment PRs.
 
@@ -160,6 +161,7 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `is_commission_item` | Boolean | Enquiry product **Need Commission**; computed, not planner-editable |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
+| `quote_shortfall_reason` | Text | Required to submit 1–2 quotes on a non-sole-source line; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
 | `awarded_partner_id` | Many2one | Related from awarded quote |
 
@@ -364,7 +366,7 @@ Sole source: after commission (if any), signatory category always includes CEO b
 | ID | Rule | Enforcement |
 |----|------|-------------|
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
-| BR-2 | ≥3 quotes / ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
+| BR-2 | ≥3 quotes, or ≥1 with `quote_shortfall_reason`; ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
 | BR-3 | Configurable high-value threshold | `company_id.zvy_high_value_threshold`; `_compute_is_high_value` |
 | BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
@@ -491,7 +493,7 @@ Automated tests (PRD §7) mapped to design:
 
 | Area | Assert |
 |------|--------|
-| Quote minima | Standard line blocks submit with &lt;3 quotes; sole source allows 1 |
+| Quote minima | Standard line blocks submit with &lt;3 quotes unless `quote_shortfall_reason` is set (still ≥1); sole source allows 1 |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; PR Quotes tab editable for CM/Admin only |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |

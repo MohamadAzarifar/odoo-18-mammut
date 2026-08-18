@@ -74,6 +74,27 @@
         </field>
     </record>
 
+    <record id="view_zvy_request_quote_shortfall_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.quote.shortfall.wizard.form</field>
+        <field name="model">zvy.request.quote.shortfall.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Fewer than 3 Quotes">
+                <div class="alert alert-info" role="alert">
+                    Fewer than 3 quotes are recorded. Provide a reason to submit
+                    this quote set to the Commercial Manager.
+                </div>
+                <group>
+                    <field name="line_ids" invisible="1"/>
+                    <field name="reason" placeholder="Explain why fewer than 3 quotes are available..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Submit Quotes" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_zvy_request_split_wizard_form" model="ir.ui.view">
         <field name="name">zvy.request.split.wizard.form</field>
         <field name="model">zvy.request.split.wizard</field>

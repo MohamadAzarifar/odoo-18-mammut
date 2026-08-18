@@ -29,7 +29,7 @@ A standalone procurement and tendering application on Odoo 18 that:
 |------|----------------|
 | Controlled PR lifecycle | Every PR moves through defined states; reject/return paths are auditable |
 | AVL compliance | No inquiry/CE supplier outside active AVL |
-| Quote integrity | ≥3 quotes (standard) / ≥1 (sole source) before CM review |
+| Quote integrity | ≥3 quotes (standard) or ≥1 with a shortfall reason / ≥1 (sole source) before CM review |
 | Correct routing | High-value / commission items always reach Commission; others follow company sign-off |
 | Sealed tenders | Closed-envelope bids invisible until official opening (except bidder’s own portal view) |
 | Traceable award → PO | Only Commercial Manager creates PO after `po_ready` |
@@ -274,7 +274,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Standard **Enquiry** line: submit blocked until ≥3 quotes recorded.
+- [x] Standard **Enquiry** line: submit blocked until ≥3 quotes recorded, **or** ≥1 quote plus a written reason for the shortfall.
+- [x] Fewer than 3 quotes (UI): **Submit Quotes** opens a justification wizard; RPC without a reason raises.
 - [x] Sole-source Enquiry line (exactly one active AVL vendor for the product/company): ≥1 quote required.
 - [x] Submit sends quote set to CM quote review.
 - [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
@@ -582,7 +583,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | ID | Rule |
 |----|------|
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
-| BR-2 | Standard lines require ≥3 quotes before expert submit; sole source (exactly one AVL vendor) ≥1. |
+| BR-2 | Standard lines require ≥3 quotes before expert submit, or ≥1 with a shortfall reason; sole source (exactly one AVL vendor) ≥1. |
 | BR-3 | High-value threshold is company-configurable (not hard-coded). |
 | BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission path; line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
@@ -635,7 +636,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 7 | CM | Create PO after approvals | FR-7 |
 | 8 | CCE | View assigned PR items | FR-8 |
 | 9 | CCE | AVL-only suppliers | FR-9 |
-| 10 | CCE | ≥3 / ≥1 quotes; submit to CM | FR-10 |
+| 10 | CCE | ≥3 / ≥1+reason / ≥1 sole source; submit to CM | FR-10 |
 | 11 | CCE | Closed Envelope supplier list | FR-11 |
 | 12 | Signatory | Sequential documents | FR-12 |
 | 13 | Signatory | Approve or reject → CM | FR-13 |
@@ -849,8 +850,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As Expert → **My Assignments** → open a line with only 1–2 quotes → **Submit Quotes** | Blocked until ≥3 quotes on that line |
-| 2 | Add a third quote; **Submit Quotes** (from the line form or the row button in My Assignments) | Line shows **Quotes Submitted**; quotes move to `submitted`; chatter notes which line was submitted |
+| 1 | As Expert → **My Assignments** → open a line with only 1–2 quotes → **Submit Quotes** | Wizard asks for a reason; submit is blocked until a reason is given (or a third quote is added). Zero quotes stay blocked. |
+| 2 | Enter a reason and confirm, or add a third quote; **Submit Quotes** (from the line form or the row button in My Assignments) | Line shows **Quotes Submitted**; quotes move to `submitted`; shortfall reason is stored on the line when used; chatter notes which line was submitted |
 | 3 | When **every** line of the PR is submitted | PR state → `quote_review` automatically; chatter notes all quote sets submitted |
 | 4 | On a PR whose lines are split between two Experts, have only one submit | PR stays in `inquiry` until the second Expert submits their line |
 | 5 | As **CM**, try **Submit Quotes** | Not available / refused — the CM reviews, Experts submit |
