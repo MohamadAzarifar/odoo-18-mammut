@@ -64,7 +64,12 @@ class ZvyPurchaseRequestLine(models.Model):
         string='Commission Item',
         compute='_compute_is_commission_item',
         store=True,
-        help='True when the product category is marked as a commission item.',
+        help='True when the Enquiry product has Need Commission enabled.',
+    )
+    procurement_type = fields.Selection(
+        related='product_id.zvy_procurement_type',
+        string='Procurement Type',
+        store=True,
     )
     expert_user_ids = fields.Many2many(
         'res.users',
@@ -122,11 +127,16 @@ class ZvyPurchaseRequestLine(models.Model):
                 quote.state != 'draft' for quote in live
             )
 
-    @api.depends('product_id', 'product_id.categ_id.zvy_is_commission_item')
+    @api.depends(
+        'product_id',
+        'product_id.zvy_need_commission',
+        'product_id.zvy_procurement_type',
+    )
     def _compute_is_commission_item(self):
         for line in self:
             line.is_commission_item = bool(
-                line.product_id.categ_id.zvy_is_commission_item
+                line.product_id.zvy_procurement_type == 'enquiry'
+                and line.product_id.zvy_need_commission
             )
 
     @api.depends('product_id', 'company_id')
@@ -235,6 +245,10 @@ class ZvyPurchaseRequestLine(models.Model):
                 raise UserError(_(
                     'Quotes can only be submitted while the purchase request '
                     'is in Inquiry.'
+                ))
+            if line.request_id.procurement_type != 'enquiry':
+                raise UserError(_(
+                    'Quotes can only be submitted on Enquiry purchase requests.'
                 ))
             if line.quotes_submitted:
                 raise UserError(_(

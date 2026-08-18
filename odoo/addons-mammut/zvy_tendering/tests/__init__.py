@@ -5,3 +5,4 @@ from . import test_inquiry_routing
 from . import test_commission_ce
 from . import test_signatory_bridge
 from . import test_portal_isolation
+from . import test_product_split

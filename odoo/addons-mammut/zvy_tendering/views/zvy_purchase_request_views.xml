@@ -17,6 +17,7 @@
                         decoration-success="state in ('commission', 'po_ready', 'done')"
                         decoration-muted="state == 'draft'"/>
                 <field name="is_high_value" optional="hide"/>
+                <field name="procurement_type" optional="show"/>
                 <field name="is_commission_item" optional="hide"/>
                 <field name="has_sole_source" optional="hide"/>
             </list>
@@ -32,6 +33,7 @@
                     <button name="action_submit" string="Submit" type="object"
                             class="btn-primary"
                             invisible="state not in ('draft', 'correction')"
+                            context="{'zvy_ui_submit': True}"
                             groups="zvy_tendering.group_zvy_planner,zvy_tendering.group_zvy_tendering_admin"/>
                     <button name="action_reject" string="Reject" type="object"
                             invisible="state not in ('submitted', 'cm_review')"
@@ -45,7 +47,7 @@
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_submit_quotes" string="Submit Quotes" type="object"
                             class="btn-primary"
-                            invisible="state != 'inquiry'"
+                            invisible="state != 'inquiry' or procurement_type != 'enquiry'"
                             groups="zvy_tendering.group_zvy_commercial_expert"/>
                     <button name="action_approve_quotes" string="Approve Quotes" type="object"
                             class="btn-primary"
@@ -55,7 +57,7 @@
                             invisible="state != 'quote_review'"
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_create_closed_envelope" string="Closed Envelope" type="object"
-                            invisible="state != 'inquiry'"
+                            invisible="state != 'inquiry' or procurement_type != 'tendering'"
                             groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_resubmit_signatory" string="Resubmit to Signatories" type="object"
                             class="btn-primary"
@@ -69,8 +71,13 @@
                             statusbar_visible="draft,submitted,cm_review,inquiry,quote_review,commission,signatory,po_ready,done,correction,rejected"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not is_mixed_procurement or state not in ('draft', 'correction')">
+                        This request mixes Enquiry and Tendering products.
+                        Submit will ask you to split it into two purchase requests.
+                    </div>
                     <div class="alert alert-info" role="alert"
-                         invisible="state != 'quote_review'"
+                         invisible="state != 'quote_review' or procurement_type == 'tendering'"
                          groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
                         Use <b>Select as Awarded</b> on each line’s winning quote
                         (or set <b>Awarded Quote</b>), then click <b>Approve Quotes</b>
@@ -89,6 +96,13 @@
                                 class="oe_stat_button" icon="fa-credit-card"
                                 invisible="purchase_order_count == 0">
                             <field name="purchase_order_count" widget="statinfo" string="POs"/>
+                        </button>
+                        <button name="action_open_split_request" type="object"
+                                class="oe_stat_button" icon="fa-files-o"
+                                invisible="not split_request_id and not split_from_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Split PR</span>
+                            </div>
                         </button>
                     </div>
                     <div class="oe_title">
@@ -109,6 +123,10 @@
                             <field name="amount_total"/>
                             <field name="can_edit_quotes" invisible="1"/>
                             <field name="approval_request_id" invisible="1"/>
+                            <field name="split_request_id" invisible="1"/>
+                            <field name="split_from_id" invisible="1"/>
+                            <field name="procurement_type"/>
+                            <field name="is_mixed_procurement" invisible="not is_mixed_procurement"/>
                             <field name="is_high_value"/>
                             <field name="is_commission_item" readonly="1"/>
                             <field name="has_sole_source" readonly="1"/>
@@ -131,6 +149,7 @@
                             <field name="line_ids" readonly="state not in ('draft', 'correction', 'quote_review')">
                                 <list editable="bottom">
                                     <field name="product_id" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="procurement_type" optional="show"/>
                                     <field name="product_uom_qty" readonly="parent.state not in ('draft', 'correction')"/>
                                     <field name="product_uom_id" readonly="parent.state not in ('draft', 'correction')"/>
                                     <field name="price_estimate" readonly="parent.state not in ('draft', 'correction')"/>
@@ -152,6 +171,7 @@
                                     <group>
                                         <group>
                                             <field name="product_id"/>
+                                            <field name="procurement_type"/>
                                             <field name="product_uom_qty"/>
                                             <field name="product_uom_id"/>
                                             <field name="price_estimate"/>
@@ -172,7 +192,8 @@
                                         </group>
                                     </group>
                                     <notebook>
-                                        <page string="Quotes" name="line_quotes">
+                                        <page string="Quotes" name="line_quotes"
+                                              invisible="procurement_type != 'enquiry'">
                                             <field name="quote_ids" readonly="request_state != 'inquiry'">
                                                 <list editable="bottom">
                                                     <field name="allowed_partner_ids" column_invisible="1"/>
@@ -199,6 +220,7 @@
                             </field>
                         </page>
                         <page string="Quotes" name="quotes"
+                              invisible="procurement_type != 'enquiry'"
                               groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory">
                             <div class="alert alert-info" role="alert"
                                  invisible="can_edit_quotes or state != 'inquiry'"
@@ -258,6 +280,8 @@
                 <separator/>
                 <filter string="High Value" name="high_value" domain="[('is_high_value', '=', True)]"/>
                 <filter string="Commission Item" name="commission_item" domain="[('is_commission_item', '=', True)]"/>
+                <filter string="Enquiry" name="enquiry" domain="[('procurement_type', '=', 'enquiry')]"/>
+                <filter string="Tendering" name="tendering" domain="[('procurement_type', '=', 'tendering')]"/>
                 <separator/>
                 <filter string="Requester" name="group_requester" context="{'group_by': 'requester_id'}"/>
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
@@ -273,6 +297,7 @@
             <list>
                 <field name="request_id"/>
                 <field name="product_id"/>
+                <field name="procurement_type" optional="show"/>
                 <field name="product_uom_qty"/>
                 <field name="product_uom_id"/>
                 <field name="price_estimate"/>
@@ -285,7 +310,7 @@
                 <field name="quotes_submitted" widget="boolean_toggle" readonly="1"/>
                 <button name="action_submit_quotes" type="object" string="Submit Quotes"
                         icon="fa-paper-plane" class="btn-link"
-                        invisible="quotes_submitted or request_state != 'inquiry'"
+                        invisible="quotes_submitted or request_state != 'inquiry' or procurement_type != 'enquiry'"
                         groups="zvy_tendering.group_zvy_commercial_expert"/>
             </list>
         </field>
@@ -299,7 +324,7 @@
                 <header>
                     <button name="action_submit_quotes" string="Submit Quotes" type="object"
                             class="btn-primary"
-                            invisible="request_state != 'inquiry' or quotes_submitted"
+                            invisible="request_state != 'inquiry' or quotes_submitted or procurement_type != 'enquiry'"
                             groups="zvy_tendering.group_zvy_commercial_expert"/>
                     <field name="quotes_submitted" invisible="1"/>
                 </header>
@@ -312,6 +337,7 @@
                             <field name="request_id" readonly="1"/>
                             <field name="product_id"
                                     readonly="request_state not in ('draft', 'correction')"/>
+                            <field name="procurement_type"/>
                             <field name="product_uom_qty"
                                     readonly="request_state not in ('draft', 'correction')"/>
                             <field name="product_uom_id"
@@ -333,7 +359,8 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Quotes" name="quotes">
+                        <page string="Quotes" name="quotes"
+                              invisible="procurement_type != 'enquiry'">
                             <field name="quote_ids" readonly="request_state != 'inquiry'">
                                 <list editable="bottom">
                                     <field name="allowed_partner_ids" column_invisible="1"/>

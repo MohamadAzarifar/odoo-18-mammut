@@ -50,3 +50,8 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         self.assertNotIn(self.avl_b, visible)
         # Record rules apply on search/read; exists() checks the DB row only.
         self.assertFalse(Avl.search([('id', '=', self.avl_b.id)]))
+
+    def test_product_procurement_type_defaults(self):
+        self.assertEqual(self.product.zvy_procurement_type, 'enquiry')
+        self.assertFalse(self.product.zvy_need_commission)
+

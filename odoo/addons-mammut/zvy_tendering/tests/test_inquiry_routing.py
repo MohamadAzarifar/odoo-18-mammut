@@ -261,7 +261,7 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self.assertEqual(pr.state, 'quote_review')
 
-    def test_line_flags_computed_from_avl_and_category(self):
+    def test_line_flags_computed_from_avl_and_product(self):
         """Sole source / commission are derived; not settable by the planner."""
         pr = self._create_draft_pr()
         line = pr.line_ids

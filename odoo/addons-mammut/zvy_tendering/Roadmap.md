@@ -35,7 +35,7 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 - [x] Multi-company record-rule pattern
 - [x] Menus shell (Procurement & Tendering)
 - [x] `res.company` / `res.config.settings`: high-value threshold, default bid window, signatory approval category
-- [x] `product.category.zvy_is_commission_item`
+- [x] `product.template.zvy_procurement_type` / `zvy_need_commission` (replaces former `product.category.zvy_is_commission_item`)
 - [x] `ir.sequence` for PR (and CE/case if needed)
 - [x] `zvy.avl.entry` CRUD + views (active vendor by company / product / category)
 
@@ -312,6 +312,7 @@ Track throughout (PRD §7):
 | 28 | FR-28 | 4 |
 | 29 | FR-29 | 3 |
 | 30 | FR-30 | 3 |
+| 31 | FR-31 | 1 (delta `18.0.1.7.0`) |
 
 ---
 
@@ -325,3 +326,16 @@ Track throughout (PRD §7):
 | 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
 | 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |
+| Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
+
+---
+
+## Post-MVP delta — Product type, commission, mixed-PR split (`18.0.1.7.0`)
+
+Does not reopen Phases 0–5. Specs: [README.md](README.md) FR-1, FR-10, FR-11, FR-27, FR-31; [Architecture.md](Architecture.md).
+
+- [x] Product **Procurement Type**: Enquiry (default) / Tendering
+- [x] **Need Commission** checkbox on Enquiry products only (default No); category commission flag removed (upgrade copies the old flag onto templates)
+- [x] Enquiry PRs: quote inquiry only; Tendering PRs: closed envelope only
+- [x] Mixed PRs cannot submit to CM; UI wizard / `action_split_mixed` (Enquiry stays, Tendering new PR)
+- [x] Tests for defaults, split, and path guards

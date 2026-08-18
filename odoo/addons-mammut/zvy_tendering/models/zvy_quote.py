@@ -170,6 +170,10 @@ class ZvyQuote(models.Model):
                 raise UserError(_(
                     'Quotes can only be edited while the purchase request is in Inquiry.'
                 ))
+            if quote.request_id.procurement_type != 'enquiry':
+                raise UserError(_(
+                    'Quotes can only be recorded on Enquiry purchase requests.'
+                ))
             if is_cm or is_admin:
                 continue
             if self.env.user not in quote.line_id.expert_user_ids:

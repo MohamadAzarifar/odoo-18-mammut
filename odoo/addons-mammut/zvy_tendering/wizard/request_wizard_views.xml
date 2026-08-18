@@ -74,6 +74,23 @@
         </field>
     </record>
 
+    <record id="view_zvy_request_split_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.split.wizard.form</field>
+        <field name="model">zvy.request.split.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Split Purchase Request">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                    <field name="note" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Split" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_zvy_ce_clarification_wizard_form" model="ir.ui.view">
         <field name="name">zvy.ce.clarification.wizard.form</field>
         <field name="model">zvy.ce.clarification.wizard</field>

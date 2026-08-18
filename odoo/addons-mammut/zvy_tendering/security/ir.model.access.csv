@@ -60,5 +60,7 @@ access_zvy_request_quote_reject_wizard_cm,zvy.request.quote.reject.wizard commer
 access_zvy_request_quote_reject_wizard_admin,zvy.request.quote.reject.wizard admin,model_zvy_request_quote_reject_wizard,group_zvy_tendering_admin,1,1,1,1
 access_zvy_ce_clarification_wizard_comm_mgr,zvy.ce.clarification.wizard commission manager,model_zvy_ce_clarification_wizard,group_zvy_commission_manager,1,1,1,1
 access_zvy_ce_clarification_wizard_admin,zvy.ce.clarification.wizard admin,model_zvy_ce_clarification_wizard,group_zvy_tendering_admin,1,1,1,1
+access_zvy_request_split_wizard_planner,zvy.request.split.wizard planner,model_zvy_request_split_wizard,group_zvy_planner,1,1,1,1
+access_zvy_request_split_wizard_admin,zvy.request.split.wizard admin,model_zvy_request_split_wizard,group_zvy_tendering_admin,1,1,1,1
 access_zvy_closed_envelope_portal,zvy.closed.envelope portal,model_zvy_closed_envelope,base.group_portal,1,0,0,0
 access_zvy_closed_envelope_bid_portal,zvy.closed.envelope.bid portal,model_zvy_closed_envelope_bid,base.group_portal,1,0,0,0

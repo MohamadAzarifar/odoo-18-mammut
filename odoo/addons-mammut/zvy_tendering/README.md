@@ -70,7 +70,7 @@ Security groups and technical mapping: see [Architecture.md](Architecture.md).
 | Sequential company signatories + CEO on sole source | Yes | 12–14 |
 | Commission case, experts, meeting/MOM, CE approve & award | Yes | 15–23 |
 | Supplier portal (view, bid, notify) | Yes | 24–26 |
-| Auto-route, sequential lock, portal_open, bid seal | Yes | 27–30 |
+| Auto-route, sequential lock, portal_open, bid seal, mixed-PR split | Yes | 27–31 |
 
 Delivery phasing: [Roadmap.md](Roadmap.md).
 
@@ -79,18 +79,20 @@ Delivery phasing: [Roadmap.md](Roadmap.md).
 ## 4. End-to-end process (business)
 
 ```text
-Planner creates PR
+Planner creates PR (products are Enquiry or Tendering)
+    → If mixed types: planner must split into two PRs before submit
     → Commercial Manager reviews (reject / return / assign experts)
-    → Commercial Experts collect quotes (or CE supplier list)
-    → CM approves quote set
+    → Enquiry: Commercial Experts collect quotes
+      Tendering: Commercial Experts prepare closed-envelope supplier list
+    → CM approves quote set / CE award
     → System routes:
-         High-value OR commission item → Commission (experts → manager / meeting)
+         High-value OR (Enquiry Need Commission) → Commission (experts → manager / meeting)
          Else → Company signatory chain
     → Sole source: CEO always in signatory chain
     → CM creates Purchase Order(s)
 ```
 
-Closed envelope (parallel path where applicable):
+Closed envelope (Tendering products only):
 
 ```text
 Expert submits invited AVL suppliers
@@ -120,11 +122,13 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] Planner can create a PR with header (requester, company, description) and one or more lines (product, qty, UoM, estimate).
 - [x] **Requester** defaults to the creating user, is read-only on the form, and cannot be changed (UI or RPC); create always forces `requester_id = env.user`.
-- [x] Line **Sole Source** and **Commission Item** are computed and read-only (not planner-editable):
+- [x] Line **Sole Source**, **Commission Item**, and **Procurement Type** are computed and read-only (not planner-editable):
   - Sole Source = product has exactly one active AVL vendor for the PR company.
-  - Commission Item = product category has **Commission Item** checked.
-- [x] PR starts in `draft`; Planner can submit → `submitted` / CM queue.
-- [x] External systems can create/submit equivalent PRs via documented web service (XML-RPC/JSON-RPC or REST as implemented).
+  - Procurement Type = product **Enquiry** or **Tendering** (product default Enquiry).
+  - Commission Item = Enquiry product has **Need Commission** checked (default No; hidden on Tendering products).
+- [x] PR starts in `draft`; Planner can submit a homogeneous PR → `submitted` / CM queue.
+- [x] Mixed Enquiry+Tendering PRs cannot be submitted (FR-31).
+- [x] External systems can create/submit equivalent PRs via documented web service (XML-RPC/JSON-RPC or REST as implemented). Mixed `action_submit` raises; call `action_split_mixed` first.
 - [x] Each PR receives a unique sequence number.
 
 #### FR-2 Planner notifications *(Story 2)*
@@ -140,6 +144,21 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [ ] Planner is notified on reject, return for correction, and terminal approval outcomes that affect their PR.
 - [ ] Notifications include PR reference and reason/comment when provided.
 - [ ] Planner can reopen/edit and resubmit from `correction` state.
+
+#### FR-31 Split mixed Enquiry/Tendering *(Story 31)*
+
+| | |
+|--|--|
+| **As a** | Planner |
+| **I want** | To be blocked from submitting a PR that mixes Enquiry and Tendering products, and to split it automatically if I accept |
+| **So that** | Each request follows a single inquiry path |
+
+**Acceptance criteria**
+
+- [x] Submit is blocked while the PR has both Enquiry and Tendering lines.
+- [x] UI Submit opens a confirmation wizard; Cancel leaves the PR unsubmitted.
+- [x] If the planner accepts, Tendering lines move to a new draft PR; Enquiry lines stay on the original. Neither PR is auto-submitted.
+- [x] RPC `action_submit` raises; callers invoke `action_split_mixed` then submit each PR.
 
 ---
 
@@ -255,11 +274,12 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Standard line: submit blocked until ≥3 quotes recorded.
-- [x] Sole-source line (exactly one active AVL vendor for the product/company): ≥1 quote required.
+- [x] Standard **Enquiry** line: submit blocked until ≥3 quotes recorded.
+- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product/company): ≥1 quote required.
 - [x] Submit sends quote set to CM quote review.
 - [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
 - [x] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
+- [x] Tendering PRs cannot collect or submit quotes; they use the closed-envelope path (FR-11).
 
 #### FR-11 Closed-envelope supplier list *(Story 11)*
 
@@ -271,8 +291,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Expert can create a closed-envelope document linked to the PR (or line set) and add AVL suppliers.
+- [x] Expert can create a closed-envelope document linked to a **Tendering** PR (or line set) and add AVL suppliers.
 - [x] Submit moves list to Commission Manager approval (`list_pending`).
+- [x] Enquiry PRs cannot create a closed envelope.
 
 ---
 
@@ -511,7 +532,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] After quote approval: if `is_commission_item` **or** `is_high_value` → create/open commission case.
 - [x] Else → spawn company sequential signatory path.
 - [x] `is_high_value` = total ≥ company configurable threshold.
-- [x] `is_commission_item` = any line whose product category has **Commission Item** (computed on the line; not a manual line override).
+- [x] `is_commission_item` = any Enquiry line whose product has **Need Commission** (computed on the line; not a manual line override). Tendering products never set this flag.
 
 #### FR-28 Sequential approval enforcement *(Story 28)*
 
@@ -563,12 +584,13 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
 | BR-2 | Standard lines require ≥3 quotes before expert submit; sole source (exactly one AVL vendor) ≥1. |
 | BR-3 | High-value threshold is company-configurable (not hard-coded). |
-| BR-4 | Commission items (product category **Commission Item**) force Holding Commission path; line flag is computed, not editable. |
+| BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission path; line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data set; only Commercial Manager. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns control to Commercial Manager, not Planner (unless CM then returns). |
 | BR-9 | Planner corrections use return path with reason; reject is terminal unless process reopens by policy. |
+| BR-10 | A PR may contain only Enquiry or only Tendering products; mixed PRs cannot be submitted until split (FR-31). |
 
 ---
 
@@ -580,7 +602,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Security | Role-based groups + record rules (expert own lines; commission own cases; sealed bids; portal by partner) |
 | Usability | Role-specific dashboards/queues; clear next-action buttons |
 | Notifications | Mail/activities for planner, assignees, signatories, and suppliers (portal phase) |
-| Extensibility | Web service for PR create/submit; settings for threshold, signatory category, commission flags |
+| Extensibility | Web service for PR create/submit; settings for threshold, signatory category, product procurement type / commission |
 | Testability | Automated tests for quote minima, AVL domain, router, signatory bridge, bid seal, portal isolation |
 
 ---
@@ -590,7 +612,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Setting | Purpose |
 |---------|---------|
 | High-value threshold | Triggers Holding Commission routing |
-| Commission Item on product category | Sets line/header `is_commission_item` (computed); triggers Holding Commission routing |
+| Product procurement type (Enquiry / Tendering) | Forces quote inquiry vs closed-envelope path; mixed PRs cannot submit |
+| Need Commission on Enquiry product | Sets line/header `is_commission_item` (computed); triggers Holding Commission routing |
 | Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
 | CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
@@ -604,6 +627,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 |---|------|---------------|----|
 | 1 | Planner | Create PR (UI / web service) | FR-1 |
 | 2 | Planner | Notify on approve / reject / correction | FR-2 |
+| 31 | Planner | Split mixed Enquiry/Tendering PRs | FR-31 |
 | 3 | CM | New PRs on dashboard | FR-3 |
 | 4 | CM | Reject or return for corrections | FR-4 |
 | 5 | CM | Assign lines to Commercial Experts | FR-5 |
@@ -693,13 +717,16 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick a sequential Approvals category, set sole-source approver(s); Save | Values persist after reopen |
 | 3 | Open the same company again | Fields match what was saved |
 
-#### MT-0.4 Commission flag on product category
+#### MT-0.4 Product procurement type and commission (FR-1 / BR-4)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Open any **Product Category** form | **Commission Item** checkbox is visible |
-| 2 | Enable it and save; reopen | Flag remains checked |
-| 3 | As Planner, create a PR line with a product in that category | Line **Commission Item** is checked and read-only; header `is_commission_item` is true |
+| 1 | Open any **Product** form | **Procurement Type** (Enquiry / Tendering) is visible; default **Enquiry** |
+| 2 | Leave Enquiry; confirm **Need Commission** is visible and unchecked | Default is do not need commission |
+| 3 | Enable **Need Commission**; save; reopen | Flag remains checked |
+| 4 | Switch type to **Tendering** | **Need Commission** disappears and is cleared |
+| 5 | As Planner, create a PR line with an Enquiry product that needs commission | Line **Commission Item** is checked and read-only; header `is_commission_item` is true |
+| 6 | Create a PR line with a Tendering product | Line **Procurement Type** is Tendering; **Commission Item** is false |
 
 #### MT-0.5 Approved Vendor List (FR-9 foundation)
 
@@ -732,7 +759,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | Log in as **Planner** → **Purchase Requests → All Requests → New** | Form opens in `draft`; **Requester** is current user and not editable |
-| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate) | Line subtotals and header total estimate compute; **Sole Source** / **Commission Item** are read-only and filled from AVL / product category |
+| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate) | Line subtotals and header total estimate compute; **Sole Source** / **Commission Item** / **Procurement Type** are read-only and filled from AVL / product |
 | 3 | Try to change **Requester** (UI) | Field remains locked to the creating user |
 | 4 | Save | Number is assigned (e.g. `PR/2026/00001`), not `New` |
 | 5 | Click **Submit** | State → `submitted`; chatter notes submission |
@@ -777,6 +804,16 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | As an integration / Planner user, call XML-RPC or JSON-RPC `create` on `zvy.purchase.request` with header + `line_ids` (optionally passing another `requester_id`) | Record created in `draft` with sequence number; **requester is always the authenticated user** (spoofed `requester_id` ignored) |
 | 2 | Call `action_submit` on that id | State → `submitted`; appears in CM queue |
 | 3 | As a CM-only user, attempt `create` | Access denied (no create ACL) |
+
+#### MT-1.7 Mixed Enquiry/Tendering split (FR-31)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | As Planner, create a draft PR with one Enquiry product and one Tendering product | Header shows mixed; warning that submit will require a split |
+| 2 | Click **Submit** | Wizard explains they must split; **Cancel** leaves the PR in `draft` |
+| 3 | Click **Submit** again, then **Split** | Original keeps Enquiry lines and its number; a new draft PR holds Tendering lines; neither is submitted; chatter links the siblings |
+| 4 | Submit each PR separately | Both appear in the CM queue |
+| 5 | Via RPC, `action_submit` a mixed PR without splitting | Error; `action_split_mixed` then submit each |
 
 ### Phase 2 — Inquiry & routing
 
@@ -843,7 +880,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | **High value:** set threshold below PR total estimate; complete inquiry + quote review; **Approve Quotes** | State → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
-| 2 | **Commission item:** use a product whose category has **Commission Item** (line flag auto-checked, read-only); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
+| 2 | **Commission item:** use an Enquiry product with **Need Commission** (line flag auto-checked, read-only); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
 | 3 | Open the linked commission case (Admin / Commission Manager) | Case in `open` with request link and routing reason flags; Assign Experts and decision buttons available |
 
 ### Phase 3 — Holding Commission & closed envelope
@@ -875,9 +912,10 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As CCE on an inquiry PR, **Closed Envelope**; add ≥1 AVL invite; **Submit List** | CE `list_pending`; linked on PR |
+| 1 | As CCE on a **Tendering** inquiry PR, **Closed Envelope**; add ≥1 AVL invite; **Submit List** | CE `list_pending`; linked on PR |
 | 2 | As Commission Manager, approve list without opening datetime | Validation error |
 | 3 | Set opening datetime (bid deadline optional); **Approve List** | State → `portal_open`; deadline defaults from Settings bid window if empty |
+| 4 | As CCE on an **Enquiry** inquiry PR | **Closed Envelope** is not available |
 
 #### MT-3.5 Sealed bids, open, award (FR-19 / FR-30)
 

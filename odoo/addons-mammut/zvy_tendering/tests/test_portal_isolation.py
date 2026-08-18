@@ -12,7 +12,12 @@ from .common import ZvyTenderingCommon
 class TestZvyPortalIsolation(ZvyTenderingCommon):
 
     def _create_portal_open_ce(self, deadline_hours=24, opening_offset_hours=1):
-        pr = self._submit_and_assign()
+        pr = self._submit_and_assign(pr=self._create_draft_pr(line_vals=[{
+            'product_id': self.product_tendering.id,
+            'product_uom_qty': 2.0,
+            'product_uom_id': self.product_tendering.uom_id.id,
+            'price_estimate': 50.0,
+        }]))
         envelope = self.env['zvy.closed.envelope'].with_user(self.user_cce).with_company(
             self.company_a
         ).create({

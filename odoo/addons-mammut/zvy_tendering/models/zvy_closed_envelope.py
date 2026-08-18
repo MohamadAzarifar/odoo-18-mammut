@@ -111,6 +111,14 @@ class ZvyClosedEnvelope(models.Model):
                 raise UserError(_(
                     'Closed envelopes can only be created while the PR is in Inquiry.'
                 ))
+            if (
+                request
+                and request.procurement_type != 'tendering'
+                and not self.env.su
+            ):
+                raise UserError(_(
+                    'Closed envelopes can only be created for Tendering purchase requests.'
+                ))
             if vals.get('name', _('New')) in (False, _('New'), 'New') and request:
                 vals['name'] = _('CE/%s') % (request.name or _('New'))
         envelopes = super().create(vals_list)

@@ -71,15 +71,17 @@ class ZvyTenderingCommon(TransactionCase):
             'type': 'consu',
             'list_price': 100.0,
         })
-        cls.commission_categ = cls.env['product.category'].create({
-            'name': 'ZVY Commission Category',
-            'zvy_is_commission_item': True,
-        })
         cls.product_commission = cls.env['product.product'].create({
             'name': 'ZVY Commission Product',
             'type': 'consu',
             'list_price': 50.0,
-            'categ_id': cls.commission_categ.id,
+            'zvy_need_commission': True,
+        })
+        cls.product_tendering = cls.env['product.product'].create({
+            'name': 'ZVY Tendering Product',
+            'type': 'consu',
+            'list_price': 75.0,
+            'zvy_procurement_type': 'tendering',
         })
         cls.user_planner = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'ZVY Planner',

@@ -145,6 +145,37 @@ class ZvyPurchaseRequest(models.Model):
         compute='_compute_routing_flags',
         store=True,
     )
+    procurement_type = fields.Selection(
+        selection=[
+            ('enquiry', 'Enquiry'),
+            ('tendering', 'Tendering'),
+        ],
+        string='Procurement Type',
+        compute='_compute_procurement_type',
+        store=True,
+        help='Set when every line is the same product type. Empty when mixed or there are no lines.',
+    )
+    is_mixed_procurement = fields.Boolean(
+        string='Mixed Enquiry and Tendering',
+        compute='_compute_procurement_type',
+        store=True,
+        help='True when the request has both Enquiry and Tendering product lines.',
+    )
+    split_from_id = fields.Many2one(
+        'zvy.purchase.request',
+        string='Split From',
+        copy=False,
+        readonly=True,
+        index=True,
+        help='Original request this tendering request was split from.',
+    )
+    split_request_id = fields.Many2one(
+        'zvy.purchase.request',
+        string='Split Request',
+        copy=False,
+        readonly=True,
+        help='Tendering request created by splitting mixed lines off this request.',
+    )
     can_edit_quotes = fields.Boolean(
         string='Can Edit Quotes Here',
         compute='_compute_can_edit_quotes',
@@ -179,13 +210,22 @@ class ZvyPurchaseRequest(models.Model):
             request.is_commission_item = any(request.line_ids.mapped('is_commission_item'))
             request.has_sole_source = any(request.line_ids.mapped('sole_source'))
 
-    @api.depends('state')
+    @api.depends('line_ids.procurement_type')
+    def _compute_procurement_type(self):
+        for request in self:
+            types = {line.procurement_type for line in request.line_ids if line.procurement_type}
+            request.is_mixed_procurement = len(types) > 1
+            request.procurement_type = types.pop() if len(types) == 1 else False
+
+    @api.depends('state', 'procurement_type')
     def _compute_can_edit_quotes(self):
         is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
         is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
         for request in self:
             request.can_edit_quotes = (
-                request.state == 'inquiry' and (is_cm or is_admin)
+                request.state == 'inquiry'
+                and request.procurement_type == 'enquiry'
+                and (is_cm or is_admin)
             )
 
     @api.model_create_multi
@@ -245,6 +285,8 @@ class ZvyPurchaseRequest(models.Model):
             'message_main_attachment_id',
             'quote_ids',
             'line_ids',
+            'split_from_id',
+            'split_request_id',
         }
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)
@@ -264,6 +306,15 @@ class ZvyPurchaseRequest(models.Model):
         return super().unlink()
 
     def action_submit(self):
+        mixed = self.filtered('is_mixed_procurement')
+        if mixed:
+            if self.env.context.get('zvy_ui_submit') and len(self) == 1:
+                return self._action_open_split_wizard()
+            raise ValidationError(_(
+                'This purchase request mixes Enquiry and Tendering products. '
+                'Split it first with action_split_mixed, then submit each '
+                'request separately.'
+            ))
         for request in self:
             if request.state not in _INTAKE_EDITABLE_STATES:
                 raise UserError(_(
@@ -276,6 +327,71 @@ class ZvyPurchaseRequest(models.Model):
             request.write({'state': 'submitted'})
             request.message_post(body=_('Purchase request submitted for CM review.'))
         return True
+
+    def _action_open_split_wizard(self):
+        self.ensure_one()
+        return {
+            'name': _('Split Purchase Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.split.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_request_id': self.id},
+        }
+
+    def action_split_mixed(self):
+        """Move Tendering lines onto a new PR; keep Enquiry lines on this one."""
+        self.ensure_one()
+        if self.state not in _INTAKE_EDITABLE_STATES:
+            raise UserError(_(
+                'Only draft or correction requests can be split.'
+            ))
+        if not self.is_mixed_procurement:
+            raise UserError(_(
+                'This purchase request does not mix Enquiry and Tendering products.'
+            ))
+        enquiry_lines = self.line_ids.filtered(
+            lambda line: line.procurement_type == 'enquiry'
+        )
+        tendering_lines = self.line_ids.filtered(
+            lambda line: line.procurement_type == 'tendering'
+        )
+        if not enquiry_lines or not tendering_lines:
+            raise UserError(_(
+                'Cannot split: both Enquiry and Tendering lines are required.'
+            ))
+        new_pr = self.sudo().create({
+            'company_id': self.company_id.id,
+            'currency_id': self.currency_id.id,
+            'description': self.description,
+            'requester_id': self.requester_id.id,
+            'split_from_id': self.id,
+        })
+        tendering_lines.sudo().write({'request_id': new_pr.id})
+        self.write({'split_request_id': new_pr.id})
+        self.message_post(body=_(
+            'Tendering lines moved to %(name)s. Submit each request separately.',
+            name=new_pr.name,
+        ))
+        new_pr.message_post(body=_(
+            'Created by splitting Tendering lines from %(name)s.',
+            name=self.name,
+        ))
+        return new_pr
+
+    def action_open_split_request(self):
+        self.ensure_one()
+        target = self.split_request_id or self.split_from_id
+        if not target:
+            raise UserError(_('This purchase request has no split sibling.'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Request'),
+            'res_model': 'zvy.purchase.request',
+            'res_id': target.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def action_reject(self):
         self.ensure_one()
@@ -331,6 +447,13 @@ class ZvyPurchaseRequest(models.Model):
         self.ensure_one()
         if self.state != 'inquiry':
             raise UserError(_('Quotes can only be submitted from Inquiry.'))
+        if (
+            self.procurement_type != 'enquiry'
+            and not self._ce_award_satisfies_inquiry()
+        ):
+            raise UserError(_(
+                'Quotes can only be submitted on Enquiry purchase requests.'
+            ))
         if self._ce_award_satisfies_inquiry():
             self._try_advance_to_quote_review()
             return True
@@ -373,6 +496,10 @@ class ZvyPurchaseRequest(models.Model):
         if self.state != 'inquiry':
             raise UserError(_(
                 'Closed envelopes can only be created while the PR is in Inquiry.'
+            ))
+        if self.procurement_type != 'tendering':
+            raise UserError(_(
+                'Closed envelopes can only be created for Tendering purchase requests.'
             ))
         if self.closed_envelope_id:
             return {

@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.6.9` |
+| Version | `18.0.1.7.0` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -38,7 +38,7 @@ zvy_tendering/
 │   ├── zvy_commission_meeting.py
 │   ├── zvy_closed_envelope.py
 │   ├── zvy_closed_envelope_bid.py
-│   ├── product_category.py          # commission flag
+│   ├── product_template.py          # enquiry/tendering + commission
 │   ├── res_company.py
 │   ├── res_config_settings.py
 │   ├── approval_request.py          # bridge hooks (refuse → CM, approve → po_ready)
@@ -47,7 +47,9 @@ zvy_tendering/
 │   ├── request_reject_wizard.py
 │   ├── request_return_wizard.py
 │   ├── request_assign_wizard.py
-│   └── ...
+│   ├── request_quote_reject_wizard.py
+│   ├── request_split_wizard.py      # mixed enquiry/tendering (FR-31)
+│   └── ce_clarification_wizard.py
 ├── security/
 │   ├── security.xml                 # category, groups, record rules
 │   └── ir.model.access.csv
@@ -68,7 +70,8 @@ zvy_tendering/
     ├── test_router.py
     ├── test_signatory_bridge.py
     ├── test_bid_seal.py
-    └── test_portal_isolation.py
+    ├── test_portal_isolation.py
+    └── test_product_split.py
 ```
 
 ### 1.3 Data load order
@@ -120,7 +123,10 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `currency_id` | Many2one | Company currency (or explicit) |
 | `amount_total` | Monetary | Computed from lines (estimate or awarded) |
 | `is_high_value` | Boolean | Computed: total ≥ company threshold (BR-3) |
-| `is_commission_item` | Boolean | Computed: any line/category commission flag (BR-4) |
+| `is_commission_item` | Boolean | Computed: any Enquiry line with product **Need Commission** (BR-4) |
+| `procurement_type` | Selection | Computed: `enquiry` / `tendering` when all lines match; empty if mixed |
+| `is_mixed_procurement` | Boolean | Computed: both Enquiry and Tendering lines present |
+| `split_from_id` / `split_request_id` | Many2one | Sibling PRs after FR-31 split |
 | `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
 | `closed_envelope_id` | Many2one | → `zvy.closed.envelope` (when CE path) |
@@ -129,11 +135,13 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `reject_reason` / `return_reason` | Text | Mandatory on reject/return |
 | `award_partner_id` | Many2one | Winning vendor when single award |
 | `quote_ids` | One2many | → `zvy.quote` |
-| `can_edit_quotes` | Boolean (compute) | `inquiry` + CM/Admin; gates the Quotes tab (experts have no PR write) |
+| `can_edit_quotes` | Boolean (compute) | `inquiry` + Enquiry + CM/Admin; gates the Quotes tab (experts have no PR write) |
 
-Key actions: `action_submit`, `action_reject`, `action_return_correction`, `action_assign_experts`, `action_approve_quotes`, `action_reject_quotes`, `_action_route_after_quotes`, `action_create_po`.
+Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_return_correction`, `action_assign_experts`, `action_approve_quotes`, `action_reject_quotes`, `_action_route_after_quotes`, `action_create_po`.
 
-**Quote submission (FR-10) is per line.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result.
+`action_submit` blocks mixed Enquiry+Tendering PRs (FR-31). UI (`zvy_ui_submit` context) opens `zvy.request.split.wizard`; RPC raises `ValidationError` and callers must invoke `action_split_mixed` then submit each PR. Split keeps Enquiry lines on the original sequence and moves Tendering lines to a new draft PR; neither is auto-submitted.
+
+**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
 
 Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_quote_minima`, `_try_advance_to_quote_review`) must read lines with `sudo`: experts can only read the lines assigned to them, so a plain `self.line_ids` raises `AccessError` on split-assignment PRs.
 
@@ -144,11 +152,12 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `request_id` | Many2one | Parent PR |
 | `request_state` | Selection (related) | `request_id.state`; drives form/list `readonly` attrs |
 | `product_id` | Many2one `product.product` | |
+| `procurement_type` | Selection (related) | Product `zvy_procurement_type` |
 | `product_uom_qty` | Float | |
 | `product_uom_id` | Many2one `uom.uom` | |
 | `price_estimate` | Monetary | Planner estimate |
 | `sole_source` | Boolean | Forces ≥1 quote; CEO in chain (FR-14) |
-| `is_commission_item` | Boolean | Line override and/or related from category |
+| `is_commission_item` | Boolean | Enquiry product **Need Commission**; computed, not planner-editable |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
@@ -264,7 +273,7 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 |-------|-----------|
 | `res.company` | `zvy_high_value_threshold` (Monetary), `zvy_default_bid_window_hours` (Integer), `zvy_signatory_approval_category_id` (Many2one `approval.category`), `zvy_sole_source_approver_ids` (Many2many `res.users`) |
 | `res.config.settings` | Related fields for settings UI |
-| `product.category` | `zvy_is_commission_item` (Boolean) |
+| `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse → PR `cm_review`; on full approve → PR `po_ready` |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
 
@@ -319,13 +328,18 @@ Branches:
 
 ```mermaid
 flowchart TD
-    PlannerCreate[Planner creates PR] --> CMReview[CM review]
+    PlannerCreate[Planner creates PR]
+    PlannerCreate --> Mixed{Enquiry and Tendering lines?}
+    Mixed -->|yes| SplitAsk[Ask planner to split]
+    SplitAsk -->|accept| TwoPRs[Enquiry PR + Tendering PR]
+    TwoPRs --> PlannerCreate
+    Mixed -->|no| CMReview[CM review]
     CMReview -->|reject| Rejected[rejected]
     CMReview -->|return| Correction[correction]
     Correction --> PlannerCreate
     CMReview -->|assign experts| Inquiry[inquiry]
-    Inquiry -->|standard quotes| QuoteReview[quote_review]
-    Inquiry -->|CE supplier list| CEList[CE list_pending]
+    Inquiry -->|Enquiry quotes| QuoteReview[quote_review]
+    Inquiry -->|Tendering CE list| CEList[CE list_pending]
     CEList -->|CM approves list| PortalOpen[CE portal_open]
     PortalOpen -->|bids then open| Award[CE awarded]
     Award --> QuoteReview
@@ -352,21 +366,23 @@ Sole source: after commission (if any), signatory category always includes CEO b
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
 | BR-2 | ≥3 quotes / ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
 | BR-3 | Configurable high-value threshold | `company_id.zvy_high_value_threshold`; `_compute_is_high_value` |
-| BR-4 | Commission items → Holding | Line flag and/or `product.category.zvy_is_commission_item` |
+| BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
 | BR-6 | PO only from `po_ready` by CM | `action_create_po` groups + state guard + award data required |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
 | BR-8 | Signatory refuse → CM | `approval.request` refuse hook → PR `cm_review` |
 | BR-9 | Reject terminal; correction editable | State machine + planner write rules |
+| BR-10 | Homogeneous procurement type | Mixed Enquiry+Tendering PRs cannot submit; FR-31 split |
 
 ### 4.2 System FR methods
 
 | FR | Behavior |
 |----|----------|
-| FR-27 | `_action_route_after_quotes`: if `is_commission_item or is_high_value` → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`, state `signatory` |
+| FR-27 | `_action_route_after_quotes`: if `is_commission_item or is_high_value` → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`, state `signatory`. `is_commission_item` comes from Enquiry product **Need Commission** (Tendering products never set it; high-value still applies). |
 | FR-28 | Block `po_ready` while linked `approval.request` not approved; no bypass for unauthorized roles |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
+| FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
 
 ---
 
@@ -436,7 +452,7 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 ### 6.4 Web service (FR-1)
 
 - External systems create/submit via XML-RPC / JSON-RPC on `zvy.purchase.request` (`create` + `action_submit`).
-- Documented field set: header (company, requester, description) + lines (product, qty, UoM, estimate, sole_source).
+- Documented field set: header (company, requester, description) + lines (product, qty, UoM, estimate). Mixed Enquiry+Tendering `action_submit` raises; call `action_split_mixed` first.
 - ACL: dedicated integration user with Planner (or API) rights.
 
 ### 6.5 Notifications
@@ -460,8 +476,9 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | FR-12..14 |
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
-| Commission on category | `product.category.zvy_is_commission_item` | BR-4 |
-| Commission / sole source on line | Line flags | BR-4 / BR-5 |
+| Commission on Enquiry product | `product.template.zvy_need_commission` | BR-4 |
+| Product procurement type | `product.template.zvy_procurement_type` | FR-1 / FR-10 / FR-11 / FR-31 |
+| Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |
 | PR sequence | `ir.sequence` | FR-1 |
 
 Expose via `res.config.settings` under a Tendering settings block.
@@ -478,7 +495,8 @@ Automated tests (PRD §7) mapped to design:
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; PR Quotes tab editable for CM/Admin only |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
-| Router | High value / commission → case; else → approval.request |
+| Router | High value / Enquiry commission → case; else → approval.request |
+| Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
 | Portal isolation | Non-invited portal user gets empty/403 |
@@ -489,7 +507,7 @@ Automated tests (PRD §7) mapped to design:
 
 | Design area | PRD |
 |-------------|-----|
-| Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25 |
+| Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
 | Routing §4 | FR-27–30; BR-1–9 |
 | Security §5 | Personas §2; NFR Security |
