@@ -114,6 +114,17 @@ class ZvyPurchaseRequestLine(models.Model):
         store=True,
     )
 
+    @api.depends('product_id', 'product_uom_qty', 'product_uom_id')
+    def _compute_display_name(self):
+        for line in self:
+            product = line.product_id.display_name or _('New')
+            qty = line.product_uom_qty
+            uom = line.product_uom_id.display_name or ''
+            if uom:
+                line.display_name = '%s (%s %s)' % (product, qty, uom)
+            else:
+                line.display_name = '%s (%s)' % (product, qty)
+
     @api.depends('price_estimate', 'product_uom_qty')
     def _compute_price_subtotal(self):
         for line in self:
@@ -259,6 +270,19 @@ class ZvyPurchaseRequestLine(models.Model):
                     product=line.product_id.display_name,
                     count=count,
                 ))
+
+    def action_view_quotes(self):
+        """Open this line’s form (details + quotes), same view as My Assignments."""
+        self.ensure_one()
+        return {
+            'name': _('Purchase Request Line'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.purchase.request.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(self.env.ref('zvy_tendering.view_zvy_purchase_request_line_form').id, 'form')],
+            'target': 'current',
+        }
 
     def _action_open_quote_shortfall_wizard(self):
         return {

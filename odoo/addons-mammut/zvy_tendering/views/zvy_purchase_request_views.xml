@@ -122,7 +122,6 @@
                                      readonly="state not in ('draft', 'correction')"/>
                             <field name="currency_id" readonly="state not in ('draft', 'correction')"/>
                             <field name="amount_total"/>
-                            <field name="can_edit_quotes" invisible="1"/>
                             <field name="approval_request_id" invisible="1"/>
                             <field name="split_request_id" invisible="1"/>
                             <field name="split_from_id" invisible="1"/>
@@ -160,6 +159,9 @@
                                     <field name="is_commission_item" readonly="1"/>
                                     <field name="expert_user_ids" widget="many2many_tags" readonly="1" optional="show"/>
                                     <field name="quote_count" optional="show"/>
+                                    <button name="action_view_quotes" type="object" string="Quotes"
+                                            icon="fa-list" class="btn-link"
+                                            invisible="procurement_type != 'enquiry'"/>
                                     <field name="quotes_submitted" optional="show"/>
                                     <field name="quote_shortfall_reason" optional="hide"/>
                                     <field name="awarded_quote_id"
@@ -223,36 +225,6 @@
                                 </form>
                             </field>
                         </page>
-                        <page string="Quotes" name="quotes"
-                              invisible="procurement_type != 'enquiry'"
-                              groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory">
-                            <div class="alert alert-info" role="alert"
-                                 invisible="can_edit_quotes or state != 'inquiry'"
-                                 groups="zvy_tendering.group_zvy_commercial_expert">
-                                Collect quotes from <b>Purchase Requests → My Assignments</b>,
-                                on the lines assigned to you.
-                            </div>
-                            <field name="quote_ids" readonly="not can_edit_quotes">
-                                <list editable="bottom">
-                                    <field name="line_id" domain="[('request_id', '=', parent.id)]"/>
-                                    <field name="allowed_partner_ids" column_invisible="1"/>
-                                    <field name="partner_id" options="{'no_create': True}"/>
-                                    <field name="price_unit"/>
-                                    <field name="amount_total"/>
-                                    <field name="currency_id" column_invisible="1"/>
-                                    <field name="expert_user_id" readonly="1"/>
-                                    <field name="state" readonly="1"/>
-                                    <field name="is_awarded" column_invisible="1"/>
-                                    <field name="request_state" column_invisible="1"/>
-                                    <button name="action_select_as_awarded" type="object"
-                                            string="Select as Awarded"
-                                            icon="fa-trophy"
-                                            class="btn-link"
-                                            invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
-                                            groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
-                                </list>
-                            </field>
-                        </page>
                     </notebook>
                 </sheet>
                 <chatter/>
@@ -310,6 +282,9 @@
                 <field name="sole_source"/>
                 <field name="expert_user_ids" widget="many2many_tags"/>
                 <field name="quote_count"/>
+                <button name="action_view_quotes" type="object" string="Quotes"
+                        icon="fa-list" class="btn-link"
+                        invisible="procurement_type != 'enquiry'"/>
                 <field name="quote_shortfall_reason" optional="hide"/>
                 <field name="request_state" column_invisible="1"/>
                 <field name="quotes_submitted" widget="boolean_toggle" readonly="1"/>

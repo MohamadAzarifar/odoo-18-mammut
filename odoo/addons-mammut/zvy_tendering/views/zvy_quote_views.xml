@@ -6,14 +6,23 @@
         <field name="arch" type="xml">
             <list>
                 <field name="request_id"/>
-                <field name="line_id"/>
-                <field name="partner_id"/>
+                <field name="line_id" column_invisible="context.get('zvy_quote_from_line')"/>
+                <field name="allowed_partner_ids" column_invisible="1"/>
+                <field name="partner_id" options="{'no_create': True}"/>
                 <field name="price_unit"/>
                 <field name="amount_total"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="expert_user_id"/>
                 <field name="state" widget="badge"/>
+                <field name="is_awarded" column_invisible="1"/>
+                <field name="request_state" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <button name="action_select_as_awarded" type="object"
+                        string="Select as Awarded"
+                        icon="fa-trophy"
+                        class="btn-link"
+                        invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                        groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
             </list>
         </field>
     </record>

@@ -322,7 +322,7 @@ Track throughout (PRD §7):
 |-------|--------|-------|
 | 0 Foundation | Done | Module shell, groups, settings, PR sequence, AVL + foundation tests |
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
-| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents, PR Quotes tab CM-only (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`); fewer than 3 quotes allowed with a stored shortfall reason (`18.0.1.8.0`) |
+| 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`); fewer than 3 quotes allowed with a stored shortfall reason (`18.0.1.8.0`); PR Quotes tab replaced by a per-line Quotes button |
 | 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
 | 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |

@@ -81,24 +81,32 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         with self.assertRaises(UserError):
             line.write({'product_uom_qty': 5.0})
 
-    def test_quote_set_on_request_editable_by_cm_only(self):
+    def test_cm_adds_quote_through_line(self):
+        """CM records quotes from the line in inquiry; PR header stays locked."""
         pr = self._submit_and_assign(experts=self.user_cce)
-        self.assertFalse(pr.with_user(self.user_cce).can_edit_quotes)
-
-        cm_pr = pr.with_user(self.user_cm).with_company(self.company_a)
-        self.assertTrue(cm_pr.can_edit_quotes)
-        cm_pr.write({
+        line = pr.line_ids[0].with_user(self.user_cm).with_company(self.company_a)
+        line.write({
             'quote_ids': [(0, 0, {
-                'line_id': pr.line_ids[0].id,
                 'partner_id': self.partner_a.id,
                 'price_unit': 20.0,
             })],
         })
         self.assertEqual(len(pr.quote_ids), 1)
 
-        # Header content on the PR is still locked outside draft/correction.
         with self.assertRaises(UserError):
-            cm_pr.write({'description': 'changed'})
+            pr.with_user(self.user_cm).with_company(self.company_a).write(
+                {'description': 'changed'}
+            )
+
+    def test_action_view_quotes_opens_line_quotes(self):
+        pr = self._submit_and_assign(experts=self.user_cce)
+        line = pr.line_ids[0]
+        action = line.action_view_quotes()
+        form_view = self.env.ref('zvy_tendering.view_zvy_purchase_request_line_form')
+        self.assertEqual(action['res_model'], 'zvy.purchase.request.line')
+        self.assertEqual(action['res_id'], line.id)
+        self.assertEqual(action['view_mode'], 'form')
+        self.assertEqual(action['views'], [(form_view.id, 'form')])
 
     def test_quote_vendor_selection_limited_to_avl(self):
         pr = self._submit_and_assign()

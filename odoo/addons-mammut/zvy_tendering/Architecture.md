@@ -135,8 +135,7 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `purchase_order_ids` | One2many / Many2many | Created POs |
 | `reject_reason` / `return_reason` | Text | Mandatory on reject/return |
 | `award_partner_id` | Many2one | Winning vendor when single award |
-| `quote_ids` | One2many | → `zvy.quote` |
-| `can_edit_quotes` | Boolean (compute) | `inquiry` + Enquiry + CM/Admin; gates the Quotes tab (experts have no PR write) |
+| `quote_ids` | One2many | → `zvy.quote` (aggregation; not shown as a PR notebook tab) |
 
 Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_return_correction`, `action_assign_experts`, `action_approve_quotes`, `action_reject_quotes`, `_action_route_after_quotes`, `action_create_po`.
 
@@ -160,10 +159,14 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `sole_source` | Boolean | Forces ≥1 quote; CEO in chain (FR-14) |
 | `is_commission_item` | Boolean | Enquiry product **Need Commission**; computed, not planner-editable |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
+| `quote_ids` | One2many | → `zvy.quote`; collected on the line form (My Assignments) |
+| `quote_count` | Integer (compute) | Number of quotes on the line |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
 | `quote_shortfall_reason` | Text | Required to submit 1–2 quotes on a non-sole-source line; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
 | `awarded_partner_id` | Many2one | Related from awarded quote |
+
+`action_view_quotes` (button on the PR Lines list and My Assignments) opens the standalone line form (`view_zvy_purchase_request_line_form`) — line details plus the Quotes notebook — the same view Commercial Experts see from My Assignments. Do not reuse the My Assignments window action (its domain is “assigned to me”). Line `display_name` is product + qty so remaining `line_id` fields (quote form) are readable.
 
 **Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
@@ -186,7 +189,7 @@ Expert-collected offer (standard inquiry path).
 | `expert_user_id` | Many2one | Who recorded it; default `env.user`; readonly (system-set) |
 | `state` | Selection | e.g. `draft`, `submitted`, `accepted`, `rejected`; readonly — advanced only by workflow actions (`sudo`) |
 
-**Editability:** `_check_can_edit` allows create/write/unlink only while PR is `inquiry` (and, for non-CM/Admin, only on lines assigned to the user). Views grey out quote fields when `request_state != 'inquiry'` (standalone quote form and Quotes one2many on PR / line). `expert_user_id` and `state` are field- and view-readonly; create forces them to the current user / `draft`, and non-`sudo` writes to those keys raise — workflow actions (`Submit Quotes`, approve/reject) advance `state` via `sudo`.
+**Editability:** `_check_can_edit` allows create/write/unlink only while PR is `inquiry` (and, for non-CM/Admin, only on lines assigned to the user). Views grey out quote fields when `request_state != 'inquiry'` (standalone quote form and Quotes one2many on the line). `expert_user_id` and `state` are field- and view-readonly; create forces them to the current user / `draft`, and non-`sudo` writes to those keys raise — workflow actions (`Submit Quotes`, approve/reject) advance `state` via `sudo`.
 
 #### `zvy.avl.entry`
 
@@ -203,7 +206,7 @@ Approved Vendor List maintained in Odoo (no external sync).
 
 Domain helper: `_avl_partner_domain(company, product=None, categ=None)` used by quote and CE invite fields.
 
-Computed fields that read `self.env.user` (`allowed_partner_ids`, `can_edit_quotes`) must declare `depends_context=('uid', ...)`; without it the cache serves the first user’s value to everyone in the same transaction.
+Computed fields that read `self.env.user` (`allowed_partner_ids`) must declare `depends_context=('uid', ...)`; without it the cache serves the first user’s value to everyone in the same transaction.
 
 Vendor pickers must never be filtered by an `onchange`-returned domain (unsupported since Odoo 17 — it silently lists every contact). Each model exposes a non-stored computed `allowed_partner_ids` and the vendor field declares `domain="[('id', 'in', allowed_partner_ids)]"`: `zvy.quote` scopes by line company/product/category, `zvy.closed.envelope` by company. Views that let a vendor be picked must load the helper field (`invisible="1"` / `column_invisible="1"`). Server-side `_check_avl` / `_check_invite_avl` reuse the same helper so UI and validation cannot drift.
 
@@ -416,7 +419,7 @@ Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager +
 |-------|----------------|
 | Multi-company | `company_id in company_ids` (or False) on all company-scoped models |
 | Planner | Own PRs (`requester_id = user`) |
-| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL, so the PR Quotes tab is read-only for them); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
+| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
 | Commercial Manager | All company PRs |
 | Signatory | PRs (and lines/quotes/linked commission case & CE) where `user` is on `approval_request_id.approver_ids`; **read-only** (no write/create/unlink). Also read-only AVL (form computes sole_source / quote allowed vendors). |
 | Commission Expert | Cases where `user in expert_user_ids` |
@@ -495,7 +498,7 @@ Automated tests (PRD §7) mapped to design:
 |------|--------|
 | Quote minima | Standard line blocks submit with &lt;3 quotes unless `quote_shortfall_reason` is set (still ≥1); sole source allows 1 |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
-| Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; PR Quotes tab editable for CM/Admin only |
+| Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
 | Router | High value / Enquiry commission → case; else → approval.request |
 | Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |

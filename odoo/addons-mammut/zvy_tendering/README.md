@@ -842,7 +842,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As assigned Expert → **My Assignments** → open a line → **Quotes** → add a quote and save | Quote saves while the PR is in `inquiry`; vendor dropdown lists **only** active AVL vendors for the company (+ product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
-| 1b | As the same Expert, open the PR → **Quotes** tab | Read-only, with a hint pointing to My Assignments (experts cannot write the PR); as CM the same tab is editable in `inquiry` |
+| 1b | As CM (or Expert), open the PR → Lines → **Quotes** on a line | Opens the same line form as My Assignments (product, qty, experts, Quotes notebook). Experts still collect from My Assignments; CM can add quotes in `inquiry` and **Select as Awarded** in quote review |
 | 2 | Try to save a quote with a non-AVL vendor (e.g. via RPC or forced partner) | Validation error: vendor not on active AVL |
 | 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total; **Recorded By** = current Expert (read-only); **State** = Draft (read-only, advanced by Submit Quotes / CM actions) |
 

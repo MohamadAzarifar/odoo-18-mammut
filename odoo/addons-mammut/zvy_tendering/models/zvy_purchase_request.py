@@ -176,13 +176,6 @@ class ZvyPurchaseRequest(models.Model):
         readonly=True,
         help='Tendering request created by splitting mixed lines off this request.',
     )
-    can_edit_quotes = fields.Boolean(
-        string='Can Edit Quotes Here',
-        compute='_compute_can_edit_quotes',
-        depends_context=('uid',),
-        help='Experts collect quotes from their assigned lines; only CM/Admin may '
-             'edit the quote set on the request itself (they alone can write the PR).',
-    )
     reject_reason = fields.Text(copy=False)
     return_reason = fields.Text(copy=False)
     quote_reject_reason = fields.Text(copy=False)
@@ -216,17 +209,6 @@ class ZvyPurchaseRequest(models.Model):
             types = {line.procurement_type for line in request.line_ids if line.procurement_type}
             request.is_mixed_procurement = len(types) > 1
             request.procurement_type = types.pop() if len(types) == 1 else False
-
-    @api.depends('state', 'procurement_type')
-    def _compute_can_edit_quotes(self):
-        is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
-        is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
-        for request in self:
-            request.can_edit_quotes = (
-                request.state == 'inquiry'
-                and request.procurement_type == 'enquiry'
-                and (is_cm or is_admin)
-            )
 
     @api.model_create_multi
     def create(self, vals_list):
