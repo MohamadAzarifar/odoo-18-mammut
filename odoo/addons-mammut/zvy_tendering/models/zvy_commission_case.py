@@ -22,6 +22,7 @@ class ZvyCommissionCase(models.Model):
         'zvy.purchase.request',
         string='Purchase Request',
         required=True,
+        readonly=True,
         ondelete='restrict',
         index=True,
         tracking=True,
