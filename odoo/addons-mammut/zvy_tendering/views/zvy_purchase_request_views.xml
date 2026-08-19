@@ -82,7 +82,8 @@
                          groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
                         Use <b>Select as Awarded</b> on each line’s winning quote
                         (or set <b>Awarded Quote</b>), then click <b>Approve Quotes</b>
-                        (or <b>Reject Quotes</b>) in the header.
+                        (or <b>Reject Quotes</b>) in the header. Awarding a quote
+                        that is not the lowest price requires a written reason.
                     </div>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_approval_request" type="object"
@@ -164,6 +165,7 @@
                                             invisible="procurement_type != 'enquiry'"/>
                                     <field name="quotes_submitted" optional="show"/>
                                     <field name="quote_shortfall_reason" optional="hide"/>
+                                    <field name="award_not_lowest_reason" optional="hide"/>
                                     <field name="awarded_quote_id"
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
                                               readonly="parent.state != 'quote_review'"
@@ -194,6 +196,9 @@
                                             <field name="awarded_partner_id" readonly="1"/>
                                             <field name="quote_shortfall_reason" readonly="1"
                                                    invisible="not quote_shortfall_reason"/>
+                                            <field name="award_not_lowest_reason"
+                                                      readonly="request_state != 'quote_review'"
+                                                      groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                             <field name="request_state" invisible="1"/>
                                         </group>
                                     </group>
@@ -217,6 +222,7 @@
                                                             icon="fa-trophy"
                                                             class="btn-link"
                                                             invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                                                            context="{'zvy_ui_award': True}"
                                                             groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                                 </list>
                                             </field>
@@ -340,6 +346,9 @@
                                     groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                             <field name="quote_shortfall_reason" readonly="1"
                                    invisible="not quote_shortfall_reason"/>
+                            <field name="award_not_lowest_reason"
+                                    readonly="request_state != 'quote_review'"
+                                    groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                         </group>
                     </group>
                     <notebook>
@@ -362,6 +371,7 @@
                                             icon="fa-trophy"
                                             class="btn-link"
                                             invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                                            context="{'zvy_ui_award': True}"
                                             groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
                                 </list>
                             </field>

@@ -529,6 +529,16 @@ class ZvyPurchaseRequest(models.Model):
                     'Select an awarded quote on every line before approving. '
                     'Missing: %s'
                 ) % ', '.join(missing.mapped('product_id.display_name')))
+            unjustified = self.sudo().line_ids.filtered(
+                lambda l: l.awarded_quote_id
+                and not l._quote_is_lowest_price(l.awarded_quote_id)
+                and not (l.award_not_lowest_reason or '').strip()
+            )
+            if unjustified:
+                raise ValidationError(_(
+                    'A reason is required when awarding a quote that is not '
+                    'the lowest price. Missing: %s'
+                ) % ', '.join(unjustified.mapped('product_id.display_name')))
             for line in self.sudo().line_ids:
                 awarded = line.awarded_quote_id
                 awarded.sudo().write({'state': 'accepted'})

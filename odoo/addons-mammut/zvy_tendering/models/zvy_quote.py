@@ -247,6 +247,16 @@ class ZvyQuote(models.Model):
                 'Only submitted quotes can be selected as awarded.'
             ))
         line = self.line_id.sudo()
+        ctx_reason = (self.env.context.get('zvy_award_not_lowest_reason') or '').strip()
+        if not line._quote_is_lowest_price(self):
+            effective = ctx_reason or (line.award_not_lowest_reason or '').strip()
+            if not effective:
+                if self.env.context.get('zvy_ui_award'):
+                    return self._action_open_award_not_lowest_wizard()
+                raise ValidationError(_(
+                    'A reason is required when awarding a quote that is not '
+                    'the lowest price on %s.'
+                ) % line.product_id.display_name)
         # Allow changing the winner: restore previously rejected quotes first.
         (line.quote_ids - self).filtered(
             lambda q: q.state == 'rejected'
@@ -257,11 +267,37 @@ class ZvyQuote(models.Model):
         siblings.sudo().write({'state': 'rejected'})
         if self.state != 'submitted':
             self.sudo().write({'state': 'submitted'})
-        line.write({'awarded_quote_id': self.id})
-        self.request_id.message_post(body=_(
-            'Awarded quote selected for %(product)s: %(vendor)s.'
-        ) % {
-            'product': line.product_id.display_name,
-            'vendor': self.partner_id.display_name,
-        })
+        line_vals = {'awarded_quote_id': self.id}
+        if line._quote_is_lowest_price(self):
+            line_vals['award_not_lowest_reason'] = False
+        elif ctx_reason:
+            line_vals['award_not_lowest_reason'] = ctx_reason
+        line.write(line_vals)
+        reason = (line.award_not_lowest_reason or '').strip()
+        if reason:
+            body = _(
+                'Awarded quote selected for %(product)s: %(vendor)s.\n'
+                'Reason (not lowest price): %(reason)s'
+            ) % {
+                'product': line.product_id.display_name,
+                'vendor': self.partner_id.display_name,
+                'reason': reason,
+            }
+        else:
+            body = _('Awarded quote selected for %(product)s: %(vendor)s.') % {
+                'product': line.product_id.display_name,
+                'vendor': self.partner_id.display_name,
+            }
+        self.request_id.message_post(body=body)
         return True
+
+    def _action_open_award_not_lowest_wizard(self):
+        self.ensure_one()
+        return {
+            'name': _('Not the Lowest Price'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.award.not.lowest.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_quote_id': self.id},
+        }

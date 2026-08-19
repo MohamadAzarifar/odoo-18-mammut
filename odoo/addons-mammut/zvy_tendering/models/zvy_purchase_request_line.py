@@ -113,6 +113,12 @@ class ZvyPurchaseRequestLine(models.Model):
         related='awarded_quote_id.partner_id',
         store=True,
     )
+    award_not_lowest_reason = fields.Text(
+        string='Not Lowest Price Reason',
+        copy=False,
+        help='Required when the awarded quote is not the lowest unit price '
+             'among non-draft quotes on this line.',
+    )
 
     @api.depends('product_id', 'product_uom_qty', 'product_uom_id')
     def _compute_display_name(self):
@@ -192,6 +198,7 @@ class ZvyPurchaseRequestLine(models.Model):
             # Awarded quote is set by CM/Admin during quote review.
             content_keys = set(vals) - {
                 'expert_user_ids', 'quote_ids', 'awarded_quote_id',
+                'award_not_lowest_reason',
             }
             if content_keys:
                 locked = self.filtered(
@@ -213,15 +220,56 @@ class ZvyPurchaseRequestLine(models.Model):
                     raise UserError(_(
                         'Awarded quotes can only be set during Quote Review.'
                     ))
+            if 'award_not_lowest_reason' in vals:
+                if not (is_cm or is_admin):
+                    raise UserError(_(
+                        'Only Commercial Managers can set the not-lowest-price reason.'
+                    ))
             if 'expert_user_ids' in vals:
                 if not (is_cm or is_admin):
                     raise UserError(_(
                         'Only Commercial Managers can assign experts to lines.'
                     ))
+        if 'awarded_quote_id' in vals:
+            self._prepare_awarded_quote_vals(vals)
         res = super().write(vals)
         if 'awarded_quote_id' in vals:
             self._check_awarded_quote()
         return res
+
+    def _prepare_awarded_quote_vals(self, vals):
+        """Require or clear award_not_lowest_reason when setting the winner."""
+        quote = self.env['zvy.quote'].browse(vals.get('awarded_quote_id') or [])
+        if not quote:
+            vals['award_not_lowest_reason'] = False
+            return
+        for line in self:
+            if quote.line_id != line:
+                continue
+            if line._quote_is_lowest_price(quote):
+                vals['award_not_lowest_reason'] = False
+                return
+            reason = vals.get('award_not_lowest_reason')
+            if reason is None:
+                reason = line.award_not_lowest_reason
+            if not (reason or '').strip():
+                raise ValidationError(_(
+                    'A reason is required when awarding a quote that is not '
+                    'the lowest price on %s.'
+                ) % line.product_id.display_name)
+            return
+
+    def _comparable_quotes(self):
+        """Non-draft quotes on this line (includes rejected, so a later award still compares)."""
+        self.ensure_one()
+        return self.quote_ids.filtered(lambda q: q.state != 'draft')
+
+    def _quote_is_lowest_price(self, quote):
+        self.ensure_one()
+        comparable = self._comparable_quotes()
+        if not comparable:
+            return True
+        return quote.price_unit <= min(comparable.mapped('price_unit'))
 
     def _check_awarded_quote(self):
         for line in self:
@@ -236,6 +284,14 @@ class ZvyPurchaseRequestLine(models.Model):
                 raise ValidationError(_(
                     'Awarded quote must be submitted or accepted.'
                 ))
+            if (
+                not line._quote_is_lowest_price(quote)
+                and not (line.award_not_lowest_reason or '').strip()
+            ):
+                raise ValidationError(_(
+                    'A reason is required when awarding a quote that is not '
+                    'the lowest price on %s.'
+                ) % line.product_id.display_name)
 
     def _live_quote_count(self):
         self.ensure_one()

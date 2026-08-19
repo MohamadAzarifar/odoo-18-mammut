@@ -872,7 +872,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | Ensure company **high-value threshold** is above the PR total; lines are **not** commission items | Routing flags: not high value, not commission item |
 | 2 | Bring a PR through inquiry with valid quote minima → `quote_review` | Ready for CM |
 | 3 | As CM → **Purchase Requests → Quote Review** → open the PR | Status is `quote_review`; header shows **Approve Quotes** / **Reject Quotes**; info banner explains the steps |
-| 4 | On each line’s **Quotes**, click **Select as Awarded** on the winning vendor (or set **Awarded Quote** many2one — shows vendor name + price, no Create) | Awarded quote set; other quotes on that line → `rejected`; chatter notes the selection |
+| 4 | On each line’s **Quotes**, click **Select as Awarded** on the winning vendor (or set **Awarded Quote** many2one — shows vendor name + price, no Create) | Awarded quote set; other quotes on that line → `rejected`; chatter notes the selection. If the selected unit price is **not** the lowest among quotes on that line, a reason is required (wizard from **Select as Awarded**; RPC / many2one without a reason raises) |
 | 5 | Click header **Approve Quotes** | Winning quote → `accepted`; state → `signatory`; linked sequential `approval.request` created; chatter notes routing |
 | 6 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
 

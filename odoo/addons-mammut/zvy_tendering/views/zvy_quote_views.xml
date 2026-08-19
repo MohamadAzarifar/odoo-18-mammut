@@ -22,6 +22,7 @@
                         icon="fa-trophy"
                         class="btn-link"
                         invisible="request_state != 'quote_review' or state not in ('submitted', 'rejected') or is_awarded"
+                        context="{'zvy_ui_award': True}"
                         groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin"/>
             </list>
         </field>

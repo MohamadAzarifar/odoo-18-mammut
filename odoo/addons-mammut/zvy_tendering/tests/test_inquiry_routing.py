@@ -455,14 +455,63 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertEqual(line.awarded_quote_id, first)
         self.assertEqual(first.state, 'submitted')
         self.assertTrue(first.is_awarded)
+        self.assertFalse(line.award_not_lowest_reason)
         siblings = quotes - first
         self.assertTrue(all(q.state == 'rejected' for q in siblings))
 
-        second.with_user(self.user_cm).action_select_as_awarded()
+        with self.assertRaises(ValidationError):
+            second.with_user(self.user_cm).action_select_as_awarded()
+
+        second.with_user(self.user_cm).with_context(
+            zvy_award_not_lowest_reason='Better quality',
+        ).action_select_as_awarded()
         self.assertEqual(line.awarded_quote_id, second)
         self.assertEqual(second.state, 'submitted')
         self.assertEqual(first.state, 'rejected')
         self.assertFalse(first.is_awarded)
+        self.assertEqual(line.award_not_lowest_reason, 'Better quality')
 
         with self.assertRaises(UserError):
             first.with_user(self.user_planner).action_select_as_awarded()
+
+    def test_award_not_lowest_requires_reason_on_write_and_ui(self):
+        self.company_a.zvy_high_value_threshold = 100000.0
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        line = pr.line_ids[:1]
+        quotes = line.quote_ids.filtered(lambda q: q.state == 'submitted').sorted(
+            'price_unit'
+        )
+        lowest, higher = quotes[0], quotes[1]
+        self.assertGreater(higher.price_unit, lowest.price_unit)
+
+        with self.assertRaises(ValidationError):
+            line.with_user(self.user_cm).write({'awarded_quote_id': higher.id})
+
+        line.with_user(self.user_cm).write({
+            'awarded_quote_id': higher.id,
+            'award_not_lowest_reason': 'Shorter lead time',
+        })
+        self.assertEqual(line.awarded_quote_id, higher)
+        self.assertEqual(line.award_not_lowest_reason, 'Shorter lead time')
+
+        line.with_user(self.user_cm).write({'awarded_quote_id': lowest.id})
+        self.assertEqual(line.awarded_quote_id, lowest)
+        self.assertFalse(line.award_not_lowest_reason)
+
+        action = higher.with_user(self.user_cm).with_context(
+            zvy_ui_award=True,
+        ).action_select_as_awarded()
+        self.assertEqual(action['type'], 'ir.actions.act_window')
+        self.assertEqual(action['res_model'], 'zvy.request.award.not.lowest.wizard')
+
+        wizard = self.env['zvy.request.award.not.lowest.wizard'].with_user(
+            self.user_cm
+        ).create({
+            'quote_id': higher.id,
+            'reason': 'Better warranty',
+        })
+        wizard.action_confirm()
+        self.assertEqual(line.awarded_quote_id, higher)
+        self.assertEqual(line.award_not_lowest_reason, 'Better warranty')

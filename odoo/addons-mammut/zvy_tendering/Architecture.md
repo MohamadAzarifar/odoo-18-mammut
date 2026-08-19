@@ -49,6 +49,7 @@ zvy_tendering/
 │   ├── request_assign_wizard.py
 │   ├── request_quote_reject_wizard.py
 │   ├── request_quote_shortfall_wizard.py  # <3 quotes justification (FR-10)
+│   ├── request_award_not_lowest_wizard.py  # non-lowest award reason
 │   ├── request_split_wizard.py      # mixed enquiry/tendering (FR-31)
 │   └── ce_clarification_wizard.py
 ├── security/
@@ -165,12 +166,15 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `quote_shortfall_reason` | Text | Required to submit 1–2 quotes on a non-sole-source line; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
 | `awarded_partner_id` | Many2one | Related from awarded quote |
+| `award_not_lowest_reason` | Text | Required when the awarded quote’s `price_unit` is not the lowest among non-draft quotes on the line; set by the not-lowest wizard or with the many2one write |
 
 `action_view_quotes` (button on the PR Lines list and My Assignments) opens the standalone line form (`view_zvy_purchase_request_line_form`) — line details plus the Quotes notebook — the same view Commercial Experts see from My Assignments. Do not reuse the My Assignments window action (its domain is “assigned to me”). Line `display_name` is product + qty so remaining `line_id` fields (quote form) are readable.
 
 **Editability:** content fields (product, qty, UoM, estimate, flags) may be written only when parent PR is `draft` or `correction` (`write` raises otherwise). `expert_user_ids` is CM/Admin-only on write. Views mirror this with `readonly="request_state not in ('draft', 'correction')"` on the standalone line form and `readonly` on the PR form’s `line_ids` when not intake-editable; `expert_user_ids` is UI-readonly (assignment only via wizard).
 
 `quote_ids` and `line_ids` are **exempt** from the parent PR content lock: saving a quote or setting `awarded_quote_id` in a one2many issues a `write` on the parent while inquiry / quote review has the header locked. Editability is delegated to `zvy.quote._check_can_edit` and `zvy.purchase.request.line.write` (state + role), so the parent lock must not double-guard those one2manys.
+
+**Non-lowest award:** if the awarded quote’s `price_unit` is greater than the minimum among non-draft quotes on the line (including previously rejected ones), `award_not_lowest_reason` is required. UI **Select as Awarded** (`zvy_ui_award`) opens `zvy.request.award.not.lowest.wizard`; RPC / many2one write without a reason raises `ValidationError`. Awarding the lowest (or a tie) clears the reason. `action_approve_quotes` repeats the check.
 
 #### `zvy.quote`
 
@@ -499,6 +503,7 @@ Automated tests (PRD §7) mapped to design:
 | Quote minima | Standard line blocks submit with &lt;3 quotes unless `quote_shortfall_reason` is set (still ≥1); sole source allows 1 |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
+| Non-lowest award | Awarding a quote with `price_unit` above the line minimum requires `award_not_lowest_reason`; UI opens the wizard; lowest award needs no reason |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
 | Router | High value / Enquiry commission → case; else → approval.request |
 | Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |
