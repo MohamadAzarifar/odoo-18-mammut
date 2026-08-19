@@ -65,8 +65,7 @@
                     </group>
                     <group>
                         <field name="expert_user_ids" widget="many2many_tags"
-                                  readonly="state in ('approved', 'rejected', 'corrections')"
-                                  options="{'no_create': True}"/>
+                                  readonly="1"/>
                     </group>
                     <notebook>
                         <page string="Reviews" name="reviews">

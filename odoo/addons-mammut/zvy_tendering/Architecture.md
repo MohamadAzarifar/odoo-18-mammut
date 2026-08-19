@@ -47,6 +47,7 @@ zvy_tendering/
 │   ├── request_reject_wizard.py
 │   ├── request_return_wizard.py
 │   ├── request_assign_wizard.py
+│   ├── commission_assign_wizard.py  # assign Commission Experts (FR-16)
 │   ├── request_quote_reject_wizard.py
 │   ├── request_quote_shortfall_wizard.py  # <3 quotes justification (FR-10)
 │   ├── request_award_not_lowest_wizard.py  # non-lowest award reason
@@ -222,7 +223,7 @@ Vendor pickers must never be filtered by an `onchange`-returned domain (unsuppor
 | `name` | Char | Sequence or related PR name |
 | `state` | Selection | e.g. `open`, `in_review`, `meeting`, `approved`, `rejected`, `corrections` |
 | `reason_high_value` / `reason_commission_item` | Boolean | Why routed |
-| `expert_user_ids` | Many2many | Assigned Commission Experts |
+| `expert_user_ids` | Many2many | Assigned Commission Experts (FR-16); set via Assign Experts wizard; UI-readonly |
 | `review_ids` | One2many | → `zvy.commission.review` |
 | `meeting_id` | Many2one | Optional linked meeting |
 | `manager_decision` | Selection | approve / reject / corrections |

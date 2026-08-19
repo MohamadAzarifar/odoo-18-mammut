@@ -891,8 +891,10 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As Commission Manager → **Commission → Cases** | High-value / commission-item cases from MT-2.7 appear |
-| 2 | Open a case; set Commission Experts; **Assign Experts** | State → `in_review`; draft reviews created; experts get activities |
-| 3 | As Commission Expert → **My Assignments** / **My Reviews** | Only assigned case/review visible |
+| 2 | Open a case → **Assign Experts** | Wizard asks for Commission Experts (pre-filled if already assigned) |
+| 3 | Leave experts blank and confirm | Validation: at least one Commission Expert required |
+| 4 | Assign one or more Experts; confirm | State → `in_review`; draft reviews created; experts get activities; case `expert_user_ids` set (form field is read-only) |
+| 5 | As Commission Expert → **My Assignments** / **My Reviews** | Only assigned case/review visible |
 
 #### MT-3.2 Expert review & approve without meeting (FR-17 / FR-22 / FR-23)
 

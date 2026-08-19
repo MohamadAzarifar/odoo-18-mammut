@@ -25,8 +25,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
     def test_approve_without_meeting_when_all_approve(self):
         pr, case = self._route_to_commission()
         case = case.with_user(self.user_comm_mgr)
-        case.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
-        case.action_assign_experts()
+        case._action_assign_experts([self.user_comm_exp.id])
         self.assertEqual(case.state, 'in_review')
         review = case.review_ids[0]
         review.with_user(self.user_comm_exp).write({
@@ -44,8 +43,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
     def test_approve_without_meeting_blocked_if_not_all_approve(self):
         pr, case = self._route_to_commission()
         case = case.with_user(self.user_comm_mgr)
-        case.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
-        case.action_assign_experts()
+        case._action_assign_experts([self.user_comm_exp.id])
         review = case.review_ids[0]
         review.with_user(self.user_comm_exp).write({
             'recommendation': 'request_corrections',
@@ -58,11 +56,35 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
     def test_corrections_returns_to_quote_review(self):
         pr, case = self._route_to_commission()
         case = case.with_user(self.user_comm_mgr)
-        case.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
-        case.action_assign_experts()
+        case._action_assign_experts([self.user_comm_exp.id])
         case.action_manager_corrections()
         self.assertEqual(case.state, 'corrections')
         self.assertEqual(pr.state, 'quote_review')
+
+    def test_assign_experts_wizard(self):
+        _pr, case = self._route_to_commission()
+        case = case.with_user(self.user_comm_mgr)
+        action = case.action_assign_experts()
+        self.assertEqual(action['res_model'], 'zvy.commission.assign.wizard')
+        self.assertEqual(action['target'], 'new')
+        self.assertEqual(action['context']['default_case_id'], case.id)
+
+        wizard = self.env['zvy.commission.assign.wizard'].with_user(
+            self.user_comm_mgr
+        ).create({'case_id': case.id})
+        self.assertEqual(wizard.case_id, case)
+        self.assertFalse(wizard.expert_user_ids)
+        with self.assertRaises(ValidationError):
+            wizard.action_confirm()
+
+        wizard.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
+        wizard.action_confirm()
+        self.assertEqual(case.state, 'in_review')
+        self.assertEqual(case.expert_user_ids, self.user_comm_exp)
+        self.assertEqual(case.review_ids.expert_user_id, self.user_comm_exp)
+        self.assertTrue(case.activity_ids.filtered(
+            lambda a: a.user_id == self.user_comm_exp
+        ))
 
     def _create_ce_pending(self):
         pr = self._submit_and_assign(pr=self._create_draft_pr(line_vals=[{

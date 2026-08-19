@@ -115,8 +115,7 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         pr.with_user(self.user_cm).action_approve_quotes()
         self.assertEqual(pr.state, 'commission')
         case = pr.commission_case_id.with_user(self.user_comm_mgr)
-        case.write({'expert_user_ids': [(6, 0, [self.user_comm_exp.id])]})
-        case.action_assign_experts()
+        case._action_assign_experts([self.user_comm_exp.id])
         review = case.review_ids[0]
         review.with_user(self.user_comm_exp).write({
             'recommendation': 'approve',

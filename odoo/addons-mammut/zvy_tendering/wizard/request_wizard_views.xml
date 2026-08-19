@@ -57,6 +57,23 @@
         </field>
     </record>
 
+    <record id="view_zvy_commission_assign_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.commission.assign.wizard.form</field>
+        <field name="model">zvy.commission.assign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Commission Experts">
+                <group>
+                    <field name="case_id" invisible="1"/>
+                    <field name="expert_user_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Assign Experts" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_zvy_request_quote_reject_wizard_form" model="ir.ui.view">
         <field name="name">zvy.request.quote.reject.wizard.form</field>
         <field name="model">zvy.request.quote.reject.wizard</field>

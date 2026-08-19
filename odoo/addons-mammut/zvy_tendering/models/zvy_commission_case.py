@@ -100,10 +100,31 @@ class ZvyCommissionCase(models.Model):
             raise UserError(_(
                 'Experts can only be assigned on open, in-review, or meeting cases.'
             ))
-        if not self.expert_user_ids:
+        return {
+            'name': _('Assign Commission Experts'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.commission.assign.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_case_id': self.id},
+        }
+
+    def _action_assign_experts(self, expert_ids):
+        """Assign commission experts, create missing reviews, and start review.
+
+        :param expert_ids: list of res.users ids
+        """
+        self.ensure_one()
+        self._ensure_manager()
+        if self.state not in ('open', 'in_review', 'meeting'):
+            raise UserError(_(
+                'Experts can only be assigned on open, in-review, or meeting cases.'
+            ))
+        if not expert_ids:
             raise ValidationError(_(
                 'Select at least one Commission Expert before assigning.'
             ))
+        self.write({'expert_user_ids': [(6, 0, expert_ids)]})
         Review = self.env['zvy.commission.review'].sudo()
         existing = {r.expert_user_id.id for r in self.review_ids}
         for expert in self.expert_user_ids:
