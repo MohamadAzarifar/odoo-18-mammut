@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
 
@@ -528,3 +531,105 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         wizard.action_confirm()
         self.assertEqual(line.awarded_quote_id, higher)
         self.assertEqual(line.award_not_lowest_reason, 'Better warranty')
+
+    def test_priced_quote_computes_total_unpriced_excluded(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+        priced = Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        self.assertEqual(priced.amount_total, 10.0 * line.product_uom_qty)
+        self.assertTrue(priced.is_valid_inquiry)
+
+        with self.assertRaises(ValidationError):
+            Quote.create({
+                'line_id': line.id,
+                'partner_id': self.partner_b.id,
+                'price_unit': 0.0,
+            })
+
+        unpriced = Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_b.id,
+            'price_unit': 0.0,
+            'comments': 'Waiting on written offer',
+        })
+        self.assertEqual(unpriced.amount_total, 0.0)
+        self.assertFalse(unpriced.is_valid_inquiry)
+        self.assertEqual(line._valid_inquiry_count(), 1)
+
+    def test_quote_contact_defaults_from_vendor_and_stays_editable(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        quote = Quote.create({
+            'line_id': pr.line_ids[0].id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        self.assertEqual(quote.contact_name, self.partner_a.name)
+        self.assertEqual(quote.contact_phone, self.partner_a.phone)
+        quote.write({
+            'contact_name': 'Plant buyer',
+            'contact_phone': '+98 21 9999',
+        })
+        self.assertEqual(quote.contact_name, 'Plant buyer')
+        self.assertEqual(quote.contact_phone, '+98 21 9999')
+
+    def test_last_purchase_from_confirmed_po(self):
+        po = self._create_confirmed_po(price=42.5)
+        pr = self._create_draft_pr()
+        line = pr.line_ids[0]
+        self.assertEqual(line.last_vendor_id, self.partner_a)
+        self.assertAlmostEqual(line.last_price, 42.5)
+        self.assertTrue(line.last_purchase_date)
+        expected = fields.Date.to_date(po.date_approve or po.date_order)
+        self.assertEqual(line.last_purchase_date, expected)
+
+    def test_last_purchase_empty_without_history(self):
+        pr = self._create_draft_pr()
+        line = pr.line_ids[0]
+        self.assertFalse(line.last_vendor_id)
+        self.assertFalse(line.last_price)
+        self.assertFalse(line.last_purchase_date)
+
+    def test_stale_quote_does_not_satisfy_minima(self):
+        pr = self._submit_and_assign()
+        quotes = self._add_quotes(pr, count=3)
+        quotes[2].sudo().write({
+            'received_date': fields.Datetime.now() - timedelta(days=31),
+        })
+        self.assertEqual(pr.line_ids._valid_inquiry_count(), 2)
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cce).action_submit_quotes()
+        pr.line_ids.sudo().write({
+            'quote_shortfall_reason': 'Third offer expired',
+        })
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self.assertEqual(pr.state, 'quote_review')
+
+    def test_unpriced_quote_does_not_satisfy_minima(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'price_unit': 10.0,
+        })
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_b.id,
+            'price_unit': 11.0,
+        })
+        Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_c.id,
+            'price_unit': 0.0,
+            'comments': 'Price to follow in writing',
+        })
+        self.assertEqual(line._valid_inquiry_count(), 2)
+        with self.assertRaises(ValidationError):
+            pr.with_user(self.user_cce).action_submit_quotes()

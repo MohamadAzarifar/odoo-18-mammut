@@ -204,6 +204,9 @@
                                             <field name="award_not_lowest_reason"
                                                       readonly="request_state != 'quote_review'"
                                                       groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
+                                            <field name="last_vendor_id" readonly="1"/>
+                                            <field name="last_price" readonly="1"/>
+                                            <field name="last_purchase_date" readonly="1"/>
                                             <field name="request_state" invisible="1"/>
                                         </group>
                                     </group>
@@ -214,6 +217,8 @@
                                                 <list editable="bottom">
                                                     <field name="allowed_partner_ids" column_invisible="1"/>
                                                     <field name="partner_id" options="{'no_create': True}"/>
+                                                    <field name="contact_name" optional="hide"/>
+                                                    <field name="contact_phone" optional="hide"/>
                                                     <field name="price_unit"/>
                                                     <field name="amount_total"/>
                                                     <field name="received_date" optional="hide"/>
@@ -358,6 +363,9 @@
                             <field name="award_not_lowest_reason"
                                     readonly="request_state != 'quote_review'"
                                     groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
+                            <field name="last_vendor_id" readonly="1"/>
+                            <field name="last_price" readonly="1"/>
+                            <field name="last_purchase_date" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -367,6 +375,8 @@
                                 <list editable="bottom">
                                     <field name="allowed_partner_ids" column_invisible="1"/>
                                     <field name="partner_id" options="{'no_create': True}"/>
+                                    <field name="contact_name" optional="hide"/>
+                                    <field name="contact_phone" optional="hide"/>
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
                                     <field name="received_date" optional="show"/>

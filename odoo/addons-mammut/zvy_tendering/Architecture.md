@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.1.8.0` |
+| Version | `18.0.2.2` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -148,7 +148,7 @@ Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_ret
 
 `action_submit` blocks mixed Enquiry+Tendering PRs (FR-31). UI (`zvy_ui_submit` context) opens `zvy.request.split.wizard`; RPC raises `ValidationError` and callers must invoke `action_split_mixed` then submit each PR. Split keeps Enquiry lines on the original sequence and moves Tendering lines to a new draft PR; neither is auto-submitted.
 
-**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). Standard lines require ≥3 quotes **or** ≥1 quote plus `quote_shortfall_reason`; sole source requires ≥1. UI submit (`zvy_ui_submit`) with 1–2 quotes and no reason opens `zvy.request.quote.shortfall.wizard`; RPC raises `ValidationError`. The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
+**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). Standard lines require ≥3 **valid** inquiries **or** ≥1 valid inquiry plus `quote_shortfall_reason`; sole source requires ≥1 valid inquiry. Unpriced or stale quotes do not count (FR-33). UI submit (`zvy_ui_submit`) with 1–2 valid inquiries and no reason opens `zvy.request.quote.shortfall.wizard`; RPC raises `ValidationError`. The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
 
 Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_quote_minima`, `_try_advance_to_quote_review`) must read lines with `sudo`: experts can only read the lines assigned to them, so a plain `self.line_ids` raises `AccessError` on split-assignment PRs.
 
@@ -169,10 +169,11 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `quote_ids` | One2many | → `zvy.quote`; collected on the line form (My Assignments) |
 | `quote_count` | Integer (compute) | Number of quotes on the line |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
-| `quote_shortfall_reason` | Text | Required to submit 1–2 quotes on a non-sole-source line; set by the shortfall wizard |
+| `quote_shortfall_reason` | Text | Required to submit 1–2 valid inquiries on a non-sole-source line; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
 | `awarded_partner_id` | Many2one | Related from awarded quote |
-| `award_not_lowest_reason` | Text | Required when the awarded quote’s `price_unit` is not the lowest among non-draft quotes on the line; set by the not-lowest wizard or with the many2one write |
+| `award_not_lowest_reason` | Text | Required when the awarded quote’s `price_unit` is not the lowest among priced non-draft quotes on the line; set by the not-lowest wizard or with the many2one write |
+| `last_vendor_id` / `last_price` / `last_purchase_date` | Many2one / Monetary / Date | Last confirmed PO for product+company, else last awarded inquiry on another PR (FR-37); read-only |
 
 `action_view_quotes` (button on the PR Lines list and My Assignments) opens the standalone line form (`view_zvy_purchase_request_line_form`) — line details plus the Quotes notebook — the same view Commercial Experts see from My Assignments. Do not reuse the My Assignments window action (its domain is “assigned to me”). Line `display_name` is product + qty so remaining `line_id` fields (quote form) are readable.
 
@@ -180,7 +181,7 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 
 `quote_ids` and `line_ids` are **exempt** from the parent PR content lock: saving a quote or setting `awarded_quote_id` in a one2many issues a `write` on the parent while inquiry / quote review has the header locked. Editability is delegated to `zvy.quote._check_can_edit` and `zvy.purchase.request.line.write` (state + role), so the parent lock must not double-guard those one2manys.
 
-**Non-lowest award:** if the awarded quote’s `price_unit` is greater than the minimum among non-draft quotes on the line (including previously rejected ones), `award_not_lowest_reason` is required. UI **Select as Awarded** (`zvy_ui_award`) opens `zvy.request.award.not.lowest.wizard`; RPC / many2one write without a reason raises `ValidationError`. Awarding the lowest (or a tie) clears the reason. `action_approve_quotes` repeats the check.
+**Non-lowest award:** if the awarded quote’s `price_unit` is greater than the minimum among **priced** non-draft quotes on the line (including previously rejected ones), `award_not_lowest_reason` is required. Unpriced quotes are not comparable and cannot be awarded. UI **Select as Awarded** (`zvy_ui_award`) opens `zvy.request.award.not.lowest.wizard`; RPC / many2one write without a reason raises `ValidationError`. Awarding the lowest (or a tie) clears the reason. `action_approve_quotes` repeats the check.
 
 #### `zvy.quote`
 
@@ -193,9 +194,14 @@ Expert-collected offer (standard inquiry path).
 | `line_id` | Many2one | Optional: quote per line |
 | `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s company/product/category |
 | `partner_id` | Many2one | Domain: `[('id', 'in', allowed_partner_ids)]` (BR-1 / FR-9) |
-| `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit == 0`) is never a valid inquiry |
+| `contact_name` / `contact_phone` | Char | Required; default from vendor master; remain editable (FR-36) |
+| `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit` not &gt; 0) is never a valid inquiry; total = unit × line qty when priced |
+| `product_uom_qty` | Float (related) | Line quantity |
+| `comments` | Text | Required written details when unpriced |
 | `received_date` | Datetime | Default now; validity window is 30 days (FR-33) |
 | `is_valid_inquiry` | Boolean (compute) | Not rejected, priced, received &lt; 30 days |
+| `tolerance_percent` | Float (compute) | Price variance vs line `last_price` |
+| `proforma` | Binary | Dedicated proforma; generic `attachment_ids` remain |
 | `currency_id` | Many2one | |
 | `attachment_ids` | Many2many / binary | |
 | `expert_user_id` | Many2one | Who recorded it; default `env.user`; readonly (system-set) |
@@ -388,7 +394,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | ID | Rule | Enforcement |
 |----|------|-------------|
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
-| BR-2 | ≥3 quotes, or ≥1 with `quote_shortfall_reason`; ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
+| BR-2 | ≥3 valid inquiries, or ≥1 valid with `quote_shortfall_reason`; ≥1 valid sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10 / FR-33) |
 | BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
 | BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed; enquiry signs first (FR-35) |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
@@ -405,9 +411,11 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-27 | Tendering `_action_route_after_quotes`: if `_needs_holding_commission()` (`is_commission_item or purchase_level == large`) → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`. Enquiry uses FR-35. |
 | FR-28 | Block `po_ready` while the **current** `approval.request` is not approved; history records cannot complete or refuse the PR |
 | FR-32 | `purchase_level` from company scale × purchase nature vs `amount_for_level` |
-| FR-33 | Valid inquiry = priced + received &lt; 30 days; unpriced excluded |
+| FR-33 | Valid inquiry = priced + received &lt; 30 days; unpriced excluded; minima and formalities share `_valid_inquiry_count` |
 | FR-34 | `is_formalities` on enquiry when any line has &lt;3 valid inquiries; spawn extra signatories; effective change cancels and respawns the chain |
 | FR-35 | Enquiry after quote award always `_action_spawn_signatory_approval`. After sign-off: Need Commission or large → commission, else `po_ready`. Enquiry commission approve → `po_ready` (no second chain). Tendering stays FR-27 (commission then signatory). Enquiry cannot enter `commission` without an approved current chain. |
+| FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; unpriced needs comments; dedicated proforma |
+| FR-37 | Line `last_vendor_id` / `last_price` / `last_purchase_date` from confirmed PO or awarded history |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
@@ -525,7 +533,8 @@ Automated tests (PRD §7) mapped to design:
 
 | Area | Assert |
 |------|--------|
-| Quote minima | Standard line blocks submit with &lt;3 quotes unless `quote_shortfall_reason` is set (still ≥1); sole source allows 1 |
+| Quote minima | Standard line blocks submit with &lt;3 **valid** inquiries unless `quote_shortfall_reason` is set (still ≥1 valid); sole source allows 1 valid; stale/unpriced do not count |
+| Last purchase | Confirmed PO for product+company fills line `last_vendor_id` / `last_price` / `last_purchase_date`; empty without history |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
 | Non-lowest award | Awarding a quote with `price_unit` above the line minimum requires `award_not_lowest_reason`; UI opens the wizard; lowest award needs no reason |
@@ -547,7 +556,7 @@ Automated tests (PRD §7) mapped to design:
 |-------------|-----|
 | Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
-| Routing §4 | FR-27–30, FR-32–35; BR-1–9 |
+| Routing §4 | FR-27–30, FR-32–37; BR-1–9 |
 | Security §5 | Personas §2; NFR Security |
 | Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |

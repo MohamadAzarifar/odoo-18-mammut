@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from odoo import fields
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -15,16 +16,20 @@ class ZvyTenderingCommon(TransactionCase):
             'name': 'AVL Vendor A',
             'supplier_rank': 1,
             'email': 'vendor_a@example.com',
+            'phone': '+98 21 1111 0000',
+            'mobile': '+98 912 111 0000',
         })
         cls.partner_b = cls.env['res.partner'].create({
             'name': 'AVL Vendor B',
             'supplier_rank': 1,
             'email': 'vendor_b@example.com',
+            'phone': '+98 21 2222 0000',
         })
         cls.partner_c = cls.env['res.partner'].create({
             'name': 'AVL Vendor C',
             'supplier_rank': 1,
             'email': 'vendor_c@example.com',
+            'phone': '+98 21 3333 0000',
         })
         cls.partner_non_avl = cls.env['res.partner'].create({
             'name': 'Non AVL Vendor',
@@ -363,6 +368,26 @@ class ZvyTenderingCommon(TransactionCase):
                     'price_unit': 10.0 + i,
                 })
         return quotes
+
+    def _create_confirmed_po(self, product=None, partner=None, price=42.0, company=None):
+        """Confirmed purchase order used as last-purchase history (FR-37)."""
+        product = product or self.product
+        partner = partner or self.partner_a
+        company = company or self.company_a
+        po = self.env['purchase.order'].with_company(company).create({
+            'partner_id': partner.id,
+            'company_id': company.id,
+            'order_line': [(0, 0, {
+                'product_id': product.id,
+                'name': product.display_name,
+                'product_qty': 1.0,
+                'product_uom': product.uom_id.id,
+                'price_unit': price,
+                'date_planned': fields.Datetime.now(),
+            })],
+        })
+        po.button_confirm()
+        return po
 
     def _award_quotes(self, pr, partner=None):
         """Select an awarded quote per line (defaults to first submitted quote)."""

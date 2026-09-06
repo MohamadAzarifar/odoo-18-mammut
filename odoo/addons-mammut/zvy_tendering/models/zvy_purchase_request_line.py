@@ -106,7 +106,8 @@ class ZvyPurchaseRequestLine(models.Model):
     quote_shortfall_reason = fields.Text(
         string='Fewer Quotes Reason',
         copy=False,
-        help='Required when submitting fewer than 3 quotes on a non-sole-source line.',
+        help='Required when submitting fewer than 3 valid inquiries on a '
+             'non-sole-source line.',
     )
     awarded_quote_id = fields.Many2one(
         'zvy.quote',
@@ -125,7 +126,26 @@ class ZvyPurchaseRequestLine(models.Model):
         string='Not Lowest Price Reason',
         copy=False,
         help='Required when the awarded quote is not the lowest unit price '
-             'among non-draft quotes on this line.',
+             'among priced non-draft quotes on this line.',
+    )
+    last_vendor_id = fields.Many2one(
+        'res.partner',
+        string='Last Vendor',
+        compute='_compute_last_purchase',
+        store=True,
+        help='Vendor from the latest confirmed PO or awarded inquiry for this '
+             'product and company (FR-37).',
+    )
+    last_price = fields.Monetary(
+        string='Last Price',
+        currency_field='currency_id',
+        compute='_compute_last_purchase',
+        store=True,
+    )
+    last_purchase_date = fields.Date(
+        string='Last Purchase Date',
+        compute='_compute_last_purchase',
+        store=True,
     )
 
     @api.depends('product_id', 'product_uom_qty', 'product_uom_id')
@@ -179,6 +199,75 @@ class ZvyPurchaseRequestLine(models.Model):
             line.sole_source = Avl._avl_partner_count(
                 line.company_id, product=line.product_id,
             ) == 1
+
+    @api.depends('product_id', 'company_id', 'request_id')
+    def _compute_last_purchase(self):
+        for line in self:
+            vendor, price, date = line._last_purchase_values()
+            line.last_vendor_id = vendor
+            line.last_price = price
+            line.last_purchase_date = date
+
+    def _last_purchase_values(self):
+        """Latest confirmed PO line, else latest awarded quote on another PR."""
+        self.ensure_one()
+        if not self.product_id or not self.company_id:
+            return False, 0.0, False
+        pol = self._last_purchase_order_line()
+        if pol:
+            order = pol.order_id
+            when = order.date_approve or order.date_order
+            if when:
+                when = fields.Date.to_date(when)
+            return pol.partner_id, pol.price_unit, when
+        other = self._last_awarded_history_line()
+        if other and other.awarded_quote_id:
+            quote = other.awarded_quote_id
+            when = quote.received_date or quote.create_date
+            if when:
+                when = fields.Date.to_date(when)
+            return quote.partner_id, quote.price_unit, when
+        return False, 0.0, False
+
+    def _last_purchase_order_line(self):
+        self.ensure_one()
+        po_domain = [
+            ('company_id', '=', self.company_id.id),
+            ('state', 'in', ('purchase', 'done')),
+            ('order_line.product_id', '=', self.product_id.id),
+        ]
+        request = self.request_id
+        request_id = request.id if request and isinstance(request.id, int) else False
+        if request_id:
+            po_domain += [
+                '|',
+                ('zvy_purchase_request_id', '=', False),
+                ('zvy_purchase_request_id', '!=', request_id),
+            ]
+        orders = self.env['purchase.order'].search(
+            po_domain, order='date_approve desc, date_order desc, id desc', limit=20,
+        )
+        for order in orders:
+            pol = order.order_line.filtered(
+                lambda l: l.product_id == self.product_id
+            )[:1]
+            if pol:
+                return pol
+        return self.env['purchase.order.line']
+
+    def _last_awarded_history_line(self):
+        self.ensure_one()
+        domain = [
+            ('product_id', '=', self.product_id.id),
+            ('company_id', '=', self.company_id.id),
+            ('awarded_quote_id', '!=', False),
+        ]
+        if isinstance(self.id, int):
+            domain.append(('id', '!=', self.id))
+        request_id = self.request_id.id if self.request_id and isinstance(self.request_id.id, int) else False
+        if request_id:
+            domain.append(('request_id', '!=', request_id))
+        return self.search(domain, order='id desc', limit=1)
 
     @api.onchange('product_id')
     def _onchange_product_id(self):
@@ -325,9 +414,11 @@ class ZvyPurchaseRequestLine(models.Model):
             return
 
     def _comparable_quotes(self):
-        """Non-draft quotes on this line (includes rejected, so a later award still compares)."""
+        """Priced non-draft quotes on this line (includes rejected, so a later award still compares)."""
         self.ensure_one()
-        return self.quote_ids.filtered(lambda q: q.state != 'draft')
+        return self.quote_ids.filtered(
+            lambda q: q.state != 'draft' and q._is_priced()
+        )
 
     def _quote_is_lowest_price(self, quote):
         self.ensure_one()
@@ -349,6 +440,10 @@ class ZvyPurchaseRequestLine(models.Model):
                 raise ValidationError(_(
                     'Awarded quote must be submitted or accepted.'
                 ))
+            if not quote._is_priced():
+                raise ValidationError(_(
+                    'An unpriced quote cannot be selected as awarded.'
+                ))
             if (
                 not line._quote_is_lowest_price(quote)
                 and not (line.award_not_lowest_reason or '').strip()
@@ -368,22 +463,22 @@ class ZvyPurchaseRequestLine(models.Model):
         return len(self.quote_ids.filtered('is_valid_inquiry'))
 
     def _needs_quote_shortfall_reason(self):
-        """True when 1–2 quotes on a standard line and no justification yet."""
+        """True when 1–2 valid inquiries on a standard line and no justification yet."""
         self.ensure_one()
         if self.sole_source:
             return False
-        count = self._live_quote_count()
+        count = self._valid_inquiry_count()
         if count < 1 or count >= 3:
             return False
         return not (self.quote_shortfall_reason or '').strip()
 
     def _check_quote_minima(self):
-        """≥1 quote always; ≥3 on standard lines unless a shortfall reason is set (FR-10 / BR-2)."""
+        """≥1 valid inquiry always; ≥3 on standard lines unless a shortfall reason is set (FR-10 / FR-33)."""
         for line in self:
-            count = line._live_quote_count()
+            count = line._valid_inquiry_count()
             if count < 1:
                 raise ValidationError(_(
-                    'Line %(product)s requires at least 1 quote; found %(count)s.',
+                    'Line %(product)s requires at least 1 valid inquiry; found %(count)s.',
                     product=line.product_id.display_name,
                     count=count,
                 ))
@@ -391,8 +486,8 @@ class ZvyPurchaseRequestLine(models.Model):
                 continue
             if count < 3 and not (line.quote_shortfall_reason or '').strip():
                 raise ValidationError(_(
-                    'Line %(product)s has %(count)s quote(s). Record at least 3, '
-                    'or provide a reason for submitting fewer.',
+                    'Line %(product)s has %(count)s valid inquiry(ies). '
+                    'Record at least 3, or provide a reason for submitting fewer.',
                     product=line.product_id.display_name,
                     count=count,
                 ))
@@ -412,7 +507,7 @@ class ZvyPurchaseRequestLine(models.Model):
 
     def _action_open_quote_shortfall_wizard(self):
         return {
-            'name': _('Fewer than 3 Quotes'),
+            'name': _('Fewer than 3 Valid Inquiries'),
             'type': 'ir.actions.act_window',
             'res_model': 'zvy.request.quote.shortfall.wizard',
             'view_mode': 'form',
@@ -461,7 +556,7 @@ class ZvyPurchaseRequestLine(models.Model):
             for line in lines:
                 name = line.product_id.display_name
                 reason = (line.quote_shortfall_reason or '').strip()
-                if reason and not line.sole_source and line._live_quote_count() < 3:
+                if reason and not line.sole_source and line._valid_inquiry_count() < 3:
                     details.append(_('%s (%s)') % (name, reason))
                 else:
                     details.append(name)

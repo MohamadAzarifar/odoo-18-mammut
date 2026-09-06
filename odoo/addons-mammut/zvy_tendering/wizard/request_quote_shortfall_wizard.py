@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 
 class ZvyRequestQuoteShortfallWizard(models.TransientModel):
     _name = 'zvy.request.quote.shortfall.wizard'
-    _description = 'Submit Fewer than 3 Quotes'
+    _description = 'Submit Fewer than 3 Valid Inquiries'
 
     line_ids = fields.Many2many(
         'zvy.purchase.request.line',
@@ -18,14 +18,14 @@ class ZvyRequestQuoteShortfallWizard(models.TransientModel):
     reason = fields.Text(
         string='Reason',
         required=True,
-        help='Explain why fewer than 3 quotes are being submitted.',
+        help='Explain why fewer than 3 valid inquiries are being submitted.',
     )
 
     def action_confirm(self):
         self.ensure_one()
         if not self.reason or not self.reason.strip():
             raise ValidationError(_(
-                'A reason is required when submitting fewer than 3 quotes.'
+                'A reason is required when submitting fewer than 3 valid inquiries.'
             ))
         if not self.line_ids:
             raise ValidationError(_('Select at least one purchase request line.'))

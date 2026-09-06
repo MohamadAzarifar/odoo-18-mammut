@@ -377,25 +377,25 @@ FR-35 holds for enquiry and tendering; Phase 4 sign-off/PO tests updated; no enq
 
 ### Scope
 
-- [ ] Required quote fields: vendor, contact name, contact phone (from vendor master, editable), unit price (optional if unpriced), qty, total (auto when priced), inquiry datetime (system)
-- [ ] Optional: comments, delivery date, advance %, payment type, tolerance % (from last purchase, system), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma attachment, discount %
-- [ ] Unpriced quote: allowed with written details; `price_unit` not required; **does not** count toward 3 valid inquiries
-- [ ] Line `last_vendor_id`, `last_price`, `last_purchase_date` (from prior POs / awarded history for product + company)
-- [ ] `_check_quote_minima` / shortfall wizard: count **valid** inquiries; shortfall reason still required when submitting with 1–2 valid quotes on a non-sole-source line (FR-10)
-- [ ] Auto total = unit × qty when priced; arithmetic reused by Phase 12 check 7
+- [x] Required quote fields: vendor, contact name, contact phone (from vendor master, editable), unit price (optional if unpriced), qty, total (auto when priced), inquiry datetime (system)
+- [x] Optional: comments, delivery date, advance %, payment type, tolerance % (from last purchase, system), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma attachment, discount %
+- [x] Unpriced quote: allowed with written details; `price_unit` not required; **does not** count toward 3 valid inquiries
+- [x] Line `last_vendor_id`, `last_price`, `last_purchase_date` (from prior POs / awarded history for product + company)
+- [x] `_check_quote_minima` / shortfall wizard: count **valid** inquiries; shortfall reason still required when submitting with 1–2 valid quotes on a non-sole-source line (FR-10)
+- [x] Auto total = unit × qty when priced; arithmetic reused by Phase 12 check 7
 
 ### Stories / FRs checklist
 
-- [ ] **FR-36** — Inquiry field set (required/optional from US-03) + contact from vendor, auto total, proforma — US-03
-- [ ] **FR-37** — Line last purchase (`last_vendor_id`, `last_price`, `last_purchase_date`) — §12.2
+- [x] **FR-36** — Inquiry field set (required/optional from US-03) + contact from vendor, auto total, proforma — US-03
+- [x] **FR-37** — Line last purchase (`last_vendor_id`, `last_price`, `last_purchase_date`) — §12.2
 
 ### Suggested tests
 
-- [ ] Priced quote computes total; unpriced quote saves without price and is excluded from valid count
-- [ ] Contact name/phone default from vendor and remain editable
-- [ ] Line last-purchase fields populate when a prior PO exists for the product/company
-- [ ] Expert submit still blocked at 0 valid quotes; 1–2 valid needs shortfall reason; 3 valid needs none
-- [ ] Quote older than 30 days does not satisfy minima even if priced
+- [x] Priced quote computes total; unpriced quote saves without price and is excluded from valid count
+- [x] Contact name/phone default from vendor and remain editable
+- [x] Line last-purchase fields populate when a prior PO exists for the product/company
+- [x] Expert submit still blocked at 0 valid quotes; 1–2 valid needs shortfall reason; 3 valid needs none
+- [x] Quote older than 30 days does not satisfy minima even if priced
 
 ### Done when
 
@@ -766,7 +766,7 @@ Track throughout (PRD §7):
 | Customer PRD 1.3 series | Pending | Phases 6–15; version `18.0.2.x`; does not reopen 0–5 |
 | 6 Purchase level & formalities | Done | `18.0.2.0` — FR-32..34; R-PL-012/013/014 bands |
 | 7 Inquiry routing invert | Done | `18.0.2.1` — FR-35; enquiry signs before commission; tendering still commission-first |
-| 8 Inquiry fields & validity | Pending | `18.0.2.2` — FR-36..37 |
+| 8 Inquiry fields & validity | Done | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Pending | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |
 | 11 Meetings | Pending | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |

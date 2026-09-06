@@ -50,18 +50,79 @@ class ZvyQuote(models.Model):
         depends_context=('uid', 'company'),
         help='Active AVL vendors for this company and the line product/category.',
     )
+    contact_name = fields.Char(
+        string='Contact Name',
+        required=True,
+        help='Defaults from the vendor master; editable on the inquiry.',
+    )
+    contact_phone = fields.Char(
+        string='Contact Phone',
+        required=True,
+        default='',
+        help='Defaults from the vendor master; editable on the inquiry.',
+    )
     price_unit = fields.Monetary(
         string='Unit Price',
         currency_field='currency_id',
-        required=True,
         default=0.0,
+        help='Optional when the inquiry is unpriced; unpriced quotes need written details.',
+    )
+    product_uom_qty = fields.Float(
+        related='line_id.product_uom_qty',
+        string='Quantity',
+        digits='Product Unit of Measure',
     )
     amount_total = fields.Monetary(
         string='Total',
         currency_field='currency_id',
         compute='_compute_amount_total',
         store=True,
+        help='Unit price × line quantity when priced; zero when unpriced.',
     )
+    comments = fields.Text(
+        string='Comments',
+        help='Required written details when the inquiry is unpriced.',
+    )
+    delivery_date = fields.Date(string='Delivery Date')
+    advance_percent = fields.Float(string='Advance %')
+    payment_type = fields.Selection(
+        selection=[
+            ('cash', 'Cash'),
+            ('credit', 'Credit'),
+            ('lc', 'Letter of Credit'),
+            ('other', 'Other'),
+        ],
+        string='Payment Type',
+    )
+    tolerance_percent = fields.Float(
+        string='Tolerance %',
+        compute='_compute_tolerance_percent',
+        help='Price variance versus the line last-purchase unit price.',
+    )
+    shipping = fields.Char(string='Shipping')
+    packaging_type = fields.Selection(
+        selection=[
+            ('carton', 'Carton'),
+            ('pallet', 'Pallet'),
+            ('bulk', 'Bulk'),
+            ('other', 'Other'),
+        ],
+        string='Packaging Type',
+    )
+    packaging_count = fields.Integer(string='Packaging Count')
+    contract_ref = fields.Char(string='Contract Ref')
+    nikan_amount = fields.Monetary(
+        string='Nikan Amount',
+        currency_field='currency_id',
+    )
+    price_adjustment = fields.Monetary(
+        string='Price Adjustment',
+        currency_field='currency_id',
+    )
+    warranty = fields.Char(string='Warranty')
+    discount_percent = fields.Float(string='Discount %')
+    proforma = fields.Binary(string='Proforma')
+    proforma_filename = fields.Char(string='Proforma Filename')
     attachment_ids = fields.Many2many(
         'ir.attachment',
         'zvy_quote_ir_attachment_rel',
@@ -136,11 +197,27 @@ class ZvyQuote(models.Model):
                 and received >= cutoff
             )
 
+    def _is_priced(self):
+        self.ensure_one()
+        return (self.price_unit or 0.0) > 0
+
     @api.depends('price_unit', 'line_id.product_uom_qty')
     def _compute_amount_total(self):
         for quote in self:
+            if not quote._is_priced():
+                quote.amount_total = 0.0
+                continue
             qty = quote.line_id.product_uom_qty or 0.0
             quote.amount_total = quote.price_unit * qty
+
+    @api.depends('price_unit', 'line_id.last_price')
+    def _compute_tolerance_percent(self):
+        for quote in self:
+            last = quote.line_id.last_price
+            if last and quote._is_priced():
+                quote.tolerance_percent = (quote.price_unit - last) / last * 100.0
+            else:
+                quote.tolerance_percent = False
 
     @api.depends(
         'line_id',
@@ -161,6 +238,33 @@ class ZvyQuote(models.Model):
             self.request_id = self.line_id.request_id
         if self.partner_id and self.partner_id not in self.allowed_partner_ids:
             self.partner_id = False
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if not self.partner_id:
+            return
+        self.contact_name = self.partner_id.name
+        self.contact_phone = self.partner_id.phone or self.partner_id.mobile or ''
+
+    @api.model
+    def _contact_vals_from_partner(self, partner, vals):
+        """Fill contact name/phone from the vendor when the caller omitted them."""
+        if not partner:
+            return
+        if not vals.get('contact_name'):
+            vals['contact_name'] = partner.name or False
+        if not vals.get('contact_phone'):
+            vals['contact_phone'] = partner.phone or partner.mobile or ''
+
+    @api.constrains('price_unit', 'comments')
+    def _check_unpriced_details(self):
+        for quote in self:
+            if quote._is_priced():
+                continue
+            if not (quote.comments or '').strip():
+                raise ValidationError(_(
+                    'Written details are required when recording an unpriced inquiry.'
+                ))
 
     @api.model
     def _partner_domain_for_line(self, line):
@@ -224,6 +328,9 @@ class ZvyQuote(models.Model):
             if vals.get('line_id') and not vals.get('request_id'):
                 line = self.env['zvy.purchase.request.line'].browse(vals['line_id'])
                 vals['request_id'] = line.request_id.id
+            if vals.get('partner_id'):
+                partner = self.env['res.partner'].browse(vals['partner_id'])
+                self._contact_vals_from_partner(partner, vals)
             if not self.env.su:
                 # Always attribute the quote to the user who creates it;
                 # State always starts as draft (workflow actions advance it).
@@ -241,6 +348,9 @@ class ZvyQuote(models.Model):
         content_keys = set(vals) - {'state'}
         if content_keys or not self.env.su:
             self._check_can_edit()
+        if vals.get('partner_id'):
+            partner = self.env['res.partner'].browse(vals['partner_id'])
+            self._contact_vals_from_partner(partner, vals)
         res = super().write(vals)
         if {'partner_id', 'line_id', 'company_id'} & set(vals):
             self._check_avl()
@@ -271,6 +381,10 @@ class ZvyQuote(models.Model):
         if self.state not in ('submitted', 'accepted', 'rejected'):
             raise UserError(_(
                 'Only submitted quotes can be selected as awarded.'
+            ))
+        if not self._is_priced():
+            raise UserError(_(
+                'An unpriced quote cannot be selected as awarded.'
             ))
         line = self.line_id.sudo()
         ctx_reason = (self.env.context.get('zvy_award_not_lowest_reason') or '').strip()

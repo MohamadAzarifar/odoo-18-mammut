@@ -29,7 +29,7 @@ A standalone procurement and tendering application on Odoo 18 that:
 |------|----------------|
 | Controlled PR lifecycle | Every PR moves through defined states; reject/return paths are auditable |
 | AVL compliance | No inquiry/CE supplier outside active AVL |
-| Quote integrity | ≥3 quotes (standard) or ≥1 with a shortfall reason / ≥1 (sole source) before CM review |
+| Quote integrity | ≥3 valid inquiries (standard) or ≥1 valid with a shortfall reason / ≥1 valid (sole source) before CM review |
 | Correct routing | High-value / commission items always reach Commission; others follow company sign-off |
 | Sealed tenders | Closed-envelope bids invisible until official opening (except bidder’s own portal view) |
 | Traceable award → PO | Only Commercial Manager creates PO after `po_ready` |
@@ -274,9 +274,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Standard **Enquiry** line: submit blocked until ≥3 quotes recorded, **or** ≥1 quote plus a written reason for the shortfall.
-- [x] Fewer than 3 quotes (UI): **Submit Quotes** opens a justification wizard; RPC without a reason raises.
-- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product/company): ≥1 quote required.
+- [x] Standard **Enquiry** line: submit blocked until ≥3 **valid** inquiries recorded, **or** ≥1 valid inquiry plus a written reason for the shortfall.
+- [x] Fewer than 3 valid inquiries (UI): **Submit Quotes** opens a justification wizard; RPC without a reason raises.
+- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product/company): ≥1 **valid** inquiry required.
 - [x] Submit sends quote set to CM quote review.
 - [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
 - [x] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
@@ -569,12 +569,12 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 |--|--|
 | **As a** | System |
 | **I want** | To treat an inquiry as valid only when it is priced and received less than 30 days ago |
-| **So that** | Formalities and (later) quote minima use the same definition |
+| **So that** | Formalities and quote minima use the same definition |
 
 **Acceptance criteria**
 
 - [x] Valid inquiry = not rejected, `price_unit > 0`, received date (or create date) within 30 days.
-- [x] Unpriced quotes never count toward the 3. Expert minima still use raw live quotes until Phase 8.
+- [x] Unpriced quotes never count toward the 3. Expert minima and formalities both use `_valid_inquiry_count`.
 
 #### FR-34 Formalities and chain reset *(§5.7)*
 
@@ -607,6 +607,34 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Tendering keeps FR-27 (CE / commission before signatures).
 - [x] `is_high_value` alone does not send an enquiry PR to commission before signatures.
 - [x] Enquiry cannot enter `commission` without an approved current signature chain.
+
+#### FR-36 Inquiry field set *(Story US-03)*
+
+| | |
+|--|--|
+| **As a** | Company Commercial Expert |
+| **I want** | To record the full inquiry field set, including contact details from the vendor and an automatic total |
+| **So that** | Quotes captured for CM review match the commercial dossier |
+
+**Acceptance criteria**
+
+- [x] Required: vendor, contact name, contact phone (defaulted from vendor, editable), unit price (optional if unpriced), qty (from the PR line), total (unit × qty when priced), inquiry datetime (`received_date`).
+- [x] Optional: comments, delivery date, advance %, payment type, tolerance % (vs last purchase), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma, discount %.
+- [x] Unpriced inquiries require written details (`comments`) and never count as valid.
+- [x] Dedicated proforma attachment sits alongside generic attachments.
+
+#### FR-37 Line last purchase *(§12.2)*
+
+| | |
+|--|--|
+| **As a** | Company Commercial Expert |
+| **I want** | To see the last vendor, price, and purchase date on the PR line |
+| **So that** | New inquiries can be compared with prior buys for the same product and company |
+
+**Acceptance criteria**
+
+- [x] `last_vendor_id`, `last_price`, `last_purchase_date` from the latest confirmed PO for the product/company, else the latest awarded inquiry on another PR.
+- [x] Fields are system-computed and read-only on the line.
 
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
@@ -643,7 +671,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | ID | Rule |
 |----|------|
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
-| BR-2 | Standard lines require ≥3 quotes before expert submit, or ≥1 with a shortfall reason; sole source (exactly one AVL vendor) ≥1. |
+| BR-2 | Standard lines require ≥3 **valid** inquiries before expert submit, or ≥1 valid with a shortfall reason; sole source (exactly one AVL vendor) ≥1 valid. Unpriced and stale quotes do not count (FR-33). |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission after company signatures (FR-35); line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
@@ -724,6 +752,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 33 | System | Valid inquiry (priced + &lt;30 days) | FR-33 |
 | 34 | System | Formalities + signatory reset | FR-34 |
 | 35 | System | Enquiry signs before commission | FR-35 |
+| 36 | CCE | Inquiry field set + auto total + proforma | FR-36 |
+| 37 | CCE | Line last purchase | FR-37 |
 
 ---
 
@@ -745,7 +775,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity.
 
 ### Prerequisites
 

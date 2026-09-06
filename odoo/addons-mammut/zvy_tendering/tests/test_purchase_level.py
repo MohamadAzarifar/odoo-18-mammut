@@ -80,6 +80,7 @@ class TestZvyPurchaseLevel(ZvyTenderingCommon):
             'line_id': line.id,
             'partner_id': self.partner_b.id,
             'price_unit': 0.0,
+            'comments': 'Vendor will confirm the price later',
         })
         stale = Quote.create({
             'line_id': line.id,
