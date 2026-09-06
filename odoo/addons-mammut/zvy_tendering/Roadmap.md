@@ -3,7 +3,7 @@
 **Product:** Mammut Procurement & Tendering  
 **Related:** [README.md](README.md) (PRD) · [Architecture.md](Architecture.md) (design)
 
-Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supplier portal Stories **24–26** last. Each phase lists stories/FRs, checklists, suggested tests, and exit criteria. Dependency order: foundation → PR/CM intake → inquiry & routing → commission & CE seal → sign-off & PO → portal UI → customer PRD 1.3 series (purchase level, routing invert, inquiry fields, partial PO, per-item bids, meetings, pre-checks, company override, return path).
+Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supplier portal Stories **24–26** last. Each phase lists stories/FRs, checklists, suggested tests, and exit criteria. Dependency order: foundation → PR/CM intake → inquiry & routing → commission & CE seal → sign-off & PO → portal UI → customer PRD 1.3 series (purchase level, routing invert, inquiry fields, partial PO, per-item bids, meetings, pre-checks, company override, return path, holding-scoped commission).
 
 ---
 
@@ -26,10 +26,11 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 | **12 — Commission pre-checks** | US-06 validation report; SAP checks stubbed | FR-43 | 7, 8, 11 |
 | **13 — Company procurement override** | Group default + per-company type / Need Commission | FR-44 | 6 |
 | **14 — Return to last approver** | Correction destination; CM chooses planner vs expert | FR-45 | 7 |
+| **15 — Holding company commission** | Commission on head holding (`root_id`); multi-company record rules | FR-46 | 3, 13 |
 
 **First delivery (MVP backend):** Phases 0–4 complete.  
 **Second delivery:** Phase 5.  
-**Third delivery (customer PRD 1.3):** Phases 6–14. Source: customer **PRD — Purchase Request System v1.3** (post-pilot). Does **not** reopen Phases 0–5. Version series **`18.0.2.x`** (breaking: inquiry routing order and partial PO). New FRs start at **FR-32**. Specs for 6–14 land in [README.md](README.md) / [Architecture.md](Architecture.md) **when each phase is implemented**; until then this roadmap is the backlog.
+**Third delivery (customer PRD 1.3):** Phases 6–15. Source: customer **PRD — Purchase Request System v1.3** (post-pilot). Does **not** reopen Phases 0–5. Version series **`18.0.2.x`** (breaking: inquiry routing order and partial PO). New FRs start at **FR-32**. Specs for 6–15 land in [README.md](README.md) / [Architecture.md](Architecture.md) **when each phase is implemented**; until then this roadmap is the backlog.
 
 Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operational/non-operational) with optional per-company overrides. Signatory users are per-band lists on the company.
 
@@ -486,7 +487,7 @@ FR-39..41 pass; Create PO (Phase 9) can build orders from per-line winners; enve
 - [ ] Meeting fields: location; date + time (keep or split `datetime`); status `scheduled` / `held` / `signed` / `cancelled`
 - [ ] Minutes attachment **required** to move `scheduled` → `held`; one minutes file for the whole meeting
 - [ ] Attendees: internal users + external rows (name + role; **no** `res.users` required)
-- [ ] All linked PRs / cases must share the same `company_id`
+- [ ] All linked PRs / cases must share the same requesting `company_id` (one subsidiary per meeting). Meeting itself is owned by the head holding — FR-46; do not set `meeting.company_id` to the requesting company
 - [ ] Junction `review_status`: `pending` / `reviewed` / `removed`; `decision`: `approved` / `rejected` / `needs_correction` / `undecided`
 - [ ] Independent decision per PR (and per goods/line where the tender award needs it)
 - [ ] Transfer an `undecided` / `pending` PR to another meeting; prior meeting rows stay in history (`removed` or archived link)
@@ -507,7 +508,7 @@ FR-39..41 pass; Create PO (Phase 9) can build orders from per-line winners; enve
 
 ### Done when
 
-FR-42 holds; Phase 3 meeting+MOM tests updated to the new statuses; same-company and minutes rules are enforced.
+FR-42 holds; Phase 3 meeting+MOM tests updated to the new statuses; same-requesting-company and minutes rules are enforced. Meeting ownership is the holding (`holding_company_id` / FR-46), not the subsidiary.
 
 ---
 
@@ -562,8 +563,8 @@ FR-43 holds for non-SAP checks; FR-17 tests updated so unanimous expert approve 
 ### Scope
 
 - [ ] Keep template `zvy_procurement_type` / `zvy_need_commission` as the default
-- [ ] Per-company overlay: procurement type + Need Commission (Need Commission only meaningful for Enquiry)
-- [ ] Line/header computes resolve overlay for `request.company_id`, else template
+- [ ] Per-company overlay: procurement type + Need Commission (Need Commission only meaningful for Enquiry). **Need Commission overlay is resolved against the head holding (`root_id`), not the subsidiary** — FR-46; do not lock overlay to `request.company_id` for commission flags
+- [ ] Line/header computes resolve overlay for `request.company_id` (procurement type) / holding `root_id` (Need Commission), else template
 - [ ] Mixed-PR split (FR-31) uses **resolved** types, not template-only
 - [ ] Settings / product UI: show default and company override without requiring debug mode
 - [ ] No Bridge/SAP product sync in this phase
@@ -576,12 +577,12 @@ FR-43 holds for non-SAP checks; FR-17 tests updated so unanimous expert approve 
 
 - [ ] Template Enquiry + company A overlay Tendering → company A PR line is Tendering; company B stays Enquiry
 - [ ] Mixed submit uses resolved types (split still Enquiry vs Tendering)
-- [ ] Need Commission overlay on Enquiry routes that company through Phase 7 commission path
+- [ ] Need Commission overlay on Enquiry routes that company through Phase 7 commission path (holding overlay once FR-46 lands)
 - [ ] Overlay Need Commission ignored/cleared when resolved type is Tendering
 
 ### Done when
 
-FR-44 holds; FR-31 split and FR-35 routing use the resolved type for the PR company.
+FR-44 holds; FR-31 split and FR-35 routing use the resolved type for the PR company. Need Commission overlay target is the holding (`root_id`) per FR-46 — do not ship a subsidiary-only commission overlay.
 
 ---
 
@@ -619,16 +620,63 @@ FR-45 holds; refuse/return no longer always dumps work on the planner; Phase 6 r
 
 ---
 
+## Phase 15 — Holding company commission (`18.0.2.9`)
+
+**Goal:** Commission is not an operating-company queue. Cases, reviews, meetings, Commission Manager/Expert work, and **commission rules** live on the **head holding** — the top parent in Odoo’s company tree (`res.company.root_id`). The rest of `zvy_tendering` stays multi-company: PRs, AVL, quotes, CE headers, purchase level, and signatories stay on the requesting company.
+
+Architecture today only names “Holding Commission”: case `company_id` is related from the PR, and record rules are `company_id in company_ids`. A holding user allowed only on the parent cannot see subsidiary cases or CE lists. This phase closes that gap. Specs land in [Architecture.md](Architecture.md) when implemented.
+
+**Hooks:** [`models/res_company.py`](models/res_company.py) (`root_id` helper); [`models/zvy_commission_case.py`](models/zvy_commission_case.py) / [`models/zvy_commission_meeting.py`](models/zvy_commission_meeting.py) / [`models/zvy_commission_review.py`](models/zvy_commission_review.py); CE + bid record rules in [`security/security.xml`](security/security.xml); FR-44 overlay resolve in [`models/product_template.py`](models/product_template.py) / line computes.
+
+### Ownership
+
+| Owned by requesting (operating) company | Owned by head holding (`company.root_id`) |
+|-----------------------------------------|-------------------------------------------|
+| PR, lines, quotes, AVL, CE header | Commission cases, reviews, meetings |
+| Purchase level, signatory lists, sole-source CEO | Commission Manager / Expert work |
+| Create PO | Commission rules / settings (readonly on children) |
+
+Head holding = `request.company_id.root_id` (the company itself when it has no parent). Helper e.g. `res.company._zvy_holding_company()` → `root_id`. Do not use the immediate `parent_id` when a mid-level company sits between the subsidiary and the root.
+
+### Scope
+
+- [ ] Helper `_zvy_holding_company()` on `res.company` (walk to `root_id`; standalone company is its own holding)
+- [ ] Case / review / meeting keep requesting `company_id` (from PR) **and** stored `holding_company_id` from `root_id`. Stop using “case company = PR company” as the only scope
+- [ ] Meeting `company_id` / `holding_company_id` is the holding (Phase 11: linked PRs still share one requesting company)
+- [ ] Record rules for commission roles: see cases, reviews, meetings, and CE when `holding_company_id` is in `company_ids` (or requesting `company_id` is a descendant of an allowed holding)
+- [ ] Subsidiary CM / planner keep access to **their** PR; they do not own the holding commission queue
+- [ ] Commission settings stored on the holding company only; children inherit / show readonly. Operating-company settings unchanged: scale, bands, signatories, AVL, sole-source CEO
+- [ ] Need Commission overlay (FR-44) resolves against the **holding**, not the subsidiary. Procurement-type overlay may stay per operating company
+- [ ] Do not build a Holding org chart — use `res.company.parent_id` / `root_id` only (already out of scope below)
+
+### Stories / FRs checklist
+
+- [ ] **FR-46** — Multi-company throughout; commission cases/reviews/meetings/rules scoped to head holding (`root_id`); holding Commission Manager sees descendant companies; Need Commission overlay is holding-level
+
+### Suggested tests
+
+- [ ] Holding parent + Company A/B children; holding-only Commission Manager reads/acts on cases and CE from A and B
+- [ ] Company A user cannot read Company B commission / CE
+- [ ] `root_id` walk: A → mid → Holding uses Holding, not the mid parent
+- [ ] Standalone company (no parent) uses itself as holding
+- [ ] Need Commission overlay on Holding applies to A; overlay on A is ignored or not offered
+
+### Done when
+
+FR-46 holds; a holding-only Commission Manager can work cases/CE from all descendants; subsidiary isolation remains; FR-44 Need Commission overlay is holding-scoped; Phase 11 meetings are holding-owned with same-requesting-company PRs.
+
+---
+
 ## Out of scope / blocked (PRD 1.3 §14–15)
 
-Not scheduled in Phases 6–14. Placeholder config may exist; do not build the products themselves.
+Not scheduled in Phases 6–15. Placeholder config may exist; do not build the products themselves.
 
 | Item | Notes |
 |------|--------|
 | Full PO lifecycle after issue | Standard `purchase.order` after Create PO |
 | Post-PO accounting / finance | Outside this module |
 | AVL lifecycle as its own product | AVL stays in-Odoo `zvy.avl.entry` (Phase 0) |
-| Holding org chart / member management | Outside this process |
+| Holding org chart / member management | Outside this process. FR-46 uses `res.company.parent_id` / `root_id` only |
 | Commission-laws document | Drives Phase 6/12 windows and extra signatories when it arrives |
 | Purchase-level threshold document | Landed in Phase 6 as R-PL-012/013/014 baked-in bands + company override |
 | SAP / AVL / Bridge master-data contracts | FR-43 checks **3** and **10** stay stubbed; no integration phase scheduled |
@@ -699,6 +747,7 @@ Track throughout (PRD §7):
 | 43 | FR-43 | 12 |
 | 44 | FR-44 | 13 |
 | 45 | FR-45 | 14 |
+| 46 | FR-46 | 15 |
 
 ---
 
@@ -714,16 +763,17 @@ Track throughout (PRD §7):
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |
 | Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
 | Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
-| Customer PRD 1.3 series | Pending | Phases 6–14; version `18.0.2.x`; does not reopen 0–5 |
+| Customer PRD 1.3 series | Pending | Phases 6–15; version `18.0.2.x`; does not reopen 0–5 |
 | 6 Purchase level & formalities | Done | `18.0.2.0` — FR-32..34; R-PL-012/013/014 bands |
 | 7 Inquiry routing invert | Pending | `18.0.2.1` — FR-35 |
 | 8 Inquiry fields & validity | Pending | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Pending | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |
-| 11 Meetings | Pending | `18.0.2.5` — FR-42 |
+| 11 Meetings | Pending | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |
-| 13 Company procurement override | Pending | `18.0.2.7` — FR-44 |
+| 13 Company procurement override | Pending | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
 | 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |
+| 15 Holding company commission | Pending | `18.0.2.9` — FR-46 |
 
 ---
 
