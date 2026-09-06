@@ -147,6 +147,19 @@ class ZvyPurchaseRequestLine(models.Model):
         compute='_compute_last_purchase',
         store=True,
     )
+    purchase_state = fields.Selection(
+        selection=[
+            ('pending', 'Pending'),
+            ('ordered', 'Ordered'),
+            ('cancelled', 'Cancelled'),
+        ],
+        string='Purchase State',
+        default='pending',
+        required=True,
+        copy=False,
+        index=True,
+        help='Pending until included in a PO or cancelled when the request is rejected.',
+    )
 
     @api.depends('product_id', 'product_uom_qty', 'product_uom_id')
     def _compute_display_name(self):
@@ -314,8 +327,13 @@ class ZvyPurchaseRequestLine(models.Model):
             # Awarded quote is set by CM/Admin during quote review (and signatory reset).
             content_keys = set(vals) - {
                 'expert_user_ids', 'quote_ids', 'awarded_quote_id',
-                'award_not_lowest_reason',
+                'award_not_lowest_reason', 'purchase_state',
             }
+            if 'purchase_state' in vals:
+                raise UserError(_(
+                    'Line purchase state is updated only when creating or '
+                    'rejecting purchase orders.'
+                ))
             if content_keys:
                 locked = self.filtered(
                     lambda l: l.request_id.state not in ('draft', 'correction')

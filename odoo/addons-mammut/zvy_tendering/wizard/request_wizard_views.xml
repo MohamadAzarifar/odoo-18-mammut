@@ -150,6 +150,35 @@
         </field>
     </record>
 
+    <record id="view_zvy_request_create_po_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.create.po.wizard.form</field>
+        <field name="model">zvy.request.create.po.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Purchase Order">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                </group>
+                <p>Select the pending awarded lines to include. Unselected lines stay on the request until a later purchase order or reject.</p>
+                <field name="line_ids">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="line_id" column_invisible="1"/>
+                        <field name="selected"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="product_uom_qty" readonly="1"/>
+                        <field name="product_uom_id" readonly="1"/>
+                        <field name="awarded_partner_id" readonly="1"/>
+                        <field name="price_unit" readonly="1"/>
+                        <field name="currency_id" column_invisible="1"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" string="Create PO" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_zvy_ce_clarification_wizard_form" model="ir.ui.view">
         <field name="name">zvy.ce.clarification.wizard.form</field>
         <field name="model">zvy.ce.clarification.wizard</field>

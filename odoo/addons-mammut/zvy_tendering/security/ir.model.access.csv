@@ -68,5 +68,11 @@ access_zvy_ce_clarification_wizard_comm_mgr,zvy.ce.clarification.wizard commissi
 access_zvy_ce_clarification_wizard_admin,zvy.ce.clarification.wizard admin,model_zvy_ce_clarification_wizard,group_zvy_tendering_admin,1,1,1,1
 access_zvy_request_split_wizard_planner,zvy.request.split.wizard planner,model_zvy_request_split_wizard,group_zvy_planner,1,1,1,1
 access_zvy_request_split_wizard_admin,zvy.request.split.wizard admin,model_zvy_request_split_wizard,group_zvy_tendering_admin,1,1,1,1
+access_zvy_request_create_po_wizard_cm,zvy.request.create.po.wizard commercial manager,model_zvy_request_create_po_wizard,group_zvy_commercial_manager,1,1,1,1
+access_zvy_request_create_po_wizard_comm_mgr,zvy.request.create.po.wizard commission manager,model_zvy_request_create_po_wizard,group_zvy_commission_manager,1,1,1,1
+access_zvy_request_create_po_wizard_admin,zvy.request.create.po.wizard admin,model_zvy_request_create_po_wizard,group_zvy_tendering_admin,1,1,1,1
+access_zvy_request_create_po_wizard_line_cm,zvy.request.create.po.wizard.line commercial manager,model_zvy_request_create_po_wizard_line,group_zvy_commercial_manager,1,1,1,1
+access_zvy_request_create_po_wizard_line_comm_mgr,zvy.request.create.po.wizard.line commission manager,model_zvy_request_create_po_wizard_line,group_zvy_commission_manager,1,1,1,1
+access_zvy_request_create_po_wizard_line_admin,zvy.request.create.po.wizard.line admin,model_zvy_request_create_po_wizard_line,group_zvy_tendering_admin,1,1,1,1
 access_zvy_closed_envelope_portal,zvy.closed.envelope portal,model_zvy_closed_envelope,base.group_portal,1,0,0,0
 access_zvy_closed_envelope_bid_portal,zvy.closed.envelope.bid portal,model_zvy_closed_envelope_bid,base.group_portal,1,0,0,0

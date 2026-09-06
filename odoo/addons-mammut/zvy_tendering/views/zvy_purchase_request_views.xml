@@ -39,7 +39,7 @@
                             context="{'zvy_ui_submit': True}"
                             groups="zvy_tendering.group_zvy_planner,zvy_tendering.group_zvy_tendering_admin"/>
                     <button name="action_reject" string="Reject" type="object"
-                            invisible="state not in ('submitted', 'cm_review')"
+                            invisible="state not in ('submitted', 'cm_review', 'po_ready')"
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_return_correction" string="Return for Correction" type="object"
                             invisible="state not in ('submitted', 'cm_review')"
@@ -70,7 +70,8 @@
                     <button name="action_create_po" string="Create PO" type="object"
                             class="btn-primary"
                             invisible="state != 'po_ready'"
-                            groups="zvy_tendering.group_zvy_commercial_manager"/>
+                            context="{'zvy_ui_create_po': True}"
+                            groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_commission_manager"/>
                     <field name="state" widget="statusbar"
                             statusbar_visible="draft,submitted,cm_review,inquiry,quote_review,commission,signatory,po_ready,done,correction,rejected"/>
                 </header>
@@ -131,6 +132,7 @@
                             <field name="approval_request_id" invisible="1"/>
                             <field name="split_request_id" invisible="1"/>
                             <field name="split_from_id" invisible="1"/>
+                            <field name="parent_request_id" invisible="1"/>
                             <field name="procurement_type"/>
                             <field name="is_mixed_procurement" invisible="not is_mixed_procurement"/>
                             <field name="is_high_value"/>
@@ -177,6 +179,11 @@
                                               options="{'no_create': True, 'no_create_edit': True}"
                                               groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
+                                    <field name="purchase_state" optional="show" readonly="1"
+                                              widget="badge"
+                                              decoration-info="purchase_state == 'pending'"
+                                              decoration-success="purchase_state == 'ordered'"
+                                              decoration-muted="purchase_state == 'cancelled'"/>
                                 </list>
                                 <form>
                                     <group>
@@ -207,6 +214,7 @@
                                             <field name="last_vendor_id" readonly="1"/>
                                             <field name="last_price" readonly="1"/>
                                             <field name="last_purchase_date" readonly="1"/>
+                                            <field name="purchase_state" readonly="1"/>
                                             <field name="request_state" invisible="1"/>
                                         </group>
                                     </group>
@@ -306,6 +314,7 @@
                         icon="fa-list" class="btn-link"
                         invisible="procurement_type != 'enquiry'"/>
                 <field name="quote_shortfall_reason" optional="hide"/>
+                <field name="purchase_state" optional="show" widget="badge"/>
                 <field name="request_state" column_invisible="1"/>
                 <field name="quotes_submitted" widget="boolean_toggle" readonly="1"/>
                 <button name="action_submit_quotes" type="object" string="Submit Quotes"
@@ -366,6 +375,7 @@
                             <field name="last_vendor_id" readonly="1"/>
                             <field name="last_price" readonly="1"/>
                             <field name="last_purchase_date" readonly="1"/>
+                            <field name="purchase_state" readonly="1"/>
                         </group>
                     </group>
                     <notebook>

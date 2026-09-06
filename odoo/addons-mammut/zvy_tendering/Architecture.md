@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.2` |
+| Version | `18.0.2.3` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -52,6 +52,7 @@ zvy_tendering/
 │   ├── request_quote_shortfall_wizard.py  # <3 quotes justification (FR-10)
 │   ├── request_award_not_lowest_wizard.py  # non-lowest award reason
 │   ├── request_split_wizard.py      # mixed enquiry/tendering (FR-31)
+│   ├── request_create_po_wizard.py  # partial Create PO (FR-38)
 │   └── ce_clarification_wizard.py
 ├── security/
 │   ├── security.xml                 # category, groups, record rules
@@ -72,6 +73,7 @@ zvy_tendering/
     ├── test_avl_domain.py
     ├── test_router.py
     ├── test_signatory_bridge.py
+    ├── test_partial_po.py
     ├── test_bid_seal.py
     ├── test_portal_isolation.py
     └── test_product_split.py
@@ -133,7 +135,7 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `is_commission_item` | Boolean | Computed: any Enquiry line with product **Need Commission** (BR-4) |
 | `procurement_type` | Selection | Computed: `enquiry` / `tendering` when all lines match; empty if mixed |
 | `is_mixed_procurement` | Boolean | Computed: both Enquiry and Tendering lines present |
-| `split_from_id` / `split_request_id` | Many2one | Sibling PRs after FR-31 split |
+| `split_from_id` / `split_request_id` / `parent_request_id` | Many2one | Sibling PRs after FR-31 split; `parent_request_id` is the customer `parentRequestId` alias of `split_from_id` |
 | `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
 | `closed_envelope_id` | Many2one | → `zvy.closed.envelope` (when CE path) |
@@ -174,6 +176,7 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `awarded_partner_id` | Many2one | Related from awarded quote |
 | `award_not_lowest_reason` | Text | Required when the awarded quote’s `price_unit` is not the lowest among priced non-draft quotes on the line; set by the not-lowest wizard or with the many2one write |
 | `last_vendor_id` / `last_price` / `last_purchase_date` | Many2one / Monetary / Date | Last confirmed PO for product+company, else last awarded inquiry on another PR (FR-37); read-only |
+| `purchase_state` | Selection | `pending` / `ordered` / `cancelled` (FR-38); workflow-only |
 
 `action_view_quotes` (button on the PR Lines list and My Assignments) opens the standalone line form (`view_zvy_purchase_request_line_form`) — line details plus the Quotes notebook — the same view Commercial Experts see from My Assignments. Do not reuse the My Assignments window action (its domain is “assigned to me”). Line `display_name` is product + qty so remaining `line_id` fields (quote form) are readable.
 
@@ -299,6 +302,7 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 | `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
+| `purchase.order.line` | Optional `zvy_purchase_request_line_id` so a PR line cannot be ordered twice |
 
 ---
 
@@ -315,8 +319,8 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 | `quote_review` | CM reviewing quote set |
 | `commission` | Holding commission case open |
 | `signatory` | Sequential company approvals in progress |
-| `po_ready` | All approvals done; CM may create PO |
-| `done` | PO(s) created |
+| `po_ready` | All approvals done; CM / Commission Manager may create PO(s) for pending lines |
+| `done` | Every line is `ordered` or `cancelled` |
 | `correction` | Returned to planner |
 | `rejected` | Terminal reject (BR-9) |
 
@@ -380,7 +384,9 @@ flowchart TD
     SignTender -->|full approve| PoReady
     SignInquiry -->|refuse| CMReview
     SignTender -->|refuse| CMReview
-    PoReady -->|CM create PO| Done[done]
+    PoReady -->|subset Create PO| PoReady
+    PoReady -->|all remaining lines ordered| Done[done]
+    PoReady -->|reject pending lines| Rejected
 ```
 
 Sole source: CEO / sole-source approvers are injected on the signatory chain (enquiry: before commission if any; tendering: after commission) before `po_ready` (FR-14).
@@ -398,7 +404,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
 | BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed; enquiry signs first (FR-35) |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
-| BR-6 | PO only from `po_ready` by CM | `action_create_po` groups + state guard + award data required |
+| BR-6 | PO only from `po_ready` by CM or Commission Manager | Wizard / `action_create_po`; grouping by vendor of **selected pending** lines; award data required per selected line; PR stays `po_ready` while any line is pending |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
 | BR-8 | Signatory refuse → CM | `approval.request` refuse hook → PR `cm_review` |
 | BR-9 | Reject terminal; correction editable | State machine + planner write rules |
@@ -416,6 +422,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-35 | Enquiry after quote award always `_action_spawn_signatory_approval`. After sign-off: Need Commission or large → commission, else `po_ready`. Enquiry commission approve → `po_ready` (no second chain). Tendering stays FR-27 (commission then signatory). Enquiry cannot enter `commission` without an approved current chain. |
 | FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; unpriced needs comments; dedicated proforma |
 | FR-37 | Line `last_vendor_id` / `last_price` / `last_purchase_date` from confirmed PO or awarded history |
+| FR-38 | Partial Create PO: line `purchase_state`; wizard defaults to all pending; PR `done` only when no line remains pending; reject from `po_ready` cancels remaining pending lines |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
@@ -434,7 +441,7 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 | `group_zvy_commercial_manager` | Commercial Manager | CM queues, assign, quote review, create PO |
 | `group_zvy_commercial_expert` | Commercial Expert | Inquiry on assigned lines |
 | `group_zvy_signatory` | Signatory | Read-only PR context from Approvals when user is an approver |
-| `group_zvy_commission_manager` | Commission Manager | Cases, meetings, CE list/open/award |
+| `group_zvy_commission_manager` | Commission Manager | Cases, meetings, CE list/open/award; may also Create PO (FR-38) |
 | `group_zvy_commission_expert` | Commission Expert | Assigned case reviews |
 | `group_zvy_tendering_admin` | Administrator | Config, AVL admin, all records |
 
@@ -478,8 +485,11 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 
 ### 6.2 Purchase Order
 
-- Only Commercial Manager; only when `state == 'po_ready'` and award data present (awarded quotes / CE winner).
-- Create one or more `purchase.order` (+ lines) from awarded vendors/lines; set `zvy_purchase_request_id`; PR → `done`.
+- Commercial Manager or Commission Manager; only when `state == 'po_ready'` and award data present on the **selected** lines (awarded quotes / CE winner).
+- UI **Create PO** opens `zvy.request.create.po.wizard` (all pending awarded lines selected by default). RPC `action_create_po()` creates POs for all remaining pending lines.
+- Group selected lines by vendor; unselected and already-ordered lines are omitted. Set `zvy_purchase_request_id` / `zvy_purchase_request_line_id`. Selected lines → `ordered`.
+- PR stays `po_ready` while any line is `pending`; → `done` only when every line is `ordered` or `cancelled`.
+- Reject from `po_ready` cancels remaining pending lines and closes the PR (`rejected`). Already-created POs stay.
 
 ### 6.3 Supplier portal (Phase 5)
 
@@ -545,6 +555,7 @@ Automated tests (PRD §7) mapped to design:
 | Signatory reset | Qty change in `signatory` archives current approval; only the new chain reaches `po_ready` |
 | Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
+| Partial PO | Subset of awarded lines → one PO; PR stays `po_ready`; remaining pending; second PO → `done`; reject cancels pending |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
 | Portal isolation | Non-invited portal user gets empty/403 |
 
@@ -556,7 +567,7 @@ Automated tests (PRD §7) mapped to design:
 |-------------|-----|
 | Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
-| Routing §4 | FR-27–30, FR-32–37; BR-1–9 |
+| Routing §4 | FR-27–30, FR-32–38; BR-1–9 |
 | Security §5 | Personas §2; NFR Security |
 | Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |

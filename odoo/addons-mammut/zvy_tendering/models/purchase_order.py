@@ -12,3 +12,15 @@ class PurchaseOrder(models.Model):
         index=True,
         ondelete='set null',
     )
+
+
+class PurchaseOrderLine(models.Model):
+    _inherit = 'purchase.order.line'
+
+    zvy_purchase_request_line_id = fields.Many2one(
+        'zvy.purchase.request.line',
+        string='Purchase Request Line',
+        copy=False,
+        index=True,
+        ondelete='set null',
+    )

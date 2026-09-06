@@ -17,8 +17,9 @@ _ALLOWED_TRANSITIONS = {
     'quote_review': {'inquiry', 'commission', 'signatory'},
     'commission': {'signatory', 'quote_review', 'po_ready'},
     'signatory': {'po_ready', 'cm_review', 'commission'},
-    'po_ready': {'done'},
+    'po_ready': {'done', 'rejected'},
 }
+_REJECTABLE_STATES = _CM_INTAKE_STATES + ('po_ready',)
 
 
 class ZvyPurchaseRequest(models.Model):
@@ -218,6 +219,12 @@ class ZvyPurchaseRequest(models.Model):
         index=True,
         help='Original request this tendering request was split from.',
     )
+    parent_request_id = fields.Many2one(
+        related='split_from_id',
+        string='Parent Request',
+        store=True,
+        help='Customer parentRequestId: original request after a mixed-procurement split.',
+    )
     split_request_id = fields.Many2one(
         'zvy.purchase.request',
         string='Split Request',
@@ -398,6 +405,7 @@ class ZvyPurchaseRequest(models.Model):
             'line_ids',
             'split_from_id',
             'split_request_id',
+            'parent_request_id',
         }
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)
@@ -515,9 +523,9 @@ class ZvyPurchaseRequest(models.Model):
 
     def action_reject(self):
         self.ensure_one()
-        if self.state not in _CM_INTAKE_STATES:
+        if self.state not in _REJECTABLE_STATES:
             raise UserError(_(
-                'Only submitted or CM-review requests can be rejected.'
+                'Only submitted, CM-review, or PO-ready requests can be rejected.'
             ))
         return {
             'name': _('Reject Purchase Request'),
@@ -712,10 +720,14 @@ class ZvyPurchaseRequest(models.Model):
         self.ensure_one()
         if not reason or not reason.strip():
             raise ValidationError(_('A reject reason is required.'))
-        if self.state not in _CM_INTAKE_STATES:
+        if self.state not in _REJECTABLE_STATES:
             raise UserError(_(
-                'Only submitted or CM-review requests can be rejected.'
+                'Only submitted, CM-review, or PO-ready requests can be rejected.'
             ))
+        if self.state == 'po_ready':
+            self.sudo().line_ids.filtered(
+                lambda l: l.purchase_state == 'pending'
+            ).write({'purchase_state': 'cancelled'})
         self.write({
             'state': 'rejected',
             'reject_reason': reason.strip(),
@@ -821,6 +833,14 @@ class ZvyPurchaseRequest(models.Model):
             self.env.su
             or self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
             or self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        )
+
+    def _user_can_create_po(self):
+        return (
+            self._user_is_cm_or_admin()
+            or self.env.user.has_group(
+                'zvy_tendering.group_zvy_commission_manager'
+            )
         )
 
     def _needs_holding_commission(self):
@@ -1040,49 +1060,126 @@ class ZvyPurchaseRequest(models.Model):
         return True
 
     def action_create_po(self):
+        """UI opens the line-selection wizard; RPC creates POs for all pending lines."""
         self.ensure_one()
-        if not self._user_is_cm_or_admin():
+        self._check_can_create_po()
+        if self.env.context.get('zvy_ui_create_po'):
+            return self._action_open_create_po_wizard()
+        return self._create_purchase_orders()
+
+    def _action_open_create_po_wizard(self):
+        self.ensure_one()
+        if not self._pending_po_lines():
             raise UserError(_(
-                'Only Commercial Managers can create purchase orders.'
+                'There are no pending awarded lines to create a purchase order from.'
+            ))
+        return {
+            'name': _('Create Purchase Order'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.request.create.po.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_request_id': self.id},
+        }
+
+    def _check_can_create_po(self):
+        self.ensure_one()
+        if not self._user_can_create_po():
+            raise UserError(_(
+                'Only Commercial Managers and Commission Managers can create '
+                'purchase orders.'
             ))
         if self.state != 'po_ready':
             raise UserError(_(
                 'Purchase orders can only be created when the request is PO Ready.'
             ))
-        if not self._has_award_data():
-            raise UserError(_(
-                'Award data is required before creating purchase orders.'
-            ))
-        if self.approval_request_id and self.approval_request_id.request_status != 'approved':
+        approval = self.sudo().approval_request_id
+        if approval and approval.request_status != 'approved':
             raise UserError(_(
                 'Signatory approval must be fully approved before creating POs.'
             ))
 
-        orders = self.env['purchase.order']
+    def _pending_po_lines(self):
+        self.ensure_one()
+        lines = self.sudo().line_ids.filtered(
+            lambda l: l.purchase_state == 'pending'
+        )
         if self._ce_award_satisfies_inquiry():
-            orders = self._create_po_from_ce_award()
-        else:
-            orders = self._create_po_from_awarded_quotes()
+            return lines
+        return lines.filtered('awarded_quote_id')
 
-        self.write({'state': 'done'})
-        self.message_post(body=_(
+    def _check_create_po_lines(self, lines):
+        self.ensure_one()
+        if not lines:
+            raise UserError(_(
+                'Select at least one pending line to create a purchase order.'
+            ))
+        if lines.mapped('request_id') != self:
+            raise UserError(_(
+                'Purchase order lines must belong to this purchase request.'
+            ))
+        not_pending = lines.filtered(lambda l: l.purchase_state != 'pending')
+        if not_pending:
+            raise UserError(_(
+                'Only pending lines can be included in a purchase order. '
+                'Already processed: %s'
+            ) % ', '.join(not_pending.mapped('product_id.display_name')))
+        if self._ce_award_satisfies_inquiry():
+            if not self.award_partner_id:
+                raise UserError(_(
+                    'Award data is required before creating purchase orders.'
+                ))
+            return
+        missing = lines.filtered(lambda l: not l.awarded_quote_id)
+        if missing:
+            raise UserError(_(
+                'Award data is required before creating purchase orders. '
+                'Missing: %s'
+            ) % ', '.join(missing.mapped('product_id.display_name')))
+
+    def _create_purchase_orders(self, lines=None):
+        """Create POs for `lines` (default: all pending awarded lines)."""
+        self.ensure_one()
+        self._check_can_create_po()
+        lines = lines if lines is not None else self._pending_po_lines()
+        self._check_create_po_lines(lines)
+
+        request = self.sudo()
+        lines = lines.sudo()
+        if request._ce_award_satisfies_inquiry():
+            orders = request._create_po_from_ce_award(lines)
+        else:
+            orders = request._create_po_from_awarded_quotes(lines)
+        lines.write({'purchase_state': 'ordered'})
+        request._sync_state_after_po()
+        request.message_post(body=_(
             'Purchase order(s) created: %s'
         ) % ', '.join(orders.mapped('name')))
         return self.action_open_purchase_orders()
 
-    def _create_po_from_awarded_quotes(self):
+    def _sync_state_after_po(self):
+        self.ensure_one()
+        pending = self.line_ids.filtered(lambda l: l.purchase_state == 'pending')
+        if not pending and self.state == 'po_ready':
+            self.write({'state': 'done'})
+
+    def _create_po_from_awarded_quotes(self, lines):
         self.ensure_one()
         grouped = defaultdict(lambda: self.env['zvy.purchase.request.line'])
-        for line in self.sudo().line_ids:
+        for line in lines:
             partner = line.awarded_quote_id.partner_id
+            if not partner:
+                raise UserError(_(
+                    'Line %s has no awarded vendor.'
+                ) % line.product_id.display_name)
             grouped[partner] |= line
 
         orders = self.env['purchase.order']
         PurchaseOrder = self.env['purchase.order'].sudo()
         PurchaseLine = self.env['purchase.order.line'].sudo()
-        for partner, lines in grouped.items():
+        for partner, po_lines in grouped.items():
             po = PurchaseOrder.create(self._prepare_purchase_order_vals(partner))
-            for line in lines:
+            for line in po_lines:
                 quote = line.awarded_quote_id
                 PurchaseLine.create({
                     'order_id': po.id,
@@ -1092,11 +1189,12 @@ class ZvyPurchaseRequest(models.Model):
                     'product_uom': line.product_uom_id.id,
                     'price_unit': quote.price_unit,
                     'date_planned': fields.Datetime.now(),
+                    'zvy_purchase_request_line_id': line.id,
                 })
             orders |= po
         return orders
 
-    def _create_po_from_ce_award(self):
+    def _create_po_from_ce_award(self, lines):
         self.ensure_one()
         partner = self.award_partner_id
         PurchaseOrder = self.env['purchase.order'].sudo()
@@ -1107,7 +1205,6 @@ class ZvyPurchaseRequest(models.Model):
         winning_bid = envelope.bid_ids.filtered(
             lambda b: b.partner_id == partner
         )[:1]
-        lines = self.sudo().line_ids
         for line in lines:
             if len(lines) == 1 and winning_bid and winning_bid.amount:
                 price_unit = winning_bid.amount / (line.product_uom_qty or 1.0)
@@ -1121,6 +1218,7 @@ class ZvyPurchaseRequest(models.Model):
                 'product_uom': line.product_uom_id.id,
                 'price_unit': price_unit,
                 'date_planned': fields.Datetime.now(),
+                'zvy_purchase_request_line_id': line.id,
             })
         return po
 
@@ -1148,9 +1246,10 @@ class ZvyPurchaseRequest(models.Model):
             'domain': [('zvy_purchase_request_id', '=', self.id)],
             'context': {'default_zvy_purchase_request_id': self.id},
         }
-        if len(self.purchase_order_ids) == 1:
+        orders = self.sudo().purchase_order_ids
+        if len(orders) == 1:
             action['view_mode'] = 'form'
-            action['res_id'] = self.purchase_order_ids.id
+            action['res_id'] = orders.id
         return action
 
     def action_open_approval_request(self):

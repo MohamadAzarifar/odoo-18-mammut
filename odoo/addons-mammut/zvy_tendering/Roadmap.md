@@ -411,25 +411,25 @@ US-03 fields are on the quote form; minima and formalities (Phase 6) use the sam
 
 ### Scope
 
-- [ ] Line `purchase_state`: `pending` / `ordered` / `cancelled` (reject of PR cancels remaining pending lines)
-- [ ] Create-PO wizard: CM (and Commission Manager) select a **subset** of awarded pending lines → one `purchase.order`; other lines stay pending
-- [ ] Group selected lines by vendor as today; do not include unselected lines
-- [ ] PR stays `po_ready` (or equivalent) while any line is pending; PR → `done` only when every line is `ordered` or `cancelled`
-- [ ] `parent_request_id` / split traceability when a PO split is recorded on the PR (customer `parentRequestId`)
-- [ ] One PO must not auto-close remaining lines
-- [ ] Existing “all lines, one vendor group” path remains the wizard default (select all)
+- [x] Line `purchase_state`: `pending` / `ordered` / `cancelled` (reject of PR cancels remaining pending lines)
+- [x] Create-PO wizard: CM (and Commission Manager) select a **subset** of awarded pending lines → one `purchase.order`; other lines stay pending
+- [x] Group selected lines by vendor as today; do not include unselected lines
+- [x] PR stays `po_ready` (or equivalent) while any line is pending; PR → `done` only when every line is `ordered` or `cancelled`
+- [x] `parent_request_id` / split traceability when a PO split is recorded on the PR (customer `parentRequestId`)
+- [x] One PO must not auto-close remaining lines
+- [x] Existing “all lines, one vendor group” path remains the wizard default (select all)
 
 ### Stories / FRs checklist
 
-- [ ] **FR-38** — Partial Create PO; line states pending/ordered; PR not `done` until all lines ordered or rejected — US-11 / §5.9
+- [x] **FR-38** — Partial Create PO; line states pending/ordered; PR not `done` until all lines ordered or rejected — US-11 / §5.9
 
 ### Suggested tests
 
-- [ ] Select 1 of 2 awarded lines → one PO; PR not `done`; remaining line `pending`
-- [ ] Second PO for the rest → PR `done`
-- [ ] Reject PR with pending lines → lines `cancelled`; no further PO
-- [ ] Non-CM (except Commission Manager) cannot split/create PO
-- [ ] Full-selection Create PO still matches Phase 4 grouping-by-vendor behavior
+- [x] Select 1 of 2 awarded lines → one PO; PR not `done`; remaining line `pending`
+- [x] Second PO for the rest → PR `done`
+- [x] Reject PR with pending lines → lines `cancelled`; no further PO
+- [x] Non-CM (except Commission Manager) cannot split/create PO
+- [x] Full-selection Create PO still matches Phase 4 grouping-by-vendor behavior
 
 ### Done when
 
@@ -767,7 +767,7 @@ Track throughout (PRD §7):
 | 6 Purchase level & formalities | Done | `18.0.2.0` — FR-32..34; R-PL-012/013/014 bands |
 | 7 Inquiry routing invert | Done | `18.0.2.1` — FR-35; enquiry signs before commission; tendering still commission-first |
 | 8 Inquiry fields & validity | Done | `18.0.2.2` — FR-36..37 |
-| 9 Partial PO | Pending | `18.0.2.3` — FR-38 |
+| 9 Partial PO | Done | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |
 | 11 Meetings | Pending | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |

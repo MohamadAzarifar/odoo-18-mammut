@@ -231,7 +231,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] “Create PO” is available only when PR is `po_ready` and a winning vendor / awarded quotes exist.
 - [x] System creates one or more `purchase.order` records from awarded lines.
-- [x] On success, PR moves to `done`.
+- [x] On success, PR moves to `done` when every line is ordered (or remaining pending lines were cancelled). Partial Create PO (FR-38) keeps the PR `po_ready` while any line is still pending.
 
 ---
 
@@ -636,6 +636,23 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] `last_vendor_id`, `last_price`, `last_purchase_date` from the latest confirmed PO for the product/company, else the latest awarded inquiry on another PR.
 - [x] Fields are system-computed and read-only on the line.
 
+#### FR-38 Partial Create PO *(US-11 / §5.9)*
+
+| | |
+|--|--|
+| **As a** | Company Commercial Manager (or Commission Manager) |
+| **I want** | To create a purchase order from a subset of awarded lines without closing the rest |
+| **So that** | One purchase request can yield several standard POs over time |
+
+**Acceptance criteria**
+
+- [x] Each PR line has `purchase_state`: `pending` / `ordered` / `cancelled`.
+- [x] Create PO wizard defaults to all pending awarded lines; CM / Commission Manager may deselect some.
+- [x] Selected lines are grouped by vendor into one or more `purchase.order` records; unselected lines stay `pending`.
+- [x] PR stays `po_ready` while any line is pending; PR → `done` only when every line is `ordered` or `cancelled`.
+- [x] Reject from `po_ready` cancels remaining pending lines, keeps already-created POs, and blocks further Create PO.
+- [x] FR-7 still applies per selected lines (`po_ready` + award data). Mixed-split `parent_request_id` remains the alias of `split_from_id` (no child PR on partial PO).
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -675,7 +692,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission after company signatures (FR-35); line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
-| BR-6 | PO creation only from `po_ready` with award data set; only Commercial Manager. |
+| BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns control to Commercial Manager, not Planner (unless CM then returns). |
 | BR-9 | Planner corrections use return path with reason; reject is terminal unless process reopens by policy. |
@@ -754,6 +771,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 35 | System | Enquiry signs before commission | FR-35 |
 | 36 | CCE | Inquiry field set + auto total + proforma | FR-36 |
 | 37 | CCE | Line last purchase | FR-37 |
+| 38 | CM / Comm. Mgr | Partial Create PO; line pending/ordered/cancelled | FR-38 |
 
 ---
 
@@ -775,7 +793,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO.
 
 ### Prerequisites
 
@@ -1062,7 +1080,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | On a `po_ready` PR with awarded quotes, as **Commercial Expert** try **Create PO** | Not available / refused |
 | 2 | As CM on a `signatory` (not yet `po_ready`) PR, try **Create PO** | Not available / blocked |
-| 3 | As CM on `po_ready`, **Create PO** | One or more draft `purchase.order` created (grouped by awarded vendor); lines use awarded quote prices; `origin` = PR number; `zvy_purchase_request_id` set; PR → `done`; **POs** smart button opens the order(s) |
+| 3 | As CM on `po_ready`, **Create PO** (default: all pending lines) | One or more draft `purchase.order` created (grouped by awarded vendor); lines use awarded quote prices; `origin` = PR number; `zvy_purchase_request_id` set; all lines `ordered`; PR → `done`; **POs** smart button opens the order(s) |
 | 4 | CE path: after MT-3.5 award + CM **Approve Quotes** (no line awards needed) → signatory → approve → **Create PO** | Single PO to `award_partner_id`; PR → `done` |
 
 #### MT-4.5 Enquiry commission → PO (end-to-end)
@@ -1121,3 +1139,16 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | ≥1 invited vendor submits a sealed portal bid (MT-5.2) | Bid `source=portal` visible to CM after open |
 | 3 | After opening datetime: **Open Bids** → set winner → **Select Winner** | CE `awarded`; PR `award_partner_id` + `quote_review` |
 | 4 | Continue MT-4.4 CE path (approve quotes → signatory → **Create PO**) | PO to winner without relying on manual CM bid entry |
+
+### Phase 9 — Partial PO
+
+#### MT-9.1 Partial Create PO (FR-38)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a `po_ready` PR with **two** awarded lines, as CM open **Create PO** and leave only one line selected | One draft `purchase.order`; selected line `ordered`; other line `pending`; PR stays `po_ready` |
+| 2 | **Create PO** for the remaining line | Second PO; both lines `ordered`; PR → `done` |
+| 3 | Repeat step 1 on another two-line PR, then **Reject** with a reason | Remaining pending line `cancelled`; existing PO kept; further Create PO blocked; PR `rejected` |
+| 4 | As Commercial Expert, try Create PO | Not available / refused |
+| 5 | As Commission Manager on a `po_ready` PR | Create PO allowed |
+| 6 | Two lines awarded to **different** vendors; Create PO with all selected | Two POs (grouped by vendor); PR `done` |
