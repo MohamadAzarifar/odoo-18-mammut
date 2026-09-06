@@ -3,7 +3,7 @@
 **Product:** Mammut Procurement & Tendering  
 **Related:** [README.md](README.md) (PRD) · [Architecture.md](Architecture.md) (design)
 
-Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supplier portal Stories **24–26** last. Each phase lists stories/FRs, checklists, suggested tests, and exit criteria. Dependency order: foundation → PR/CM intake → inquiry & routing → commission & CE seal → sign-off & PO → portal UI.
+Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supplier portal Stories **24–26** last. Each phase lists stories/FRs, checklists, suggested tests, and exit criteria. Dependency order: foundation → PR/CM intake → inquiry & routing → commission & CE seal → sign-off & PO → portal UI → customer PRD 1.3 series (purchase level, routing invert, inquiry fields, partial PO, per-item bids, meetings, pre-checks, company override, return path).
 
 ---
 
@@ -17,9 +17,21 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 | **3 — Holding Commission** | Cases, reviews, meetings, CE list/seal/open/award (manual bids) | 11, 15–23, 29–30 | 2 |
 | **4 — Sign-off & PO** | Sequential Approvals, CEO sole source, create PO | 7, 12–14, 28 | 2 (and 3 if commission path) |
 | **5 — Supplier portal** | `/my/tenders`, sealed submit, notifications | 24–26 | 3 |
+| **6 — Purchase level & formalities** | `MINOR/MEDIUM/MAJOR/LARGE`, valid-inquiry rules, تشریفات, signature reset | FR-32..34 | 4 |
+| **7 — Inquiry routing invert** | Signatures before commission on inquiry; tender still commission-first | FR-35 (replaces FR-27 inquiry path) | 6 |
+| **8 — Inquiry fields & validity** | Rich quote fields, unpriced quotes, last-purchase on lines | FR-36..37 | 2 |
+| **9 — Partial PO** | 1 PR → N POs; pending lines; CM/Commission Manager split | FR-38 (extends FR-7) | 4, 7 |
+| **10 — Per-item bids** | Bid lines, discount, per-item award / re-tender | FR-39..41 | 5 |
+| **11 — Meetings** | Same-company PRs, attendees, per-PR decisions, transfer | FR-42 (extends FR-18) | 3, 7 |
+| **12 — Commission pre-checks** | US-06 validation report; SAP checks stubbed | FR-43 | 7, 8, 11 |
+| **13 — Company procurement override** | Group default + per-company type / Need Commission | FR-44 | 6 |
+| **14 — Return to last approver** | Correction destination; CM chooses planner vs expert | FR-45 | 7 |
 
 **First delivery (MVP backend):** Phases 0–4 complete.  
-**Second delivery:** Phase 5.
+**Second delivery:** Phase 5.  
+**Third delivery (customer PRD 1.3):** Phases 6–14. Source: customer **PRD — Purchase Request System v1.3** (post-pilot). Does **not** reopen Phases 0–5. Version series **`18.0.2.x`** (breaking: inquiry routing order and partial PO). New FRs start at **FR-32**. Specs for 6–14 land in [README.md](README.md) / [Architecture.md](Architecture.md) **when each phase is implemented**; until then this roadmap is the backlog.
+
+Config fields for purchase-level bands and signatory chains ship as **placeholders** until the customer’s commission-laws and purchase-level threshold documents arrive.
 
 ---
 
@@ -263,6 +275,366 @@ FR-24–26 pass; CE path usable end-to-end from invitation to award without rely
 
 ---
 
+## Customer PRD 1.3 series (`18.0.2.x`)
+
+Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-09, US-11, US-T-06, US-T-07, §5.x, §12.x) refer to **PRD — Purchase Request System v1.3**.
+
+---
+
+## Phase 6 — Purchase level & formalities (`18.0.2.0`)
+
+**Goal:** Replace the single high-value boolean with a four-band purchase level, define a **valid** inquiry, and put a PR into تشریفات (formalities) when any line has fewer than three valid inquiries. Signature chain follows level + formalities; an effective change resets the chain and keeps history.
+
+**Hooks:** [`models/res_company.py`](models/res_company.py) (level bands; keep `zvy_high_value_threshold` until cutover); [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_compute_routing_flags`, `_action_spawn_signatory_approval`.
+
+### Scope
+
+- [ ] `purchase_level` on `zvy.purchase.request`: `minor` / `medium` / `major` / `large` (computed from awarded / estimated total vs company bands)
+- [ ] Company settings: four placeholder monetary bands (until the customer threshold document arrives)
+- [ ] Valid inquiry (FR-33 foundation): priced and received date &lt; 30 days; unpriced quotes allowed later in Phase 8 but **never** count toward the 3
+- [ ] `is_formalities` when **any** line has fewer than 3 valid inquiries (whole PR, not per line)
+- [ ] Spawn signatory chain from purchase level + formalities (placeholder approver sets per band; sole-source CEO inject from FR-14 still applies)
+- [ ] Effective-change list resets the in-progress chain and keeps prior `approval.request` records in history: request price, supplier list, quantity, add/remove goods
+- [ ] `is_high_value` remains derived or deprecated in favor of `purchase_level` (no silent dual routing)
+
+### Stories / FRs checklist
+
+- [ ] **FR-32** — Purchase level on PR (computed; company-configurable placeholder bands) — US-05
+- [ ] **FR-33** — Valid inquiry = priced + received &lt; 30 days; unpriced excluded from the count of 3 — US-03 / §5.1
+- [ ] **FR-34** — Formalities when any line has &lt;3 valid inquiries; extra signatories; effective-change **resets** chain and keeps history — §5.7
+
+### Suggested tests
+
+- [ ] Totals in each band compute `minor` / `medium` / `major` / `large`
+- [ ] Quote older than 30 days or with no price is not a valid inquiry
+- [ ] One line with 2 valid inquiries sets header `is_formalities`
+- [ ] Formalities PR injects extra placeholder approvers vs a standard same-band PR
+- [ ] Changing qty (or other effective field) while `signatory` archives the current approval and spawns a new chain
+- [ ] Prior approval remains readable (history); only the new chain can reach `po_ready`
+
+### Done when
+
+FR-32..34 pass with placeholder bands; existing company-path and sole-source tests still green after chain spawn uses level + formalities.
+
+---
+
+## Phase 7 — Inquiry routing invert (`18.0.2.1`)
+
+**Goal:** On **inquiry** PRs, complete company signatures **before** Holding Commission. On **tender** PRs, keep commission / closed-envelope **before** signatures. Commission entry requires the prior signature chain to exist (US-06 check 9 lands fully in Phase 12).
+
+**Hooks:** [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_action_route_after_quotes` (today: commission-first when `is_commission_item or is_high_value`); commission approve currently calls `_action_spawn_signatory_approval` — invert **inquiry only**.
+
+### Target flows
+
+```mermaid
+flowchart TD
+    award[CM awards quotes]
+    award --> kind{Procurement type}
+    kind -->|enquiry| signInquiry[Signatory: level plus formalities]
+    signInquiry --> commQ{Need Commission or large}
+    commQ -->|no| poReady[po_ready]
+    commQ -->|yes| commission[Holding Commission]
+    commission --> poReady
+    kind -->|tendering| ce[CE list then commission]
+    ce --> signTender[Signatory after commission]
+    signTender --> poReady
+```
+
+### Scope
+
+- [ ] Enquiry after quote award: always `_action_spawn_signatory_approval` (level + formalities from Phase 6)
+- [ ] After inquiry sign-off: if Need Commission **or** `purchase_level == large` → create/open `zvy.commission.case`, state `commission`; else → `po_ready`
+- [ ] Tendering: unchanged order (CE / commission first, then signatory) — FR-27 still describes this path
+- [ ] Commission **approve** on an inquiry case must **not** spawn a second signatory chain (signatures already done)
+- [ ] Commission **approve** on a tendering case still spawns signatory (Phase 4 behavior)
+- [ ] `is_high_value` must not by itself send enquiry PRs to commission before signatures
+
+### Stories / FRs checklist
+
+- [ ] **FR-35** — Inquiry: award → signatory → commission only if Need Commission or large; else `po_ready`. Tender: CE/commission → then signatory — US-05 / US-06 / §4.1.4–4.1.5
+
+### Suggested tests
+
+- [ ] Non-commission enquiry below `large` → signatory → `po_ready` (no case)
+- [ ] Need-commission enquiry → signatory first, then case
+- [ ] `large` enquiry without Need Commission → signatory first, then case
+- [ ] Tendering high-value / CE path still commission (or CE) before signatory
+- [ ] Inquiry commission approve does not create a new `approval.request`
+- [ ] Existing FR-27 tests updated to the inverted enquiry path
+
+### Done when
+
+FR-35 holds for enquiry and tendering; Phase 4 sign-off/PO tests updated; no enquiry PR enters `commission` with a missing or pending first signature chain.
+
+---
+
+## Phase 8 — Inquiry fields & validity (`18.0.2.2`)
+
+**Goal:** Expand `zvy.quote` to the US-03 field set, allow unpriced inquiries with written details, and show last-purchase context on the PR line. Quote minima use **valid** inquiries (FR-33), not raw quote count.
+
+**Hooks:** [`models/zvy_quote.py`](models/zvy_quote.py); [`models/zvy_purchase_request_line.py`](models/zvy_purchase_request_line.py) last-purchase + `_check_quote_minima`.
+
+### Scope
+
+- [ ] Required quote fields: vendor, contact name, contact phone (from vendor master, editable), unit price (optional if unpriced), qty, total (auto when priced), inquiry datetime (system)
+- [ ] Optional: comments, delivery date, advance %, payment type, tolerance % (from last purchase, system), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma attachment, discount %
+- [ ] Unpriced quote: allowed with written details; `price_unit` not required; **does not** count toward 3 valid inquiries
+- [ ] Line `last_vendor_id`, `last_price`, `last_purchase_date` (from prior POs / awarded history for product + company)
+- [ ] `_check_quote_minima` / shortfall wizard: count **valid** inquiries; shortfall reason still required when submitting with 1–2 valid quotes on a non-sole-source line (FR-10)
+- [ ] Auto total = unit × qty when priced; arithmetic reused by Phase 12 check 7
+
+### Stories / FRs checklist
+
+- [ ] **FR-36** — Inquiry field set (required/optional from US-03) + contact from vendor, auto total, proforma — US-03
+- [ ] **FR-37** — Line last purchase (`last_vendor_id`, `last_price`, `last_purchase_date`) — §12.2
+
+### Suggested tests
+
+- [ ] Priced quote computes total; unpriced quote saves without price and is excluded from valid count
+- [ ] Contact name/phone default from vendor and remain editable
+- [ ] Line last-purchase fields populate when a prior PO exists for the product/company
+- [ ] Expert submit still blocked at 0 valid quotes; 1–2 valid needs shortfall reason; 3 valid needs none
+- [ ] Quote older than 30 days does not satisfy minima even if priced
+
+### Done when
+
+US-03 fields are on the quote form; minima and formalities (Phase 6) use the same validity definition.
+
+---
+
+## Phase 9 — Partial PO (`18.0.2.3`)
+
+**Goal:** One PR can produce **N** purchase orders over time. Creating a PO for a subset of lines must not close remaining items. Rejecting the PR still closes it.
+
+**Hooks:** [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `action_create_po` (today all awarded lines → PR `done`); new line `purchase_state`; split wizard; [`models/purchase_order.py`](models/purchase_order.py) already has `zvy_purchase_request_id`.
+
+### Scope
+
+- [ ] Line `purchase_state`: `pending` / `ordered` / `cancelled` (reject of PR cancels remaining pending lines)
+- [ ] Create-PO wizard: CM (and Commission Manager) select a **subset** of awarded pending lines → one `purchase.order`; other lines stay pending
+- [ ] Group selected lines by vendor as today; do not include unselected lines
+- [ ] PR stays `po_ready` (or equivalent) while any line is pending; PR → `done` only when every line is `ordered` or `cancelled`
+- [ ] `parent_request_id` / split traceability when a PO split is recorded on the PR (customer `parentRequestId`)
+- [ ] One PO must not auto-close remaining lines
+- [ ] Existing “all lines, one vendor group” path remains the wizard default (select all)
+
+### Stories / FRs checklist
+
+- [ ] **FR-38** — Partial Create PO; line states pending/ordered; PR not `done` until all lines ordered or rejected — US-11 / §5.9
+
+### Suggested tests
+
+- [ ] Select 1 of 2 awarded lines → one PO; PR not `done`; remaining line `pending`
+- [ ] Second PO for the rest → PR `done`
+- [ ] Reject PR with pending lines → lines `cancelled`; no further PO
+- [ ] Non-CM (except Commission Manager) cannot split/create PO
+- [ ] Full-selection Create PO still matches Phase 4 grouping-by-vendor behavior
+
+### Done when
+
+FR-38 holds; 1 PR → N PO is the supported path; FR-7 “only from `po_ready` with award data” still enforced per selected lines.
+
+---
+
+## Phase 10 — Per-item bids (`18.0.2.4`)
+
+**Goal:** Sealed bids are **per PR line**, not one amount per vendor. Commission Manager may apply a discount; award is per item; items with no winner return to the CM for re-tender while others continue.
+
+**Hooks:** [`models/zvy_closed_envelope_bid.py`](models/zvy_closed_envelope_bid.py) (today one amount per vendor, unique on envelope+partner); [`controllers/portal.py`](controllers/portal.py) + portal templates; [`models/zvy_closed_envelope.py`](models/zvy_closed_envelope.py) winner / `award_partner_id`.
+
+### Scope
+
+- [ ] Bid header per invited vendor (envelope + partner) plus **bid lines** keyed to `zvy.purchase.request.line`
+- [ ] Per-line fields (portal + manual): unit price (optional per line), delivery time, payment method/duration, comments, proforma; qty copied from the PR line
+- [ ] Seal rules apply to line prices/attachments until open (FR-30 unchanged)
+- [ ] Before open, non-managers see **bid count only** (not amounts)
+- [ ] Commission Manager discount % on a bid line; `final_price` = unit × (1 − discount/100); chatter/audit on discount changes
+- [ ] Winner **per item** (not one `winner_partner_id` for the whole PR); PO grouping uses per-line winners (Phase 9)
+- [ ] No-winner items: return those lines to CM for re-tender; awarded items continue to signatory / PO
+- [ ] Commission expert sets tender end (`bid_deadline`); must align with the linked meeting datetime (Phase 11)
+- [ ] Re-open at authorized time logs an audit event (chatter)
+
+### Stories / FRs checklist
+
+- [ ] **FR-39** — Per-item sealed bid lines (portal + manual) — US-T-06
+- [ ] **FR-40** — Commission Manager discount + `final_price` + audit — US-T-07
+- [ ] **FR-41** — Winner per item; no-winner items return to CM for re-tender — US-T-07 / §5.6
+
+### Suggested tests
+
+- [ ] Portal vendor submits different prices per line; second vendor cannot read them before open
+- [ ] Unique constraint remains one bid **header** per supplier; multiple lines allowed
+- [ ] Discount updates `final_price` and posts chatter
+- [ ] Select winners on 2 of 3 lines; third line returns to CM; PR is not fully awarded
+- [ ] `action_open_bids` still blocked before opening datetime; re-open after deadline is logged
+- [ ] Phase 5 isolation / deadline / withdraw tests still pass against line-level amounts
+
+### Done when
+
+FR-39..41 pass; Create PO (Phase 9) can build orders from per-line winners; envelope-level single winner is no longer the tender award model.
+
+---
+
+## Phase 11 — Meetings (`18.0.2.5`)
+
+**Goal:** A commission meeting holds several PRs from **one requesting company**, records attendees (including people with no user account), requires minutes to mark held, and stores an independent decision per PR. Undecided PRs can move to a later meeting without losing history.
+
+**Hooks:** [`models/zvy_commission_meeting.py`](models/zvy_commission_meeting.py); new `zvy.meeting.pr` (or equivalent) junction; [`models/zvy_commission_case.py`](models/zvy_commission_case.py) `meeting_id`.
+
+### Scope
+
+- [ ] Meeting fields: location; date + time (keep or split `datetime`); status `scheduled` / `held` / `signed` / `cancelled`
+- [ ] Minutes attachment **required** to move `scheduled` → `held`; one minutes file for the whole meeting
+- [ ] Attendees: internal users + external rows (name + role; **no** `res.users` required)
+- [ ] All linked PRs / cases must share the same `company_id`
+- [ ] Junction `review_status`: `pending` / `reviewed` / `removed`; `decision`: `approved` / `rejected` / `needs_correction` / `undecided`
+- [ ] Independent decision per PR (and per goods/line where the tender award needs it)
+- [ ] Transfer an `undecided` / `pending` PR to another meeting; prior meeting rows stay in history (`removed` or archived link)
+- [ ] Bid opening (Phase 10) is allowed during a `held` meeting at tender end
+- [ ] Filter PR picker by requesting company
+
+### Stories / FRs checklist
+
+- [ ] **FR-42** — Meeting: location, SCHEDULED/HELD/SIGNED/CANCELLED, minutes required for HELD, internal+external attendees, same-company PRs, per-PR decision + transfer — US-09
+
+### Suggested tests
+
+- [ ] Linking a case from another company is rejected
+- [ ] Status → `held` without minutes fails; with minutes succeeds
+- [ ] External attendee saves without a user
+- [ ] Two PRs: approve one, leave the other `undecided`, transfer the second; first meeting still shows both historical rows
+- [ ] `cancelled` meeting does not wipe case history
+
+### Done when
+
+FR-42 holds; Phase 3 meeting+MOM tests updated to the new statuses; same-company and minutes rules are enforced.
+
+---
+
+## Phase 12 — Commission pre-checks (`18.0.2.6`)
+
+**Goal:** When an inquiry PR enters commission, run the US-06 **Validation Report**. Any hard fail returns the PR to the requesting Commercial Manager with a system comment. Commission Manager’s final decision is **not** bound by unanimous expert approve (today FR-17).
+
+**Hooks:** new report on commission entry (from Phase 7 inquiry path); [`models/zvy_commission_case.py`](models/zvy_commission_case.py) approve-without-meeting.
+
+### Scope
+
+- [ ] On enter `commission` (inquiry): compute checks 1–10; store a readable Validation Report on the case
+- [ ] Hard fail → return to requesting CM (`cm_review` or equivalent) with the system comment; do not leave the case actionable
+- [ ] Check 1: PR/regulation date vs allowed window before meeting date (placeholder window until commission-laws doc)
+- [ ] Check 2: all proformas ≤ 30 days vs commission review date
+- [ ] Check 3: product code/description vs SAP / Master Data — **stub** (skip or warn; no fail until integration)
+- [ ] Check 4: ≥3 valid inquiries **or** formalities signatures already complete
+- [ ] Check 5: dossier complete (comparison / proformas / technical request if required) — configurable required attachments
+- [ ] Check 6: all inquired vendors on AVL for the product
+- [ ] Check 7: arithmetic unit × qty = total (and line sums)
+- [ ] Check 8: lowest valid selected, or written non-lowest reason
+- [ ] Check 9: prior signature chain complete for purchase level (Phase 7)
+- [ ] Check 10: SAP “split count” / artificial PR split — **stub**
+- [ ] After green: manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting
+- [ ] Approve without meeting allowed even if an expert did not recommend approve (manager not bound)
+
+### Stories / FRs checklist
+
+- [ ] **FR-43** — Ten US-06 pre-checks; fail → return to requesting CM with system comment. Checks 3 and 10 (SAP) are **stubs** until integration — US-06
+
+### Suggested tests
+
+- [ ] Missing non-lowest reason fails check 8 and returns to CM
+- [ ] Non-AVL vendor on a quote fails check 6
+- [ ] Inquiry PR with no completed signatory chain fails check 9
+- [ ] All green checks leave the case open for the manager
+- [ ] Approve without meeting succeeds with a mixed expert recommendation
+- [ ] Checks 3 and 10 do not fail the report (stub)
+
+### Done when
+
+FR-43 holds for non-SAP checks; FR-17 tests updated so unanimous expert approve is no longer required; SAP stubs documented as skipped.
+
+---
+
+## Phase 13 — Company procurement override (`18.0.2.7`)
+
+**Goal:** Product Enquiry/Tendering and Need Commission have a **group default** on the template and an optional **per-company override**. Routing and mixed-PR split use the resolved type for the PR’s company.
+
+**Hooks:** [`models/product_template.py`](models/product_template.py); new overlay model (e.g. `zvy.product.procurement.company`); line `procurement_type` / `is_commission_item` computes.
+
+### Scope
+
+- [ ] Keep template `zvy_procurement_type` / `zvy_need_commission` as the default
+- [ ] Per-company overlay: procurement type + Need Commission (Need Commission only meaningful for Enquiry)
+- [ ] Line/header computes resolve overlay for `request.company_id`, else template
+- [ ] Mixed-PR split (FR-31) uses **resolved** types, not template-only
+- [ ] Settings / product UI: show default and company override without requiring debug mode
+- [ ] No Bridge/SAP product sync in this phase
+
+### Stories / FRs checklist
+
+- [ ] **FR-44** — Procurement type / Need Commission overridable per company — §12.7
+
+### Suggested tests
+
+- [ ] Template Enquiry + company A overlay Tendering → company A PR line is Tendering; company B stays Enquiry
+- [ ] Mixed submit uses resolved types (split still Enquiry vs Tendering)
+- [ ] Need Commission overlay on Enquiry routes that company through Phase 7 commission path
+- [ ] Overlay Need Commission ignored/cleared when resolved type is Tendering
+
+### Done when
+
+FR-44 holds; FR-31 split and FR-35 routing use the resolved type for the PR company.
+
+---
+
+## Phase 14 — Return to last approver (`18.0.2.8`)
+
+**Goal:** Return-for-correction goes to the **last actor**, not always the planner. When the request reaches the requesting-company Commercial Manager, they choose destination: planner (PR correction) or commercial expert (re-inquiry / re-tender list). Written reason remains mandatory. After correction, the signature chain **restarts** (Phase 6 reset).
+
+**Hooks:** [`wizard/request_return_wizard.py`](wizard/request_return_wizard.py); Approvals refuse → PR `cm_review` ([`models/approval_request.py`](models/approval_request.py)); commission corrections path.
+
+### Scope
+
+- [ ] Return from a signatory step goes to the previous signatory (or CM if first)
+- [ ] Return from commission goes to last approver, then to CM when the chain is exhausted
+- [ ] When CM receives a correction: wizard destination `planner` (`correction`) or `expert` (`inquiry`, keep assignment or re-assign)
+- [ ] Mandatory written reason on every return (FR-4 unchanged)
+- [ ] Previous approvals stay in history; new chain required after the correction is submitted (FR-34)
+- [ ] Reject remains terminal (BR-9)
+
+### Stories / FRs checklist
+
+- [ ] **FR-45** — Return-for-correction goes to last actor; when it reaches CM, destination is planner or commercial expert — §5.8
+
+### Suggested tests
+
+- [ ] Signatory 2 returns → pending on signatory 1; PR not `correction`
+- [ ] First signatory returns → CM queue; CM can send to planner or expert
+- [ ] CM → planner: `correction`; planner resubmit restarts signatory (or inquiry per destination)
+- [ ] CM → expert: `inquiry`; quotes/list editable again
+- [ ] Reason required; chatter logs actor and destination
+- [ ] Existing FR-4 planner return path still works when CM chooses planner
+
+### Done when
+
+FR-45 holds; refuse/return no longer always dumps work on the planner; Phase 6 reset runs after a completed correction.
+
+---
+
+## Out of scope / blocked (PRD 1.3 §14–15)
+
+Not scheduled in Phases 6–14. Placeholder config may exist; do not build the products themselves.
+
+| Item | Notes |
+|------|--------|
+| Full PO lifecycle after issue | Standard `purchase.order` after Create PO |
+| Post-PO accounting / finance | Outside this module |
+| AVL lifecycle as its own product | AVL stays in-Odoo `zvy.avl.entry` (Phase 0) |
+| Holding org chart / member management | Outside this process |
+| Commission-laws document | Drives Phase 6/12 windows and extra signatories when it arrives |
+| Purchase-level threshold document | Drives Phase 6 band amounts when it arrives |
+| SAP / AVL / Bridge master-data contracts | FR-43 checks **3** and **10** stay stubbed; no integration phase scheduled |
+
+---
+
 ## Cross-phase non-functionals
 
 Track throughout (PRD §7):
@@ -313,6 +685,20 @@ Track throughout (PRD §7):
 | 29 | FR-29 | 3 |
 | 30 | FR-30 | 3 |
 | 31 | FR-31 | 1 (delta `18.0.1.7.0`) |
+| 32 | FR-32 | 6 |
+| 33 | FR-33 | 6 (validity); 8 (unpriced quotes) |
+| 34 | FR-34 | 6 |
+| 35 | FR-35 | 7 (replaces FR-27 enquiry path; tender still 2/3) |
+| 36 | FR-36 | 8 |
+| 37 | FR-37 | 8 |
+| 38 | FR-38 | 9 (extends FR-7) |
+| 39 | FR-39 | 10 |
+| 40 | FR-40 | 10 |
+| 41 | FR-41 | 10 |
+| 42 | FR-42 | 11 (extends FR-18) |
+| 43 | FR-43 | 12 |
+| 44 | FR-44 | 13 |
+| 45 | FR-45 | 14 |
 
 ---
 
@@ -328,6 +714,16 @@ Track throughout (PRD §7):
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |
 | Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
 | Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
+| Customer PRD 1.3 series | Pending | Phases 6–14; version `18.0.2.x`; does not reopen 0–5 |
+| 6 Purchase level & formalities | Pending | `18.0.2.0` — FR-32..34 |
+| 7 Inquiry routing invert | Pending | `18.0.2.1` — FR-35 |
+| 8 Inquiry fields & validity | Pending | `18.0.2.2` — FR-36..37 |
+| 9 Partial PO | Pending | `18.0.2.3` — FR-38 |
+| 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |
+| 11 Meetings | Pending | `18.0.2.5` — FR-42 |
+| 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |
+| 13 Company procurement override | Pending | `18.0.2.7` — FR-44 |
+| 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |
 
 ---
 
