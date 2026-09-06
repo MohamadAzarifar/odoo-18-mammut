@@ -83,12 +83,24 @@ class ZvyPurchaseRequest(models.Model):
         string='Closed Envelope',
         copy=False,
         readonly=True,
+        help='Latest closed envelope on this request.',
+    )
+    closed_envelope_ids = fields.One2many(
+        'zvy.closed.envelope',
+        'request_id',
+        string='Closed Envelopes',
     )
     award_partner_id = fields.Many2one(
         'res.partner',
         string='Awarded Vendor',
-        copy=False,
-        readonly=True,
+        compute='_compute_award_partner_id',
+        store=True,
+        help='Set when every awarded (non-re-tender) line shares one vendor.',
+    )
+    has_ce_retender = fields.Boolean(
+        string='Has Re-tender Lines',
+        compute='_compute_has_ce_retender',
+        store=True,
     )
     approval_request_id = fields.Many2one(
         'approval.request',
@@ -252,9 +264,12 @@ class ZvyPurchaseRequest(models.Model):
             request.amount_total = sum(request.line_ids.mapped('price_subtotal'))
 
     @api.depends(
-        'line_ids.price_subtotal',
         'line_ids.awarded_quote_id',
         'line_ids.awarded_quote_id.amount_total',
+        'line_ids.awarded_bid_line_id',
+        'line_ids.awarded_bid_line_id.final_price',
+        'line_ids.product_uom_qty',
+        'line_ids.price_subtotal',
     )
     def _compute_amount_for_level(self):
         for request in self:
@@ -262,9 +277,31 @@ class ZvyPurchaseRequest(models.Model):
             for line in request.line_ids:
                 if line.awarded_quote_id:
                     total += line.awarded_quote_id.amount_total
+                elif line.awarded_bid_line_id:
+                    total += (
+                        line.awarded_bid_line_id.final_price
+                        * (line.product_uom_qty or 0.0)
+                    )
                 else:
                     total += line.price_subtotal
             request.amount_for_level = total
+
+    @api.depends(
+        'line_ids.awarded_partner_id',
+        'line_ids.ce_retender',
+    )
+    def _compute_award_partner_id(self):
+        for request in self:
+            awarded = request.line_ids.filtered(
+                lambda l: l.awarded_partner_id and not l.ce_retender
+            )
+            partners = awarded.mapped('awarded_partner_id')
+            request.award_partner_id = partners[:1] if len(partners) == 1 else False
+
+    @api.depends('line_ids.ce_retender')
+    def _compute_has_ce_retender(self):
+        for request in self:
+            request.has_ce_retender = any(request.line_ids.mapped('ce_retender'))
 
     @api.depends(
         'amount_for_level',
@@ -621,33 +658,59 @@ class ZvyPurchaseRequest(models.Model):
 
     def action_create_closed_envelope(self):
         self.ensure_one()
-        if self.state != 'inquiry':
-            raise UserError(_(
-                'Closed envelopes can only be created while the PR is in Inquiry.'
-            ))
         if self.procurement_type != 'tendering':
             raise UserError(_(
                 'Closed envelopes can only be created for Tendering purchase requests.'
             ))
-        if self.closed_envelope_id:
-            return {
-                'type': 'ir.actions.act_window',
-                'name': _('Closed Envelope'),
-                'res_model': 'zvy.closed.envelope',
-                'res_id': self.closed_envelope_id.id,
-                'view_mode': 'form',
-                'target': 'current',
-            }
-        if not self._user_is_assigned_expert() and not self.env.su:
-            is_cm = self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
-            is_admin = self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
-            if not (is_cm or is_admin):
+        needed = self._ce_lines_needing_envelope()
+        active = self.closed_envelope_ids.filtered(
+            lambda e: e.state in (
+                'draft', 'list_pending', 'portal_open', 'opened',
+            )
+        )
+        if needed:
+            if self.state not in (
+                'inquiry', 'quote_review', 'commission', 'signatory', 'po_ready',
+            ):
                 raise UserError(_(
-                    'Only assigned Commercial Experts can create a closed envelope.'
+                    'Closed envelopes can only be created while the PR is in '
+                    'Inquiry, or later for leftover re-tender items.'
                 ))
+            self._check_can_create_closed_envelope()
+            envelope = self.env['zvy.closed.envelope'].sudo().create({
+                'request_id': self.id,
+                'line_ids': [(6, 0, needed.ids)],
+            })
+            return self._action_open_closed_envelope(envelope)
+        target = active[:1] or self.closed_envelope_id
+        if target:
+            return self._action_open_closed_envelope(target)
+        if self.state != 'inquiry':
+            raise UserError(_(
+                'Closed envelopes can only be created while the PR is in Inquiry.'
+            ))
+        self._check_can_create_closed_envelope()
         envelope = self.env['zvy.closed.envelope'].sudo().create({
             'request_id': self.id,
         })
+        return self._action_open_closed_envelope(envelope)
+
+    def _check_can_create_closed_envelope(self):
+        self.ensure_one()
+        if self._user_is_assigned_expert() or self.env.su:
+            return
+        is_cm = self.env.user.has_group(
+            'zvy_tendering.group_zvy_commercial_manager'
+        )
+        is_admin = self.env.user.has_group(
+            'zvy_tendering.group_zvy_tendering_admin'
+        )
+        if not (is_cm or is_admin):
+            raise UserError(_(
+                'Only assigned Commercial Experts can create a closed envelope.'
+            ))
+
+    def _action_open_closed_envelope(self, envelope):
         return {
             'type': 'ir.actions.act_window',
             'name': _('Closed Envelope'),
@@ -657,12 +720,22 @@ class ZvyPurchaseRequest(models.Model):
             'target': 'current',
         }
 
+    def _ce_lines_needing_envelope(self):
+        """PR lines that still need a new CE (leftover re-tender, not on an active CE)."""
+        self.ensure_one()
+        leftover = self.line_ids.filtered('ce_retender')
+        if not leftover:
+            return leftover
+        active_states = ('draft', 'list_pending', 'portal_open', 'opened')
+        return leftover.filtered(
+            lambda l: not l.closed_envelope_ids.filtered(
+                lambda e: e.state in active_states
+            )
+        )
+
     def _ce_award_satisfies_inquiry(self):
         self.ensure_one()
-        return bool(
-            self.closed_envelope_id
-            and self.closed_envelope_id.state == 'awarded'
-        )
+        return any(self.sudo().line_ids.mapped('awarded_bid_line_id'))
 
     def action_approve_quotes(self):
         self.ensure_one()
@@ -689,10 +762,14 @@ class ZvyPurchaseRequest(models.Model):
                 awarded = line.awarded_quote_id
                 awarded.sudo().write({'state': 'accepted'})
         else:
-            if not self.award_partner_id:
+            missing = self.sudo().line_ids.filtered(
+                lambda l: not l.ce_retender and not l.awarded_bid_line_id
+            )
+            if missing:
                 raise ValidationError(_(
-                    'Closed-envelope award vendor is required before approving.'
-                ))
+                    'Select a winner on every awarded item before approving. '
+                    'Missing: %s'
+                ) % ', '.join(missing.mapped('product_id.display_name')))
         self.message_post(body=_('Quotes approved; routing purchase request.'))
         result = self._action_route_after_quotes()
         if not self._ce_award_satisfies_inquiry():
@@ -823,10 +900,14 @@ class ZvyPurchaseRequest(models.Model):
 
     def _has_award_data(self):
         self.ensure_one()
-        if self._ce_award_satisfies_inquiry():
-            return bool(self.award_partner_id)
         lines = self.sudo().line_ids
-        return bool(lines) and all(line.awarded_quote_id for line in lines)
+        if not lines:
+            return False
+        if any(line.ce_retender for line in lines):
+            return False
+        if self._ce_award_satisfies_inquiry():
+            return all(line.awarded_bid_line_id for line in lines)
+        return all(line.awarded_quote_id for line in lines)
 
     def _user_is_cm_or_admin(self):
         return (
@@ -1105,7 +1186,7 @@ class ZvyPurchaseRequest(models.Model):
             lambda l: l.purchase_state == 'pending'
         )
         if self._ce_award_satisfies_inquiry():
-            return lines
+            return lines.filtered('awarded_bid_line_id')
         return lines.filtered('awarded_quote_id')
 
     def _check_create_po_lines(self, lines):
@@ -1125,10 +1206,12 @@ class ZvyPurchaseRequest(models.Model):
                 'Already processed: %s'
             ) % ', '.join(not_pending.mapped('product_id.display_name')))
         if self._ce_award_satisfies_inquiry():
-            if not self.award_partner_id:
+            missing = lines.filtered(lambda l: not l.awarded_bid_line_id)
+            if missing:
                 raise UserError(_(
-                    'Award data is required before creating purchase orders.'
-                ))
+                    'Award data is required before creating purchase orders. '
+                    'Missing: %s'
+                ) % ', '.join(missing.mapped('product_id.display_name')))
             return
         missing = lines.filtered(lambda l: not l.awarded_quote_id)
         if missing:
@@ -1196,31 +1279,37 @@ class ZvyPurchaseRequest(models.Model):
 
     def _create_po_from_ce_award(self, lines):
         self.ensure_one()
-        partner = self.award_partner_id
+        grouped = defaultdict(lambda: self.env['zvy.purchase.request.line'])
+        for line in lines:
+            partner = line.awarded_partner_id
+            if not partner:
+                raise UserError(_(
+                    'Line %s has no awarded vendor.'
+                ) % line.product_id.display_name)
+            grouped[partner] |= line
+
+        orders = self.env['purchase.order']
         PurchaseOrder = self.env['purchase.order'].sudo()
         PurchaseLine = self.env['purchase.order.line'].sudo()
-        po = PurchaseOrder.create(self._prepare_purchase_order_vals(partner))
-
-        envelope = self.closed_envelope_id
-        winning_bid = envelope.bid_ids.filtered(
-            lambda b: b.partner_id == partner
-        )[:1]
-        for line in lines:
-            if len(lines) == 1 and winning_bid and winning_bid.amount:
-                price_unit = winning_bid.amount / (line.product_uom_qty or 1.0)
-            else:
-                price_unit = line.price_estimate or 0.0
-            PurchaseLine.create({
-                'order_id': po.id,
-                'product_id': line.product_id.id,
-                'name': line.product_id.display_name,
-                'product_qty': line.product_uom_qty,
-                'product_uom': line.product_uom_id.id,
-                'price_unit': price_unit,
-                'date_planned': fields.Datetime.now(),
-                'zvy_purchase_request_line_id': line.id,
-            })
-        return po
+        for partner, po_lines in grouped.items():
+            po = PurchaseOrder.create(self._prepare_purchase_order_vals(partner))
+            for line in po_lines:
+                bid_line = line.awarded_bid_line_id
+                price_unit = (
+                    bid_line.final_price if bid_line else (line.price_estimate or 0.0)
+                )
+                PurchaseLine.create({
+                    'order_id': po.id,
+                    'product_id': line.product_id.id,
+                    'name': line.product_id.display_name,
+                    'product_qty': line.product_uom_qty,
+                    'product_uom': line.product_uom_id.id,
+                    'price_unit': price_unit,
+                    'date_planned': fields.Datetime.now(),
+                    'zvy_purchase_request_line_id': line.id,
+                })
+            orders |= po
+        return orders
 
     def _prepare_purchase_order_vals(self, partner):
         self.ensure_one()

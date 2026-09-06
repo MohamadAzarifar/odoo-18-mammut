@@ -39,7 +39,7 @@ access_zvy_commission_meeting_comm_mgr,zvy.commission.meeting commission manager
 access_zvy_commission_meeting_comm_exp,zvy.commission.meeting commission expert,model_zvy_commission_meeting,group_zvy_commission_expert,1,0,0,0
 access_zvy_closed_envelope_admin,zvy.closed.envelope admin,model_zvy_closed_envelope,group_zvy_tendering_admin,1,1,1,1
 access_zvy_closed_envelope_comm_mgr,zvy.closed.envelope commission manager,model_zvy_closed_envelope,group_zvy_commission_manager,1,1,1,0
-access_zvy_closed_envelope_comm_exp,zvy.closed.envelope commission expert,model_zvy_closed_envelope,group_zvy_commission_expert,1,0,0,0
+access_zvy_closed_envelope_comm_exp,zvy.closed.envelope commission expert,model_zvy_closed_envelope,group_zvy_commission_expert,1,1,0,0
 access_zvy_closed_envelope_cce,zvy.closed.envelope commercial expert,model_zvy_closed_envelope,group_zvy_commercial_expert,1,1,1,0
 access_zvy_closed_envelope_cm,zvy.closed.envelope commercial manager,model_zvy_closed_envelope,group_zvy_commercial_manager,1,0,0,0
 access_zvy_closed_envelope_signatory,zvy.closed.envelope signatory,model_zvy_closed_envelope,group_zvy_signatory,1,0,0,0
@@ -48,6 +48,11 @@ access_zvy_closed_envelope_bid_comm_mgr,zvy.closed.envelope.bid commission manag
 access_zvy_closed_envelope_bid_comm_exp,zvy.closed.envelope.bid commission expert,model_zvy_closed_envelope_bid,group_zvy_commission_expert,1,0,0,0
 access_zvy_closed_envelope_bid_cce,zvy.closed.envelope.bid commercial expert,model_zvy_closed_envelope_bid,group_zvy_commercial_expert,1,0,0,0
 access_zvy_closed_envelope_bid_cm,zvy.closed.envelope.bid commercial manager,model_zvy_closed_envelope_bid,group_zvy_commercial_manager,1,0,0,0
+access_zvy_closed_envelope_bid_line_admin,zvy.closed.envelope.bid.line admin,model_zvy_closed_envelope_bid_line,group_zvy_tendering_admin,1,1,1,1
+access_zvy_closed_envelope_bid_line_comm_mgr,zvy.closed.envelope.bid.line commission manager,model_zvy_closed_envelope_bid_line,group_zvy_commission_manager,1,1,1,1
+access_zvy_closed_envelope_bid_line_comm_exp,zvy.closed.envelope.bid.line commission expert,model_zvy_closed_envelope_bid_line,group_zvy_commission_expert,1,0,0,0
+access_zvy_closed_envelope_bid_line_cce,zvy.closed.envelope.bid.line commercial expert,model_zvy_closed_envelope_bid_line,group_zvy_commercial_expert,1,0,0,0
+access_zvy_closed_envelope_bid_line_cm,zvy.closed.envelope.bid.line commercial manager,model_zvy_closed_envelope_bid_line,group_zvy_commercial_manager,1,0,0,0
 access_zvy_request_reject_wizard_cm,zvy.request.reject.wizard commercial manager,model_zvy_request_reject_wizard,group_zvy_commercial_manager,1,1,1,1
 access_zvy_request_reject_wizard_admin,zvy.request.reject.wizard admin,model_zvy_request_reject_wizard,group_zvy_tendering_admin,1,1,1,1
 access_zvy_request_return_wizard_cm,zvy.request.return.wizard commercial manager,model_zvy_request_return_wizard,group_zvy_commercial_manager,1,1,1,1
@@ -76,3 +81,4 @@ access_zvy_request_create_po_wizard_line_comm_mgr,zvy.request.create.po.wizard.l
 access_zvy_request_create_po_wizard_line_admin,zvy.request.create.po.wizard.line admin,model_zvy_request_create_po_wizard_line,group_zvy_tendering_admin,1,1,1,1
 access_zvy_closed_envelope_portal,zvy.closed.envelope portal,model_zvy_closed_envelope,base.group_portal,1,0,0,0
 access_zvy_closed_envelope_bid_portal,zvy.closed.envelope.bid portal,model_zvy_closed_envelope_bid,base.group_portal,1,0,0,0
+access_zvy_closed_envelope_bid_line_portal,zvy.closed.envelope.bid.line portal,model_zvy_closed_envelope_bid_line,base.group_portal,1,0,0,0

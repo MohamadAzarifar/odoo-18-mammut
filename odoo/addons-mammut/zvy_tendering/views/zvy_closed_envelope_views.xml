@@ -9,6 +9,7 @@
                 <field name="request_id"/>
                 <field name="opening_datetime"/>
                 <field name="bid_deadline"/>
+                <field name="bid_count"/>
                 <field name="winner_partner_id"/>
                 <field name="state" widget="badge"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
@@ -37,6 +38,9 @@
                             class="btn-primary"
                             invisible="state != 'portal_open'"
                             groups="zvy_tendering.group_zvy_commission_manager"/>
+                    <button name="action_reopen_bidding" string="Re-open Bidding" type="object"
+                            invisible="state != 'portal_open'"
+                            groups="zvy_tendering.group_zvy_commission_manager,zvy_tendering.group_zvy_tendering_admin"/>
                     <button name="action_select_winner" string="Select Winner" type="object"
                             class="btn-primary"
                             invisible="state != 'opened'"
@@ -61,15 +65,18 @@
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="access_url" invisible="1"/>
+                            <field name="user_can_see_bids" invisible="1"/>
+                            <field name="line_ids" widget="many2many_tags"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
                         </group>
                         <group>
                             <field name="opening_datetime"
                                       readonly="state not in ('draft', 'list_pending')"/>
                             <field name="bid_deadline"
-                                      readonly="state not in ('draft', 'list_pending')"/>
-                            <field name="winner_partner_id"
-                                      readonly="state != 'opened'"
-                                      domain="[('id', 'in', invite_partner_ids)]"/>
+                                      readonly="state not in ('draft', 'list_pending', 'portal_open')"/>
+                            <field name="winner_partner_id" readonly="1"/>
+                            <field name="bid_count"/>
                             <field name="list_reject_reason"
                                       invisible="state != 'list_pending' and not list_reject_reason"
                                       readonly="state != 'list_pending'"/>
@@ -87,9 +94,14 @@
                     </group>
                     <notebook>
                         <page string="Bids" name="bids">
+                            <div class="text-muted" invisible="user_can_see_bids">
+                                Bid amounts are sealed until opening. Bid count:
+                                <field name="bid_count" class="oe_inline"/>
+                            </div>
                             <field name="bid_ids"
+                                     invisible="not user_can_see_bids"
                                      readonly="state not in ('portal_open', 'opened')">
-                                <list editable="bottom">
+                                <list>
                                     <field name="partner_id" domain="[('id', 'in', parent.invite_partner_ids)]"/>
                                     <field name="amount"/>
                                     <field name="currency_id" column_invisible="1"/>
@@ -97,6 +109,46 @@
                                     <field name="source"/>
                                     <field name="notes" optional="hide"/>
                                 </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="partner_id" domain="[('id', 'in', parent.invite_partner_ids)]"/>
+                                            <field name="source"/>
+                                            <field name="submitted_at"/>
+                                        </group>
+                                        <group>
+                                            <field name="amount"/>
+                                            <field name="currency_id" invisible="1"/>
+                                            <field name="envelope_id" invisible="1"/>
+                                            <field name="request_id" invisible="1"/>
+                                        </group>
+                                    </group>
+                                    <group>
+                                        <field name="notes"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                    </group>
+                                    <field name="line_ids">
+                                        <list editable="bottom">
+                                            <field name="envelope_id" column_invisible="1"/>
+                                            <field name="currency_id" column_invisible="1"/>
+                                            <field name="request_line_id"
+                                                   domain="[('request_id', '=', parent.request_id)]"
+                                                   options="{'no_create': True}"/>
+                                            <field name="product_id" optional="show"/>
+                                            <field name="product_uom_qty"/>
+                                            <field name="price_unit"/>
+                                            <field name="delivery_time" optional="hide"/>
+                                            <field name="payment_type" optional="hide"/>
+                                            <field name="payment_duration" optional="hide"/>
+                                            <field name="comments" optional="hide"/>
+                                            <field name="discount_percent"
+                                                   readonly="envelope_id.state not in ('opened', 'awarded')"/>
+                                            <field name="final_price"/>
+                                            <field name="is_winner"
+                                                   readonly="envelope_id.state != 'opened'"/>
+                                        </list>
+                                    </field>
+                                </form>
                             </field>
                         </page>
                     </notebook>

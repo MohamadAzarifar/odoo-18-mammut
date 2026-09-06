@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.3` |
+| Version | `18.0.2.4` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -38,6 +38,7 @@ zvy_tendering/
 │   ├── zvy_commission_meeting.py
 │   ├── zvy_closed_envelope.py
 │   ├── zvy_closed_envelope_bid.py
+│   ├── zvy_closed_envelope_bid_line.py
 │   ├── product_template.py          # enquiry/tendering + commission
 │   ├── res_company.py
 │   ├── res_config_settings.py
@@ -74,7 +75,7 @@ zvy_tendering/
     ├── test_router.py
     ├── test_signatory_bridge.py
     ├── test_partial_po.py
-    ├── test_bid_seal.py
+    ├── test_per_item_bids.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -105,8 +106,11 @@ erDiagram
     zvy_purchase_request ||--o| zvy_commission_case : commission
     zvy_commission_case ||--o{ zvy_commission_review : reviews
     zvy_commission_meeting ||--o{ zvy_commission_case : cases
-    zvy_purchase_request ||--o| zvy_closed_envelope : ce
+    zvy_purchase_request ||--o{ zvy_closed_envelope : envelopes
+    zvy_closed_envelope }o--o{ zvy_purchase_request_line : scope
     zvy_closed_envelope ||--o{ zvy_closed_envelope_bid : bids
+    zvy_closed_envelope_bid ||--o{ zvy_closed_envelope_bid_line : lines
+    zvy_purchase_request_line ||--o{ zvy_closed_envelope_bid_line : bid_lines
     zvy_purchase_request }o--o| approval_request : signatory
     zvy_purchase_request ||--o{ purchase_order : pos
 ```
@@ -138,12 +142,14 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `split_from_id` / `split_request_id` / `parent_request_id` | Many2one | Sibling PRs after FR-31 split; `parent_request_id` is the customer `parentRequestId` alias of `split_from_id` |
 | `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
-| `closed_envelope_id` | Many2one | → `zvy.closed.envelope` (when CE path) |
+| `closed_envelope_id` | Many2one | Latest `zvy.closed.envelope` |
+| `closed_envelope_ids` | One2many | All envelopes (re-tender rounds) |
+| `has_ce_retender` | Boolean | Any line flagged for re-tender |
 | `approval_request_id` | Many2one | Current `approval.request` (signatory bridge) |
 | `approval_request_ids` | One2many | Signatory history (cancelled / refused / current) |
 | `purchase_order_ids` | One2many / Many2many | Created POs |
 | `reject_reason` / `return_reason` | Text | Mandatory on reject/return |
-| `award_partner_id` | Many2one | Winning vendor when single award |
+| `award_partner_id` | Many2one | Computed: winning vendor when every awarded (non-re-tender) line shares one vendor |
 | `quote_ids` | One2many | → `zvy.quote` (aggregation; not shown as a PR notebook tab) |
 
 Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_return_correction`, `action_assign_experts`, `action_approve_quotes`, `action_reject_quotes`, `_action_route_after_quotes`, `action_create_po`.
@@ -173,7 +179,9 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
 | `quote_shortfall_reason` | Text | Required to submit 1–2 valid inquiries on a non-sole-source line; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
-| `awarded_partner_id` | Many2one | Related from awarded quote |
+| `awarded_bid_line_id` | Many2one `zvy.closed.envelope.bid.line` | Winning CE bid line (FR-41) |
+| `ce_retender` | Boolean | No winner in the last envelope; leftover item for a later CE |
+| `awarded_partner_id` | Many2one | Computed from awarded quote or winning bid line |
 | `award_not_lowest_reason` | Text | Required when the awarded quote’s `price_unit` is not the lowest among priced non-draft quotes on the line; set by the not-lowest wizard or with the many2one write |
 | `last_vendor_id` / `last_price` / `last_purchase_date` | Many2one / Monetary / Date | Last confirmed PO for product+company, else last awarded inquiry on another PR (FR-37); read-only |
 | `purchase_state` | Selection | `pending` / `ordered` / `cancelled` (FR-38); workflow-only |
@@ -276,22 +284,41 @@ Closed-envelope tender linked to a PR (or line set).
 | `opening_datetime` | Datetime | Required on list approval (FR-20) |
 | `bid_deadline` | Datetime | Required on list approval; default window from settings |
 | `bid_ids` | One2many | → `zvy.closed.envelope.bid` |
-| `winner_partner_id` | Many2one | Set after open (FR-19) |
+| `bid_count` | Integer | Number of bid headers (visible before open) |
+| `line_ids` | Many2many | PR lines in scope for this envelope round |
+| `winner_partner_id` | Many2one | Computed when every awarded item in this envelope shares one vendor |
 
 #### `zvy.closed.envelope.bid`
+
+Bid **header** per invited vendor. Unique `(envelope_id, partner_id)`.
 
 | Field | Type | Notes |
 |-------|------|--------|
 | `envelope_id` | Many2one | |
 | `partner_id` | Many2one | Invited supplier |
-| `amount` | Monetary | **Sealed** until open (FR-30) |
+| `line_ids` | One2many | → `zvy.closed.envelope.bid.line` |
+| `amount` | Monetary | Computed: sum of unit × qty (pre-discount). **Sealed** until open (FR-30) |
 | `currency_id` | Many2one | |
 | `notes` | Text | |
 | `attachment_ids` | Many2many | Sealed with amount |
 | `submitted_at` | Datetime | |
 | `source` | Selection | `portal` / `manual` |
 
-Sealing: override `read` / use computed “visible” fields so non-authorized users get empty/hidden amounts before `action_open_bids`. Portal user always reads **own** bid.
+#### `zvy.closed.envelope.bid.line`
+
+Per-item sealed offer keyed to `zvy.purchase.request.line` (FR-39). Unique `(bid_id, request_line_id)`.
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `bid_id` | Many2one | Header |
+| `request_line_id` | Many2one | PR line |
+| `price_unit` | Monetary | Optional; **sealed** until open |
+| `delivery_time` / `payment_type` / `payment_duration` / `comments` / `proforma` | Char / Selection / Text / Binary | Sealed with price |
+| `discount_percent` | Float | Commission Manager after open (FR-40) |
+| `final_price` | Monetary | `price_unit × (1 − discount/100)` |
+| `is_winner` | Boolean | Per-item award (FR-41) |
+
+Sealing: override `read` on header and lines so non-authorized users get empty/hidden amounts before `action_open_bids`. Before open, non-managers see **bid count only**. Portal user always reads **own** bid. Commission Expert may write `bid_deadline` only (meeting alignment is Phase 11). `action_reopen_bidding` extends the deadline after it has passed and logs chatter.
 
 #### Extensions
 

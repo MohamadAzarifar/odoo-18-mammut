@@ -85,6 +85,7 @@ class ZvyRequestCreatePoWizardLine(models.TransientModel):
     @api.depends(
         'line_id.awarded_partner_id',
         'line_id.awarded_quote_id.price_unit',
+        'line_id.awarded_bid_line_id.final_price',
         'line_id.price_estimate',
         'wizard_id.request_id.award_partner_id',
     )
@@ -97,5 +98,7 @@ class ZvyRequestCreatePoWizardLine(models.TransientModel):
             )
             if line.awarded_quote_id:
                 wizard_line.price_unit = line.awarded_quote_id.price_unit
+            elif line.awarded_bid_line_id:
+                wizard_line.price_unit = line.awarded_bid_line_id.final_price
             else:
                 wizard_line.price_unit = line.price_estimate or 0.0

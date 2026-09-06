@@ -29,16 +29,28 @@ class TenderingCustomerPortal(portal.CustomerPortal):
         ], limit=1) if invite_partner else Bid
         bidding_open = Bid._portal_bidding_open(envelope)
         # Line summary via sudo — portal has no PR ACL (Architecture §5).
-        lines = envelope.sudo().request_id.line_ids
+        lines = envelope.sudo().line_ids or envelope.sudo().request_id.line_ids
+        own_lines_by_pr = {}
+        if own_bid:
+            own_lines_by_pr = {
+                bl.request_line_id.id: bl for bl in own_bid.sudo().line_ids
+            }
         amount_preview = envelope._portal_amount_preview(
             own_bid.amount if own_bid else 0
         ) if own_bid else {'formatted': '', 'words': ''}
+        won_any = bool(
+            own_bid
+            and envelope.state == 'awarded'
+            and own_bid.sudo().line_ids.filtered('is_winner')
+        )
         values = {
             'envelope': envelope,
             'page_name': 'tender',
             'own_bid': own_bid,
+            'own_lines_by_pr': own_lines_by_pr,
             'bidding_open': bidding_open,
             'lines': lines,
+            'won_any': won_any,
             'published_documents': envelope.published_document_ids,
             'amount_formatted': amount_preview.get('formatted') or '',
             'amount_words': amount_preview.get('words') or '',
@@ -152,6 +164,7 @@ class TenderingCustomerPortal(portal.CustomerPortal):
         amount = post.get('amount')
         notes = post.get('notes')
         attachment_ids = self._portal_save_bid_attachments(envelope_sudo, post)
+        line_vals = self._portal_parse_bid_lines(envelope_sudo, post)
 
         error = None
         success = None
@@ -159,9 +172,10 @@ class TenderingCustomerPortal(portal.CustomerPortal):
             request.env['zvy.closed.envelope.bid']._portal_upsert_bid(
                 envelope_sudo,
                 partner,
-                amount,
+                amount=amount if not line_vals else None,
                 notes=notes,
                 attachment_ids=attachment_ids,
+                line_vals=line_vals or None,
             )
             success = _('Your sealed bid has been submitted.')
         except UserError as exc:
@@ -224,6 +238,51 @@ class TenderingCustomerPortal(portal.CustomerPortal):
             })
             ids.append(att.id)
         return ids
+
+    def _portal_parse_bid_lines(self, envelope, post):
+        """Build bid-line payloads from portal form fields ``line_<id>_*``."""
+        lines = envelope.sudo().line_ids or envelope.sudo().request_id.line_ids
+        if not lines:
+            return []
+        files = request.httprequest.files
+        result = []
+        for line in lines:
+            prefix = 'line_%s_' % line.id
+            price_raw = post.get(prefix + 'price_unit')
+            delivery = post.get(prefix + 'delivery_time')
+            payment_type = post.get(prefix + 'payment_type')
+            payment_duration = post.get(prefix + 'payment_duration')
+            comments = post.get(prefix + 'comments')
+            ufile = files.get(prefix + 'proforma')
+            has_any = any([
+                price_raw not in (None, ''),
+                delivery,
+                payment_type,
+                payment_duration,
+                comments,
+                ufile and ufile.filename,
+            ])
+            if not has_any:
+                continue
+            try:
+                price_unit = float(price_raw) if price_raw not in (None, '') else 0.0
+            except (TypeError, ValueError):
+                price_unit = 0.0
+            vals = {
+                'request_line_id': line.id,
+                'price_unit': price_unit,
+                'delivery_time': delivery or False,
+                'payment_type': payment_type or False,
+                'payment_duration': payment_duration or False,
+                'comments': comments or False,
+            }
+            if ufile and ufile.filename:
+                data = ufile.read()
+                if data:
+                    vals['proforma'] = base64.b64encode(data)
+                    vals['proforma_filename'] = ufile.filename
+            result.append(vals)
+        return result
     @http.route(
         ['/my/tenders/<int:envelope_id>/document/<int:attachment_id>'],
         type='http',

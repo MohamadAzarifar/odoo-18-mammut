@@ -131,9 +131,6 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
             'bid_deadline': opening + timedelta(hours=24),
         })
         envelope.with_user(self.user_comm_mgr).action_approve_list()
-        envelope.with_user(self.user_comm_mgr).write({
-            'winner_partner_id': self.partner_a.id,
-        })
         with self.assertRaises(UserError):
             envelope.with_user(self.user_comm_mgr).action_select_winner()
 
@@ -171,9 +168,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         after_open = bid.with_user(self.user_cce).read(['amount'])[0]
         self.assertEqual(after_open['amount'], 1234.5)
 
-        envelope.with_user(self.user_comm_mgr).write({
-            'winner_partner_id': self.partner_a.id,
-        })
+        bid.line_ids.with_user(self.user_comm_mgr).write({'is_winner': True})
         envelope.with_user(self.user_comm_mgr).action_select_winner()
         self.assertEqual(envelope.state, 'awarded')
         self.assertEqual(pr.award_partner_id, self.partner_a)
@@ -196,9 +191,8 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
             'amount': 1234.5,
         })
         envelope.with_user(self.user_comm_mgr).action_open_bids()
-        envelope.with_user(self.user_comm_mgr).write({
-            'winner_partner_id': self.partner_a.id,
-        })
+        bid = envelope.bid_ids.filtered(lambda b: b.partner_id == self.partner_a)
+        bid.line_ids.with_user(self.user_comm_mgr).write({'is_winner': True})
         envelope.with_user(self.user_comm_mgr).action_select_winner()
         self.assertEqual(pr.state, 'quote_review')
         self.assertTrue(pr.is_high_value)

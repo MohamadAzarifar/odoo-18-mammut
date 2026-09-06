@@ -84,9 +84,8 @@
                 </div>
 
                 <div t-if="envelope.state == 'awarded'" class="alert alert-info" role="alert">
-                    <t t-if="envelope.winner_partner_id == request.env.user.partner_id
-                             or envelope.winner_partner_id.commercial_partner_id == request.env.user.partner_id.commercial_partner_id">
-                        Your bid was awarded for this tender.
+                    <t t-if="won_any">
+                        Your bid was awarded for one or more items on this tender.
                     </t>
                     <t t-else="">
                         This tender has been awarded. Your bid was not selected.
@@ -156,16 +155,64 @@
                           t-att-data-access-token="envelope.access_token">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <input type="hidden" name="access_token" t-att-value="envelope.access_token"/>
-                        <div class="mb-3">
-                            <label class="form-label" for="amount">Bid amount</label>
-                            <span class="text-muted">(<t t-esc="envelope.currency_id.name"/>)</span>
-                            <input type="number" step="0.01" min="0.01" class="form-control" name="amount" id="amount"
-                                   required="required"
-                                   t-att-value="own_bid.amount if own_bid else ''"/>
-                            <div class="form-text">
-                                <div class="o_bid_amount_formatted text-muted" t-esc="amount_formatted"/>
-                                <div class="o_bid_amount_words text-muted" t-esc="amount_words"/>
-                            </div>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-end">Qty</th>
+                                        <th>Unit price</th>
+                                        <th>Delivery</th>
+                                        <th>Payment</th>
+                                        <th>Comments</th>
+                                        <th>Proforma</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="lines" t-as="line">
+                                        <t t-set="own_line" t-value="own_lines_by_pr.get(line.id)"/>
+                                        <td><span t-field="line.product_id.display_name"/></td>
+                                        <td class="text-end"><span t-field="line.product_uom_qty"/></td>
+                                        <td>
+                                            <input type="number" step="0.01" min="0" class="form-control form-control-sm o_bid_line_price"
+                                                   t-att-name="'line_%s_price_unit' % line.id"
+                                                   t-att-value="own_line.price_unit if own_line else ''"/>
+                                            <div class="form-text o_bid_line_preview text-muted"/>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm"
+                                                   t-att-name="'line_%s_delivery_time' % line.id"
+                                                   t-att-value="own_line.delivery_time if own_line else ''"/>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm"
+                                                    t-att-name="'line_%s_payment_type' % line.id">
+                                                <option value=""/>
+                                                <option value="cash" t-att-selected="own_line and own_line.payment_type == 'cash' and 'selected'">Cash</option>
+                                                <option value="credit" t-att-selected="own_line and own_line.payment_type == 'credit' and 'selected'">Credit</option>
+                                                <option value="lc" t-att-selected="own_line and own_line.payment_type == 'lc' and 'selected'">Letter of Credit</option>
+                                                <option value="other" t-att-selected="own_line and own_line.payment_type == 'other' and 'selected'">Other</option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm mt-1"
+                                                   placeholder="Duration"
+                                                   t-att-name="'line_%s_payment_duration' % line.id"
+                                                   t-att-value="own_line.payment_duration if own_line else ''"/>
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control form-control-sm" rows="2"
+                                                      t-att-name="'line_%s_comments' % line.id"
+                                                      t-esc="own_line.comments if own_line else ''"/>
+                                        </td>
+                                        <td>
+                                            <input type="file" class="form-control form-control-sm"
+                                                   t-att-name="'line_%s_proforma' % line.id"/>
+                                            <small t-if="own_line and own_line.proforma_filename" class="text-muted">
+                                                <t t-esc="own_line.proforma_filename"/>
+                                            </small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="notes">Notes</label>
@@ -197,7 +244,7 @@
                 <t t-else="">
                     <t t-if="own_bid">
                         <p>
-                            Submitted amount:
+                            Submitted total:
                             <span t-field="own_bid.amount" t-options="{'widget': 'monetary', 'display_currency': envelope.currency_id}"/>
                             on <span t-field="own_bid.submitted_at"/>.
                         </p>
@@ -206,6 +253,29 @@
                             <t t-if="amount_formatted and amount_words"> — </t>
                             <span t-esc="amount_words"/>
                         </p>
+                        <t t-if="own_bid.line_ids">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-end">Qty</th>
+                                        <th class="text-end">Unit price</th>
+                                        <th>Delivery</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="own_bid.line_ids" t-as="own_line">
+                                        <td><span t-field="own_line.product_id.display_name"/></td>
+                                        <td class="text-end"><span t-field="own_line.product_uom_qty"/></td>
+                                        <td class="text-end">
+                                            <span t-field="own_line.price_unit"
+                                                  t-options="{'widget': 'monetary', 'display_currency': envelope.currency_id}"/>
+                                        </td>
+                                        <td><span t-field="own_line.delivery_time"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
                         <p t-if="own_bid.notes"><t t-esc="own_bid.notes"/></p>
                     </t>
                     <t t-else="">

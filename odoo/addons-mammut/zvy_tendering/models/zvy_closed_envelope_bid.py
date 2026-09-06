@@ -39,11 +39,20 @@ class ZvyClosedEnvelopeBid(models.Model):
     currency_id = fields.Many2one(
         related='envelope_id.currency_id',
     )
+    request_id = fields.Many2one(
+        related='envelope_id.request_id',
+    )
+    line_ids = fields.One2many(
+        'zvy.closed.envelope.bid.line',
+        'bid_id',
+        string='Bid Lines',
+    )
     amount = fields.Monetary(
         string='Bid Amount',
         currency_field='currency_id',
-        required=True,
-        default=0.0,
+        compute='_compute_amount',
+        store=True,
+        help='Sum of unit price × quantity across bid lines (before discount).',
     )
     notes = fields.Text()
     attachment_ids = fields.Many2many(
@@ -67,12 +76,29 @@ class ZvyClosedEnvelopeBid(models.Model):
         required=True,
     )
 
+    @api.depends('line_ids.price_unit', 'line_ids.product_uom_qty')
+    def _compute_amount(self):
+        for bid in self:
+            bid.amount = sum(
+                (line.price_unit or 0.0) * (line.product_uom_qty or 0.0)
+                for line in bid.line_ids
+            )
+
     @api.constrains('partner_id', 'envelope_id')
     def _check_partner_invited(self):
         for bid in self:
             if bid.partner_id not in bid.envelope_id.invite_partner_ids:
                 raise ValidationError(_(
                     'Bid partner must be on the closed-envelope invite list.'
+                ))
+            others = self.search([
+                ('id', '!=', bid.id),
+                ('envelope_id', '=', bid.envelope_id.id),
+                ('partner_id', '=', bid.partner_id.id),
+            ], limit=1)
+            if others:
+                raise ValidationError(_(
+                    'Only one bid per supplier is allowed on a closed envelope.'
                 ))
 
     def _user_can_see_sealed(self):
@@ -133,8 +159,86 @@ class ZvyClosedEnvelopeBid(models.Model):
             return False
         return True
 
+    def _sync_lines_from_amount(self, amount):
+        """Create or update a single bid line so header amount matches `amount`."""
+        self.ensure_one()
+        try:
+            amount = float(amount)
+        except (TypeError, ValueError):
+            raise UserError(_('Please provide a valid bid amount.')) from None
+        if amount <= 0:
+            raise UserError(_('Bid amount must be greater than zero.'))
+        scope = self.envelope_id.line_ids or self.envelope_id.request_id.line_ids
+        if not scope:
+            raise UserError(_('This tender has no purchase request lines to bid on.'))
+        request_line = scope[:1]
+        qty = request_line.product_uom_qty or 1.0
+        price_unit = amount / qty
+        BidLine = self.env['zvy.closed.envelope.bid.line'].sudo()
+        existing = self.line_ids[:1]
+        if existing:
+            existing.sudo().write({
+                'request_line_id': request_line.id,
+                'price_unit': price_unit,
+            })
+        else:
+            BidLine.create({
+                'bid_id': self.id,
+                'request_line_id': request_line.id,
+                'price_unit': price_unit,
+            })
+
+    def _upsert_portal_lines(self, line_vals):
+        """Replace portal bid lines from a list of dicts (sudo)."""
+        self.ensure_one()
+        BidLine = self.env['zvy.closed.envelope.bid.line'].sudo()
+        scope = self.envelope_id.line_ids or self.envelope_id.request_id.line_ids
+        scope_ids = set(scope.ids)
+        kept = self.env['zvy.closed.envelope.bid.line']
+        for vals in line_vals or []:
+            request_line_id = int(vals.get('request_line_id') or 0)
+            if not request_line_id or request_line_id not in scope_ids:
+                raise UserError(_(
+                    'A bid line refers to an item that is not part of this tender.'
+                ))
+            line_vals_write = {
+                'price_unit': float(vals.get('price_unit') or 0.0),
+                'delivery_time': vals.get('delivery_time') or False,
+                'payment_type': vals.get('payment_type') or False,
+                'payment_duration': vals.get('payment_duration') or False,
+                'comments': vals.get('comments') or False,
+            }
+            if 'proforma' in vals:
+                line_vals_write['proforma'] = vals.get('proforma') or False
+                line_vals_write['proforma_filename'] = (
+                    vals.get('proforma_filename') or False
+                )
+            existing = self.line_ids.filtered(
+                lambda l, rid=request_line_id: l.request_line_id.id == rid
+            )[:1]
+            if existing:
+                existing.sudo().write(line_vals_write)
+                kept |= existing
+            else:
+                line_vals_write.update({
+                    'bid_id': self.id,
+                    'request_line_id': request_line_id,
+                })
+                kept |= BidLine.create(line_vals_write)
+        extra = self.line_ids - kept
+        if extra:
+            extra.sudo().unlink()
+
     @api.model
-    def _portal_upsert_bid(self, envelope, partner, amount, notes=None, attachment_ids=None):
+    def _portal_upsert_bid(
+        self,
+        envelope,
+        partner,
+        amount=None,
+        notes=None,
+        attachment_ids=None,
+        line_vals=None,
+    ):
         """Create or update a sealed portal bid (call under sudo from controllers)."""
         if not envelope._portal_partner_matches(partner):
             raise UserError(_('You are not invited to this tender.'))
@@ -142,22 +246,17 @@ class ZvyClosedEnvelopeBid(models.Model):
             raise UserError(_(
                 'Bidding is closed for this tender (deadline passed or bids opened).'
             ))
-        try:
-            amount = float(amount)
-        except (TypeError, ValueError):
-            raise UserError(_('Please provide a valid bid amount.')) from None
-        if amount <= 0:
-            raise UserError(_('Bid amount must be greater than zero.'))
         invite_partner = envelope._portal_invite_partner(partner)
         if not invite_partner:
             raise UserError(_('You are not invited to this tender.'))
+        if not line_vals and (amount is None or amount == '' or amount is False):
+            raise UserError(_('Please provide a valid bid amount.'))
         Bid = self.sudo()
         bid = Bid.search([
             ('envelope_id', '=', envelope.id),
             ('partner_id', '=', invite_partner.id),
         ], limit=1)
         vals = {
-            'amount': amount,
             'notes': notes or False,
             'source': 'portal',
             'submitted_at': fields.Datetime.now(),
@@ -172,6 +271,10 @@ class ZvyClosedEnvelopeBid(models.Model):
                 'partner_id': invite_partner.id,
             })
             bid = Bid.create(vals)
+        if line_vals:
+            bid._upsert_portal_lines(line_vals)
+        else:
+            bid._sync_lines_from_amount(amount)
         return bid
 
     @api.model
@@ -193,9 +296,22 @@ class ZvyClosedEnvelopeBid(models.Model):
         bid.unlink()
         return True
 
+    def _user_is_commission_manager_or_admin(self):
+        return (
+            self.env.su
+            or self.env.user.has_group(
+                'zvy_tendering.group_zvy_commission_manager'
+            )
+            or self.env.user.has_group(
+                'zvy_tendering.group_zvy_tendering_admin'
+            )
+        )
+
     @api.model_create_multi
     def create(self, vals_list):
+        amounts = []
         for vals in vals_list:
+            amounts.append(vals.pop('amount', None))
             envelope = self.env['zvy.closed.envelope'].browse(
                 vals.get('envelope_id')
             )
@@ -205,35 +321,41 @@ class ZvyClosedEnvelopeBid(models.Model):
                     'or already opened.'
                 ))
             if not self.env.su:
-                is_mgr = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_commission_manager'
-                )
-                is_admin = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_tendering_admin'
-                )
-                if not (is_mgr or is_admin):
+                if not self._user_is_commission_manager_or_admin():
                     raise UserError(_(
                         'Only Commission Managers can enter sealed bids manually.'
                     ))
+            if vals.get('envelope_id') and vals.get('partner_id'):
+                duplicate = self.sudo().search([
+                    ('envelope_id', '=', vals['envelope_id']),
+                    ('partner_id', '=', vals['partner_id']),
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_(
+                        'Only one bid per supplier is allowed on a closed envelope.'
+                    ))
             vals.setdefault('source', 'manual')
             vals.setdefault('submitted_at', fields.Datetime.now())
-        return super().create(vals_list)
+        bids = super().create(vals_list)
+        for bid, amount in zip(bids, amounts):
+            if amount is not None and amount != '' and not bid.line_ids:
+                bid.sudo()._sync_lines_from_amount(amount)
+        return bids
 
     def write(self, vals):
+        amount = vals.pop('amount', None) if 'amount' in vals else None
         if not self.env.su and set(vals) & set(self._SEALED_FIELDS):
             for bid in self:
                 if bid.envelope_id.state not in ('portal_open', 'opened'):
                     raise UserError(_(
                         'Sealed bid content cannot be changed in this envelope state.'
                     ))
-                is_mgr = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_commission_manager'
-                )
-                is_admin = self.env.user.has_group(
-                    'zvy_tendering.group_zvy_tendering_admin'
-                )
-                if not (is_mgr or is_admin):
+                if not self._user_is_commission_manager_or_admin():
                     raise UserError(_(
                         'Only Commission Managers can edit sealed bid content.'
                     ))
-        return super().write(vals)
+        res = super().write(vals)
+        if amount is not None:
+            for bid in self:
+                bid.sudo()._sync_lines_from_amount(amount)
+        return res

@@ -409,7 +409,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Winner selection is allowed only after bids are opened.
-- [x] Selected vendor is stored on the CE / PR award data used for PO creation.
+- [x] Award is **per item** (`is_winner` on bid lines → `awarded_bid_line_id`); items with no winner are flagged `ce_retender` for a later envelope (FR-41).
 - [x] Invited suppliers can be notified of results (portal phase).
 
 #### FR-20 Approve CE supplier list *(Story 20)*
@@ -497,10 +497,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Bid (price, currency, notes, attachments) accepted while CE is `portal_open` and before `bid_deadline`.
+- [x] Bid **lines** (unit price, delivery, payment, comments, proforma) plus header notes/attachments accepted while CE is `portal_open` and before `bid_deadline`.
 - [x] Update/withdraw allowed only before deadline and before official opening.
 - [x] After deadline or open: submit rejected with clear error.
-- [x] Bid stored as sealed `zvy.closed.envelope.bid`; other suppliers never see it.
+- [x] Bid stored as sealed `zvy.closed.envelope.bid` + `zvy.closed.envelope.bid.line`; other suppliers never see it.
 
 #### FR-26 Supplier notifications *(Story 26)*
 
@@ -653,6 +653,48 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Reject from `po_ready` cancels remaining pending lines, keeps already-created POs, and blocks further Create PO.
 - [x] FR-7 still applies per selected lines (`po_ready` + award data). Mixed-split `parent_request_id` remains the alias of `split_from_id` (no child PR on partial PO).
 
+#### FR-39 Per-item sealed bid lines *(US-T-06)*
+
+| | |
+|--|--|
+| **As a** | Supplier / Commission Manager |
+| **I want** | To submit a sealed bid per purchase-request line |
+| **So that** | Each item can be priced and awarded independently |
+
+**Acceptance criteria**
+
+- [x] One bid header per invited vendor; multiple bid lines keyed to `zvy.purchase.request.line`.
+- [x] Portal and manual entry: unit price (optional), delivery time, payment type/duration, comments, proforma; qty from the PR line.
+- [x] Seal rules apply to line prices/attachments until open (FR-30); before open, non-managers see bid count only.
+- [x] Commission Expert may set `bid_deadline`; re-open after the deadline is chatter-audited.
+
+#### FR-40 Commission Manager discount *(US-T-07)*
+
+| | |
+|--|--|
+| **As a** | Commission Manager |
+| **I want** | To apply a discount percent on a bid line after opening |
+| **So that** | The awarded unit price reflects the negotiated final price |
+
+**Acceptance criteria**
+
+- [x] `final_price` = unit × (1 − discount/100).
+- [x] Discount changes post chatter on the envelope.
+
+#### FR-41 Winner per item / re-tender *(US-T-07 / §5.6)*
+
+| | |
+|--|--|
+| **As a** | Commission Manager |
+| **I want** | To award each item to a different vendor, and return items with no winner to the CM |
+| **So that** | Awarded items can continue to PO while leftover items are re-tendered |
+
+**Acceptance criteria**
+
+- [x] Winner is per PR line (`awarded_bid_line_id`), not one envelope-level vendor.
+- [x] Lines with no winner are flagged `ce_retender`; a later closed envelope can cover those lines on the same PR.
+- [x] Create PO groups CE lines by per-item winner and uses `final_price`.
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -772,6 +814,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 36 | CCE | Inquiry field set + auto total + proforma | FR-36 |
 | 37 | CCE | Line last purchase | FR-37 |
 | 38 | CM / Comm. Mgr | Partial Create PO; line pending/ordered/cancelled | FR-38 |
+| 39 | Supplier / Comm. Mgr | Per-item sealed bid lines | FR-39 |
+| 40 | Comm. Mgr | Bid-line discount + final_price + audit | FR-40 |
+| 41 | Comm. Mgr | Winner per item; leftover re-tender | FR-41 |
 
 ---
 
@@ -793,7 +838,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO; Phase 10 — Per-item bids.
 
 ### Prerequisites
 
@@ -1040,9 +1085,9 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As Commission Manager, enter a manual bid with amount while `portal_open` | Bid stored |
-| 2 | As CCE (or non-manager), read the bid amount | Amount hidden / zero before open |
-| 3 | After opening datetime, **Open Bids**; set winner; **Select Winner** | CE `awarded`; PR `award_partner_id` set; PR → `quote_review`. Winner before open is blocked |
+| 1 | As Commission Manager, enter a manual bid with per-line unit prices while `portal_open` | Bid header + lines stored |
+| 2 | As CCE (or non-manager), read the bid amount / line prices | Amounts hidden / zero before open; bid count still visible |
+| 3 | After opening datetime, **Open Bids**; mark per-item winners; **Select Winner** | CE `awarded`; awarded lines get `awarded_bid_line_id`; PR → `quote_review` if any item awarded. Winner before open is blocked |
 
 ### Phase 4 — Sign-off & Purchase Order
 
@@ -1081,7 +1126,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | On a `po_ready` PR with awarded quotes, as **Commercial Expert** try **Create PO** | Not available / refused |
 | 2 | As CM on a `signatory` (not yet `po_ready`) PR, try **Create PO** | Not available / blocked |
 | 3 | As CM on `po_ready`, **Create PO** (default: all pending lines) | One or more draft `purchase.order` created (grouped by awarded vendor); lines use awarded quote prices; `origin` = PR number; `zvy_purchase_request_id` set; all lines `ordered`; PR → `done`; **POs** smart button opens the order(s) |
-| 4 | CE path: after MT-3.5 award + CM **Approve Quotes** (no line awards needed) → signatory → approve → **Create PO** | Single PO to `award_partner_id`; PR → `done` |
+| 4 | CE path: after MT-3.5 award + CM **Approve Quotes** → signatory → approve → **Create PO** | POs grouped by per-item winner; line prices use `final_price`; PR → `done` when every line is ordered |
 
 #### MT-4.5 Enquiry commission → PO (end-to-end)
 
@@ -1108,7 +1153,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As invited portal vendor on a `portal_open` tender before deadline, enter amount (+ optional notes / attachments); **Submit bid** | Bid stored as `zvy.closed.envelope.bid` with `source=portal`; success message shown |
+| 1 | As invited portal vendor on a `portal_open` tender before deadline, enter a unit price per line (+ optional delivery / payment / comments / proforma); **Submit bid** | Bid stored as `zvy.closed.envelope.bid` with lines; `source=portal`; success message shown |
 | 2 | Change amount / notes; **Update bid** | Same bid updated; `submitted_at` refreshed |
 | 3 | As a **second** invited portal vendor, open the same tender | Sees only own bid form — never sees the first vendor’s amount |
 | 4 | As Commission Manager / CCE in backend before open | First vendor’s amount sealed for non-managers (FR-30 unchanged) |
@@ -1137,7 +1182,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | Inquiry PR → CE list → approve → portal open (MT-3.4) | Invitees can bid on `/my/tenders` |
 | 2 | ≥1 invited vendor submits a sealed portal bid (MT-5.2) | Bid `source=portal` visible to CM after open |
-| 3 | After opening datetime: **Open Bids** → set winner → **Select Winner** | CE `awarded`; PR `award_partner_id` + `quote_review` |
+| 3 | After opening datetime: **Open Bids** → mark per-item winners → **Select Winner** | CE `awarded`; PR `quote_review` |
 | 4 | Continue MT-4.4 CE path (approve quotes → signatory → **Create PO**) | PO to winner without relying on manual CM bid entry |
 
 ### Phase 9 — Partial PO
@@ -1152,3 +1197,15 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 4 | As Commercial Expert, try Create PO | Not available / refused |
 | 5 | As Commission Manager on a `po_ready` PR | Create PO allowed |
 | 6 | Two lines awarded to **different** vendors; Create PO with all selected | Two POs (grouped by vendor); PR `done` |
+
+### Phase 10 — Per-item bids
+
+#### MT-10.1 Per-item bids, discount, partial award (FR-39..41)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Two invited vendors submit different unit prices per line | Each sees only own lines; CCE sees zero before open |
+| 2 | After open, Comm Mgr sets a discount % on a bid line | `final_price` updates; envelope chatter records the discount |
+| 3 | Mark winners on 2 of 3 lines; **Select Winner** | Third line `ce_retender`; PR not fully awarded (`_has_award_data` false); awarded lines continue |
+| 4 | After `po_ready`, **Closed Envelope** for leftover lines; award the third item; **Create PO** | Later CE scoped to leftover; POs grouped by per-item winner |
+| 5 | Past deadline, **Re-open Bidding** | New deadline set; chatter audit; **Open Bids** still blocked before opening datetime |

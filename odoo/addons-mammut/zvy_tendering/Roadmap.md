@@ -445,30 +445,30 @@ FR-38 holds; 1 PR → N PO is the supported path; FR-7 “only from `po_ready` w
 
 ### Scope
 
-- [ ] Bid header per invited vendor (envelope + partner) plus **bid lines** keyed to `zvy.purchase.request.line`
-- [ ] Per-line fields (portal + manual): unit price (optional per line), delivery time, payment method/duration, comments, proforma; qty copied from the PR line
-- [ ] Seal rules apply to line prices/attachments until open (FR-30 unchanged)
-- [ ] Before open, non-managers see **bid count only** (not amounts)
-- [ ] Commission Manager discount % on a bid line; `final_price` = unit × (1 − discount/100); chatter/audit on discount changes
-- [ ] Winner **per item** (not one `winner_partner_id` for the whole PR); PO grouping uses per-line winners (Phase 9)
-- [ ] No-winner items: return those lines to CM for re-tender; awarded items continue to signatory / PO
-- [ ] Commission expert sets tender end (`bid_deadline`); must align with the linked meeting datetime (Phase 11)
-- [ ] Re-open at authorized time logs an audit event (chatter)
+- [x] Bid header per invited vendor (envelope + partner) plus **bid lines** keyed to `zvy.purchase.request.line`
+- [x] Per-line fields (portal + manual): unit price (optional per line), delivery time, payment method/duration, comments, proforma; qty copied from the PR line
+- [x] Seal rules apply to line prices/attachments until open (FR-30 unchanged)
+- [x] Before open, non-managers see **bid count only** (not amounts)
+- [x] Commission Manager discount % on a bid line; `final_price` = unit × (1 − discount/100); chatter/audit on discount changes
+- [x] Winner **per item** (not one `winner_partner_id` for the whole PR); PO grouping uses per-line winners (Phase 9)
+- [x] No-winner items: return those lines to CM for re-tender; awarded items continue to signatory / PO
+- [x] Commission expert sets tender end (`bid_deadline`); meeting datetime alignment is deferred to Phase 11
+- [x] Re-open at authorized time logs an audit event (chatter)
 
 ### Stories / FRs checklist
 
-- [ ] **FR-39** — Per-item sealed bid lines (portal + manual) — US-T-06
-- [ ] **FR-40** — Commission Manager discount + `final_price` + audit — US-T-07
-- [ ] **FR-41** — Winner per item; no-winner items return to CM for re-tender — US-T-07 / §5.6
+- [x] **FR-39** — Per-item sealed bid lines (portal + manual) — US-T-06
+- [x] **FR-40** — Commission Manager discount + `final_price` + audit — US-T-07
+- [x] **FR-41** — Winner per item; no-winner items return to CM for re-tender — US-T-07 / §5.6
 
 ### Suggested tests
 
-- [ ] Portal vendor submits different prices per line; second vendor cannot read them before open
-- [ ] Unique constraint remains one bid **header** per supplier; multiple lines allowed
-- [ ] Discount updates `final_price` and posts chatter
-- [ ] Select winners on 2 of 3 lines; third line returns to CM; PR is not fully awarded
-- [ ] `action_open_bids` still blocked before opening datetime; re-open after deadline is logged
-- [ ] Phase 5 isolation / deadline / withdraw tests still pass against line-level amounts
+- [x] Portal vendor submits different prices per line; second vendor cannot read them before open
+- [x] Unique constraint remains one bid **header** per supplier; multiple lines allowed
+- [x] Discount updates `final_price` and posts chatter
+- [x] Select winners on 2 of 3 lines; third line returns to CM; PR is not fully awarded
+- [x] `action_open_bids` still blocked before opening datetime; re-open after deadline is logged
+- [x] Phase 5 isolation / deadline / withdraw tests still pass against line-level amounts
 
 ### Done when
 
@@ -768,7 +768,7 @@ Track throughout (PRD §7):
 | 7 Inquiry routing invert | Done | `18.0.2.1` — FR-35; enquiry signs before commission; tendering still commission-first |
 | 8 Inquiry fields & validity | Done | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Done | `18.0.2.3` — FR-38 |
-| 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |
+| 10 Per-item bids | Done | `18.0.2.4` — FR-39..41 |
 | 11 Meetings | Pending | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |
 | 13 Company procurement override | Pending | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |

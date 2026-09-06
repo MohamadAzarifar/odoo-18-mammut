@@ -116,11 +116,30 @@ class ZvyPurchaseRequestLine(models.Model):
         domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]",
         help='Winning quote selected by the Commercial Manager in quote review.',
     )
+    awarded_bid_line_id = fields.Many2one(
+        'zvy.closed.envelope.bid.line',
+        string='Awarded Bid Line',
+        copy=False,
+        help='Winning closed-envelope bid line for this item.',
+    )
+    ce_retender = fields.Boolean(
+        string='Re-tender',
+        copy=False,
+        help='True when this item had no winner in the last closed envelope '
+             'and should return to the Commercial Manager for a later tender.',
+    )
     awarded_partner_id = fields.Many2one(
         'res.partner',
         string='Awarded Vendor',
-        related='awarded_quote_id.partner_id',
+        compute='_compute_awarded_partner_id',
         store=True,
+    )
+    closed_envelope_ids = fields.Many2many(
+        'zvy.closed.envelope',
+        'zvy_closed_envelope_request_line_rel',
+        'request_line_id',
+        'envelope_id',
+        string='Closed Envelopes',
     )
     award_not_lowest_reason = fields.Text(
         string='Not Lowest Price Reason',
@@ -160,6 +179,17 @@ class ZvyPurchaseRequestLine(models.Model):
         index=True,
         help='Pending until included in a PO or cancelled when the request is rejected.',
     )
+
+    @api.depends(
+        'awarded_quote_id.partner_id',
+        'awarded_bid_line_id.partner_id',
+    )
+    def _compute_awarded_partner_id(self):
+        for line in self:
+            line.awarded_partner_id = (
+                line.awarded_quote_id.partner_id
+                or line.awarded_bid_line_id.partner_id
+            )
 
     @api.depends('product_id', 'product_uom_qty', 'product_uom_id')
     def _compute_display_name(self):
@@ -327,6 +357,7 @@ class ZvyPurchaseRequestLine(models.Model):
             # Awarded quote is set by CM/Admin during quote review (and signatory reset).
             content_keys = set(vals) - {
                 'expert_user_ids', 'quote_ids', 'awarded_quote_id',
+                'awarded_bid_line_id', 'ce_retender',
                 'award_not_lowest_reason', 'purchase_state',
             }
             if 'purchase_state' in vals:

@@ -7,6 +7,12 @@ from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
+_CE_ACTIVE_STATES = ('draft', 'list_pending', 'portal_open', 'opened')
+_CE_CREATE_STATES = (
+    'inquiry', 'quote_review', 'commission', 'signatory', 'po_ready',
+)
+_COMM_EXP_ALLOWED_WRITE = {'bid_deadline'}
+
 try:
     from num2fawords import words as _fa_words
 except ImportError:  # pragma: no cover - optional at runtime if not installed
@@ -80,11 +86,28 @@ class ZvyClosedEnvelope(models.Model):
         'envelope_id',
         string='Bids',
     )
+    bid_count = fields.Integer(
+        string='Bid Count',
+        compute='_compute_bid_count',
+    )
+    line_ids = fields.Many2many(
+        'zvy.purchase.request.line',
+        'zvy_closed_envelope_request_line_rel',
+        'envelope_id',
+        'request_line_id',
+        string='Request Lines',
+        help='PR lines in scope for this envelope round. Defaults to all lines '
+             '(or leftover re-tender lines on a later envelope).',
+    )
     winner_partner_id = fields.Many2one(
         'res.partner',
         string='Winner',
-        copy=False,
-        tracking=True,
+        compute='_compute_winner_partner_id',
+        store=True,
+        help='Set when every awarded item in this envelope shares one vendor.',
+    )
+    user_can_see_bids = fields.Boolean(
+        compute='_compute_user_can_see_bids',
     )
     list_reject_reason = fields.Text(string='List Reject Reason', copy=False)
     published_document_ids = fields.Many2many(
@@ -101,16 +124,38 @@ class ZvyClosedEnvelope(models.Model):
         for envelope in self:
             envelope.access_url = '/my/tenders/%s' % envelope.id
 
+    @api.depends('bid_ids')
+    def _compute_bid_count(self):
+        for envelope in self:
+            envelope.bid_count = len(envelope.bid_ids)
+
+    @api.depends('bid_ids.line_ids.is_winner', 'bid_ids.partner_id')
+    def _compute_winner_partner_id(self):
+        for envelope in self:
+            winners = envelope.bid_ids.mapped('line_ids').filtered('is_winner')
+            partners = winners.mapped('partner_id')
+            envelope.winner_partner_id = partners[:1] if len(partners) == 1 else False
+
+    @api.depends('state')
+    @api.depends_context('uid')
+    def _compute_user_can_see_bids(self):
+        user = self.env.user
+        is_privileged = self.env.su or user.has_group(
+            'zvy_tendering.group_zvy_commission_manager'
+        ) or user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        for envelope in self:
+            envelope.user_can_see_bids = bool(
+                is_privileged or envelope.state in ('opened', 'awarded')
+            )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             request = self.env['zvy.purchase.request'].browse(
                 vals.get('request_id')
             )
-            if request and request.state != 'inquiry' and not self.env.su:
-                raise UserError(_(
-                    'Closed envelopes can only be created while the PR is in Inquiry.'
-                ))
+            if request and not self.env.su:
+                self._check_can_create_for_request(request, vals)
             if (
                 request
                 and request.procurement_type != 'tendering'
@@ -121,13 +166,67 @@ class ZvyClosedEnvelope(models.Model):
                 ))
             if vals.get('name', _('New')) in (False, _('New'), 'New') and request:
                 vals['name'] = _('CE/%s') % (request.name or _('New'))
+            if request and not vals.get('line_ids'):
+                leftover = request.line_ids.filtered('ce_retender')
+                scope = leftover if leftover else request.line_ids
+                vals['line_ids'] = [(6, 0, scope.ids)]
         envelopes = super().create(vals_list)
         for envelope in envelopes:
-            if envelope.request_id and not envelope.request_id.closed_envelope_id:
+            if envelope.request_id:
                 envelope.request_id.sudo().write({
                     'closed_envelope_id': envelope.id,
                 })
         return envelopes
+
+    @api.model
+    def _check_can_create_for_request(self, request, vals):
+        if request.state == 'inquiry':
+            return
+        leftover = request.line_ids.filtered('ce_retender')
+        if request.state in _CE_CREATE_STATES and leftover:
+            return
+        raise UserError(_(
+            'Closed envelopes can only be created while the PR is in Inquiry, '
+            'or later for leftover items that need re-tender.'
+        ))
+
+    def write(self, vals):
+        if not self.env.su:
+            user = self.env.user
+            is_mgr = user.has_group(
+                'zvy_tendering.group_zvy_commission_manager'
+            ) or user.has_group('zvy_tendering.group_zvy_tendering_admin')
+            is_cce = user.has_group(
+                'zvy_tendering.group_zvy_commercial_expert'
+            )
+            is_comm_exp = user.has_group(
+                'zvy_tendering.group_zvy_commission_expert'
+            )
+            if is_comm_exp and not is_mgr and not is_cce:
+                extra = set(vals) - _COMM_EXP_ALLOWED_WRITE
+                if extra:
+                    raise UserError(_(
+                        'Commission Experts can only set the bid deadline.'
+                    ))
+                # Phase 11: align bid_deadline with the linked meeting datetime.
+        return super().write(vals)
+
+    @api.constrains('line_ids', 'state')
+    def _check_line_not_on_active_envelope(self):
+        for envelope in self:
+            if envelope.state not in _CE_ACTIVE_STATES:
+                continue
+            for line in envelope.line_ids:
+                others = line.closed_envelope_ids.filtered(
+                    lambda e, current=envelope: (
+                        e.id != current.id and e.state in _CE_ACTIVE_STATES
+                    )
+                )
+                if others:
+                    raise ValidationError(_(
+                        'Line %(product)s is already on an active closed envelope.',
+                        product=line.product_id.display_name,
+                    ))
 
     def _invite_partner_domain(self):
         self.ensure_one()
@@ -353,7 +452,15 @@ class ZvyClosedEnvelope(models.Model):
                     raise UserError(_(
                         'Only assigned Commercial Experts can submit the invite list.'
                     ))
-            if envelope.request_id.state != 'inquiry':
+            if envelope.request_id.state not in _CE_CREATE_STATES:
+                raise UserError(_(
+                    'The purchase request must be in Inquiry (or a later '
+                    'state for re-tender items) to submit a CE list.'
+                ))
+            if (
+                envelope.request_id.state != 'inquiry'
+                and not envelope.line_ids.filtered('ce_retender')
+            ):
                 raise UserError(_(
                     'The purchase request must be in Inquiry to submit a CE list.'
                 ))
@@ -420,6 +527,32 @@ class ZvyClosedEnvelope(models.Model):
         self.message_post(body=_('Bids unsealed / opened.'))
         return True
 
+    def action_reopen_bidding(self):
+        """Extend the bid deadline after it has passed (FR-39 audit)."""
+        self.ensure_one()
+        self._ensure_commission_manager()
+        if self.state != 'portal_open':
+            raise UserError(_(
+                'Bidding can only be re-opened while the envelope is Portal Open.'
+            ))
+        now = fields.Datetime.now()
+        if not self.bid_deadline or now <= self.bid_deadline:
+            raise UserError(_(
+                'Bidding can only be re-opened after the deadline has passed.'
+            ))
+        new_deadline = self.env.context.get('zvy_reopen_deadline')
+        if not new_deadline:
+            hours = self.company_id.zvy_default_bid_window_hours or 72
+            new_deadline = now + timedelta(hours=hours)
+        new_deadline = fields.Datetime.to_datetime(new_deadline)
+        if new_deadline <= now:
+            raise UserError(_('New bid deadline must be in the future.'))
+        self.write({'bid_deadline': new_deadline})
+        self.message_post(body=_(
+            'Bidding re-opened until %s.'
+        ) % self.bid_deadline)
+        return True
+
     def action_select_winner(self):
         self.ensure_one()
         self._ensure_commission_manager()
@@ -427,30 +560,71 @@ class ZvyClosedEnvelope(models.Model):
             raise UserError(_(
                 'Winner can only be selected after bids are opened.'
             ))
-        if not self.winner_partner_id:
-            raise ValidationError(_(
-                'Set the winner partner before selecting the winner.'
-            ))
-        if self.winner_partner_id not in self.invite_partner_ids:
-            raise ValidationError(_(
-                'Winner must be one of the invited suppliers.'
-            ))
-        self.write({'state': 'awarded'})
+        scope = self.line_ids or self.request_id.line_ids
+        winning_lines = self.bid_ids.mapped('line_ids').filtered('is_winner')
+        winners_by_line = {}
+        for bid_line in winning_lines:
+            request_line = bid_line.request_line_id
+            if request_line in winners_by_line:
+                raise ValidationError(_(
+                    'Only one winner is allowed per item on a closed envelope.'
+                ))
+            if bid_line.partner_id not in self.invite_partner_ids:
+                raise ValidationError(_(
+                    'Winner must be one of the invited suppliers.'
+                ))
+            if not bid_line.price_unit:
+                raise ValidationError(_(
+                    'A winner must have a unit price on %(product)s.',
+                    product=request_line.product_id.display_name,
+                ))
+            winners_by_line[request_line] = bid_line
+
         pr = self.request_id.sudo()
-        pr.write({
-            'award_partner_id': self.winner_partner_id.id,
-            'state': 'quote_review',
-        })
-        self.message_post(body=_(
-            'Winner selected: %s. PR moved to quote review.'
-        ) % self.winner_partner_id.display_name)
-        pr.message_post(body=_(
-            'Closed envelope awarded to %s.'
-        ) % self.winner_partner_id.display_name)
-        winner = self.winner_partner_id
-        losers = self.invite_partner_ids - winner
-        self._notify_invited_partners('awarded', partners=winner)
-        self._notify_invited_partners('not_awarded', partners=losers)
+        awarded_any = bool(winning_lines)
+        for request_line in scope:
+            bid_line = winners_by_line.get(request_line)
+            if bid_line:
+                request_line.sudo().write({
+                    'awarded_bid_line_id': bid_line.id,
+                    'ce_retender': False,
+                })
+            else:
+                request_line.sudo().write({
+                    'awarded_bid_line_id': False,
+                    'ce_retender': True,
+                })
+
+        self.write({'state': 'awarded'})
+        if awarded_any and pr.state == 'inquiry':
+            pr.write({'state': 'quote_review'})
+
+        winner_partners = winning_lines.mapped('partner_id')
+        leftover = any(line.ce_retender for line in scope)
+        if awarded_any:
+            names = ', '.join(winner_partners.mapped('display_name'))
+            if leftover:
+                self.message_post(body=_(
+                    'Winners selected: %s. Unawarded items returned for re-tender.'
+                ) % names)
+            else:
+                self.message_post(body=_('Winners selected: %s.') % names)
+            pr.message_post(body=_(
+                'Closed envelope awarded per item: %s.'
+            ) % names)
+        else:
+            self.message_post(body=_(
+                'No item awarded; all items returned to CM for re-tender.'
+            ))
+            pr.message_post(body=_(
+                'Closed envelope closed with no winners; items returned for re-tender.'
+            ))
+
+        losers = self.invite_partner_ids - winner_partners
+        if winner_partners:
+            self._notify_invited_partners('awarded', partners=winner_partners)
+        if losers:
+            self._notify_invited_partners('not_awarded', partners=losers)
         return True
 
     def action_cancel(self):

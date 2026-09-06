@@ -8,3 +8,4 @@ from . import test_portal_isolation
 from . import test_product_split
 from . import test_purchase_level
 from . import test_partial_po
+from . import test_per_item_bids

@@ -175,9 +175,8 @@ class TestZvyPortalIsolation(ZvyTenderingCommon):
             'opening_datetime': fields.Datetime.now() - timedelta(minutes=1),
         })
         envelope.with_user(self.user_comm_mgr).action_open_bids()
-        envelope.with_user(self.user_comm_mgr).write({
-            'winner_partner_id': self.partner_a.id,
-        })
+        bid = envelope.bid_ids.filtered(lambda b: b.partner_id == self.partner_a)
+        bid.line_ids.with_user(self.user_comm_mgr).write({'is_winner': True})
         envelope.with_user(self.user_comm_mgr).action_select_winner()
         awarded = Mail.search([
             ('model', '=', 'zvy.closed.envelope'),

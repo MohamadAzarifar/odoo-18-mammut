@@ -61,7 +61,7 @@
                             invisible="state != 'quote_review'"
                             groups="zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_create_closed_envelope" string="Closed Envelope" type="object"
-                            invisible="state != 'inquiry' or procurement_type != 'tendering'"
+                            invisible="procurement_type != 'tendering' or (state != 'inquiry' and not has_ce_retender)"
                             groups="zvy_tendering.group_zvy_commercial_expert,zvy_tendering.group_zvy_commercial_manager"/>
                     <button name="action_resubmit_signatory" string="Resubmit to Signatories" type="object"
                             class="btn-primary"
@@ -140,6 +140,7 @@
                             <field name="has_sole_source" readonly="1"/>
                             <field name="commission_case_id" invisible="not commission_case_id"/>
                             <field name="closed_envelope_id" invisible="not closed_envelope_id"/>
+                            <field name="has_ce_retender" invisible="1"/>
                             <field name="award_partner_id" invisible="not award_partner_id"/>
                         </group>
                     </group>
@@ -179,6 +180,7 @@
                                               options="{'no_create': True, 'no_create_edit': True}"
                                               groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
+                                    <field name="ce_retender" optional="hide" readonly="1"/>
                                     <field name="purchase_state" optional="show" readonly="1"
                                               widget="badge"
                                               decoration-info="purchase_state == 'pending'"
@@ -206,6 +208,7 @@
                                                       options="{'no_create': True, 'no_create_edit': True}"
                                                       groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                             <field name="awarded_partner_id" readonly="1"/>
+                                            <field name="ce_retender" readonly="1"/>
                                             <field name="quote_shortfall_reason" readonly="1"
                                                    invisible="not quote_shortfall_reason"/>
                                             <field name="award_not_lowest_reason"
