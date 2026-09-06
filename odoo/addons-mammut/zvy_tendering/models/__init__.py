@@ -9,6 +9,7 @@ from . import zvy_purchase_request
 from . import zvy_purchase_request_line
 from . import zvy_quote
 from . import product_template
+from . import zvy_purchase_bands
 from . import res_company
 from . import res_config_settings
 from . import approval_request

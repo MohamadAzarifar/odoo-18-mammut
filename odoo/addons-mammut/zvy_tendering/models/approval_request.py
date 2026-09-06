@@ -13,11 +13,15 @@ class ApprovalRequest(models.Model):
         ondelete='set null',
     )
 
+    def _zvy_is_current_signatory(self, pr):
+        """True when this document is the PR's in-progress signatory chain."""
+        return bool(pr and pr.approval_request_id and pr.approval_request_id == self)
+
     def action_approve(self, approver=None):
         res = super().action_approve(approver=approver)
         for request in self:
             pr = request.zvy_purchase_request_id.sudo()
-            if not pr or pr.state != 'signatory':
+            if not request._zvy_is_current_signatory(pr) or pr.state != 'signatory':
                 continue
             if request.request_status == 'approved':
                 pr.write({'state': 'po_ready'})
@@ -30,7 +34,7 @@ class ApprovalRequest(models.Model):
         res = super().action_refuse(approver=approver)
         for request in self:
             pr = request.zvy_purchase_request_id.sudo()
-            if not pr or pr.state != 'signatory':
+            if not request._zvy_is_current_signatory(pr) or pr.state != 'signatory':
                 continue
             if request.request_status == 'refused':
                 reason = self.env.context.get('zvy_refuse_reason') or ''

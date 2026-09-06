@@ -12,7 +12,7 @@ from .common import ZvyTenderingCommon
 class TestZvyCommissionCe(ZvyTenderingCommon):
 
     def _route_to_commission(self):
-        self.company_a.zvy_high_value_threshold = 1.0
+        self._force_large_bands()
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()

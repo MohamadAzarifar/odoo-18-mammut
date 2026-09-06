@@ -13,7 +13,7 @@ access_zvy_purchase_request_comm_exp,zvy.purchase.request commission expert,mode
 access_zvy_purchase_request_signatory,zvy.purchase.request signatory,model_zvy_purchase_request,group_zvy_signatory,1,0,0,0
 access_zvy_purchase_request_admin,zvy.purchase.request admin,model_zvy_purchase_request,group_zvy_tendering_admin,1,1,1,1
 access_zvy_purchase_request_line_planner,zvy.purchase.request.line planner,model_zvy_purchase_request_line,group_zvy_planner,1,1,1,1
-access_zvy_purchase_request_line_cm,zvy.purchase.request.line commercial manager,model_zvy_purchase_request_line,group_zvy_commercial_manager,1,1,0,0
+access_zvy_purchase_request_line_cm,zvy.purchase.request.line commercial manager,model_zvy_purchase_request_line,group_zvy_commercial_manager,1,1,1,1
 access_zvy_purchase_request_line_cce,zvy.purchase.request.line commercial expert,model_zvy_purchase_request_line,group_zvy_commercial_expert,1,1,0,0
 access_zvy_purchase_request_line_comm_mgr,zvy.purchase.request.line commission manager,model_zvy_purchase_request_line,group_zvy_commission_manager,1,0,0,0
 access_zvy_purchase_request_line_comm_exp,zvy.purchase.request.line commission expert,model_zvy_purchase_request_line,group_zvy_commission_expert,1,0,0,0

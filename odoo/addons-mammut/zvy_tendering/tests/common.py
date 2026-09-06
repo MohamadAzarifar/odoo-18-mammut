@@ -220,6 +220,23 @@ class ZvyTenderingCommon(TransactionCase):
         })
         cls.company_a.zvy_signatory_approval_category_id = cls.signatory_category
         cls.company_a.zvy_sole_source_approver_ids = [(6, 0, [cls.user_ceo.id])]
+        cls.company_a.write({
+            'zvy_company_scale': 'small',
+            'zvy_use_custom_bands': True,
+            'zvy_op_minor_max': 200.0,
+            'zvy_op_medium_max': 500.0,
+            'zvy_op_major_max': 5000.0,
+            'zvy_op_large_ceo_max': 10000.0,
+            'zvy_nop_minor_max': 200.0,
+            'zvy_nop_medium_max': 500.0,
+            'zvy_nop_major_max': 5000.0,
+            'zvy_nop_large_ceo_max': 10000.0,
+            'zvy_signatory_minor_ids': [(6, 0, [cls.user_signatory.id])],
+            'zvy_signatory_medium_ids': [(6, 0, [cls.user_signatory.id])],
+            'zvy_signatory_major_ids': [(6, 0, [cls.user_signatory.id])],
+            'zvy_signatory_large_ids': [(6, 0, [cls.user_signatory.id])],
+            'zvy_signatory_board_ids': [(6, 0, [cls.user_signatory_other.id])],
+        })
 
         # Portal suppliers (true base.group_portal users on commercial child contacts)
         cls.partner_portal_outsider = cls.env['res.partner'].create({
@@ -266,6 +283,21 @@ class ZvyTenderingCommon(TransactionCase):
             'company_id': cls.company_a.id,
             'company_ids': [(6, 0, [cls.company_a.id])],
             'groups_id': [(6, 0, [portal_group.id])],
+        })
+
+    def _force_large_bands(self, company=None, major_max=10.0, large_ceo_max=10000.0):
+        """Make typical test PRs compute as large (purchase_level)."""
+        company = company or self.company_a
+        company.write({
+            'zvy_use_custom_bands': True,
+            'zvy_op_minor_max': 1.0,
+            'zvy_op_medium_max': 2.0,
+            'zvy_op_major_max': major_max,
+            'zvy_op_large_ceo_max': large_ceo_max,
+            'zvy_nop_minor_max': 1.0,
+            'zvy_nop_medium_max': 2.0,
+            'zvy_nop_major_max': major_max,
+            'zvy_nop_large_ceo_max': large_ceo_max,
         })
 
     def _ensure_sole_source_avl(self, product=None, company=None, partner=None):

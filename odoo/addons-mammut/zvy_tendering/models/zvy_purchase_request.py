@@ -7,6 +7,7 @@ from odoo.fields import Command
 
 _INTAKE_EDITABLE_STATES = ('draft', 'correction')
 _CM_INTAKE_STATES = ('submitted', 'cm_review')
+_SIGNATORY_EFFECTIVE_PR_KEYS = {'purchase_nature'}
 _ALLOWED_TRANSITIONS = {
     'draft': {'submitted'},
     'correction': {'submitted'},
@@ -94,6 +95,16 @@ class ZvyPurchaseRequest(models.Model):
         copy=False,
         readonly=True,
     )
+    approval_request_ids = fields.One2many(
+        'approval.request',
+        'zvy_purchase_request_id',
+        string='Signatory Approvals',
+        copy=False,
+        readonly=True,
+    )
+    approval_request_count = fields.Integer(
+        compute='_compute_approval_request_count',
+    )
     purchase_order_ids = fields.One2many(
         'purchase.order',
         'zvy_purchase_request_id',
@@ -130,10 +141,47 @@ class ZvyPurchaseRequest(models.Model):
         compute='_compute_amount_total',
         store=True,
     )
+    purchase_nature = fields.Selection(
+        selection=[
+            ('operational', 'Operational'),
+            ('non_operational', 'Non-Operational'),
+        ],
+        string='Purchase Nature',
+        required=True,
+        default='operational',
+        tracking=True,
+        help='Selects the operational or non-operational purchase-level table.',
+    )
+    amount_for_level = fields.Monetary(
+        string='Amount for Purchase Level',
+        currency_field='currency_id',
+        compute='_compute_amount_for_level',
+        store=True,
+        help='Awarded quote totals when awarded, otherwise line estimates.',
+    )
+    purchase_level = fields.Selection(
+        selection=[
+            ('minor', 'Minor'),
+            ('medium', 'Medium'),
+            ('major', 'Major'),
+            ('large', 'Large'),
+        ],
+        string='Purchase Level',
+        compute='_compute_purchase_level',
+        store=True,
+        help='Computed from amount for level vs company scale and purchase nature (FR-32).',
+    )
+    is_formalities = fields.Boolean(
+        string='Formalities',
+        compute='_compute_is_formalities',
+        store=True,
+        help='True on Enquiry PRs when any line has fewer than 3 valid inquiries (FR-34).',
+    )
     is_high_value = fields.Boolean(
         string='High Value',
         compute='_compute_routing_flags',
         store=True,
+        help='True when purchase level is large. Routes to Holding Commission (FR-27).',
     )
     is_commission_item = fields.Boolean(
         string='Commission Item',
@@ -185,21 +233,83 @@ class ZvyPurchaseRequest(models.Model):
         for request in self:
             request.purchase_order_count = len(request.sudo().purchase_order_ids)
 
+    @api.depends('approval_request_ids')
+    def _compute_approval_request_count(self):
+        for request in self:
+            request.approval_request_count = len(request.sudo().approval_request_ids)
+
     @api.depends('line_ids.price_subtotal')
     def _compute_amount_total(self):
         for request in self:
             request.amount_total = sum(request.line_ids.mapped('price_subtotal'))
 
     @api.depends(
-        'amount_total',
-        'company_id.zvy_high_value_threshold',
+        'line_ids.price_subtotal',
+        'line_ids.awarded_quote_id',
+        'line_ids.awarded_quote_id.amount_total',
+    )
+    def _compute_amount_for_level(self):
+        for request in self:
+            total = 0.0
+            for line in request.line_ids:
+                if line.awarded_quote_id:
+                    total += line.awarded_quote_id.amount_total
+                else:
+                    total += line.price_subtotal
+            request.amount_for_level = total
+
+    @api.depends(
+        'amount_for_level',
+        'purchase_nature',
+        'company_id',
+        'company_id.zvy_company_scale',
+        'company_id.zvy_use_custom_bands',
+        'company_id.zvy_op_minor_max',
+        'company_id.zvy_op_medium_max',
+        'company_id.zvy_op_major_max',
+        'company_id.zvy_op_large_ceo_max',
+        'company_id.zvy_nop_minor_max',
+        'company_id.zvy_nop_medium_max',
+        'company_id.zvy_nop_major_max',
+        'company_id.zvy_nop_large_ceo_max',
+    )
+    def _compute_purchase_level(self):
+        for request in self:
+            company = request.company_id
+            if not company:
+                request.purchase_level = 'minor'
+                continue
+            request.purchase_level = company._zvy_purchase_level(
+                request.amount_for_level,
+                request.purchase_nature or 'operational',
+            )
+
+    @api.depends(
+        'procurement_type',
+        'line_ids',
+        'line_ids.quote_ids',
+        'line_ids.quote_ids.state',
+        'line_ids.quote_ids.price_unit',
+        'line_ids.quote_ids.received_date',
+    )
+    def _compute_is_formalities(self):
+        for request in self:
+            if request.procurement_type != 'enquiry':
+                request.is_formalities = False
+                continue
+            lines = request.line_ids
+            request.is_formalities = bool(lines) and any(
+                line._valid_inquiry_count() < 3 for line in lines
+            )
+
+    @api.depends(
+        'purchase_level',
         'line_ids.is_commission_item',
         'line_ids.sole_source',
     )
     def _compute_routing_flags(self):
         for request in self:
-            threshold = request.company_id.zvy_high_value_threshold or 0.0
-            request.is_high_value = bool(threshold and request.amount_total >= threshold)
+            request.is_high_value = request.purchase_level == 'large'
             request.is_commission_item = any(request.line_ids.mapped('is_commission_item'))
             request.has_sole_source = any(request.line_ids.mapped('sole_source'))
 
@@ -273,11 +383,20 @@ class ZvyPurchaseRequest(models.Model):
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)
             if locked:
-                raise UserError(_(
-                    'Purchase request %(name)s can only be edited in Draft or Correction.',
-                    name=locked[0].name,
-                ))
-        return super().write(vals)
+                signatory_nature = (
+                    content_keys <= _SIGNATORY_EFFECTIVE_PR_KEYS
+                    and self._user_is_cm_or_admin()
+                    and all(r.state == 'signatory' for r in locked)
+                )
+                if not signatory_nature:
+                    raise UserError(_(
+                        'Purchase request %(name)s can only be edited in Draft or Correction.',
+                        name=locked[0].name,
+                    ))
+        res = super().write(vals)
+        if set(vals) & _SIGNATORY_EFFECTIVE_PR_KEYS:
+            self._zvy_reset_signatory_if_effective_change()
+        return res
 
     def unlink(self):
         for request in self:
@@ -701,7 +820,7 @@ class ZvyPurchaseRequest(models.Model):
         return True
 
     def _action_spawn_signatory_approval(self):
-        """Create sequential approval.request and move PR to signatory (FR-12/14)."""
+        """Create sequential approval.request from level + formalities (FR-12/14/32/34)."""
         self.ensure_one()
         category = self.company_id.zvy_signatory_approval_category_id
         if not category:
@@ -714,12 +833,28 @@ class ZvyPurchaseRequest(models.Model):
                 'Signatory Approval Category "%s" must use Approvers Sequence '
                 'so signatories approve in order.'
             ) % category.display_name)
-        if not category.approver_ids and not (
+
+        band_users = self.company_id._zvy_signatory_users(
+            self.purchase_level,
+            self.amount_for_level,
+            self.purchase_nature or 'operational',
+        )
+        if not band_users:
+            raise UserError(_(
+                'Configure signatories for purchase level "%(level)s" on the company.',
+                level=self.purchase_level or _('unknown'),
+            ))
+        chain_users = list(band_users)
+        if self.is_formalities:
+            for user in self.company_id.zvy_signatory_formalities_ids:
+                if user not in chain_users:
+                    chain_users.append(user)
+        if not chain_users and not (
             self.has_sole_source and self.company_id.zvy_sole_source_approver_ids
         ):
             raise UserError(_(
-                'Signatory Approval Category "%s" has no approvers configured.'
-            ) % category.display_name)
+                'Cannot spawn signatory approval without any approvers.'
+            ))
 
         Approval = self.env['approval.request'].sudo()
         request = Approval.create({
@@ -727,10 +862,11 @@ class ZvyPurchaseRequest(models.Model):
             'category_id': category.id,
             'request_owner_id': self.env.user.id,
             'reference': self.name,
-            'amount': self.amount_total,
+            'amount': self.amount_for_level,
             'reason': self.description or '',
             'zvy_purchase_request_id': self.id,
         })
+        self._zvy_replace_signatory_approvers(request, chain_users)
         if self.has_sole_source:
             self._inject_sole_source_approvers(request)
 
@@ -740,7 +876,7 @@ class ZvyPurchaseRequest(models.Model):
             ))
 
         request.action_confirm()
-        self.write({
+        self.with_context(zvy_skip_signatory_reset=True).write({
             'approval_request_id': request.id,
             'state': 'signatory',
         })
@@ -748,6 +884,45 @@ class ZvyPurchaseRequest(models.Model):
             'Routed to company signatory path (%s).'
         ) % request.display_name)
         return request
+
+    def _zvy_replace_signatory_approvers(self, approval_request, users):
+        """Replace category template approvers with the level / formalities chain."""
+        commands = [Command.clear()]
+        sequence = 10
+        seen = self.env['res.users']
+        for user in users:
+            if user in seen:
+                continue
+            seen |= user
+            commands.append(Command.create({
+                'user_id': user.id,
+                'required': True,
+                'sequence': sequence,
+                'status': 'new',
+            }))
+            sequence += 10
+        approval_request.write({'approver_ids': commands})
+
+    def _zvy_reset_signatory_if_effective_change(self):
+        """Archive the in-progress chain and spawn a new one (FR-34)."""
+        if self.env.context.get('zvy_skip_signatory_reset'):
+            return
+        for request in self:
+            if request.state != 'signatory':
+                continue
+            current = request.approval_request_id
+            if not current or current.request_status == 'approved':
+                continue
+            old_name = current.display_name
+            if current.request_status in ('new', 'pending'):
+                current.sudo().action_cancel()
+            request.with_context(
+                zvy_skip_signatory_reset=True,
+            )._action_spawn_signatory_approval()
+            request.message_post(body=_(
+                'Effective change reset the signatory chain. Previous approval '
+                '%s is kept in history.'
+            ) % old_name)
 
     def _inject_sole_source_approvers(self, approval_request):
         """Ensure company sole-source / CEO approvers are last required in chain."""
@@ -917,13 +1092,23 @@ class ZvyPurchaseRequest(models.Model):
 
     def action_open_approval_request(self):
         self.ensure_one()
-        if not self.approval_request_id:
+        if not self.approval_request_id and not self.approval_request_ids:
             raise UserError(_('No signatory approval is linked to this request.'))
+        if len(self.approval_request_ids) > 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Signatory Approvals'),
+                'res_model': 'approval.request',
+                'view_mode': 'list,form',
+                'domain': [('zvy_purchase_request_id', '=', self.id)],
+                'context': {'default_zvy_purchase_request_id': self.id},
+            }
+        approval = self.approval_request_id or self.approval_request_ids[:1]
         return {
             'type': 'ir.actions.act_window',
             'name': _('Signatory Approval'),
             'res_model': 'approval.request',
-            'res_id': self.approval_request_id.id,
+            'res_id': approval.id,
             'view_mode': 'form',
             'target': 'current',
         }

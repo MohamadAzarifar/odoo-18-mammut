@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+from .zvy_purchase_bands import ZVY_VALID_INQUIRY_DAYS
 
 
 class ZvyQuote(models.Model):
@@ -91,6 +95,16 @@ class ZvyQuote(models.Model):
         compute='_compute_is_awarded',
         help='True when this quote is the awarded quote on its request line.',
     )
+    received_date = fields.Datetime(
+        string='Received Date',
+        default=fields.Datetime.now,
+        help='When this inquiry response was received. Validity is 30 days from this date.',
+    )
+    is_valid_inquiry = fields.Boolean(
+        string='Valid Inquiry',
+        compute='_compute_is_valid_inquiry',
+        help='Priced, not rejected, and received less than 30 days ago (FR-33).',
+    )
 
     @api.depends('partner_id', 'partner_id.name', 'price_unit', 'currency_id')
     def _compute_display_name(self):
@@ -108,6 +122,18 @@ class ZvyQuote(models.Model):
             quote.is_awarded = bool(
                 quote.line_id.awarded_quote_id
                 and quote.line_id.awarded_quote_id == quote
+            )
+
+    @api.depends('state', 'price_unit', 'received_date', 'create_date')
+    def _compute_is_valid_inquiry(self):
+        cutoff = fields.Datetime.now() - timedelta(days=ZVY_VALID_INQUIRY_DAYS)
+        for quote in self:
+            received = quote.received_date or quote.create_date
+            quote.is_valid_inquiry = bool(
+                quote.state != 'rejected'
+                and quote.price_unit > 0
+                and received
+                and received >= cutoff
             )
 
     @api.depends('price_unit', 'line_id.product_uom_qty')

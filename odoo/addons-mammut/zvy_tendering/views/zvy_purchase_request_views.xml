@@ -10,6 +10,9 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="amount_total"/>
                 <field name="currency_id" column_invisible="1"/>
+                <field name="purchase_level" optional="show"/>
+                <field name="purchase_nature" optional="hide"/>
+                <field name="is_formalities" optional="hide"/>
                 <field name="state" widget="badge"
                         decoration-info="state in ('submitted', 'inquiry', 'quote_review')"
                         decoration-warning="state in ('correction', 'cm_review', 'signatory')"
@@ -88,11 +91,9 @@
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_approval_request" type="object"
                                 class="oe_stat_button" icon="fa-pencil-square-o"
-                                invisible="not approval_request_id"
+                                invisible="approval_request_count == 0"
                                 groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Signatory</span>
-                            </div>
+                            <field name="approval_request_count" widget="statinfo" string="Signatory"/>
                         </button>
                         <button name="action_open_purchase_orders" type="object"
                                 class="oe_stat_button" icon="fa-credit-card"
@@ -123,6 +124,10 @@
                                      readonly="state not in ('draft', 'correction')"/>
                             <field name="currency_id" readonly="state not in ('draft', 'correction')"/>
                             <field name="amount_total"/>
+                            <field name="amount_for_level"/>
+                            <field name="purchase_nature" readonly="state not in ('draft', 'correction', 'signatory')"/>
+                            <field name="purchase_level"/>
+                            <field name="is_formalities"/>
                             <field name="approval_request_id" invisible="1"/>
                             <field name="split_request_id" invisible="1"/>
                             <field name="split_from_id" invisible="1"/>
@@ -147,13 +152,13 @@
                     </group>
                     <notebook>
                         <page string="Lines" name="lines">
-                            <field name="line_ids" readonly="state not in ('draft', 'correction', 'quote_review')">
+                            <field name="line_ids" readonly="state not in ('draft', 'correction', 'quote_review', 'signatory')">
                                 <list editable="bottom">
-                                    <field name="product_id" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="product_id" readonly="parent.state not in ('draft', 'correction', 'signatory')"/>
                                     <field name="procurement_type" optional="show"/>
-                                    <field name="product_uom_qty" readonly="parent.state not in ('draft', 'correction')"/>
-                                    <field name="product_uom_id" readonly="parent.state not in ('draft', 'correction')"/>
-                                    <field name="price_estimate" readonly="parent.state not in ('draft', 'correction')"/>
+                                    <field name="product_uom_qty" readonly="parent.state not in ('draft', 'correction', 'signatory')"/>
+                                    <field name="product_uom_id" readonly="parent.state not in ('draft', 'correction', 'signatory')"/>
+                                    <field name="price_estimate" readonly="parent.state not in ('draft', 'correction', 'signatory')"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="price_subtotal"/>
                                     <field name="sole_source" readonly="1"/>
@@ -168,7 +173,7 @@
                                     <field name="award_not_lowest_reason" optional="hide"/>
                                     <field name="awarded_quote_id"
                                               domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
-                                              readonly="parent.state != 'quote_review'"
+                                              readonly="parent.state not in ('quote_review', 'signatory')"
                                               options="{'no_create': True, 'no_create_edit': True}"
                                               groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                                     <field name="awarded_partner_id" optional="hide" readonly="1"/>
@@ -211,6 +216,8 @@
                                                     <field name="partner_id" options="{'no_create': True}"/>
                                                     <field name="price_unit"/>
                                                     <field name="amount_total"/>
+                                                    <field name="received_date" optional="hide"/>
+                                                    <field name="is_valid_inquiry" optional="hide"/>
                                                     <field name="currency_id" column_invisible="1"/>
                                                     <field name="expert_user_id" readonly="1"/>
                                                     <field name="state" readonly="1"/>
@@ -261,12 +268,14 @@
                 <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
                 <separator/>
                 <filter string="High Value" name="high_value" domain="[('is_high_value', '=', True)]"/>
+                <filter string="Formalities" name="formalities" domain="[('is_formalities', '=', True)]"/>
                 <filter string="Commission Item" name="commission_item" domain="[('is_commission_item', '=', True)]"/>
                 <filter string="Enquiry" name="enquiry" domain="[('procurement_type', '=', 'enquiry')]"/>
                 <filter string="Tendering" name="tendering" domain="[('procurement_type', '=', 'tendering')]"/>
                 <separator/>
                 <filter string="Requester" name="group_requester" context="{'group_by': 'requester_id'}"/>
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Purchase Level" name="group_purchase_level" context="{'group_by': 'purchase_level'}"/>
                 <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
             </search>
         </field>
@@ -324,14 +333,14 @@
                         <group>
                             <field name="request_id" readonly="1"/>
                             <field name="product_id"
-                                    readonly="request_state not in ('draft', 'correction')"/>
+                                    readonly="request_state not in ('draft', 'correction', 'signatory')"/>
                             <field name="procurement_type"/>
                             <field name="product_uom_qty"
-                                    readonly="request_state not in ('draft', 'correction')"/>
+                                    readonly="request_state not in ('draft', 'correction', 'signatory')"/>
                             <field name="product_uom_id"
-                                    readonly="request_state not in ('draft', 'correction')"/>
+                                    readonly="request_state not in ('draft', 'correction', 'signatory')"/>
                             <field name="price_estimate"
-                                    readonly="request_state not in ('draft', 'correction')"/>
+                                    readonly="request_state not in ('draft', 'correction', 'signatory')"/>
                             <field name="price_subtotal"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
@@ -341,7 +350,7 @@
                             <field name="expert_user_ids" widget="many2many_tags" readonly="1"/>
                             <field name="awarded_quote_id"
                                     domain="[('line_id', '=', id), ('state', 'in', ('submitted', 'accepted'))]"
-                                    readonly="request_state != 'quote_review'"
+                                    readonly="request_state not in ('quote_review', 'signatory')"
                                     options="{'no_create': True, 'no_create_edit': True}"
                                     groups="zvy_tendering.group_zvy_commercial_manager,zvy_tendering.group_zvy_tendering_admin,zvy_tendering.group_zvy_signatory"/>
                             <field name="quote_shortfall_reason" readonly="1"
@@ -360,6 +369,8 @@
                                     <field name="partner_id" options="{'no_create': True}"/>
                                     <field name="price_unit"/>
                                     <field name="amount_total"/>
+                                    <field name="received_date" optional="show"/>
+                                    <field name="is_valid_inquiry" optional="show"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="expert_user_id" readonly="1"/>
                                     <field name="state" readonly="1"/>

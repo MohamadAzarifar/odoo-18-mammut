@@ -8,22 +8,88 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app name="zvy_tendering" string="Procurement &amp; Tendering" data-string="Procurement &amp; Tendering">
+                    <block title="Company Scale &amp; Purchase Level">
+                        <setting string="Company Scale"
+                                 help="Selects the bylaws table (small / medium / large group companies) used to compute purchase level.">
+                            <field name="zvy_company_scale"/>
+                        </setting>
+                        <setting string="Override Purchase-Level Bands"
+                                 help="Use custom operational and non-operational ceilings instead of the baked-in R-PL tables.">
+                            <field name="zvy_use_custom_bands"/>
+                        </setting>
+                    </block>
+                    <block title="Custom Operational Bands" invisible="not zvy_use_custom_bands">
+                        <setting string="Operational Minor Max">
+                            <field name="zvy_op_minor_max"/>
+                        </setting>
+                        <setting string="Operational Medium Max">
+                            <field name="zvy_op_medium_max"/>
+                        </setting>
+                        <setting string="Operational Major Max">
+                            <field name="zvy_op_major_max"/>
+                        </setting>
+                        <setting string="Operational Large CEO Max"
+                                 help="Within large operational purchases, CEO signs up to this amount; Board above it.">
+                            <field name="zvy_op_large_ceo_max"/>
+                        </setting>
+                    </block>
+                    <block title="Custom Non-Operational Bands" invisible="not zvy_use_custom_bands">
+                        <setting string="Non-Operational Minor Max">
+                            <field name="zvy_nop_minor_max"/>
+                        </setting>
+                        <setting string="Non-Operational Medium Max">
+                            <field name="zvy_nop_medium_max"/>
+                        </setting>
+                        <setting string="Non-Operational Major Max">
+                            <field name="zvy_nop_major_max"/>
+                        </setting>
+                        <setting string="Non-Operational Large CEO Max"
+                                 help="Within large non-operational purchases, CEO signs up to this amount; Board above it.">
+                            <field name="zvy_nop_large_ceo_max"/>
+                        </setting>
+                    </block>
+                    <block title="Signatory Approvers">
+                        <setting string="Signatory Approval Category"
+                                 help="Sequential approval category used as the signatory document template. Approver users come from the lists below.">
+                            <field name="zvy_signatory_approval_category_id"/>
+                        </setting>
+                        <setting string="Minor Signatories"
+                                 help="Commercial Manager approvers for minor purchases.">
+                            <field name="zvy_signatory_minor_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Medium Signatories"
+                                 help="Commercial Deputy approvers for medium purchases.">
+                            <field name="zvy_signatory_medium_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Major Signatories"
+                                 help="CEO approvers for major purchases.">
+                            <field name="zvy_signatory_major_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Large Signatories"
+                                 help="CEO approvers for large purchases up to the inner CEO ceiling.">
+                            <field name="zvy_signatory_large_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Board Signatories"
+                                 help="Board member approvers for large purchases above the inner CEO ceiling.">
+                            <field name="zvy_signatory_board_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Formalities Signatories"
+                                 help="Extra approvers appended when the PR is in formalities.">
+                            <field name="zvy_signatory_formalities_ids" widget="many2many_tags"/>
+                        </setting>
+                        <setting string="Sole-Source Approvers"
+                                 help="Users (for example the CEO) who must approve every sole-source purchase request before PO Ready.">
+                            <field name="zvy_sole_source_approver_ids" widget="many2many_tags"/>
+                        </setting>
+                    </block>
                     <block title="Routing &amp; Approvals">
-                        <setting string="High-Value Threshold"
-                                 help="Purchase requests at or above this amount are routed to the Holding Commission after quote approval.">
+                        <setting string="High-Value Threshold (deprecated)"
+                                 help="No longer used for routing. Large purchase level now sends the PR to the Holding Commission. Kept until Phase 7.">
                             <field name="zvy_high_value_threshold"/>
                         </setting>
                         <setting string="Default Bid Window"
                                  help="Default hours used to suggest the bid deadline when a closed-envelope supplier list is approved.">
                             <field name="zvy_default_bid_window_hours"/>
-                        </setting>
-                        <setting string="Signatory Approval Category"
-                                 help="Sequential approval category used for company signatory documents.">
-                            <field name="zvy_signatory_approval_category_id"/>
-                        </setting>
-                        <setting string="Sole-Source Approvers"
-                                 help="Users (for example the CEO) who must approve every sole-source purchase request before PO Ready.">
-                            <field name="zvy_sole_source_approver_ids" widget="many2many_tags"/>
                         </setting>
                     </block>
                 </app>

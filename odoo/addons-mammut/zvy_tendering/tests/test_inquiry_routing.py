@@ -371,7 +371,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(all(q.state == 'draft' for q in pr.sudo().quote_ids))
 
     def test_router_company_path_signatory_stub(self):
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._submit_and_assign()
         self.assertFalse(pr.is_high_value)
         self.assertFalse(pr.is_commission_item)
@@ -385,7 +384,7 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertFalse(pr.commission_case_id)
 
     def test_router_high_value_creates_commission_case(self):
-        self.company_a.zvy_high_value_threshold = 50.0
+        self._force_large_bands()
         pr = self._submit_and_assign()
         self.assertTrue(pr.is_high_value)
         self._add_quotes(pr)
@@ -398,7 +397,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(pr.commission_case_id.name.startswith('CASE/'))
 
     def test_router_commission_item_creates_case(self):
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._create_draft_pr(line_vals=[{
             'product_id': self.product_commission.id,
             'product_uom_qty': 1.0,
@@ -416,7 +414,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(pr.commission_case_id.reason_commission_item)
 
     def test_approve_quotes_requires_award(self):
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
@@ -425,7 +422,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
 
     def test_cm_can_set_awarded_quote_via_pr_form(self):
         """UI saves awarded quotes through parent line_ids write (quote_review)."""
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
@@ -440,7 +436,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertEqual(pr.state, 'signatory')
 
     def test_select_as_awarded_rejects_siblings_and_display_name(self):
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()
@@ -475,7 +470,6 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
             first.with_user(self.user_planner).action_select_as_awarded()
 
     def test_award_not_lowest_requires_reason_on_write_and_ui(self):
-        self.company_a.zvy_high_value_threshold = 100000.0
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()

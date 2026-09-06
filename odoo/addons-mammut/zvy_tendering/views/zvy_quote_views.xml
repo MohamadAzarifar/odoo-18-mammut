@@ -11,6 +11,8 @@
                 <field name="partner_id" options="{'no_create': True}"/>
                 <field name="price_unit"/>
                 <field name="amount_total"/>
+                <field name="received_date" optional="show"/>
+                <field name="is_valid_inquiry" optional="show"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="expert_user_id"/>
                 <field name="state" widget="badge"/>
@@ -52,6 +54,8 @@
                         <group>
                             <field name="price_unit" readonly="request_state != 'inquiry'"/>
                             <field name="amount_total"/>
+                            <field name="received_date" readonly="request_state != 'inquiry'"/>
+                            <field name="is_valid_inquiry"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company" readonly="1"/>
                         </group>

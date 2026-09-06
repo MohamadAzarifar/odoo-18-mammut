@@ -6,546 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-09 10:00+0000\n"
-"PO-Revision-Date: 2026-08-09 10:00+0000\n"
+"POT-Creation-Date: 2026-08-25 11:17+0000\n"
+"PO-Revision-Date: 2026-08-25 11:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: Persian\n"
-"Language: fa_IR\n"
+"Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
-msgid "Tenders"
-msgstr "مناقصه‌ها"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
-msgid "View invitations and submit sealed bids"
-msgstr "مشاهده دعوت‌نامه‌ها و ارسال پیشنهاد مهر و موم‌شده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
-msgid "There are currently no tender invitations for your account."
-msgstr "در حال حاضر هیچ دعوت مناقصه‌ای برای حساب شما وجود ندارد."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "Reference"
-msgstr "مرجع"
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "Bid Deadline"
-msgstr "مهلت پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
-msgid "Opening"
-msgstr "گشایش"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
-msgid "Status"
-msgstr "وضعیت"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Your bid was awarded for this tender."
-msgstr "پیشنهاد شما برای این مناقصه برنده شد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "This tender has been awarded. Your bid was not selected."
-msgstr "این مناقصه واگذار شده است. پیشنهاد شما انتخاب نشد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "This tender has been cancelled."
-msgstr "این مناقصه لغو شده است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Bid deadline:"
-msgstr "مهلت پیشنهاد:"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Opening:"
-msgstr "گشایش:"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Status:"
-msgstr "وضعیت:"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Line summary"
-msgstr "خلاصه اقلام"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "No purchase request lines."
-msgstr "هیچ سطری در درخواست خرید وجود ندارد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Product"
-msgstr "محصول"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Qty"
-msgstr "تعداد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "UoM"
-msgstr "واحد سنجش"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Published documents"
-msgstr "اسناد منتشرشده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "No documents published for this tender."
-msgstr "هیچ سندی برای این مناقصه منتشر نشده است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Your sealed bid"
-msgstr "پیشنهاد مهر و موم‌شده شما"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Bid amount"
-msgstr "مبلغ پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Notes"
-msgstr "یادداشت‌ها"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Attachments"
-msgstr "پیوست‌ها"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Current files:"
-msgstr "فایل‌های فعلی:"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Uploading new files replaces them."
-msgstr "بارگذاری فایل‌های جدید جایگزین فایل‌های قبلی می‌شود."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Update bid"
-msgstr "به‌روزرسانی پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Submit bid"
-msgstr "ارسال پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Withdraw bid"
-msgstr "پس گرفتن پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Submitted amount:"
-msgstr "مبلغ ارسال‌شده:"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "on"
-msgstr "در"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
-msgid "Bidding is closed. You did not submit a bid."
-msgstr "مهلت پیشنهاد بسته است. شما پیشنهادی ارسال نکرده‌اید."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "Newest"
-msgstr "جدیدترین"
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "You are not invited to this tender."
-msgstr "شما به این مناقصه دعوت نشده‌اید."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "Your sealed bid has been submitted."
-msgstr "پیشنهاد مهر و موم‌شده شما ارسال شد."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/controllers/portal.py:0
-msgid "Your bid has been withdrawn."
-msgstr "پیشنهاد شما پس گرفته شد."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
-msgid "Please provide a valid bid amount."
-msgstr "لطفاً مبلغ پیشنهاد معتبری وارد کنید."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
-msgid "Bid amount must be greater than zero."
-msgstr "مبلغ پیشنهاد باید بیشتر از صفر باشد."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
-msgid "Bidding is closed for this tender (deadline passed or bids opened)."
-msgstr "مهلت پیشنهاد برای این مناقصه بسته است (مهلت گذشته یا پیشنهادها گشوده شده‌اند)."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
-msgid "Bids can only be withdrawn while the tender is open for bidding."
-msgstr "پیشنهاد را فقط زمانی می‌توان پس گرفت که مناقصه برای پیشنهاد باز باشد."
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
-msgid "No bid found to withdraw."
-msgstr "پیشنهادی برای پس گرفتن یافت نشد."
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__draft
-msgid "Draft"
-msgstr "پیش‌نویس"
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__list_pending
-msgid "List Pending"
-msgstr "در انتظار تأیید فهرست"
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__portal_open
-msgid "Portal Open"
-msgstr "باز در پرتال"
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__opened
-msgid "Opened"
-msgstr "گشوده‌شده"
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__awarded
-msgid "Awarded"
-msgstr "واگذارشده"
-
-#. module: zvy_tendering
-#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__cancelled
-msgid "Cancelled"
-msgstr "لغوشده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Manual"
-msgstr "دستی"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Portal"
-msgstr "پرتال"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Closed Envelope Tender"
-msgstr "مناقصه پاکت بسته"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Closed Envelope Bid"
-msgstr "پیشنهاد پاکت بسته"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Bid Amount"
-msgstr "مبلغ پیشنهاد"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Invited Suppliers"
-msgstr "تأمین‌کنندگان دعوت‌شده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Opening Datetime"
-msgstr "زمان گشایش"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Published Documents"
-msgstr "اسناد منتشرشده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Winner"
-msgstr "برنده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Bids"
-msgstr "پیشنهادها"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_root
-msgid "Procurement & Tendering"
-msgstr "تدارکات و مناقصه"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_requests
-msgid "Purchase Requests"
-msgstr "درخواست‌های خرید"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_all
-msgid "All Requests"
-msgstr "همه درخواست‌ها"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_cm_queue
-msgid "Awaiting Review"
-msgstr "در انتظار بررسی"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_quote_review
-msgid "Quote Review"
-msgstr "بررسی پیشنهادها"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_my_assignments
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_my_assignments
-msgid "My Assignments"
-msgstr "تخصیص‌های من"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission
-msgid "Commission"
-msgstr "کمیسیون"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_cases
-msgid "Cases"
-msgstr "پرونده‌ها"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_reviews
-msgid "My Reviews"
-msgstr "بررسی‌های من"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_meetings
-msgid "Meetings"
-msgstr "جلسات"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes
-msgid "Closed Envelopes"
-msgstr "پاکت‌های بسته"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes_pending
-msgid "CE Lists Pending"
-msgstr "فهرست‌های CE در انتظار"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_config
-msgid "Configuration"
-msgstr "پیکربندی"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_avl_entry
-msgid "Approved Vendor List"
-msgstr "فهرست تأمین‌کنندگان تأییدشده"
-
-#. module: zvy_tendering
-#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_settings
-msgid "Settings"
-msgstr "تنظیمات"
-
-#. module: zvy_tendering
-#: model:mail.template,name:zvy_tendering.mail_template_ce_invite
-msgid "Tendering: Closed Envelope Invitation"
-msgstr "مناقصه: دعوت پاکت بسته"
-
-#. module: zvy_tendering
-#: model:mail.template,name:zvy_tendering.mail_template_ce_clarification
-msgid "Tendering: Closed Envelope Clarification"
-msgstr "مناقصه: توضیح پاکت بسته"
-
-#. module: zvy_tendering
-#: model:mail.template,name:zvy_tendering.mail_template_ce_awarded
-msgid "Tendering: Closed Envelope Awarded"
-msgstr "مناقصه: واگذاری پاکت بسته"
-
-#. module: zvy_tendering
-#: model:mail.template,name:zvy_tendering.mail_template_ce_not_awarded
-msgid "Tendering: Closed Envelope Not Awarded"
-msgstr "مناقصه: عدم واگذاری پاکت بسته"
-
-#. module: zvy_tendering
-#: model:mail.template,name:zvy_tendering.mail_template_ce_cancelled
-msgid "Tendering: Closed Envelope Cancelled"
-msgstr "مناقصه: لغو پاکت بسته"
-
-#. module: zvy_tendering
-#: model:mail.template,subject:zvy_tendering.mail_template_ce_invite
-msgid "Invitation to tender {{ object.name }}"
-msgstr "دعوت به مناقصه {{ object.name }}"
-
-#. module: zvy_tendering
-#: model:mail.template,subject:zvy_tendering.mail_template_ce_clarification
-msgid "Clarification on tender {{ object.name }}"
-msgstr "توضیح درباره مناقصه {{ object.name }}"
-
-#. module: zvy_tendering
-#: model:mail.template,subject:zvy_tendering.mail_template_ce_awarded
-msgid "You were awarded tender {{ object.name }}"
-msgstr "شما برنده مناقصه {{ object.name }} شدید"
-
-#. module: zvy_tendering
-#: model:mail.template,subject:zvy_tendering.mail_template_ce_not_awarded
-msgid "Result for tender {{ object.name }}"
-msgstr "نتیجه مناقصه {{ object.name }}"
-
-#. module: zvy_tendering
-#: model:mail.template,subject:zvy_tendering.mail_template_ce_cancelled
-msgid "Tender {{ object.name }} cancelled"
-msgstr "مناقصه {{ object.name }} لغو شد"
-
-#. module: zvy_tendering
-#: model:mail.template,description:zvy_tendering.mail_template_ce_invite
-msgid "Sent to invited suppliers when the CE portal opens"
-msgstr "هنگام باز شدن پرتال CE برای تأمین‌کنندگان دعوت‌شده ارسال می‌شود"
-
-#. module: zvy_tendering
-#: model:mail.template,description:zvy_tendering.mail_template_ce_clarification
-msgid "Sent when a clarification is posted on a closed envelope"
-msgstr "هنگام ثبت توضیح روی پاکت بسته ارسال می‌شود"
-
-#. module: zvy_tendering
-#: model:mail.template,description:zvy_tendering.mail_template_ce_awarded
-msgid "Sent to the winning supplier after award"
-msgstr "پس از واگذاری برای تأمین‌کننده برنده ارسال می‌شود"
-
-#. module: zvy_tendering
-#: model:mail.template,description:zvy_tendering.mail_template_ce_not_awarded
-msgid "Sent to non-winning invited suppliers after award"
-msgstr "پس از واگذاری برای تأمین‌کنندگان دعوت‌شده غیربرنده ارسال می‌شود"
-
-#. module: zvy_tendering
-#: model:mail.template,description:zvy_tendering.mail_template_ce_cancelled
-msgid "Sent to invited suppliers when a closed envelope is cancelled"
-msgstr "هنگام لغو پاکت بسته برای تأمین‌کنندگان دعوت‌شده ارسال می‌شود"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "View tender"
-msgstr "مشاهده مناقصه"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Best regards,"
-msgstr "با احترام،"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "You are invited to submit a sealed bid for tender"
-msgstr "شما دعوت شده‌اید پیشنهاد مهر و موم‌شده برای مناقصه ارسال کنید"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "from"
-msgstr "از"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "A clarification has been posted on tender"
-msgstr "یک توضیح روی مناقصه ثبت شده است"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Congratulations. Your bid for tender"
-msgstr "تبریک. پیشنهاد شما برای مناقصه"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "has been selected."
-msgstr "انتخاب شده است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Thank you for participating in tender"
-msgstr "از مشارکت شما در مناقصه سپاسگزاریم"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Your bid was not selected."
-msgstr "پیشنهاد شما انتخاب نشد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "has been cancelled."
-msgstr "لغو شده است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Dear"
-msgstr "سلام"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Supplier"
-msgstr "تأمین‌کننده"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Company"
-msgstr "شرکت"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "CE/PR"
-msgstr "CE/PR"
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
-#: model:res.currency,currency_unit_label:base.IRR
-msgid "Rial"
-msgstr "ریال"
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
-#: model:res.currency,currency_subunit_label:base.IRR
-msgid "Dinar"
-msgstr "دینار"
 
 #. module: zvy_tendering
 #. odoo-python
@@ -557,114 +26,169 @@ msgstr "%(integral_amount)s %(currency_unit)s"
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
 msgid ""
-"%(integral_amount)s %(currency_unit)s and %(fractional_amount)s %(currency_subunit)s"
+"%(integral_amount)s %(currency_unit)s and %(fractional_amount)s "
+"%(currency_subunit)s"
 msgstr ""
-"%(integral_amount)s %(currency_unit)s و %(fractional_amount)s %(currency_subunit)s"
+"%(integral_amount)s %(currency_unit)s و %(fractional_amount)s "
+"%(currency_subunit)s"
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "New"
-msgstr "جدید"
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "%s (%s)"
+msgstr "%s (%s)"
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only draft lists can be submitted."
-msgstr "فقط فهرست‌های پیش‌نویس قابل ارسال هستند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only pending lists can be approved."
-msgstr "فقط فهرست‌های در انتظار قابل تأیید هستند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only pending lists can be rejected."
-msgstr "فقط فهرست‌های در انتظار قابل رد هستند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Bids can only be opened from Portal Open."
-msgstr "پیشنهادها فقط از وضعیت «باز در پرتال» قابل گشودن هستند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Opening datetime is missing."
-msgstr "زمان گشایش مشخص نشده است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Bids unsealed / opened."
-msgstr "پیشنهادها گشوده شدند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Closed envelope cancelled."
-msgstr "پاکت بسته لغو شد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Post Clarification"
-msgstr "ثبت توضیح"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Clarification body is required."
-msgstr "متن توضیح الزامی است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Clarification: %s"
-msgstr "توضیح: %s"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Invite list rejected: %s"
-msgstr "فهرست دعوت رد شد: %s"
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only one bid per supplier is allowed on a closed envelope."
-msgstr "برای هر تأمین‌کننده فقط یک پیشنهاد روی پاکت بسته مجاز است."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Bid partner must be on the closed-envelope invite list."
-msgstr "طرف پیشنهاد باید در فهرست دعوت پاکت بسته باشد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only Commission Managers can enter sealed bids manually."
-msgstr "فقط مدیران کمیسیون می‌توانند پیشنهاد مهر و موم‌شده را به‌صورت دستی وارد کنند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Only Commission Managers can edit sealed bid content."
-msgstr "فقط مدیران کمیسیون می‌توانند محتوای پیشنهاد مهر و موم‌شده را ویرایش کنند."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Sealed bid content cannot be changed in this envelope state."
-msgstr "در این وضعیت پاکت، محتوای پیشنهاد مهر و موم‌شده قابل تغییر نیست."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
 msgid ""
-"Bids can only be entered when the envelope is open for bidding or already opened."
+".\n"
+"                                    Uploading new files replaces them."
 msgstr ""
-"پیشنهادها فقط زمانی قابل ثبت هستند که پاکت برای پیشنهاد باز باشد یا قبلاً گشوده شده باشد."
+".\n"
+"                                    بارگذاری فایل‌های جدید جایگزین فایل‌های قبلی می‌شود."
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Purchase Request"
-msgstr "درخواست خرید"
+#: model:mail.template,body_html:zvy_tendering.mail_template_ce_clarification
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        A clarification has been posted on tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>:\n"
+"        <br/><br/>\n"
+"        <t t-out=\"ctx.get('clarification_body') or ''\"/>\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
+"        <br/><br/>\n"
+"        یک توضیح روی مناقصه\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span> ثبت شده است:\n"
+"        <br/><br/>\n"
+"        <t t-out=\"ctx.get('clarification_body') or ''\"/>\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            مشاهده مناقصه\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        با احترام،\n"
+"    </p>\n"
+"</div>\n"
+"            "
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid "Closed Envelope"
-msgstr "پاکت بسته"
+#: model:mail.template,body_html:zvy_tendering.mail_template_ce_awarded
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Congratulations. Your bid for tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        has been selected.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
+"        <br/><br/>\n"
+"        تبریک. پیشنهاد شما برای مناقصه\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        انتخاب شده است.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            مشاهده مناقصه\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        با احترام،\n"
+"    </p>\n"
+"</div>\n"
+"            "
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
+#: model:mail.template,body_html:zvy_tendering.mail_template_ce_cancelled
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Tender <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        has been cancelled.\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
+"        <br/><br/>\n"
+"        مناقصه <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
+"        لغو شده است.\n"
+"        <br/><br/>\n"
+"        با احترام،\n"
+"    </p>\n"
+"</div>\n"
+"            "
+
+#. module: zvy_tendering
+#: model:mail.template,body_html:zvy_tendering.mail_template_ce_not_awarded
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
+"        <br/><br/>\n"
+"        Thank you for participating in tender\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>.\n"
+"        Your bid was not selected.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            View tender\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        Best regards,\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
+"        <br/><br/>\n"
+"        از مشارکت شما در مناقصه\n"
+"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>.\n"
+"        سپاسگزاریم. پیشنهاد شما انتخاب نشد.\n"
+"        <br/><br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"            مشاهده مناقصه\n"
+"        </a>\n"
+"        <br/><br/>\n"
+"        با احترام،\n"
+"    </p>\n"
+"</div>\n"
+"            "
+
+#. module: zvy_tendering
+#: model:mail.template,body_html:zvy_tendering.mail_template_ce_invite
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
@@ -678,15 +202,14 @@ msgid ""
 "        <br/>\n"
 "        Opening: <t t-out=\"object.opening_datetime or ''\"/>\n"
 "        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "            View tender\n"
 "        </a>\n"
 "        <br/><br/>\n"
 "        Best regards,\n"
 "    </p>\n"
-"</div>"
+"</div>\n"
+"            "
 msgstr ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
@@ -700,157 +223,3418 @@ msgstr ""
 "        <br/>\n"
 "        گشایش: <t t-out=\"object.opening_datetime or ''\"/>\n"
 "        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
+"        <a t-att-href=\"object.get_portal_url()\" target=\"_blank\" style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
 "            مشاهده مناقصه\n"
 "        </a>\n"
 "        <br/><br/>\n"
 "        با احترام،\n"
 "    </p>\n"
-"</div>"
+"</div>\n"
+"            "
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
-"        <br/><br/>\n"
-"        A clarification has been posted on tender\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>:\n"
-"        <br/><br/>\n"
-"        <t t-out=\"ctx.get('clarification_body') or ''\"/>\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            View tender\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        Best regards,\n"
-"    </p>\n"
-"</div>"
-msgstr ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
-"        <br/><br/>\n"
-"        یک توضیح روی مناقصه\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span> ثبت شده است:\n"
-"        <br/><br/>\n"
-"        <t t-out=\"ctx.get('clarification_body') or ''\"/>\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            مشاهده مناقصه\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        با احترام،\n"
-"    </p>\n"
-"</div>"
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_approval_request_form_zvy_tendering
+msgid "<span class=\"o_stat_text\">Purchase Request</span>"
+msgstr "<span class=\"o_stat_text\">درخواست خرید</span>"
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
-"        <br/><br/>\n"
-"        Congratulations. Your bid for tender\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
-"        has been selected.\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            View tender\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        Best regards,\n"
-"    </p>\n"
-"</div>"
-msgstr ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
-"        <br/><br/>\n"
-"        تبریک. پیشنهاد شما برای مناقصه\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
-"        انتخاب شده است.\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            مشاهده مناقصه\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        با احترام،\n"
-"    </p>\n"
-"</div>"
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "<span class=\"o_stat_text\">Signatory</span>"
+msgstr "<span class=\"o_stat_text\">امضاکنندگان</span>"
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
-msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
-"        <br/><br/>\n"
-"        Thank you for participating in tender\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>.\n"
-"        Your bid was not selected.\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            View tender\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        Best regards,\n"
-"    </p>\n"
-"</div>"
-msgstr ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
-"        <br/><br/>\n"
-"        از مشارکت شما در مناقصه\n"
-"        <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
-"        سپاسگزاریم. پیشنهاد شما انتخاب نشد.\n"
-"        <br/><br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\"\n"
-"           target=\"_blank\"\n"
-"           style=\"padding: 5px 10px; color: #FFFFFF; text-decoration: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius: 3px\">\n"
-"            مشاهده مناقصه\n"
-"        </a>\n"
-"        <br/><br/>\n"
-"        با احترام،\n"
-"    </p>\n"
-"</div>"
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "<span class=\"o_stat_text\">Split PR</span>"
+msgstr "<span class=\"o_stat_text\">درخواست تفکیک‌شده</span>"
 
 #. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "<strong>Bid deadline:</strong>"
+msgstr "<strong>مهلت پیشنهاد:</strong>"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "<strong>Opening:</strong>"
+msgstr "<strong>گشایش:</strong>"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "<strong>Status:</strong>"
+msgstr "<strong>وضعیت:</strong>"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_split_wizard.py:0
+msgid "A purchase request is required."
+msgstr "درخواست خرید الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/wizard/request_quote_reject_wizard.py:0
+msgid "A quote reject reason is required."
+msgstr "دلیل رد پیشنهادها الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
 msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">Supplier</t>,\n"
-"        <br/><br/>\n"
-"        Tender <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
-"        has been cancelled.\n"
-"        <br/><br/>\n"
-"        Best regards,\n"
-"    </p>\n"
-"</div>"
+"A reason is required when awarding a quote that is not the lowest price on "
+"%s."
 msgstr ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        <t t-out=\"ctx.get('partner') and ctx['partner'].name or ''\">تأمین‌کننده</t> عزیز،\n"
-"        <br/><br/>\n"
-"        مناقصه <span style=\"font-weight:bold;\" t-out=\"object.name or ''\">CE/PR</span>\n"
-"        لغو شده است.\n"
-"        <br/><br/>\n"
-"        با احترام،\n"
-"    </p>\n"
-"</div>"
+"هنگام واگذاری پیشنهادی که کمترین قیمت روی %s نیست، ذکر دلیل الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_award_not_lowest_wizard.py:0
+msgid ""
+"A reason is required when awarding a quote that is not the lowest price."
+msgstr "هنگام واگذاری پیشنهادی که کمترین قیمت نیست، ذکر دلیل الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"A reason is required when awarding a quote that is not the lowest price. "
+"Missing: %s"
+msgstr ""
+"هنگام واگذاری پیشنهادی که کمترین قیمت نیست، ذکر دلیل الزامی است. موارد ناقص:"
+" %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_quote_shortfall_wizard.py:0
+msgid "A reason is required when submitting fewer than 3 quotes."
+msgstr "هنگام ارسال کمتر از ۳ پیشنهاد، ذکر دلیل الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/wizard/request_reject_wizard.py:0
+msgid "A reject reason is required."
+msgstr "دلیل رد الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/wizard/request_return_wizard.py:0
+msgid "A return reason is required."
+msgstr "دلیل بازگشت الزامی است."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_form
+msgid "AVL Entry"
+msgstr "رکورد فهرست تأمین‌کنندگان تأییدشده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_quote__state__accepted
+msgid "Accepted"
+msgstr "پذیرفته‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__access_warning
+msgid "Access warning"
+msgstr "هشدار دسترسی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__notes_accuracy
+msgid "Accuracy Notes"
+msgstr "یادداشت‌های صحت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_needaction
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_needaction
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_needaction
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_needaction
+msgid "Action Needed"
+msgstr "اقدام لازم"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__active
+msgid "Active"
+msgstr "فعال"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_quote__allowed_partner_ids
+msgid "Active AVL vendors for this company and the line product/category."
+msgstr "تأمین‌کنندگان فعال فهرست تأییدشده برای این شرکت و محصول/دسته سطر."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__allowed_partner_ids
+msgid "Active AVL vendors for this company."
+msgstr "تأمین‌کنندگان فعال فهرست تأییدشده برای این شرکت."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_ids
+msgid "Activities"
+msgstr "فعالیت‌ها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_exception_decoration
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_exception_decoration
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_exception_decoration
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تزئین استثنای فعالیت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_state
+msgid "Activity State"
+msgstr "وضعیت فعالیت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_type_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_type_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_type_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "آیکون نوع فعالیت"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_avl_entry
+msgid "Add an approved vendor"
+msgstr "افزودن تأمین‌کننده تأییدشده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Add at least one invited AVL supplier before submitting."
+msgstr ""
+"پیش از ارسال، دست‌کم یک تأمین‌کننده دعوت‌شده از فهرست تأییدشده اضافه کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Add at least one line before submitting the purchase request."
+msgstr "پیش از ارسال درخواست خرید، دست‌کم یک سطر اضافه کنید."
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_tendering_admin
+msgid "Administrator"
+msgstr "مدیر سیستم"
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_all
+msgid "All Requests"
+msgstr "همه درخواست‌ها"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid ""
+"All assigned experts must submit an approve recommendation before approving "
+"without a meeting."
+msgstr ""
+"همه کارشناسان تخصیص‌داده‌شده باید پیش از تأیید بدون جلسه، توصیه موافقت ارسال"
+" کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "All quote sets submitted; request ready for CM review."
+msgstr ""
+"همه مجموعه‌های پیشنهاد ارسال شد؛ درخواست آماده بررسی مدیر بازرگانی است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__allowed_partner_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__allowed_partner_ids
+msgid "Allowed Vendors"
+msgstr "تأمین‌کنندگان مجاز"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_approval_request
+msgid "Approval Request"
+msgstr "درخواست مصوبه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_signatory_approval_category_id
+#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_signatory_approval_category_id
+msgid "Approval category used for sequential company signatory documents."
+msgstr "دسته‌بندی مصوبه مورد استفاده برای اسناد امضای ترتیبی شرکت."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__manager_decision__approve
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_review__recommendation__approve
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+msgid "Approve"
+msgstr "تأیید"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Approve List"
+msgstr "تأیید فهرست"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Approve Quotes"
+msgstr "تأیید پیشنهادها"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+msgid "Approve Without Meeting"
+msgstr "تأیید بدون جلسه"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Approve without meeting is only available in review or meeting."
+msgstr "تأیید بدون جلسه فقط در وضعیت بررسی یا جلسه در دسترس است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__approved
+msgid "Approved"
+msgstr "تأییدشده"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_avl_entry
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_avl_entry
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
+msgid "Approved Vendor List"
+msgstr "فهرست تأمین‌کنندگان تأییدشده"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_avl_entry
+msgid "Approved Vendor List Entry"
+msgstr "رکورد فهرست تأمین‌کنندگان تأییدشده"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
+msgid "Archived"
+msgstr "بایگانی‌شده"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_assign_wizard_form
+msgid "Assign & Start Inquiry"
+msgstr "تخصیص و شروع استعلام"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_request_assign_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_assign_wizard_form
+msgid "Assign Commercial Experts"
+msgstr "تخصیص کارشناسان بازرگانی"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_commission_assign_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_assign_wizard_form
+msgid "Assign Commission Experts"
+msgstr "تخصیص کارشناسان کمیسیون"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_assign_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Assign Experts"
+msgstr "تخصیص کارشناسان"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_request_assign_wizard_line
+msgid "Assign Experts Wizard Line"
+msgstr "سطر ویزارد تخصیص کارشناسان"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/wizard/request_assign_wizard.py:0
+msgid "Assign at least one Commercial Expert to every line."
+msgstr "دست‌کم یک کارشناس بازرگانی به هر سطر تخصیص دهید."
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_commission_expert
+msgid "Assigned commission case reviews and audit reports."
+msgstr "بررسی‌های پرونده کمیسیون و گزارش‌های حسابرسی تخصیص‌داده‌شده."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "تعداد پیوست‌ها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__attachment_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__attachment_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Attachments"
+msgstr "پیوست‌ها"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_review_form
+msgid "Audit Notes"
+msgstr "یادداشت‌های حسابرسی"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_purchase_request_cm_queue
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_cm_queue
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Awaiting Review"
+msgstr "در انتظار بررسی"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_request_award_not_lowest_wizard
+msgid "Award a Quote That Is Not the Lowest Price"
+msgstr "واگذاری پیشنهادی که کمترین قیمت نیست"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Award data is required before creating purchase orders."
+msgstr "پیش از ایجاد سفارش‌های خرید، داده‌های واگذاری الزامی است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Award data is required before resubmitting to signatories."
+msgstr "پیش از ارسال مجدد به امضاکنندگان، داده‌های واگذاری الزامی است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__is_awarded
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__awarded
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+msgid "Awarded"
+msgstr "واگذارشده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__awarded_quote_id
+msgid "Awarded Quote"
+msgstr "پیشنهاد واگذارشده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__award_partner_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__awarded_partner_id
+msgid "Awarded Vendor"
+msgstr "تأمین‌کننده برنده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Awarded or cancelled envelopes cannot be cancelled again."
+msgstr "پاکت‌های واگذارشده یا لغوشده را نمی‌توان دوباره لغو کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Awarded quote must be submitted or accepted."
+msgstr "پیشنهاد واگذارشده باید ارسال‌شده یا پذیرفته‌شده باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Awarded quote must belong to the same purchase request line."
+msgstr "پیشنهاد واگذارشده باید متعلق به همان سطر درخواست خرید باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Awarded quote selected for %(product)s: %(vendor)s."
+msgstr "پیشنهاد واگذارشده برای %(product)s انتخاب شد: %(vendor)s."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid ""
+"Awarded quote selected for %(product)s: %(vendor)s.\n"
+"Reason (not lowest price): %(reason)s"
+msgstr ""
+"پیشنهاد واگذارشده برای %(product)s انتخاب شد: %(vendor)s.\n"
+"دلیل (کمترین قیمت نیست): %(reason)s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Awarded quotes can only be selected during Quote Review."
+msgstr "پیشنهادهای واگذارشده را فقط در بررسی پیشنهادها می‌توان انتخاب کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Awarded quotes can only be set during Quote Review."
+msgstr "پیشنهادهای واگذارشده را فقط در بررسی پیشنهادها می‌توان تنظیم کرد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__amount
+msgid "Bid Amount"
+msgstr "مبلغ پیشنهاد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__bid_deadline
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Bid Deadline"
+msgstr "مهلت پیشنهاد"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Bid amount"
+msgstr "مبلغ پیشنهاد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bid amount must be greater than zero."
+msgstr "مبلغ پیشنهاد باید بیشتر از صفر باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bid partner must be on the closed-envelope invite list."
+msgstr "طرف پیشنهاد باید در فهرست دعوت پاکت بسته باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bidding is closed for this tender (deadline passed or bids opened)."
+msgstr ""
+"مهلت پیشنهاد برای این مناقصه بسته است (مهلت گذشته یا پیشنهادها گشوده "
+"شده‌اند)."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Bidding is closed. You did not submit a bid."
+msgstr "مهلت پیشنهاد بسته است. شما پیشنهادی ارسال نکرده‌اید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__bid_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Bids"
+msgstr "پیشنهادها"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid ""
+"Bids can only be entered when the envelope is open for bidding or already "
+"opened."
+msgstr ""
+"پیشنهادها فقط زمانی قابل ثبت هستند که پاکت برای پیشنهاد باز باشد یا قبلاً "
+"گشوده شده باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Bids can only be opened from Portal Open."
+msgstr "پیشنهادها فقط از وضعیت «باز در پرتال» قابل گشودن هستند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Bids can only be withdrawn while the tender is open for bidding."
+msgstr "پیشنهاد را فقط زمانی می‌توان پس گرفت که مناقصه برای پیشنهاد باز باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Bids unsealed / opened."
+msgstr "پیشنهادها گشوده شدند."
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_closed_envelope_pending
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes_pending
+msgid "CE Lists Pending"
+msgstr "فهرست‌های CE در انتظار"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "CE/%s"
+msgstr "CE/%s"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__cm_review
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "CM Review"
+msgstr "بررسی مدیر بازرگانی"
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_commercial_manager
+msgid "CM queues, expert assignment, quote review, and PO creation."
+msgstr ""
+"صف‌های مدیر بازرگانی، تخصیص کارشناس، بررسی پیشنهادها و ایجاد سفارش خرید."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_ce_clarification_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_assign_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_assign_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_award_not_lowest_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_shortfall_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_split_wizard_form
+msgid "Cancel"
+msgstr "لغو"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__cancelled
+msgid "Cancelled"
+msgstr "لغوشده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Cannot assign experts on a request with no lines."
+msgstr "نمی‌توان روی درخواستی بدون سطر کارشناس تخصیص داد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Cannot open bids before the scheduled opening datetime."
+msgstr "نمی‌توان پیش از زمان برنامه‌ریزی‌شده گشایش، پیشنهادها را گشود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Cannot spawn signatory approval without any approvers."
+msgstr "نمی‌توان مصوبه امضاکنندگان را بدون هیچ تأییدکننده‌ای ایجاد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Cannot split: both Enquiry and Tendering lines are required."
+msgstr "تفکیک ممکن نیست: هم سطرهای استعلام و هم سطرهای مناقصه لازم است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__case_id
+msgid "Case"
+msgstr "پرونده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Case approved; PR advanced to signatory."
+msgstr "پرونده تأیید شد؛ درخواست خرید به امضاکنندگان منتقل شد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__case_ids
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_cases
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_meeting_form
+msgid "Cases"
+msgstr "پرونده‌ها"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_commission_case
+msgid ""
+"Cases are created when high-value or commission-item PRs are routed after "
+"quote approval."
+msgstr ""
+"پرونده‌ها پس از تأیید پیشنهادها برای درخواست‌های خرید با ارزش بالا یا اقلام "
+"کمیسیونی ایجاد می‌شوند."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
+msgid "Category"
+msgstr "دسته‌بندی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__body
+msgid "Clarification"
+msgstr "توضیح"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: code:addons/zvy_tendering/wizard/ce_clarification_wizard.py:0
+msgid "Clarification body is required."
+msgstr "متن توضیح الزامی است."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_ce_clarification_wizard_form
+msgid "Clarification for invited suppliers..."
+msgstr "توضیح برای تأمین‌کنندگان دعوت‌شده..."
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_clarification
+msgid "Clarification on tender {{ object.name }}"
+msgstr "توضیح درباره مناقصه {{ object.name }}"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Clarification: %s"
+msgstr "توضیح: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid ""
+"Clarifications can only be posted while bidding is open or bids are opened."
+msgstr ""
+"توضیحات را فقط وقتی مهلت پیشنهاد باز است یا پیشنهادها گشوده شده‌اند می‌توان "
+"ثبت کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__envelope_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__envelope_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__closed_envelope_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Closed Envelope"
+msgstr "پاکت بسته"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_closed_envelope_bid
+msgid "Closed Envelope Bid"
+msgstr "پیشنهاد پاکت بسته"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_closed_envelope
+msgid "Closed Envelope Tender"
+msgstr "مناقصه پاکت بسته"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_closed_envelope
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_closed_envelopes
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+msgid "Closed Envelopes"
+msgstr "پاکت‌های بسته"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Closed envelope awarded to %s."
+msgstr "پاکت بسته به %s واگذار شد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Closed envelope cancelled."
+msgstr "پاکت بسته لغو شد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Closed envelopes can only be created for Tendering purchase requests."
+msgstr "پاکت بسته را فقط برای درخواست‌های خرید مناقصه‌ای می‌توان ایجاد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Closed envelopes can only be created while the PR is in Inquiry."
+msgstr "پاکت بسته را فقط وقتی درخواست خرید در استعلام است می‌توان ایجاد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Closed-envelope award vendor is required before approving."
+msgstr "پیش از تأیید، تأمین‌کننده برنده پاکت بسته الزامی است."
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_commercial_expert
+msgid "Commercial Expert"
+msgstr "کارشناس بازرگانی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__expert_user_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__expert_user_ids
+msgid "Commercial Experts"
+msgstr "کارشناسان بازرگانی"
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_commercial_manager
+msgid "Commercial Manager"
+msgstr "مدیر بازرگانی"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Commercial experts assigned; inquiry started."
+msgstr "کارشناسان بازرگانی تخصیص داده شدند؛ استعلام آغاز شد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__commission
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission
+msgid "Commission"
+msgstr "کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__case_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__commission_case_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+msgid "Commission Case"
+msgstr "پرونده کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_commission_case
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+msgid "Commission Cases"
+msgstr "پرونده‌های کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__expert_user_id
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_commission_expert
+msgid "Commission Expert"
+msgstr "کارشناس کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_commission_review
+msgid "Commission Expert Review"
+msgstr "بررسی کارشناس کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__expert_user_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__expert_user_ids
+msgid "Commission Experts"
+msgstr "کارشناسان کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__is_commission_item
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__is_commission_item
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Commission Item"
+msgstr "قلم کمیسیونی"
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_commission_manager
+msgid "Commission Manager"
+msgstr "مدیر کمیسیون"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_commission_meeting
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_meeting_form
+msgid "Commission Meeting"
+msgstr "جلسه کمیسیون"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_review_form
+msgid "Commission Review"
+msgstr "بررسی کمیسیون"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Commission case rejected by manager."
+msgstr "پرونده کمیسیون توسط مدیر رد شد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Commission experts assigned."
+msgstr "کارشناسان کمیسیون تخصیص داده شدند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Commission review on %s"
+msgstr "بررسی کمیسیون روی %s"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_res_company
+msgid "Companies"
+msgstr "شرکت‌ها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__company_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__company_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Company"
+msgstr "شرکت"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_res_config_settings
+msgid "Config Settings"
+msgstr "تنظیمات پیکربندی"
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_config
+msgid "Configuration"
+msgstr "پیکربندی"
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_tendering_admin
+msgid "Configuration, AVL administration, and all tendering records."
+msgstr "پیکربندی، مدیریت فهرست تأمین‌کنندگان تأییدشده، و همه رکوردهای مناقصه."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Configure the Signatory Approval Category on the company before routing to "
+"company signatories."
+msgstr ""
+"پیش از ارسال به امضاکنندگان شرکت، دسته‌بندی مصوبه امضاکنندگان را روی شرکت "
+"پیکربندی کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__correction
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Correction"
+msgstr "اصلاح"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__corrections
+msgid "Corrections"
+msgstr "اصلاحات"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Corrections can only be requested from in-review or meeting."
+msgstr "درخواست اصلاحات فقط از وضعیت در حال بررسی یا جلسه ممکن است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Corrections requested; PR returned to quote review."
+msgstr "اصلاحات درخواست شد؛ درخواست خرید به بررسی پیشنهادها بازگشت."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Create PO"
+msgstr "ایجاد سفارش خرید"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request
+msgid "Create a purchase request"
+msgstr "ایجاد درخواست خرید"
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_planner
+msgid "Create and submit purchase requests; edit in draft and correction."
+msgstr "ایجاد و ارسال درخواست‌های خرید؛ ویرایش در پیش‌نویس و اصلاح."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__create_uid
+msgid "Created by"
+msgstr "ایجادشده توسط"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Created by splitting Tendering lines from %(name)s."
+msgstr "با تفکیک سطرهای مناقصه از %(name)s ایجاد شد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__create_date
+msgid "Created on"
+msgstr "ایجادشده در"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__currency_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__currency_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__currency_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__currency_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__currency_id
+msgid "Currency"
+msgstr "ارز"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Current files:"
+msgstr "فایل‌های فعلی:"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__access_url
+msgid "Customer Portal URL"
+msgstr "نشانی پرتال مشتری"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Default Bid Window"
+msgstr "بازه پیش‌فرض پیشنهاد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_default_bid_window_hours
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_default_bid_window_hours
+msgid "Default Bid Window (Hours)"
+msgstr "بازه پیش‌فرض پیشنهاد (ساعت)"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_default_bid_window_hours
+#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_default_bid_window_hours
+msgid ""
+"Default hours from list approval to bid deadline for closed-envelope "
+"tenders."
+msgstr ""
+"ساعت پیش‌فرض از تأیید فهرست تا مهلت پیشنهاد برای مناقصه‌های پاکت بسته."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid ""
+"Default hours used to suggest the bid deadline when a closed-envelope "
+"supplier list is approved."
+msgstr ""
+"ساعت پیش‌فرض برای پیشنهاد مهلت مناقصه هنگام تأیید فهرست تأمین‌کنندگان پاکت "
+"بسته."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__description
+msgid "Description"
+msgstr "شرح"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Dinar"
+msgstr "دینار"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__display_name
+msgid "Display Name"
+msgstr "نام نمایشی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__done
+msgid "Done"
+msgstr "انجام‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__draft
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_review__state__draft
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__draft
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_quote__state__draft
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__product_template__zvy_procurement_type__enquiry
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__procurement_type__enquiry
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Enquiry"
+msgstr "استعلام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_product_product__zvy_procurement_type
+#: model:ir.model.fields,help:zvy_tendering.field_product_template__zvy_procurement_type
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__procurement_type
+msgid ""
+"Enquiry products follow the standard quote inquiry path. Tendering products "
+"follow the closed-envelope path. A purchase request may contain only one "
+"type."
+msgstr ""
+"محصولات استعلام مسیر استعلام پیشنهاد استاندارد را دنبال می‌کنند. محصولات "
+"مناقصه مسیر پاکت بسته را دنبال می‌کنند. هر درخواست خرید فقط می‌تواند یک نوع "
+"داشته باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Experts can only be assigned from submitted, CM review, or inquiry."
+msgstr ""
+"کارشناسان را فقط از وضعیت ارسال‌شده، بررسی مدیر بازرگانی یا استعلام می‌توان "
+"تخصیص داد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Experts can only be assigned on open, in-review, or meeting cases."
+msgstr ""
+"کارشناسان را فقط روی پرونده‌های باز، در حال بررسی یا جلسه می‌توان تخصیص داد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_return_wizard_form
+msgid "Explain what needs to be corrected..."
+msgstr "توضیح دهید چه چیزی باید اصلاح شود..."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_shortfall_wizard_form
+msgid "Explain why fewer than 3 quotes are available..."
+msgstr "توضیح دهید چرا کمتر از ۳ پیشنهاد موجود است..."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_request_quote_shortfall_wizard__reason
+msgid "Explain why fewer than 3 quotes are being submitted."
+msgstr "توضیح دهید چرا کمتر از ۳ پیشنهاد ارسال می‌شود."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_reject_wizard_form
+msgid "Explain why these quotes are rejected..."
+msgstr "توضیح دهید چرا این پیشنهادها رد می‌شوند..."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_request_award_not_lowest_wizard__reason
+msgid "Explain why this quote is awarded instead of a lower-priced offer."
+msgstr "توضیح دهید چرا این پیشنهاد به‌جای پیشنهاد ارزان‌تر واگذار می‌شود."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_award_not_lowest_wizard_form
+msgid "Explain why this quote is awarded instead of a lower-priced offer..."
+msgstr "توضیح دهید چرا این پیشنهاد به‌جای پیشنهاد ارزان‌تر واگذار می‌شود..."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_reject_wizard_form
+msgid "Explain why this request is rejected..."
+msgstr "توضیح دهید چرا این درخواست رد می‌شود..."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__quote_shortfall_reason
+msgid "Fewer Quotes Reason"
+msgstr "دلیل تعداد کمتر پیشنهاد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_shortfall_wizard_form
+msgid "Fewer than 3 Quotes"
+msgstr "کمتر از ۳ پیشنهاد"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_shortfall_wizard_form
+msgid ""
+"Fewer than 3 quotes are recorded. Provide a reason to submit\n"
+"                    this quote set to the Commercial Manager."
+msgstr ""
+"کمتر از ۳ پیشنهاد ثبت شده است. برای ارسال\n"
+"                    این مجموعه پیشنهاد به مدیر بازرگانی دلیل ذکر کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_follower_ids
+msgid "Followers"
+msgstr "دنبال‌کنندگان"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "دنبال‌کنندگان (طرف‌حساب‌ها)"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__activity_type_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__activity_type_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__activity_type_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "آیکون Font Awesome مثلاً fa-tasks"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__has_message
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__has_message
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__has_message
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__has_message
+msgid "Has Message"
+msgstr "دارای پیام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__has_sole_source
+msgid "Has Sole Source"
+msgstr "تک‌منبع"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__is_high_value
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "High Value"
+msgstr "ارزش بالا"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_high_value_threshold
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "High-Value Threshold"
+msgstr "آستانه ارزش بالا"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_commission_case
+msgid "Holding Commission Case"
+msgstr "پرونده کمیسیون هلدینگ"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Holding Commission approved (%s)."
+msgstr "کمیسیون هلدینگ تأیید کرد (%s)."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Holding Commission rejected case %s."
+msgstr "کمیسیون هلدینگ پرونده %s را رد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid ""
+"Holding Commission requested corrections (%s); returned to quote review."
+msgstr "کمیسیون هلدینگ اصلاحات درخواست کرد (%s)؛ به بررسی پیشنهادها بازگشت."
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_commission_manager
+msgid "Holding commission cases, meetings, CE list approval, open and award."
+msgstr ""
+"پرونده‌های کمیسیون هلدینگ، جلسات، تأیید فهرست پاکت بسته، گشایش و واگذاری."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__id
+msgid "ID"
+msgstr "شناسه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_exception_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_exception_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_exception_icon
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_exception_icon
+msgid "Icon"
+msgstr "آیکون"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__activity_exception_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__activity_exception_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__activity_exception_icon
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "آیکون برای نشان دادن فعالیت استثنا."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__message_needaction
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__message_needaction
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__message_needaction
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "اگر علامت زده شود، پیام‌های جدید به توجه شما نیاز دارند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__message_has_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__message_has_sms_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__message_has_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__message_has_sms_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__message_has_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__message_has_sms_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__message_has_error
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "اگر علامت زده شود، برخی پیام‌ها خطای تحویل دارند."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_search
+msgid "In Inquiry"
+msgstr "در استعلام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__in_review
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+msgid "In Review"
+msgstr "در حال بررسی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__inquiry
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Inquiry"
+msgstr "استعلام"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_quote
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_quote_form
+msgid "Inquiry Quote"
+msgstr "پیشنهاد استعلام"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Inquiry assignment on %s"
+msgstr "تخصیص استعلام روی %s"
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_commercial_expert
+msgid "Inquiry on assigned purchase request lines; AVL quotes and CE lists."
+msgstr ""
+"استعلام روی سطرهای تخصیص‌داده‌شده درخواست خرید؛ پیشنهادهای فهرست تأییدشده و "
+"فهرست‌های پاکت بسته."
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_invite
+msgid "Invitation to tender {{ object.name }}"
+msgstr "دعوت به مناقصه {{ object.name }}"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Invite list approved; bidding open until %s (opening %s)."
+msgstr "فهرست دعوت تأیید شد؛ پیشنهاد تا %s باز است (گشایش %s)."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Invite list rejected: %s"
+msgstr "فهرست دعوت رد شد: %s"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__invite_partner_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Invited Suppliers"
+msgstr "تأمین‌کنندگان دعوت‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_is_follower
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_is_follower
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_is_follower
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_is_follower
+msgid "Is Follower"
+msgstr "دنبال‌کننده است"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخرین به‌روزرسانی توسط"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_ce_clarification_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_assign_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخرین به‌روزرسانی در"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid ""
+"Line %(product)s has %(count)s quote(s). Record at least 3, or provide a "
+"reason for submitting fewer."
+msgstr ""
+"سطر %(product)s دارای %(count)s پیشنهاد است. دست‌کم ۳ پیشنهاد ثبت کنید یا "
+"برای ارسال تعداد کمتر دلیل ذکر کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Line %(product)s requires at least 1 quote; found %(count)s."
+msgstr "سطر %(product)s دست‌کم به ۱ پیشنهاد نیاز دارد؛ %(count)s یافت شد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Line summary"
+msgstr "خلاصه اقلام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__line_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__line_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Lines"
+msgstr "سطرها"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_line_my_assignments
+msgid "Lines assigned for inquiry appear here so you can collect AVL quotes."
+msgstr ""
+"سطرهای تخصیص‌داده‌شده برای استعلام اینجا ظاهر می‌شوند تا پیشنهادهای فهرست "
+"تأییدشده را جمع‌آوری کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__list_pending
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+msgid "List Pending"
+msgstr "در انتظار تأیید فهرست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__list_reject_reason
+msgid "List Reject Reason"
+msgstr "دلیل رد فهرست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__manager_decision
+msgid "Manager Decision"
+msgstr "تصمیم مدیر"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__manager_notes
+msgid "Manager Notes"
+msgstr "یادداشت‌های مدیر"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope_bid__source__manual
+msgid "Manual"
+msgstr "دستی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__meeting_id
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__meeting
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+msgid "Meeting"
+msgstr "جلسه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__datetime
+msgid "Meeting Date"
+msgstr "تاریخ جلسه"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_meeting.py:0
+msgid "Meeting linked to %s case(s)."
+msgstr "جلسه به %s پرونده پیوند داده شد."
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_commission_meeting
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_meetings
+msgid "Meetings"
+msgstr "جلسات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__note
+msgid "Message"
+msgstr "پیام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_has_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_has_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_has_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطای تحویل پیام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_ids
+msgid "Messages"
+msgstr "پیام‌ها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__mom_attachment_ids
+msgid "Minutes (MOM)"
+msgstr "صورت‌جلسه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__is_mixed_procurement
+msgid "Mixed Enquiry and Tendering"
+msgstr "ترکیب استعلام و مناقصه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__my_activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__my_activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__my_activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "موعد فعالیت من"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_commission_case_my
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_purchase_request_line_my_assignments
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_my_assignments
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_my_assignments
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_search
+msgid "My Assignments"
+msgstr "تخصیص‌های من"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "My Requests"
+msgstr "درخواست‌های من"
+
+#. module: zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_commission_reviews
+msgid "My Reviews"
+msgstr "بررسی‌های من"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_product_product__zvy_need_commission
+#: model:ir.model.fields,field_description:zvy_tendering.field_product_template__zvy_need_commission
+msgid "Need Commission"
+msgstr "نیاز به کمیسیون"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "New"
+msgstr "جدید"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_cm_queue
+msgid ""
+"New and CM-review purchase requests appear here for Commercial Managers."
+msgstr ""
+"درخواست‌های خرید جدید و در بررسی مدیر بازرگانی اینجا برای مدیران بازرگانی "
+"ظاهر می‌شوند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Newest"
+msgstr "جدیدترین"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_calendar_event_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_calendar_event_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_calendar_event_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "رویداد تقویم فعالیت بعدی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_date_deadline
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "موعد فعالیت بعدی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_summary
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_summary
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_summary
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "خلاصه فعالیت بعدی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_type_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_type_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_type_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع فعالیت بعدی"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "No bid found to withdraw."
+msgstr "پیشنهادی برای پس گرفتن یافت نشد."
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_commission_case
+msgid "No commission cases yet."
+msgstr "هنوز پرونده کمیسیونی وجود ندارد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "No documents published for this tender."
+msgstr "هیچ سندی برای این مناقصه منتشر نشده است."
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_line_my_assignments
+msgid "No lines assigned to you"
+msgstr "هیچ سطری به شما تخصیص داده نشده است"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_assign_wizard.py:0
+msgid "No lines to assign."
+msgstr "سطری برای تخصیص وجود ندارد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "No purchase request lines."
+msgstr "هیچ سطری در درخواست خرید وجود ندارد."
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_cm_queue
+msgid "No purchase requests awaiting review"
+msgstr "هیچ درخواست خریدی در انتظار بررسی نیست"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_quote_review
+msgid "No quote sets awaiting review"
+msgstr "هیچ مجموعه پیشنهادی در انتظار بررسی نیست"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "No signatory approval is linked to this request."
+msgstr "هیچ مصوبه امضاکنندگانی به این درخواست پیوند نشده است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__award_not_lowest_reason
+msgid "Not Lowest Price Reason"
+msgstr "دلیل غیرکمترین قیمت"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_award_not_lowest_wizard_form
+msgid "Not the Lowest Price"
+msgstr "کمترین قیمت نیست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__notes
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__notes
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Notes"
+msgstr "یادداشت‌ها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__name
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__name
+msgid "Number"
+msgstr "شماره"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "تعداد اقدامات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "تعداد خطاها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__message_needaction_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__message_needaction_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__message_needaction_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "تعداد پیام‌های نیازمند اقدام"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__message_has_error_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__message_has_error_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__message_has_error_counter
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "تعداد پیام‌های دارای خطای تحویل"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Only AVL vendors may be invited: %s"
+msgstr "فقط تأمین‌کنندگان فهرست تأییدشده را می‌توان دعوت کرد: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only CM-review requests can be resubmitted to signatories."
+msgstr ""
+"فقط درخواست‌های در بررسی مدیر بازرگانی را می‌توان دوباره به امضاکنندگان "
+"ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Only Commercial Managers can assign experts to lines."
+msgstr "فقط مدیران بازرگانی می‌توانند کارشناس به سطرها تخصیص دهند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only Commercial Managers can create purchase orders."
+msgstr "فقط مدیران بازرگانی می‌توانند سفارش خرید ایجاد کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only Commercial Managers can resubmit to signatories."
+msgstr "فقط مدیران بازرگانی می‌توانند دوباره به امضاکنندگان ارسال کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Only Commercial Managers can select the awarded quote."
+msgstr "فقط مدیران بازرگانی می‌توانند پیشنهاد واگذارشده را انتخاب کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Only Commercial Managers can set the not-lowest-price reason."
+msgstr "فقط مدیران بازرگانی می‌توانند دلیل غیرکمترین قیمت را تنظیم کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Only Commission Managers can edit sealed bid content."
+msgstr ""
+"فقط مدیران کمیسیون می‌توانند محتوای پیشنهاد مهر و موم‌شده را ویرایش کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Only Commission Managers can enter sealed bids manually."
+msgstr ""
+"فقط مدیران کمیسیون می‌توانند پیشنهاد مهر و موم‌شده را به‌صورت دستی وارد "
+"کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Only Commission Managers can perform this action."
+msgstr "فقط مدیران کمیسیون می‌توانند این اقدام را انجام دهند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only assigned Commercial Experts can create a closed envelope."
+msgstr "فقط کارشناسان بازرگانی تخصیص‌داده‌شده می‌توانند پاکت بسته ایجاد کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only assigned Commercial Experts can submit quotes."
+msgstr "فقط کارشناسان بازرگانی تخصیص‌داده‌شده می‌توانند پیشنهاد ارسال کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Only assigned Commercial Experts can submit the invite list."
+msgstr ""
+"فقط کارشناسان بازرگانی تخصیص‌داده‌شده می‌توانند فهرست دعوت را ارسال کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Only draft lists can be submitted."
+msgstr "فقط فهرست‌های پیش‌نویس قابل ارسال هستند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only draft or correction requests can be split."
+msgstr "فقط درخواست‌های پیش‌نویس یا اصلاح را می‌توان تفکیک کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only draft or correction requests can be submitted."
+msgstr "فقط درخواست‌های پیش‌نویس یا اصلاح را می‌توان ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only draft purchase requests can be deleted."
+msgstr "فقط درخواست‌های خرید پیش‌نویس را می‌توان حذف کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "Only draft reviews can be submitted."
+msgstr "فقط بررسی‌های پیش‌نویس را می‌توان ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Only in-review or meeting cases can be approved."
+msgstr "فقط پرونده‌های در حال بررسی یا جلسه را می‌توان تأیید کرد."
+
+#. module: zvy_tendering
+#: model:ir.model.constraint,message:zvy_tendering.constraint_zvy_closed_envelope_bid_envelope_partner_uniq
+msgid "Only one bid per supplier is allowed on a closed envelope."
+msgstr "برای هر تأمین‌کننده فقط یک پیشنهاد روی پاکت بسته مجاز است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "Only open, in-review, or meeting cases can be rejected."
+msgstr "فقط پرونده‌های باز، در حال بررسی یا جلسه را می‌توان رد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Only pending lists can be approved."
+msgstr "فقط فهرست‌های در انتظار قابل تأیید هستند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Only pending lists can be rejected."
+msgstr "فقط فهرست‌های در انتظار قابل رد هستند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only quote-review requests can have quotes approved."
+msgstr "فقط درخواست‌های در بررسی پیشنهادها می‌توانند پیشنهادهایشان تأیید شود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only quote-review requests can have quotes rejected."
+msgstr "فقط درخواست‌های در بررسی پیشنهادها می‌توانند پیشنهادهایشان رد شود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only submitted or CM-review requests can be rejected."
+msgstr ""
+"فقط درخواست‌های ارسال‌شده یا در بررسی مدیر بازرگانی را می‌توان رد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Only submitted or CM-review requests can be returned for correction."
+msgstr ""
+"فقط درخواست‌های ارسال‌شده یا در بررسی مدیر بازرگانی را می‌توان برای اصلاح "
+"بازگرداند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Only submitted quotes can be selected as awarded."
+msgstr "فقط پیشنهادهای ارسال‌شده را می‌توان به‌عنوان واگذارشده انتخاب کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Only the assigned Commercial Expert can submit quotes for %s."
+msgstr ""
+"فقط کارشناس بازرگانی تخصیص‌داده‌شده می‌تواند پیشنهادهای %s را ارسال کند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "Only the assigned expert can submit this review."
+msgstr "فقط کارشناس تخصیص‌داده‌شده می‌تواند این بررسی را ارسال کند."
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_avl_entry
+msgid ""
+"Only vendors on the active AVL can be selected for inquiry quotes\n"
+"                and closed-envelope invitations."
+msgstr ""
+"فقط تأمین‌کنندگان فهرست تأییدشده فعال را می‌توان برای پیشنهادهای استعلام\n"
+"                و دعوت پاکت بسته انتخاب کرد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__open
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
+msgid "Open"
+msgstr "باز"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Open Bids"
+msgstr "گشودن پیشنهادها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__opened
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+msgid "Opened"
+msgstr "گشوده‌شده"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Opening"
+msgstr "گشایش"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__opening_datetime
+msgid "Opening Datetime"
+msgstr "زمان گشایش"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Opening datetime is missing."
+msgstr "زمان گشایش مشخص نشده است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Opening datetime is required to approve the supplier list."
+msgstr "برای تأیید فهرست تأمین‌کنندگان، زمان گشایش الزامی است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__split_from_id
+msgid "Original request this tendering request was split from."
+msgstr "درخواست اصلی که این درخواست مناقصه از آن تفکیک شده است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__po_ready
+msgid "PO Ready"
+msgstr "آماده سفارش خرید"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "POs"
+msgstr "سفارش‌های خرید"
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_planner
+msgid "Planner"
+msgstr "برنامه‌ریز"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request
+msgid ""
+"Planners draft and submit requests; Commercial Managers review,\n"
+"                assign experts, and approve quote sets."
+msgstr ""
+"برنامه‌ریزان درخواست‌ها را پیش‌نویس و ارسال می‌کنند؛ مدیران بازرگانی بررسی می‌کنند،\n"
+"                کارشناس تخصیص می‌دهند و مجموعه‌های پیشنهاد را تأیید می‌کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Please provide a valid bid amount."
+msgstr "لطفاً مبلغ پیشنهاد معتبری وارد کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__notes_policy
+msgid "Policy Notes"
+msgstr "یادداشت‌های سیاست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope_bid__source__portal
+msgid "Portal"
+msgstr "پرتال"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__access_url
+msgid "Portal Access URL"
+msgstr "نشانی دسترسی پرتال"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_closed_envelope__state__portal_open
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_search
+msgid "Portal Open"
+msgstr "باز در پرتال"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_ce_clarification_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Post Clarification"
+msgstr "ثبت توضیح"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_ce_clarification_wizard
+msgid "Post Closed Envelope Clarification"
+msgstr "ثبت توضیح پاکت بسته"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__price_estimate
+msgid "Price Estimate"
+msgstr "برآورد قیمت"
+
+#. module: zvy_tendering
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_tendering
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_root
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Procurement & Tendering"
+msgstr "تدارکات و مناقصه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_product_product__zvy_procurement_type
+#: model:ir.model.fields,field_description:zvy_tendering.field_product_template__zvy_procurement_type
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__procurement_type
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__procurement_type
+msgid "Procurement Type"
+msgstr "نوع تأمین"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_product_template
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__product_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__product_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__product_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Product"
+msgstr "محصول"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__categ_id
+msgid "Product Category"
+msgstr "دسته محصول"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Provide a list reject reason before rejecting."
+msgstr "پیش از رد، دلیل رد فهرست را وارد کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__published_document_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Published Documents"
+msgstr "اسناد منتشرشده"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Published documents"
+msgstr "اسناد منتشرشده"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_purchase_order
+msgid "Purchase Order"
+msgstr "سفارش خرید"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__purchase_order_count
+msgid "Purchase Order Count"
+msgstr "تعداد سفارش خرید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__purchase_order_ids
+msgid "Purchase Orders"
+msgstr "سفارش‌های خرید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/approval_request.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/wizard/request_split_wizard.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_purchase_request
+#: model:ir.model.fields,field_description:zvy_tendering.field_approval_request__zvy_purchase_request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_purchase_order__zvy_purchase_request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_split_wizard__request_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Purchase Request"
+msgstr "درخواست خرید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_purchase_request_line
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_form
+msgid "Purchase Request Line"
+msgstr "سطر درخواست خرید"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_purchase_request
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_requests
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Purchase Requests"
+msgstr "درخواست‌های خرید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase order(s) created: %s"
+msgstr "سفارش خرید ایجاد شد: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase orders can only be created when the request is PO Ready."
+msgstr ""
+"سفارش خرید را فقط وقتی درخواست در وضعیت آماده سفارش است می‌توان ایجاد کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase request %(name)s can only be edited in Draft or Correction."
+msgstr "درخواست خرید %(name)s را فقط در پیش‌نویس یا اصلاح می‌توان ویرایش کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Purchase request %(name)s cannot enter PO Ready while signatory approval is "
+"still pending."
+msgstr ""
+"درخواست خرید %(name)s تا وقتی مصوبه امضاکنندگان در انتظار است نمی‌تواند وارد"
+" آماده سفارش شود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase request %s rejected"
+msgstr "درخواست خرید %s رد شد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase request %s returned for correction"
+msgstr "درخواست خرید %s برای اصلاح بازگردانده شد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Purchase request lines can only be edited in Draft or Correction."
+msgstr "سطرهای درخواست خرید را فقط در پیش‌نویس یا اصلاح می‌توان ویرایش کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Purchase request submitted for CM review."
+msgstr "درخواست خرید برای بررسی مدیر بازرگانی ارسال شد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid ""
+"Purchase requests at or above this amount are routed to the Holding "
+"Commission after quote approval."
+msgstr ""
+"درخواست‌های خرید با مبلغ برابر یا بالاتر از این مقدار پس از تأیید پیشنهادها "
+"به کمیسیون هلدینگ ارجاع می‌شوند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_high_value_threshold
+#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
+msgid ""
+"Purchase requests with total at or above this amount are routed to the "
+"Holding Commission."
+msgstr ""
+"درخواست‌های خرید با جمع برابر یا بالاتر از این مبلغ به کمیسیون هلدینگ ارجاع "
+"می‌شوند."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Qty"
+msgstr "تعداد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__product_uom_qty
+msgid "Quantity"
+msgstr "مقدار"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__quote_id
+msgid "Quote"
+msgstr "پیشنهاد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__quote_count
+msgid "Quote Count"
+msgstr "تعداد پیشنهاد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__quote_reject_reason
+msgid "Quote Reject Reason"
+msgstr "دلیل رد پیشنهادها"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_purchase_request_quote_review
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__quote_review
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_purchase_request_quote_review
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_search
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Quote Review"
+msgstr "بررسی پیشنهادها"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid ""
+"Quote fields Recorded By and State are set by the system and cannot be "
+"edited manually."
+msgstr ""
+"فیلدهای «ثبت‌کننده» و «وضعیت» پیشنهاد توسط سیستم تنظیم می‌شوند و قابل ویرایش"
+" دستی نیستند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__quote_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__quote_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_list
+msgid "Quotes"
+msgstr "پیشنهادها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__quotes_submitted
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_form
+msgid "Quotes Submitted"
+msgstr "پیشنهادها ارسال شد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Quotes approved; routing purchase request."
+msgstr "پیشنهادها تأیید شد؛ درخواست خرید در حال ارجاع است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Quotes can only be edited while the purchase request is in Inquiry."
+msgstr "پیشنهادها را فقط وقتی درخواست خرید در استعلام است می‌توان ویرایش کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Quotes can only be recorded on Enquiry purchase requests."
+msgstr "پیشنهادها را فقط روی درخواست‌های خرید استعلام می‌توان ثبت کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Quotes can only be submitted from Inquiry."
+msgstr "پیشنهادها را فقط از وضعیت استعلام می‌توان ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Quotes can only be submitted on Enquiry purchase requests."
+msgstr "پیشنهادها را فقط روی درخواست‌های خرید استعلام می‌توان ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Quotes can only be submitted while the purchase request is in Inquiry."
+msgstr "پیشنهادها را فقط وقتی درخواست خرید در استعلام است می‌توان ارسال کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Quotes for %s were already submitted."
+msgstr "پیشنهادهای %s قبلاً ارسال شده‌اند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Quotes on purchase request %s were rejected.\n"
+"Reason: %s"
+msgstr ""
+"پیشنهادهای درخواست خرید %s رد شد.\n"
+"دلیل: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Quotes rejected on %s"
+msgstr "پیشنهادها روی %s رد شد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Quotes rejected: %s"
+msgstr "پیشنهادها رد شد: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request_line.py:0
+msgid "Quotes submitted for: %s"
+msgstr "پیشنهادها ارسال شد برای: %s"
+
+#. module: zvy_tendering
+#: model:res.groups,comment:zvy_tendering.group_zvy_signatory
+msgid ""
+"Read-only Purchase Request context from linked Approvals where the user is "
+"an approver. Approvals Officer/Admin is not required — category/sole-source "
+"approvers approve via standard employee Approvals access."
+msgstr ""
+"زمینه فقط‌خواندنی درخواست خرید از مصوبه‌های پیوندشده‌ای که کاربر تأییدکننده "
+"آن‌هاست. نقش مسئول/مدیر مصوبات لازم نیست — تأییدکنندگان دسته/تک‌منبع از طریق"
+" دسترسی استاندارد مصوبات کارمند تأیید می‌کنند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_award_not_lowest_wizard__reason
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_shortfall_wizard__reason
+msgid "Reason"
+msgstr "دلیل"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/approval_request.py:0
+msgid "Reason: %s"
+msgstr "دلیل: %s"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__recommendation
+msgid "Recommendation"
+msgstr "توصیه"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__expert_user_id
+msgid "Recorded By"
+msgstr "ثبت‌کننده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__name
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Reference"
+msgstr "مرجع"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__manager_decision__reject
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_review__recommendation__reject
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_reject_wizard_form
+msgid "Reject"
+msgstr "رد"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Reject List"
+msgstr "رد فهرست"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_request_reject_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_reject_wizard_form
+msgid "Reject Purchase Request"
+msgstr "رد درخواست خرید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model,name:zvy_tendering.model_zvy_request_quote_reject_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_reject_wizard_form
+msgid "Reject Quotes"
+msgstr "رد پیشنهادها"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__reject_reason
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_quote_reject_wizard__reason
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_reject_wizard__reason
+msgid "Reject Reason"
+msgstr "دلیل رد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__state__rejected
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__rejected
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_quote__state__rejected
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Rejected"
+msgstr "ردشده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Rejected: %s"
+msgstr "رد شد: %s"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_case__manager_decision__corrections
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_review__recommendation__request_corrections
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+msgid "Request Corrections"
+msgstr "درخواست اصلاحات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__line_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__line_id
+msgid "Request Line"
+msgstr "سطر درخواست"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_search
+msgid "Request Lines"
+msgstr "سطرهای درخواست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__request_state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__request_state
+msgid "Request Status"
+msgstr "وضعیت درخواست"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__requester_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Requester"
+msgstr "درخواست‌کننده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__quote_shortfall_reason
+msgid ""
+"Required when submitting fewer than 3 quotes on a non-sole-source line."
+msgstr "هنگام ارسال کمتر از ۳ پیشنهاد روی سطر غیرتک‌منبع الزامی است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__award_not_lowest_reason
+msgid ""
+"Required when the awarded quote is not the lowest unit price among non-draft"
+" quotes on this line."
+msgstr ""
+"وقتی پیشنهاد واگذارشده کمترین قیمت واحد در میان پیشنهادهای غیردرافت این سطر "
+"نباشد الزامی است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_user_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__activity_user_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__activity_user_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__activity_user_id
+msgid "Responsible User"
+msgstr "کاربر مسئول"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Resubmit to Signatories"
+msgstr "ارسال مجدد به امضاکنندگان"
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_not_awarded
+msgid "Result for tender {{ object.name }}"
+msgstr "نتیجه مناقصه {{ object.name }}"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_return_wizard_form
+msgid "Return"
+msgstr "بازگشت"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_request_return_wizard
+msgid "Return Purchase Request for Correction"
+msgstr "بازگشت درخواست خرید برای اصلاح"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__return_reason
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_return_wizard__reason
+msgid "Return Reason"
+msgstr "دلیل بازگشت"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_return_wizard_form
+msgid "Return for Correction"
+msgstr "بازگشت برای اصلاح"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Returned for correction: %s"
+msgstr "برای اصلاح بازگردانده شد: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "Review submitted by %(expert)s: %(rec)s"
+msgstr "بررسی ارسال‌شده توسط %(expert)s: %(rec)s"
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_commission_review
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__review_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_form
+msgid "Reviews"
+msgstr "بررسی‌ها"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Rial"
+msgstr "ریال"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Routed to Holding Commission (%s)."
+msgstr "به کمیسیون هلدینگ ارجاع شد (%s)."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Routed to company signatory path (%s)."
+msgstr "به مسیر امضاکنندگان شرکت ارجاع شد (%s)."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__reason_commission_item
+msgid "Routed: Commission Item"
+msgstr "ارجاع‌شده: قلم کمیسیونی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__reason_high_value
+msgid "Routed: High Value"
+msgstr "ارجاع‌شده: ارزش بالا"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Routing & Approvals"
+msgstr "ارجاع و مصوبات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطای تحویل پیامک"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "Sealed bid content cannot be changed in this envelope state."
+msgstr "در این وضعیت پاکت، محتوای پیشنهاد مهر و موم‌شده قابل تغییر نیست."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__access_token
+msgid "Security Token"
+msgstr "توکن امنیتی"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Select Winner"
+msgstr "انتخاب برنده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "Select a recommendation before submitting the review."
+msgstr "پیش از ارسال بررسی، یک توصیه انتخاب کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Select an awarded quote on every line before approving. Missing: %s"
+msgstr ""
+"پیش از تأیید، روی هر سطر یک پیشنهاد واگذارشده انتخاب کنید. موارد ناقص: %s"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_quote_list
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_award_not_lowest_wizard_form
+msgid "Select as Awarded"
+msgstr "انتخاب به‌عنوان واگذارشده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+#: code:addons/zvy_tendering/wizard/commission_assign_wizard.py:0
+msgid "Select at least one Commission Expert before assigning."
+msgstr "پیش از تخصیص، دست‌کم یک کارشناس کمیسیون انتخاب کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_quote_shortfall_wizard.py:0
+msgid "Select at least one purchase request line."
+msgstr "دست‌کم یک سطر درخواست خرید انتخاب کنید."
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_cancelled
+msgid "Sent to invited suppliers when a closed envelope is cancelled"
+msgstr "هنگام لغو پاکت بسته برای تأمین‌کنندگان دعوت‌شده ارسال می‌شود"
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_invite
+msgid "Sent to invited suppliers when the CE portal opens"
+msgstr "هنگام باز شدن پرتال CE برای تأمین‌کنندگان دعوت‌شده ارسال می‌شود"
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_not_awarded
+msgid "Sent to non-winning invited suppliers after award"
+msgstr "پس از واگذاری برای تأمین‌کنندگان دعوت‌شده غیربرنده ارسال می‌شود"
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_awarded
+msgid "Sent to the winning supplier after award"
+msgstr "پس از واگذاری برای تأمین‌کننده برنده ارسال می‌شود"
+
+#. module: zvy_tendering
+#: model:mail.template,description:zvy_tendering.mail_template_ce_clarification
+msgid "Sent when a clarification is posted on a closed envelope"
+msgstr "هنگام ثبت توضیح روی پاکت بسته ارسال می‌شود"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Sequential approval category used for company signatory documents."
+msgstr "دسته‌بندی مصوبه ترتیبی مورد استفاده برای اسناد امضای شرکت."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__quotes_submitted
+msgid "Set once the assigned expert submits the quote set for this line."
+msgstr ""
+"پس از ارسال مجموعه پیشنهاد این سطر توسط کارشناس تخصیص‌داده‌شده تنظیم می‌شود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Set the winner partner before selecting the winner."
+msgstr "پیش از انتخاب برنده، طرف‌حساب برنده را تنظیم کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__procurement_type
+msgid ""
+"Set when every line is the same product type. Empty when mixed or there are "
+"no lines."
+msgstr ""
+"وقتی همه سطرها از یک نوع محصول باشند تنظیم می‌شود. در حالت ترکیبی یا بدون "
+"سطر خالی است."
+
+#. module: zvy_tendering
+#: model:ir.actions.act_window,name:zvy_tendering.action_zvy_tendering_settings
+#: model:ir.ui.menu,name:zvy_tendering.menu_zvy_tendering_settings
+msgid "Settings"
+msgstr "تنظیمات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__signatory
+#: model:ir.module.category,name:zvy_tendering.module_category_zvy_signatory
+msgid "Signatory"
+msgstr "امضاکنندگان"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__approval_request_id
+msgid "Signatory Approval"
+msgstr "مصوبه امضاکنندگان"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_signatory_approval_category_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_signatory_approval_category_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Signatory Approval Category"
+msgstr "دسته‌بندی مصوبه امضاکنندگان"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Signatory Approval Category \"%s\" has no approvers configured."
+msgstr "دسته‌بندی مصوبه امضاکنندگان «%s» هیچ تأییدکننده‌ای پیکربندی نشده است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Signatory Approval Category \"%s\" must use Approvers Sequence so "
+"signatories approve in order."
+msgstr ""
+"دسته‌بندی مصوبه امضاکنندگان «%s» باید از ترتیب تأییدکنندگان استفاده کند تا "
+"امضاکنندگان به‌ترتیب تأیید کنند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/approval_request.py:0
+msgid "Signatory approval completed (%s); ready for PO creation."
+msgstr "مصوبه امضاکنندگان تکمیل شد (%s)؛ آماده ایجاد سفارش خرید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Signatory approval must be fully approved before creating POs."
+msgstr ""
+"پیش از ایجاد سفارش خرید، مصوبه امضاکنندگان باید کاملاً تأیید شده باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/approval_request.py:0
+msgid "Signatory approval refused (%s); returned to Commercial Manager."
+msgstr "مصوبه امضاکنندگان رد شد (%s)؛ به مدیر بازرگانی بازگشت."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Signatory: %s"
+msgstr "امضاکنندگان: %s"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__sole_source
+msgid "Sole Source"
+msgstr "تک‌منبع"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_sole_source_approver_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_sole_source_approver_ids
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid "Sole-Source Approvers"
+msgstr "تأییدکنندگان تک‌منبع"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Sole-source purchase requests require Sole-Source Approvers configured on "
+"the company (FR-14)."
+msgstr ""
+"درخواست‌های خرید تک‌منبع نیازمند تأییدکنندگان تک‌منبع پیکربندی‌شده روی شرکت "
+"هستند (FR-14)."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__source
+msgid "Source"
+msgstr "منبع"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_split_wizard_form
+msgid "Split"
+msgstr "تفکیک"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__split_from_id
+msgid "Split From"
+msgstr "تفکیک‌شده از"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_request_split_wizard
+msgid "Split Mixed Purchase Request"
+msgstr "تفکیک درخواست خرید ترکیبی"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_split_wizard_form
+msgid "Split Purchase Request"
+msgstr "تفکیک درخواست خرید"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__split_request_id
+msgid "Split Request"
+msgstr "درخواست تفکیک‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__state
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__state
+msgid "State"
+msgstr "وضعیت"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Status"
+msgstr "وضعیت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__activity_state
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__activity_state
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__activity_state
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"وضعیت بر اساس فعالیت‌ها\n"
+"سررسید گذشته: تاریخ موعد گذشته است\n"
+"امروز: تاریخ فعالیت امروز است\n"
+"برنامه‌ریزی‌شده: فعالیت‌های آینده."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid "Submit"
+msgstr "ارسال"
+
+#. module: zvy_tendering
+#: model:ir.model,name:zvy_tendering.model_zvy_request_quote_shortfall_wizard
+msgid "Submit Fewer than 3 Quotes"
+msgstr "ارسال کمتر از ۳ پیشنهاد"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_closed_envelope_form
+msgid "Submit List"
+msgstr "ارسال فهرست"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_form
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_line_list
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_quote_shortfall_wizard_form
+msgid "Submit Quotes"
+msgstr "ارسال پیشنهادها"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_review_form
+msgid "Submit Review"
+msgstr "ارسال بررسی"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Submit bid"
+msgstr "ارسال پیشنهاد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_commission_review__state__submitted
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__state__submitted
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_quote__state__submitted
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Submitted"
+msgstr "ارسال‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__submitted_at
+msgid "Submitted At"
+msgstr "ارسال‌شده در"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Submitted amount:"
+msgstr "مبلغ ارسال‌شده:"
+
+#. module: zvy_tendering
+#: model_terms:ir.actions.act_window,help:zvy_tendering.action_zvy_purchase_request_quote_review
+msgid "Submitted quote sets appear here for Commercial Manager approval."
+msgstr ""
+"مجموعه‌های پیشنهاد ارسال‌شده اینجا برای تأیید مدیر بازرگانی ظاهر می‌شوند."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "Submitted reviews cannot be edited."
+msgstr "بررسی‌های ارسال‌شده قابل ویرایش نیستند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__price_subtotal
+msgid "Subtotal"
+msgstr "جمع جزء"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__partner_id
+msgid "Supplier"
+msgstr "تأمین‌کننده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Supplier invite list submitted for Commission Manager approval."
+msgstr "فهرست دعوت تأمین‌کنندگان برای تأیید مدیر کمیسیون ارسال شد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_review__notes_suppliers
+msgid "Suppliers Notes"
+msgstr "یادداشت‌های تأمین‌کنندگان"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__published_document_ids
+msgid "Tender documents downloadable by invited suppliers on the portal."
+msgstr "اسناد مناقصه قابل دانلود توسط تأمین‌کنندگان دعوت‌شده در پرتال."
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_cancelled
+msgid "Tender {{ object.name }} cancelled"
+msgstr "مناقصه {{ object.name }} لغو شد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__product_template__zvy_procurement_type__tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__procurement_type__tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
+msgid "Tendering"
+msgstr "مناقصه"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Tendering lines moved to %(name)s. Submit each request separately."
+msgstr "سطرهای مناقصه به %(name)s منتقل شد. هر درخواست را جداگانه ارسال کنید."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__split_request_id
+msgid "Tendering request created by splitting mixed lines off this request."
+msgstr "درخواست مناقصه با تفکیک سطرهای ترکیبی از این درخواست ایجاد شد."
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_awarded
+msgid "Tendering: Closed Envelope Awarded"
+msgstr "مناقصه: واگذاری پاکت بسته"
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_cancelled
+msgid "Tendering: Closed Envelope Cancelled"
+msgstr "مناقصه: لغو پاکت بسته"
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_clarification
+msgid "Tendering: Closed Envelope Clarification"
+msgstr "مناقصه: توضیح پاکت بسته"
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_invite
+msgid "Tendering: Closed Envelope Invitation"
+msgstr "مناقصه: دعوت پاکت بسته"
+
+#. module: zvy_tendering
+#: model:mail.template,name:zvy_tendering.mail_template_ce_not_awarded
+msgid "Tendering: Closed Envelope Not Awarded"
+msgstr "مناقصه: عدم واگذاری پاکت بسته"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_menu_tender
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "Tenders"
+msgstr "مناقصه‌ها"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "The purchase request must be in Inquiry to submit a CE list."
+msgstr "برای ارسال فهرست پاکت بسته، درخواست خرید باید در استعلام باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "The requester cannot be changed."
+msgstr "درخواست‌کننده قابل تغییر نیست."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tenders
+msgid "There are currently no tender invitations for your account."
+msgstr "در حال حاضر هیچ دعوت مناقصه‌ای برای حساب شما وجود ندارد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/wizard/request_split_wizard.py:0
+msgid ""
+"This purchase request contains both Enquiry and Tendering products. They must be submitted as two separate purchase requests.\n"
+"\n"
+"Split now? Enquiry lines stay on this request; Tendering lines move to a new draft request. Neither request is submitted."
+msgstr ""
+"این درخواست خرید هم محصولات استعلام و هم محصولات مناقصه دارد. باید به‌صورت دو درخواست خرید جداگانه ارسال شوند.\n"
+"\n"
+"همین حالا تفکیک شود؟ سطرهای استعلام در این درخواست می‌مانند؛ سطرهای مناقصه به یک درخواست پیش‌نویس جدید منتقل می‌شوند. هیچ‌کدام ارسال نمی‌شود."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "This purchase request does not mix Enquiry and Tendering products."
+msgstr "این درخواست خرید محصولات استعلام و مناقصه را ترکیب نکرده است."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "This purchase request has no split sibling."
+msgstr "این درخواست خرید درخواست تفکیک‌شده متناظر ندارد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"This purchase request mixes Enquiry and Tendering products. Split it first "
+"with action_split_mixed, then submit each request separately."
+msgstr ""
+"این درخواست خرید محصولات استعلام و مناقصه را ترکیب کرده است. ابتدا با "
+"action_split_mixed تفکیک کنید، سپس هر درخواست را جداگانه ارسال کنید."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_request_award_not_lowest_wizard_form
+msgid ""
+"This quote is not the lowest unit price. Provide a reason\n"
+"                    to award it."
+msgstr ""
+"این پیشنهاد کمترین قیمت واحد نیست. برای واگذاری آن\n"
+"                    دلیل ذکر کنید."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid ""
+"This request mixes Enquiry and Tendering products.\n"
+"                        Submit will ask you to split it into two purchase requests."
+msgstr ""
+"این درخواست محصولات استعلام و مناقصه را ترکیب کرده است.\n"
+"                        ارسال از شما می‌خواهد آن را به دو درخواست خرید تفکیک کنید."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "This tender has been awarded. Your bid was not selected."
+msgstr "این مناقصه واگذار شده است. پیشنهاد شما انتخاب نشد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "This tender has been cancelled."
+msgstr "این مناقصه لغو شده است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__name
+msgid "Title"
+msgstr "عنوان"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__amount_total
+msgid "Total"
+msgstr "جمع"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__amount_total
+msgid "Total Estimate"
+msgstr "برآورد کل"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Transition from %(current)s to %(target)s is not allowed."
+msgstr "گذار از %(current)s به %(target)s مجاز نیست."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__is_commission_item
+msgid "True when the Enquiry product has Need Commission enabled."
+msgstr "وقتی محصول استعلام گزینه نیاز به کمیسیون را داشته باشد صادق است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__sole_source
+msgid ""
+"True when the product has exactly one active AVL vendor for the request "
+"company. Forces ≥1 quote and includes CEO in the signatory chain."
+msgstr ""
+"وقتی محصول دقیقاً یک تأمین‌کننده فعال فهرست تأییدشده برای شرکت درخواست داشته"
+" باشد صادق است. دست‌کم ۱ پیشنهاد الزامی می‌شود و مدیرعامل در زنجیره "
+"امضاکنندگان قرار می‌گیرد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__is_mixed_procurement
+msgid "True when the request has both Enquiry and Tendering product lines."
+msgstr "وقتی درخواست هم سطر محصول استعلام و هم مناقصه داشته باشد صادق است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_quote__is_awarded
+msgid "True when this quote is the awarded quote on its request line."
+msgstr "وقتی این پیشنهاد، پیشنهاد واگذارشده سطر درخواست باشد صادق است."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__activity_exception_decoration
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__activity_exception_decoration
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__activity_exception_decoration
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع فعالیت استثنای روی رکورد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__price_unit
+msgid "Unit Price"
+msgstr "قیمت واحد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__product_uom_id
+msgid "Unit of Measure"
+msgstr "واحد اندازه‌گیری"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Unknown vendor"
+msgstr "تأمین‌کننده ناشناس"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "UoM"
+msgstr "واحد سنجش"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Update bid"
+msgstr "به‌روزرسانی پیشنهاد"
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_form
+msgid ""
+"Use <b>Select as Awarded</b> on each line’s winning quote\n"
+"                        (or set <b>Awarded Quote</b>), then click <b>Approve Quotes</b>\n"
+"                        (or <b>Reject Quotes</b>) in the header. Awarding a quote\n"
+"                        that is not the lowest price requires a written reason."
+msgstr ""
+"روی پیشنهاد برنده هر سطر از <b>انتخاب به‌عنوان واگذارشده</b> استفاده کنید\n"
+"                        (یا <b>پیشنهاد واگذارشده</b> را تنظیم کنید)، سپس در سربرگ <b>تأیید پیشنهادها</b>\n"
+"                        (یا <b>رد پیشنهادها</b>) را بزنید. واگذاری پیشنهادی\n"
+"                        که کمترین قیمت نیست نیازمند دلیل کتبی است."
+
+#. module: zvy_tendering
+#: model:res.groups,name:zvy_tendering.group_zvy_commercial_expert
+#: model:res.groups,name:zvy_tendering.group_zvy_commercial_manager
+#: model:res.groups,name:zvy_tendering.group_zvy_commission_expert
+#: model:res.groups,name:zvy_tendering.group_zvy_commission_manager
+#: model:res.groups,name:zvy_tendering.group_zvy_planner
+#: model:res.groups,name:zvy_tendering.group_zvy_signatory
+#: model:res.groups,name:zvy_tendering.group_zvy_tendering_admin
+msgid "User"
+msgstr "کاربر"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_sole_source_approver_ids
+#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_sole_source_approver_ids
+msgid ""
+"Users (e.g. CEO) required in the signatory chain for sole-source PRs "
+"(FR-14)."
+msgstr ""
+"کاربرانی (مثلاً مدیرعامل) که در زنجیره امضا برای درخواست‌های خرید تک‌منبع "
+"الزامی هستند (FR-14)."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
+msgid ""
+"Users (for example the CEO) who must approve every sole-source purchase "
+"request before PO Ready."
+msgstr ""
+"کاربرانی (مثلاً مدیرعامل) که باید هر درخواست خرید تک‌منبع را پیش از آماده "
+"سفارش تأیید کنند."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__date_start
+msgid "Valid From"
+msgstr "معتبر از"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__date_end
+msgid "Valid To"
+msgstr "معتبر تا"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__partner_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__partner_id
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
+msgid "Vendor"
+msgstr "تأمین‌کننده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "Vendor %(vendor)s is not on the active AVL for this product/company."
+msgstr "تأمین‌کننده %(vendor)s در فهرست تأییدشده فعال این محصول/شرکت نیست."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender
+msgid "View invitations and submit sealed bids"
+msgstr "مشاهده دعوت‌نامه‌ها و ارسال پیشنهاد مهر و موم‌شده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__website_message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__website_message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_meeting__website_message_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__website_message_ids
+msgid "Website Messages"
+msgstr "پیام‌های وب‌سایت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__website_message_ids
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_case__website_message_ids
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_commission_meeting__website_message_ids
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__website_message_ids
+msgid "Website communication history"
+msgstr "تاریخچه ارتباط وب‌سایت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_product_product__zvy_need_commission
+#: model:ir.model.fields,help:zvy_tendering.field_product_template__zvy_need_commission
+msgid ""
+"When enabled on an Enquiry product, approved quotes route to the Holding "
+"Commission. Hidden and cleared for Tendering."
+msgstr ""
+"وقتی روی محصول استعلام فعال باشد، پیشنهادهای تأییدشده به کمیسیون هلدینگ "
+"ارجاع می‌شوند. برای مناقصه پنهان و پاک می‌شود."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__winner_partner_id
+msgid "Winner"
+msgstr "برنده"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Winner can only be selected after bids are opened."
+msgstr "برنده را فقط پس از گشودن پیشنهادها می‌توان انتخاب کرد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Winner must be one of the invited suppliers."
+msgstr "برنده باید یکی از تأمین‌کنندگان دعوت‌شده باشد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_closed_envelope.py:0
+msgid "Winner selected: %s. PR moved to quote review."
+msgstr "برنده انتخاب شد: %s. درخواست خرید به بررسی پیشنهادها منتقل شد."
+
+#. module: zvy_tendering
+#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__awarded_quote_id
+msgid "Winning quote selected by the Commercial Manager in quote review."
+msgstr "پیشنهاد برنده انتخاب‌شده توسط مدیر بازرگانی در بررسی پیشنهادها."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Withdraw bid"
+msgstr "پس گرفتن پیشنهاد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_request_assign_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "ویزارد"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+#: code:addons/zvy_tendering/models/zvy_closed_envelope_bid.py:0
+msgid "You are not invited to this tender."
+msgstr "شما به این مناقصه دعوت نشده‌اید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_quote.py:0
+msgid "You can only edit quotes on lines assigned to you."
+msgstr "فقط می‌توانید پیشنهادهای سطرهای تخصیص‌داده‌شده به خود را ویرایش کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_review.py:0
+msgid "You can only edit your own commission review."
+msgstr "فقط می‌توانید بررسی کمیسیون خود را ویرایش کنید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "You have been assigned to collect quotes for purchase request %s."
+msgstr "شما برای جمع‌آوری پیشنهادهای درخواست خرید %s تخصیص داده شده‌اید."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_commission_case.py:0
+msgid "You have been assigned to review commission case %s (PR %s)."
+msgstr ""
+"شما برای بررسی پرونده کمیسیون %s (درخواست خرید %s) تخصیص داده شده‌اید."
+
+#. module: zvy_tendering
+#: model:mail.template,subject:zvy_tendering.mail_template_ce_awarded
+msgid "You were awarded tender {{ object.name }}"
+msgstr "شما برنده مناقصه {{ object.name }} شدید"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Your bid has been withdrawn."
+msgstr "پیشنهاد شما پس گرفته شد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Your bid was awarded for this tender."
+msgstr "پیشنهاد شما برای این مناقصه برنده شد."
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Your purchase request %s was rejected.\n"
+"Reason: %s"
+msgstr ""
+"درخواست خرید %s شما رد شد.\n"
+"دلیل: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid ""
+"Your purchase request %s was returned for correction.\n"
+"Reason: %s"
+msgstr ""
+"درخواست خرید %s شما برای اصلاح بازگردانده شد.\n"
+"دلیل: %s"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
+msgid "Your quote sets on this request were already submitted."
+msgstr "مجموعه‌های پیشنهاد شما روی این درخواست قبلاً ارسال شده‌اند."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "Your sealed bid"
+msgstr "پیشنهاد مهر و موم‌شده شما"
+
+#. module: zvy_tendering
+#. odoo-python
+#: code:addons/zvy_tendering/controllers/portal.py:0
+msgid "Your sealed bid has been submitted."
+msgstr "پیشنهاد مهر و موم‌شده شما ارسال شد."
+
+#. module: zvy_tendering
+#: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender
+msgid "on"
+msgstr "در"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__purchase_level
+msgid "Purchase Level"
+msgstr "سطح خرید"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__purchase_nature
+msgid "Purchase Nature"
+msgstr "ماهیت خرید"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__is_formalities
+msgid "Formalities"
+msgstr "تشریفات"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_level__minor
+msgid "Minor"
+msgstr "خرد"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_level__medium
+msgid "Medium"
+msgstr "متوسط"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_level__major
+msgid "Major"
+msgstr "عمده"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_level__large
+msgid "Large"
+msgstr "کلان"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_nature__operational
+msgid "Operational"
+msgstr "عملیاتی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__zvy_purchase_request__purchase_nature__non_operational
+msgid "Non-Operational"
+msgstr "غیر عملیاتی"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_company_scale
+msgid "Company Scale"
+msgstr "مقیاس شرکت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__received_date
+msgid "Received Date"
+msgstr "تاریخ دریافت"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__is_valid_inquiry
+msgid "Valid Inquiry"
+msgstr "استعلام معتبر"
+
+#. module: zvy_tendering
+#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__amount_for_level
+msgid "Amount for Purchase Level"
+msgstr "مبلغ مبنای سطح خرید"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__res_company__zvy_company_scale__small
+msgid "Small Scale"
+msgstr "مقیاس کوچک"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__res_company__zvy_company_scale__medium
+msgid "Medium Scale"
+msgstr "مقیاس متوسط"
+
+#. module: zvy_tendering
+#: model:ir.model.fields.selection,name:zvy_tendering.selection__res_company__zvy_company_scale__large
+msgid "Large Scale"
+msgstr "مقیاس بزرگ"
 

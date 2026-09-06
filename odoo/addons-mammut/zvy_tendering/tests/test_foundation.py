@@ -16,6 +16,8 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         settings = Settings.create({
             'company_id': self.company_a.id,
             'zvy_high_value_threshold': 50000.0,
+            'zvy_company_scale': 'medium',
+            'zvy_signatory_minor_ids': [(6, 0, [self.user_signatory.id])],
             'zvy_default_bid_window_hours': 48,
             'zvy_signatory_approval_category_id': category.id,
             'zvy_sole_source_approver_ids': [(6, 0, [self.user_ceo.id])],
@@ -23,12 +25,16 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         settings.execute()
         company = self.company_a
         self.assertEqual(company.zvy_high_value_threshold, 50000.0)
+        self.assertEqual(company.zvy_company_scale, 'medium')
+        self.assertIn(self.user_signatory, company.zvy_signatory_minor_ids)
         self.assertEqual(company.zvy_default_bid_window_hours, 48)
         self.assertEqual(company.zvy_signatory_approval_category_id, category)
         self.assertIn(self.user_ceo, company.zvy_sole_source_approver_ids)
 
         reread = Settings.create({'company_id': self.company_a.id})
         self.assertEqual(reread.zvy_high_value_threshold, 50000.0)
+        self.assertEqual(reread.zvy_company_scale, 'medium')
+        self.assertIn(self.user_signatory, reread.zvy_signatory_minor_ids)
         self.assertEqual(reread.zvy_default_bid_window_hours, 48)
         self.assertEqual(reread.zvy_signatory_approval_category_id, category)
         self.assertIn(self.user_ceo, reread.zvy_sole_source_approver_ids)

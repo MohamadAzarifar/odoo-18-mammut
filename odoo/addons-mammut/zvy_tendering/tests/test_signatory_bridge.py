@@ -9,7 +9,6 @@ from .common import ZvyTenderingCommon
 class TestZvySignatoryBridge(ZvyTenderingCommon):
 
     def _route_to_signatory(self, sole_source=False):
-        self.company_a.zvy_high_value_threshold = 100000.0
         if sole_source:
             self._ensure_sole_source_avl()
         line_vals = [{
@@ -107,7 +106,7 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
             pr.sudo().write({'state': 'po_ready'})
 
     def test_commission_path_to_po(self):
-        self.company_a.zvy_high_value_threshold = 1.0
+        self._force_large_bands()
         pr = self._submit_and_assign()
         self._add_quotes(pr)
         pr.with_user(self.user_cce).action_submit_quotes()

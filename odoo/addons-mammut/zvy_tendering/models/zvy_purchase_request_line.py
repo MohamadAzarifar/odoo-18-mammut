@@ -2,6 +2,14 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+_SIGNATORY_EFFECTIVE_LINE_KEYS = {
+    'product_id',
+    'product_uom_qty',
+    'product_uom_id',
+    'price_estimate',
+    'awarded_quote_id',
+}
+
 
 class ZvyPurchaseRequestLine(models.Model):
     _name = 'zvy.purchase.request.line'
@@ -179,11 +187,29 @@ class ZvyPurchaseRequestLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.su:
+            is_cm_or_admin = self._user_is_cm_or_admin()
+            for vals in vals_list:
+                request = self.env['zvy.purchase.request']
+                if vals.get('request_id'):
+                    request = request.browse(vals['request_id'])
+                if not request:
+                    continue
+                if request.state in ('draft', 'correction'):
+                    continue
+                if request.state == 'signatory' and is_cm_or_admin:
+                    continue
+                raise UserError(_(
+                    'Purchase request lines can only be added in Draft or '
+                    'Correction, or by a Commercial Manager during Signatory.'
+                ))
         for vals in vals_list:
             if vals.get('product_id') and not vals.get('product_uom_id'):
                 product = self.env['product.product'].browse(vals['product_id'])
                 vals['product_uom_id'] = product.uom_id.id
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records.mapped('request_id')._zvy_reset_signatory_if_effective_change()
+        return records
 
     def write(self, vals):
         if not self.env.su:
@@ -193,9 +219,10 @@ class ZvyPurchaseRequestLine(models.Model):
             is_admin = self.env.user.has_group(
                 'zvy_tendering.group_zvy_tendering_admin'
             )
+            is_cm_or_admin = is_cm or is_admin
             # Quotes carry their own state/assignment guard (zvy.quote._check_can_edit),
             # so collecting them must stay possible while the PR is in inquiry.
-            # Awarded quote is set by CM/Admin during quote review.
+            # Awarded quote is set by CM/Admin during quote review (and signatory reset).
             content_keys = set(vals) - {
                 'expert_user_ids', 'quote_ids', 'awarded_quote_id',
                 'award_not_lowest_reason',
@@ -204,29 +231,38 @@ class ZvyPurchaseRequestLine(models.Model):
                 locked = self.filtered(
                     lambda l: l.request_id.state not in ('draft', 'correction')
                 )
-                if locked:
+                signatory_ok = (
+                    is_cm_or_admin
+                    and set(vals) <= (
+                        _SIGNATORY_EFFECTIVE_LINE_KEYS
+                        | {'expert_user_ids', 'quote_ids', 'award_not_lowest_reason'}
+                    )
+                    and all(l.request_id.state == 'signatory' for l in locked)
+                )
+                if locked and not signatory_ok:
                     raise UserError(_(
                         'Purchase request lines can only be edited in Draft or Correction.'
                     ))
             if 'awarded_quote_id' in vals:
-                if not (is_cm or is_admin):
+                if not is_cm_or_admin:
                     raise UserError(_(
                         'Only Commercial Managers can select the awarded quote.'
                     ))
                 not_review = self.filtered(
-                    lambda l: l.request_id.state != 'quote_review'
+                    lambda l: l.request_id.state not in ('quote_review', 'signatory')
                 )
                 if not_review:
                     raise UserError(_(
-                        'Awarded quotes can only be set during Quote Review.'
+                        'Awarded quotes can only be set during Quote Review '
+                        'or Signatory.'
                     ))
             if 'award_not_lowest_reason' in vals:
-                if not (is_cm or is_admin):
+                if not is_cm_or_admin:
                     raise UserError(_(
                         'Only Commercial Managers can set the not-lowest-price reason.'
                     ))
             if 'expert_user_ids' in vals:
-                if not (is_cm or is_admin):
+                if not is_cm_or_admin:
                     raise UserError(_(
                         'Only Commercial Managers can assign experts to lines.'
                     ))
@@ -235,7 +271,36 @@ class ZvyPurchaseRequestLine(models.Model):
         res = super().write(vals)
         if 'awarded_quote_id' in vals:
             self._check_awarded_quote()
+        if set(vals) & _SIGNATORY_EFFECTIVE_LINE_KEYS:
+            self.mapped('request_id')._zvy_reset_signatory_if_effective_change()
         return res
+
+    def unlink(self):
+        if not self.env.su:
+            is_cm_or_admin = self._user_is_cm_or_admin()
+            locked = self.filtered(
+                lambda l: l.request_id.state not in ('draft', 'correction')
+            )
+            if locked:
+                if not (
+                    is_cm_or_admin
+                    and all(l.request_id.state == 'signatory' for l in locked)
+                ):
+                    raise UserError(_(
+                        'Purchase request lines can only be removed in Draft '
+                        'or Correction, or by a Commercial Manager during Signatory.'
+                    ))
+        requests = self.mapped('request_id')
+        res = super().unlink()
+        requests._zvy_reset_signatory_if_effective_change()
+        return res
+
+    def _user_is_cm_or_admin(self):
+        return (
+            self.env.su
+            or self.env.user.has_group('zvy_tendering.group_zvy_commercial_manager')
+            or self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
+        )
 
     def _prepare_awarded_quote_vals(self, vals):
         """Require or clear award_not_lowest_reason when setting the winner."""
@@ -296,6 +361,11 @@ class ZvyPurchaseRequestLine(models.Model):
     def _live_quote_count(self):
         self.ensure_one()
         return len(self.quote_ids.filtered(lambda q: q.state != 'rejected'))
+
+    def _valid_inquiry_count(self):
+        """Priced, non-rejected quotes received within 30 days (FR-33)."""
+        self.ensure_one()
+        return len(self.quote_ids.filtered('is_valid_inquiry'))
 
     def _needs_quote_shortfall_reason(self):
         """True when 1–2 quotes on a standard line and no justification yet."""

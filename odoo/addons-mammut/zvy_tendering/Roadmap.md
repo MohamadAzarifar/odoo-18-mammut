@@ -31,7 +31,7 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 **Second delivery:** Phase 5.  
 **Third delivery (customer PRD 1.3):** Phases 6–14. Source: customer **PRD — Purchase Request System v1.3** (post-pilot). Does **not** reopen Phases 0–5. Version series **`18.0.2.x`** (breaking: inquiry routing order and partial PO). New FRs start at **FR-32**. Specs for 6–14 land in [README.md](README.md) / [Architecture.md](Architecture.md) **when each phase is implemented**; until then this roadmap is the backlog.
 
-Config fields for purchase-level bands and signatory chains ship as **placeholders** until the customer’s commission-laws and purchase-level threshold documents arrive.
+Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operational/non-operational) with optional per-company overrides. Signatory users are per-band lists on the company.
 
 ---
 
@@ -289,28 +289,28 @@ Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-0
 
 ### Scope
 
-- [ ] `purchase_level` on `zvy.purchase.request`: `minor` / `medium` / `major` / `large` (computed from awarded / estimated total vs company bands)
-- [ ] Company settings: four placeholder monetary bands (until the customer threshold document arrives)
-- [ ] Valid inquiry (FR-33 foundation): priced and received date &lt; 30 days; unpriced quotes allowed later in Phase 8 but **never** count toward the 3
-- [ ] `is_formalities` when **any** line has fewer than 3 valid inquiries (whole PR, not per line)
-- [ ] Spawn signatory chain from purchase level + formalities (placeholder approver sets per band; sole-source CEO inject from FR-14 still applies)
-- [ ] Effective-change list resets the in-progress chain and keeps prior `approval.request` records in history: request price, supplier list, quantity, add/remove goods
-- [ ] `is_high_value` remains derived or deprecated in favor of `purchase_level` (no silent dual routing)
+- [x] `purchase_level` on `zvy.purchase.request`: `minor` / `medium` / `major` / `large` (computed from awarded / estimated total vs company bands)
+- [x] Company settings: company scale × operational/non-operational baked-in IRR tables (R-PL-012/013/014) with optional custom ceilings
+- [x] Valid inquiry (FR-33 foundation): priced and received date &lt; 30 days; unpriced quotes allowed later in Phase 8 but **never** count toward the 3
+- [x] `is_formalities` when **any** line has fewer than 3 valid inquiries (whole PR, not per line)
+- [x] Spawn signatory chain from purchase level + formalities (per-band user lists; sole-source CEO inject from FR-14 still applies)
+- [x] Effective-change list resets the in-progress chain and keeps prior `approval.request` records in history: request price, supplier list, quantity, add/remove goods
+- [x] `is_high_value` remains derived or deprecated in favor of `purchase_level` (no silent dual routing)
 
 ### Stories / FRs checklist
 
-- [ ] **FR-32** — Purchase level on PR (computed; company-configurable placeholder bands) — US-05
-- [ ] **FR-33** — Valid inquiry = priced + received &lt; 30 days; unpriced excluded from the count of 3 — US-03 / §5.1
-- [ ] **FR-34** — Formalities when any line has &lt;3 valid inquiries; extra signatories; effective-change **resets** chain and keeps history — §5.7
+- [x] **FR-32** — Purchase level on PR (computed; R-PL-012/013/014 bands + company override) — US-05
+- [x] **FR-33** — Valid inquiry = priced + received &lt; 30 days; unpriced excluded from the count of 3 — US-03 / §5.1
+- [x] **FR-34** — Formalities when any line has &lt;3 valid inquiries; extra signatories; effective-change **resets** chain and keeps history — §5.7
 
 ### Suggested tests
 
-- [ ] Totals in each band compute `minor` / `medium` / `major` / `large`
-- [ ] Quote older than 30 days or with no price is not a valid inquiry
-- [ ] One line with 2 valid inquiries sets header `is_formalities`
-- [ ] Formalities PR injects extra placeholder approvers vs a standard same-band PR
-- [ ] Changing qty (or other effective field) while `signatory` archives the current approval and spawns a new chain
-- [ ] Prior approval remains readable (history); only the new chain can reach `po_ready`
+- [x] Totals in each band compute `minor` / `medium` / `major` / `large`
+- [x] Quote older than 30 days or with no price is not a valid inquiry
+- [x] One line with 2 valid inquiries sets header `is_formalities`
+- [x] Formalities PR injects extra placeholder approvers vs a standard same-band PR
+- [x] Changing qty (or other effective field) while `signatory` archives the current approval and spawns a new chain
+- [x] Prior approval remains readable (history); only the new chain can reach `po_ready`
 
 ### Done when
 
@@ -630,7 +630,7 @@ Not scheduled in Phases 6–14. Placeholder config may exist; do not build the p
 | AVL lifecycle as its own product | AVL stays in-Odoo `zvy.avl.entry` (Phase 0) |
 | Holding org chart / member management | Outside this process |
 | Commission-laws document | Drives Phase 6/12 windows and extra signatories when it arrives |
-| Purchase-level threshold document | Drives Phase 6 band amounts when it arrives |
+| Purchase-level threshold document | Landed in Phase 6 as R-PL-012/013/014 baked-in bands + company override |
 | SAP / AVL / Bridge master-data contracts | FR-43 checks **3** and **10** stay stubbed; no integration phase scheduled |
 
 ---
@@ -715,7 +715,7 @@ Track throughout (PRD §7):
 | Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
 | Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
 | Customer PRD 1.3 series | Pending | Phases 6–14; version `18.0.2.x`; does not reopen 0–5 |
-| 6 Purchase level & formalities | Pending | `18.0.2.0` — FR-32..34 |
+| 6 Purchase level & formalities | Done | `18.0.2.0` — FR-32..34; R-PL-012/013/014 bands |
 | 7 Inquiry routing invert | Pending | `18.0.2.1` — FR-35 |
 | 8 Inquiry fields & validity | Pending | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Pending | `18.0.2.3` — FR-38 |

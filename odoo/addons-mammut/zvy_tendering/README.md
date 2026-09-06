@@ -532,7 +532,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] After quote approval: if `is_commission_item` **or** `is_high_value` → create/open commission case.
 - [x] Else → spawn company sequential signatory path.
-- [x] `is_high_value` = total ≥ company configurable threshold.
+- [x] `is_high_value` = `purchase_level == large` (four-band matrix; FR-32). The old company high-value threshold is deprecated and is not read for routing.
 - [x] `is_commission_item` = any Enquiry line whose product has **Need Commission** (computed on the line; not a manual line override). Tendering products never set this flag.
 
 #### FR-28 Sequential approval enforcement *(Story 28)*
@@ -547,6 +547,49 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] PR cannot enter `po_ready` while linked approval is still pending.
 - [x] Approvals module sequential rules are respected; no bypass action for unauthorized roles.
+
+#### FR-32 Purchase level *(Story US-05)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | To compute a four-band purchase level from company scale, purchase nature, and awarded/estimated total |
+| **So that** | Signatories and commission routing follow the bylaws tables |
+
+**Acceptance criteria**
+
+- [x] `purchase_level` is `minor` / `medium` / `major` / `large` from inclusive IRR ceilings (R-PL-012/013/014) for company scale × operational/non-operational.
+- [x] Company may override ceilings with custom bands.
+- [x] Amount uses awarded quote totals when awarded, otherwise line estimates.
+- [x] `is_high_value` is derived from `purchase_level == large` (no dual routing).
+
+#### FR-33 Valid inquiry *(Story US-03 / §5.1)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | To treat an inquiry as valid only when it is priced and received less than 30 days ago |
+| **So that** | Formalities and (later) quote minima use the same definition |
+
+**Acceptance criteria**
+
+- [x] Valid inquiry = not rejected, `price_unit > 0`, received date (or create date) within 30 days.
+- [x] Unpriced quotes never count toward the 3. Expert minima still use raw live quotes until Phase 8.
+
+#### FR-34 Formalities and chain reset *(§5.7)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | To put a PR into formalities when any enquiry line has fewer than 3 valid inquiries, spawn extra signatories, and reset the chain on effective change |
+| **So that** | ترک تشریفات is visible and prior signatures stay in history |
+
+**Acceptance criteria**
+
+- [x] Enquiry PR `is_formalities` when any line has &lt;3 valid inquiries; tendering PRs stay false.
+- [x] Signatory chain is the band approver set (not cumulative), plus formalities users, plus sole-source CEO last.
+- [x] Large uses CEO up to the inner ceiling, Board above it.
+- [x] Changing qty, estimate, goods, or awarded supplier during `signatory` cancels the current `approval.request`, spawns a new chain, and keeps the old record. Only the current chain can reach `po_ready`.
 
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
@@ -584,7 +627,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 |----|------|
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
 | BR-2 | Standard lines require ≥3 quotes before expert submit, or ≥1 with a shortfall reason; sole source (exactly one AVL vendor) ≥1. |
-| BR-3 | High-value threshold is company-configurable (not hard-coded). |
+| BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission path; line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data set; only Commercial Manager. |
@@ -612,7 +655,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 | Setting | Purpose |
 |---------|---------|
-| High-value threshold | Triggers Holding Commission routing |
+| High-value threshold | Deprecated; kept until Phase 7. Routing uses `purchase_level == large` |
+| Company scale | Selects the R-PL small / medium / large bylaws table |
+| Purchase-level bands | Baked-in IRR ceilings; optional per-company override |
+| Signatory users per band | Minor / medium / major / large / board / formalities lists |
 | Product procurement type (Enquiry / Tendering) | Forces quote inquiry vs closed-envelope path; mixed PRs cannot submit |
 | Need Commission on Enquiry product | Sets line/header `is_commission_item` (computed); triggers Holding Commission routing |
 | Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
@@ -657,6 +703,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 28 | System | Enforce sequential approvals | FR-28 |
 | 29 | System | Open portal after CE list approved | FR-29 |
 | 30 | System | Seal CE bids until opening | FR-30 |
+| 32 | System | Purchase level (minor/medium/major/large) | FR-32 |
+| 33 | System | Valid inquiry (priced + &lt;30 days) | FR-33 |
+| 34 | System | Formalities + signatory reset | FR-34 |
 
 ---
 

@@ -124,8 +124,12 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `line_ids` | One2many | → `zvy.purchase.request.line` |
 | `state` | Selection | See §3.1 |
 | `currency_id` | Many2one | Company currency (or explicit) |
-| `amount_total` | Monetary | Computed from lines (estimate or awarded) |
-| `is_high_value` | Boolean | Computed: total ≥ company threshold (BR-3) |
+| `amount_total` | Monetary | Computed from lines (estimate) |
+| `amount_for_level` | Monetary | Awarded quote totals when awarded, otherwise estimates |
+| `purchase_nature` | Selection | `operational` / `non_operational` (planner; default operational) |
+| `purchase_level` | Selection | `minor` / `medium` / `major` / `large` from company scale × nature vs amount (FR-32) |
+| `is_formalities` | Boolean | Enquiry: any line has &lt;3 valid inquiries (FR-34) |
+| `is_high_value` | Boolean | Computed: `purchase_level == large` (BR-3) |
 | `is_commission_item` | Boolean | Computed: any Enquiry line with product **Need Commission** (BR-4) |
 | `procurement_type` | Selection | Computed: `enquiry` / `tendering` when all lines match; empty if mixed |
 | `is_mixed_procurement` | Boolean | Computed: both Enquiry and Tendering lines present |
@@ -133,7 +137,8 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
 | `closed_envelope_id` | Many2one | → `zvy.closed.envelope` (when CE path) |
-| `approval_request_id` | Many2one | → `approval.request` (signatory bridge) |
+| `approval_request_id` | Many2one | Current `approval.request` (signatory bridge) |
+| `approval_request_ids` | One2many | Signatory history (cancelled / refused / current) |
 | `purchase_order_ids` | One2many / Many2many | Created POs |
 | `reject_reason` / `return_reason` | Text | Mandatory on reject/return |
 | `award_partner_id` | Many2one | Winning vendor when single award |
@@ -188,7 +193,9 @@ Expert-collected offer (standard inquiry path).
 | `line_id` | Many2one | Optional: quote per line |
 | `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s company/product/category |
 | `partner_id` | Many2one | Domain: `[('id', 'in', allowed_partner_ids)]` (BR-1 / FR-9) |
-| `price_unit` / `amount_total` | Monetary | |
+| `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit == 0`) is never a valid inquiry |
+| `received_date` | Datetime | Default now; validity window is 30 days (FR-33) |
+| `is_valid_inquiry` | Boolean (compute) | Not rejected, priced, received &lt; 30 days |
 | `currency_id` | Many2one | |
 | `attachment_ids` | Many2many / binary | |
 | `expert_user_id` | Many2one | Who recorded it; default `env.user`; readonly (system-set) |
@@ -281,10 +288,10 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_high_value_threshold` (Monetary), `zvy_default_bid_window_hours` (Integer), `zvy_signatory_approval_category_id` (Many2one `approval.category`), `zvy_sole_source_approver_ids` (Many2many `res.users`) |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours` |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
-| `approval.request` | `zvy_purchase_request_id`; on refuse → PR `cm_review`; on full approve → PR `po_ready` |
+| `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → PR `po_ready`. Stale/cancelled history records are ignored. |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
 
 ---
@@ -375,7 +382,7 @@ Sole source: after commission (if any), signatory category always includes CEO b
 |----|------|-------------|
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
 | BR-2 | ≥3 quotes, or ≥1 with `quote_shortfall_reason`; ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
-| BR-3 | Configurable high-value threshold | `company_id.zvy_high_value_threshold`; `_compute_is_high_value` |
+| BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
 | BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
 | BR-6 | PO only from `po_ready` by CM | `action_create_po` groups + state guard + award data required |
@@ -388,8 +395,11 @@ Sole source: after commission (if any), signatory category always includes CEO b
 
 | FR | Behavior |
 |----|----------|
-| FR-27 | `_action_route_after_quotes`: if `is_commission_item or is_high_value` → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`, state `signatory`. `is_commission_item` comes from Enquiry product **Need Commission** (Tendering products never set it; high-value still applies). |
-| FR-28 | Block `po_ready` while linked `approval.request` not approved; no bypass for unauthorized roles |
+| FR-27 | `_action_route_after_quotes`: if `is_commission_item or is_high_value` → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`, state `signatory`. `is_high_value` is `purchase_level == large`. |
+| FR-28 | Block `po_ready` while the **current** `approval.request` is not approved; history records cannot complete or refuse the PR |
+| FR-32 | `purchase_level` from company scale × purchase nature vs `amount_for_level` |
+| FR-33 | Valid inquiry = priced + received &lt; 30 days; unpriced excluded |
+| FR-34 | `is_formalities` on enquiry when any line has &lt;3 valid inquiries; spawn extra signatories; effective change cancels and respawns the chain |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
@@ -441,7 +451,9 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 ### 6.1 Approvals (hybrid — Stories 12–14 only)
 
 - PR remains `zvy.purchase.request`; never replace with `approval.request` or `purchase.requisition` (PRD non-goals).
-- `_action_spawn_signatory_approval`: create sequential `approval.request` from `company.zvy_signatory_approval_category_id`, link via `zvy_purchase_request_id` / `approval_request_id`.
+- `_action_spawn_signatory_approval`: create sequential `approval.request` from the company category **template**, then replace approvers with the purchase-level user list, optional formalities users, and sole-source CEO last. Link via `zvy_purchase_request_id` / `approval_request_id`.
+- Large: CEO list up to `large_ceo_max`, Board list above it (not both).
+- Effective change during `signatory` (qty, estimate, goods, awarded supplier, purchase nature): cancel the current document, spawn a new chain, keep history.
 - Sole source: ensure `company.zvy_sole_source_approver_ids` (e.g. CEO) are required last-sequence approvers before completion.
 - Approve chain complete → PR `po_ready`.
 - Refuse → PR `cm_review` with reason (BR-8); optionally mirror [mammut_refuse_reason](../mammut_refuse_reason) UX.
@@ -482,9 +494,12 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 
 | Setting | Storage | Used by |
 |---------|---------|---------|
-| High-value threshold | `res.company.zvy_high_value_threshold` | FR-27 / BR-3 |
+| Company scale | `res.company.zvy_company_scale` | FR-32 |
+| Purchase-level bands | Baked-in R-PL tables or `zvy_use_custom_bands` ceilings | FR-32 |
+| Signatory users per band | `zvy_signatory_*_ids` + formalities | FR-32 / FR-34 |
+| High-value threshold | `res.company.zvy_high_value_threshold` | Deprecated; unused in routing |
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
-| Signatory approval category | `res.company.zvy_signatory_approval_category_id` | FR-12..14 |
+| Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..14) |
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
 | Commission on Enquiry product | `product.template.zvy_need_commission` | BR-4 |
 | Product procurement type | `product.template.zvy_procurement_type` | FR-1 / FR-10 / FR-11 / FR-31 |
@@ -506,7 +521,10 @@ Automated tests (PRD §7) mapped to design:
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
 | Non-lowest award | Awarding a quote with `price_unit` above the line minimum requires `award_not_lowest_reason`; UI opens the wizard; lowest award needs no reason |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |
-| Router | High value / Enquiry commission → case; else → approval.request |
+| Router | Large / Enquiry commission → case; else → approval.request from level + formalities |
+| Purchase level | Totals in each band; scale × nature; custom override |
+| Valid inquiry | Unpriced or &gt;30 days excluded; two valid quotes set header formalities |
+| Signatory reset | Qty change in `signatory` archives current approval; only the new chain reaches `po_ready` |
 | Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
