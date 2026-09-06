@@ -140,9 +140,9 @@ class TestZvyPurchaseLevel(ZvyTenderingCommon):
         standard = self._submit_and_assign()
         self._add_quotes(standard, count=3)
         standard.with_user(self.user_cce).action_submit_quotes()
+        self.assertFalse(standard.is_formalities)
         self._award_quotes(standard)
         standard.with_user(self.user_cm).action_approve_quotes()
-        self.assertFalse(standard.is_formalities)
         std_users = standard.sudo().approval_request_id.approver_ids.mapped('user_id')
         self.assertIn(self.user_signatory, std_users)
         self.assertNotIn(self.user_signatory_other, std_users)
@@ -165,26 +165,17 @@ class TestZvyPurchaseLevel(ZvyTenderingCommon):
         self.assertEqual(pr.purchase_level, 'large')
         quotes = self._add_quotes(pr, count=3)
         quotes[0].sudo().write({'price_unit': 50.0})
+        (quotes - quotes[0]).sudo().write({'price_unit': 60.0})
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         # Awarded total 50*2 default qty? qty is 1, first quote 50 → 50
         pr.with_user(self.user_cm).action_approve_quotes()
-        self.assertEqual(pr.state, 'commission')
-        case = pr.commission_case_id.with_user(self.user_comm_mgr)
-        case._action_assign_experts([self.user_comm_exp.id])
-        review = case.review_ids[0]
-        review.with_user(self.user_comm_exp).write({
-            'recommendation': 'approve',
-            'notes_accuracy': 'ok',
-            'notes_policy': 'ok',
-            'notes_suppliers': 'ok',
-        })
-        review.with_user(self.user_comm_exp).action_submit()
-        case.action_approve_without_meeting()
         self.assertEqual(pr.state, 'signatory')
         users = pr.sudo().approval_request_id.approver_ids.mapped('user_id')
         self.assertIn(self.user_signatory_other, users)
         self.assertNotIn(self.user_signatory, users)
+        self._approve_all_signatories(pr, expected_state='commission')
+        self.assertEqual(pr.state, 'commission')
 
     def test_effective_qty_change_resets_chain(self):
         pr = self._submit_and_assign()

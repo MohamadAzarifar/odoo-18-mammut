@@ -323,7 +323,7 @@ FR-32..34 pass with placeholder bands; existing company-path and sole-source tes
 
 **Goal:** On **inquiry** PRs, complete company signatures **before** Holding Commission. On **tender** PRs, keep commission / closed-envelope **before** signatures. Commission entry requires the prior signature chain to exist (US-06 check 9 lands fully in Phase 12).
 
-**Hooks:** [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_action_route_after_quotes` (today: commission-first when `is_commission_item or is_high_value`); commission approve currently calls `_action_spawn_signatory_approval` — invert **inquiry only**.
+**Hooks:** [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_action_route_after_quotes` / `_action_route_after_signatory`; commission approve must not spawn a second enquiry chain.
 
 ### Target flows
 
@@ -343,25 +343,25 @@ flowchart TD
 
 ### Scope
 
-- [ ] Enquiry after quote award: always `_action_spawn_signatory_approval` (level + formalities from Phase 6)
-- [ ] After inquiry sign-off: if Need Commission **or** `purchase_level == large` → create/open `zvy.commission.case`, state `commission`; else → `po_ready`
-- [ ] Tendering: unchanged order (CE / commission first, then signatory) — FR-27 still describes this path
-- [ ] Commission **approve** on an inquiry case must **not** spawn a second signatory chain (signatures already done)
-- [ ] Commission **approve** on a tendering case still spawns signatory (Phase 4 behavior)
-- [ ] `is_high_value` must not by itself send enquiry PRs to commission before signatures
+- [x] Enquiry after quote award: always `_action_spawn_signatory_approval` (level + formalities from Phase 6)
+- [x] After inquiry sign-off: if Need Commission **or** `purchase_level == large` → create/open `zvy.commission.case`, state `commission`; else → `po_ready`
+- [x] Tendering: unchanged order (CE / commission first, then signatory) — FR-27 still describes this path
+- [x] Commission **approve** on an inquiry case must **not** spawn a second signatory chain (signatures already done)
+- [x] Commission **approve** on a tendering case still spawns signatory (Phase 4 behavior)
+- [x] `is_high_value` must not by itself send enquiry PRs to commission before signatures
 
 ### Stories / FRs checklist
 
-- [ ] **FR-35** — Inquiry: award → signatory → commission only if Need Commission or large; else `po_ready`. Tender: CE/commission → then signatory — US-05 / US-06 / §4.1.4–4.1.5
+- [x] **FR-35** — Inquiry: award → signatory → commission only if Need Commission or large; else `po_ready`. Tender: CE/commission → then signatory — US-05 / US-06 / §4.1.4–4.1.5
 
 ### Suggested tests
 
-- [ ] Non-commission enquiry below `large` → signatory → `po_ready` (no case)
-- [ ] Need-commission enquiry → signatory first, then case
-- [ ] `large` enquiry without Need Commission → signatory first, then case
-- [ ] Tendering high-value / CE path still commission (or CE) before signatory
-- [ ] Inquiry commission approve does not create a new `approval.request`
-- [ ] Existing FR-27 tests updated to the inverted enquiry path
+- [x] Non-commission enquiry below `large` → signatory → `po_ready` (no case)
+- [x] Need-commission enquiry → signatory first, then case
+- [x] `large` enquiry without Need Commission → signatory first, then case
+- [x] Tendering high-value / CE path still commission (or CE) before signatory
+- [x] Inquiry commission approve does not create a new `approval.request`
+- [x] Existing FR-27 tests updated to the inverted enquiry path
 
 ### Done when
 
@@ -765,7 +765,7 @@ Track throughout (PRD §7):
 | Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
 | Customer PRD 1.3 series | Pending | Phases 6–15; version `18.0.2.x`; does not reopen 0–5 |
 | 6 Purchase level & formalities | Done | `18.0.2.0` — FR-32..34; R-PL-012/013/014 bands |
-| 7 Inquiry routing invert | Pending | `18.0.2.1` — FR-35 |
+| 7 Inquiry routing invert | Done | `18.0.2.1` — FR-35; enquiry signs before commission; tendering still commission-first |
 | 8 Inquiry fields & validity | Pending | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Pending | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Pending | `18.0.2.4` — FR-39..41 |

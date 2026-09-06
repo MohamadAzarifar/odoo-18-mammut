@@ -19,7 +19,7 @@ A standalone procurement and tendering application on Odoo 18 that:
 
 1. Captures and workflows **Purchase Requests** end to end.
 2. Runs **company-level inquiry** (RFQ/quotes) and **closed-envelope** tenders with AVL-only vendors.
-3. Routes work automatically to **company signatories** or **Holding Commission** by value and commodity type.
+3. Routes work automatically to **company signatories** and, when required, **Holding Commission** (enquiry signs first; tendering is commission-first).
 4. Creates standard **Purchase Orders** only after all required approvals.
 5. Exposes a **supplier portal** for invited vendors (closed-envelope bids and related notifications).
 
@@ -356,7 +356,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Dashboard lists open `zvy.commission.case` records for high-value and/or commission-item PRs.
-- [x] Flags are consistent with routing rules (FR-27).
+- [x] Flags are consistent with routing rules (FR-27 / FR-35).
 
 #### FR-16 Assign Commission Experts *(Story 16)*
 
@@ -525,15 +525,15 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | | |
 |--|--|
 | **As a** | System |
-| **I want** | To route the PR to Company level or Holding Commission by commodity type and total value |
-| **So that** | Manual misrouting is avoided |
+| **I want** | To route **tendering** PRs to Holding Commission or company signatories by value |
+| **So that** | Closed-envelope awards still go commission-first when required |
 
 **Acceptance criteria**
 
-- [x] After quote approval: if `is_commission_item` **or** `is_high_value` → create/open commission case.
+- [x] Tendering after quote approval (CE award): if Need Commission **or** `purchase_level == large` → create/open commission case, then spawn signatory on commission approve.
 - [x] Else → spawn company sequential signatory path.
-- [x] `is_high_value` = `purchase_level == large` (four-band matrix; FR-32). The old company high-value threshold is deprecated and is not read for routing.
-- [x] `is_commission_item` = any Enquiry line whose product has **Need Commission** (computed on the line; not a manual line override). Tendering products never set this flag.
+- [x] `is_high_value` = `purchase_level == large` (four-band matrix; FR-32). The old company high-value threshold is unused for routing.
+- [x] Enquiry routing is FR-35 (signatures before commission). Tendering products never set `is_commission_item`.
 
 #### FR-28 Sequential approval enforcement *(Story 28)*
 
@@ -591,6 +591,23 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Large uses CEO up to the inner ceiling, Board above it.
 - [x] Changing qty, estimate, goods, or awarded supplier during `signatory` cancels the current `approval.request`, spawns a new chain, and keeps the old record. Only the current chain can reach `po_ready`.
 
+#### FR-35 Inquiry routing invert *(Story US-05 / US-06)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | Enquiry PRs to complete company signatures before Holding Commission, while tendering stays commission-first |
+| **So that** | Inquiry awards are signed at company level before holding review |
+
+**Acceptance criteria**
+
+- [x] Enquiry after quote award always spawns the company signatory chain (level + formalities).
+- [x] After enquiry sign-off: if Need Commission **or** `purchase_level == large` → create/open commission case; else → `po_ready`.
+- [x] Enquiry commission approve does not spawn a second signatory chain; PR → `po_ready`.
+- [x] Tendering keeps FR-27 (CE / commission before signatures).
+- [x] `is_high_value` alone does not send an enquiry PR to commission before signatures.
+- [x] Enquiry cannot enter `commission` without an approved current signature chain.
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -628,7 +645,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
 | BR-2 | Standard lines require ≥3 quotes before expert submit, or ≥1 with a shortfall reason; sole source (exactly one AVL vendor) ≥1. |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
-| BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission path; line flag is computed, not editable. Tendering products have no commission checkbox. |
+| BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission after company signatures (FR-35); line flag is computed, not editable. Tendering products have no commission checkbox. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data set; only Commercial Manager. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
@@ -655,12 +672,12 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 | Setting | Purpose |
 |---------|---------|
-| High-value threshold | Deprecated; kept until Phase 7. Routing uses `purchase_level == large` |
+| High-value threshold | Deprecated; unused for routing. Large purchase level qualifies for Holding Commission (FR-35) |
 | Company scale | Selects the R-PL small / medium / large bylaws table |
 | Purchase-level bands | Baked-in IRR ceilings; optional per-company override |
 | Signatory users per band | Minor / medium / major / large / board / formalities lists |
 | Product procurement type (Enquiry / Tendering) | Forces quote inquiry vs closed-envelope path; mixed PRs cannot submit |
-| Need Commission on Enquiry product | Sets line/header `is_commission_item` (computed); triggers Holding Commission routing |
+| Need Commission on Enquiry product | Sets line/header `is_commission_item` (computed); enquiry still signs first, then Holding Commission (FR-35) |
 | Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
 | CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
@@ -699,13 +716,14 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 24 | Supplier | Portal: view tenders / RFQs | FR-24 |
 | 25 | Supplier | Portal: submit bids before deadline | FR-25 |
 | 26 | Supplier | Portal: results & clarifications | FR-26 |
-| 27 | System | Route by type & value | FR-27 |
+| 27 | System | Route tendering by type & value | FR-27 |
 | 28 | System | Enforce sequential approvals | FR-28 |
 | 29 | System | Open portal after CE list approved | FR-29 |
 | 30 | System | Seal CE bids until opening | FR-30 |
 | 32 | System | Purchase level (minor/medium/major/large) | FR-32 |
 | 33 | System | Valid inquiry (priced + &lt;30 days) | FR-33 |
 | 34 | System | Formalities + signatory reset | FR-34 |
+| 35 | System | Enquiry signs before commission | FR-35 |
 
 ---
 
@@ -914,23 +932,24 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Open PR → **Reject Quotes** without a reason | Wizard requires a reason |
 | 3 | Enter a reason and confirm | State → `inquiry`; reason stored; quotes back to `draft`; assigned experts get an activity; chatter logs reject |
 
-#### MT-2.6 CM approve → company path (FR-6 / FR-27)
+#### MT-2.6 CM approve → company path (FR-6 / FR-35)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Ensure company **high-value threshold** is above the PR total; lines are **not** commission items | Routing flags: not high value, not commission item |
+| 1 | Ensure the PR is **not** large and lines are **not** commission items | Routing flags: not high value, not commission item |
 | 2 | Bring a PR through inquiry with valid quote minima → `quote_review` | Ready for CM |
 | 3 | As CM → **Purchase Requests → Quote Review** → open the PR | Status is `quote_review`; header shows **Approve Quotes** / **Reject Quotes**; info banner explains the steps |
 | 4 | On each line’s **Quotes**, click **Select as Awarded** on the winning vendor (or set **Awarded Quote** many2one — shows vendor name + price, no Create) | Awarded quote set; other quotes on that line → `rejected`; chatter notes the selection. If the selected unit price is **not** the lowest among quotes on that line, a reason is required (wizard from **Select as Awarded**; RPC / many2one without a reason raises) |
 | 5 | Click header **Approve Quotes** | Winning quote → `accepted`; state → `signatory`; linked sequential `approval.request` created; chatter notes routing |
-| 6 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
+| 6 | Complete the signatory chain | PR → `po_ready`; no commission case |
+| 7 | Try **Approve Quotes** without selecting awarded quotes | Validation: awarded quote required on every line |
 
-#### MT-2.7 CM approve → Holding Commission (FR-27)
+#### MT-2.7 CM approve → Holding Commission (FR-35)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | **High value:** set threshold below PR total estimate; complete inquiry + quote review; **Approve Quotes** | State → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
-| 2 | **Commission item:** use an Enquiry product with **Need Commission** (line flag auto-checked, read-only); keep total below threshold; approve quotes | State → `commission`; case has `reason_commission_item` |
+| 1 | **High value:** force a **large** enquiry PR; complete inquiry + quote review; **Approve Quotes** | State → `signatory` (no case yet). Complete the chain → `commission`; `zvy.commission.case` created (e.g. `CASE/…`); case linked on PR; `reason_high_value` set |
+| 2 | **Commission item:** use an Enquiry product with **Need Commission** (line flag auto-checked, read-only); keep total below large; approve quotes | State → `signatory` first; after sign-off → `commission`; case has `reason_commission_item` |
 | 3 | Open the linked commission case (Admin / Commission Manager) | Case in `open` with request link and routing reason flags; Assign Experts and decision buttons available |
 
 ### Phase 3 — Holding Commission & closed envelope
@@ -950,7 +969,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As Commission Expert, open review; fill accuracy/policy/suppliers notes; recommendation **Approve**; **Submit Review** | Review `submitted`; case chatter notes submission |
-| 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; PR → `signatory` with linked sequential `approval.request` |
+| 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; **enquiry** PR → `po_ready` (same approved `approval.request`, no second chain). **Tendering** PR → `signatory` with a new sequential `approval.request` |
 | 3 | On another case where an expert recommended corrections, try **Approve Without Meeting** | Blocked until all reviews approve |
 
 #### MT-3.3 Meeting + corrections (FR-18)
@@ -1005,7 +1024,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | Create a PR with a product that has exactly one active AVL vendor (**Sole Source** auto-checked); collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** company Sole-Source Approver(s) as required, last in sequence |
 | 2 | Approve category signatories only | PR stays `signatory` until CEO / sole-source approver(s) approve |
 | 3 | CEO approves last | PR → `po_ready` |
-| 4 | Repeat after a Holding Commission approve (high-value sole-source PR) | Same CEO inject on the post-commission signatory document |
+| 4 | Repeat for a high-value sole-source **enquiry** PR | Same CEO inject on the **pre-commission** signatory document; after that chain completes the PR goes to Holding Commission |
 
 #### MT-4.4 Create PO (FR-7 / BR-6)
 
@@ -1016,12 +1035,12 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 3 | As CM on `po_ready`, **Create PO** | One or more draft `purchase.order` created (grouped by awarded vendor); lines use awarded quote prices; `origin` = PR number; `zvy_purchase_request_id` set; PR → `done`; **POs** smart button opens the order(s) |
 | 4 | CE path: after MT-3.5 award + CM **Approve Quotes** (no line awards needed) → signatory → approve → **Create PO** | Single PO to `award_partner_id`; PR → `done` |
 
-#### MT-4.5 Commission → signatory → PO (end-to-end)
+#### MT-4.5 Enquiry commission → PO (end-to-end)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Route a high-value PR through commission (MT-3.2 approve without meeting) | PR `signatory` with approval linked |
-| 2 | Complete signatory chain | PR `po_ready` |
+| 1 | Route a high-value **enquiry** PR: award quotes → complete signatory chain | PR `commission` with case linked; existing approval stays `approved` |
+| 2 | Complete Holding Commission (MT-3.2 approve without meeting) | PR `po_ready` (no new `approval.request`) |
 | 3 | As CM, **Create PO** | PO(s) created; PR `done` |
 
 ### Phase 5 — Supplier portal

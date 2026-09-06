@@ -115,7 +115,7 @@
             <p class="o_view_nocontent_smiling_face">
                 No commission cases yet.
             </p>
-            <p>Cases are created when high-value or commission-item PRs are routed after quote approval.</p>
+            <p>Cases are created for Need Commission or large PRs. Enquiry PRs open a case after company signatures; tendering PRs open a case after quote approval.</p>
         </field>
     </record>
 

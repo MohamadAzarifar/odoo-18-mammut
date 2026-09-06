@@ -112,20 +112,12 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
-        self.assertEqual(pr.state, 'commission')
-        case = pr.commission_case_id.with_user(self.user_comm_mgr)
-        case._action_assign_experts([self.user_comm_exp.id])
-        review = case.review_ids[0]
-        review.with_user(self.user_comm_exp).write({
-            'recommendation': 'approve',
-            'notes_accuracy': 'ok',
-            'notes_policy': 'ok',
-            'notes_suppliers': 'ok',
-        })
-        review.with_user(self.user_comm_exp).action_submit()
-        case.action_approve_without_meeting()
         self.assertEqual(pr.state, 'signatory')
-        self._approve_all_signatories(pr)
+        approval = self._approve_all_signatories(pr, expected_state='commission')
+        self.assertEqual(pr.state, 'commission')
+        self._approve_commission_without_meeting(pr.commission_case_id)
+        self.assertEqual(pr.state, 'po_ready')
+        self.assertEqual(pr.sudo().approval_request_id, approval)
         pr.with_user(self.user_cm).action_create_po()
         self.assertEqual(pr.state, 'done')
         self.assertTrue(pr.sudo().purchase_order_ids)

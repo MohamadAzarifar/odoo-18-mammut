@@ -84,7 +84,7 @@
                     </block>
                     <block title="Routing &amp; Approvals">
                         <setting string="High-Value Threshold (deprecated)"
-                                 help="No longer used for routing. Large purchase level now sends the PR to the Holding Commission. Kept until Phase 7.">
+                                 help="No longer used for routing. Large purchase level qualifies for Holding Commission (enquiry after signatures).">
                             <field name="zvy_high_value_threshold"/>
                         </setting>
                         <setting string="Default Bid Window"

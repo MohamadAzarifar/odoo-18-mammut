@@ -15,8 +15,8 @@ _ALLOWED_TRANSITIONS = {
     'cm_review': {'rejected', 'correction', 'inquiry', 'signatory'},
     'inquiry': {'quote_review'},
     'quote_review': {'inquiry', 'commission', 'signatory'},
-    'commission': {'signatory', 'quote_review'},
-    'signatory': {'po_ready', 'cm_review'},
+    'commission': {'signatory', 'quote_review', 'po_ready'},
+    'signatory': {'po_ready', 'cm_review', 'commission'},
     'po_ready': {'done'},
 }
 
@@ -181,7 +181,8 @@ class ZvyPurchaseRequest(models.Model):
         string='High Value',
         compute='_compute_routing_flags',
         store=True,
-        help='True when purchase level is large. Routes to Holding Commission (FR-27).',
+        help='True when purchase level is large. Qualifies for Holding Commission '
+             '(enquiry only after signatures; tendering before signatures, FR-35).',
     )
     is_commission_item = fields.Boolean(
         string='Commission Item',
@@ -360,6 +361,24 @@ class ZvyPurchaseRequest(models.Model):
                         raise UserError(_(
                             'Purchase request %(name)s cannot enter PO Ready '
                             'while signatory approval is still pending.',
+                            name=request.name,
+                        ))
+                # FR-35 / US-06 check 9: enquiry cannot enter commission without
+                # an approved first signature chain (full report is Phase 12).
+                if (
+                    new_state == 'commission'
+                    and request.procurement_type == 'enquiry'
+                ):
+                    approval = request.approval_request_id
+                    if vals.get('approval_request_id'):
+                        approval = self.env['approval.request'].browse(
+                            vals['approval_request_id']
+                        )
+                    if not approval or approval.request_status != 'approved':
+                        raise UserError(_(
+                            'Enquiry purchase request %(name)s cannot enter '
+                            'Holding Commission until the company signature '
+                            'chain is approved.',
                             name=request.name,
                         ))
         # line_ids / quote_ids are exempt: one2many edits (awarded quote, inquiry
@@ -661,16 +680,20 @@ class ZvyPurchaseRequest(models.Model):
             for line in self.sudo().line_ids:
                 awarded = line.awarded_quote_id
                 awarded.sudo().write({'state': 'accepted'})
-                line.quote_ids.filtered(
-                    lambda q: q.state == 'submitted' and q != awarded
-                ).sudo().write({'state': 'rejected'})
         else:
             if not self.award_partner_id:
                 raise ValidationError(_(
                     'Closed-envelope award vendor is required before approving.'
                 ))
         self.message_post(body=_('Quotes approved; routing purchase request.'))
-        return self._action_route_after_quotes()
+        result = self._action_route_after_quotes()
+        if not self._ce_award_satisfies_inquiry():
+            for line in self.sudo().line_ids:
+                awarded = line.awarded_quote_id
+                line.quote_ids.filtered(
+                    lambda q: q.state == 'submitted' and q != awarded
+                ).sudo().write({'state': 'rejected'})
+        return result
 
     def action_reject_quotes(self):
         self.ensure_one()
@@ -800,23 +823,63 @@ class ZvyPurchaseRequest(models.Model):
             or self.env.user.has_group('zvy_tendering.group_zvy_tendering_admin')
         )
 
-    def _action_route_after_quotes(self):
+    def _needs_holding_commission(self):
+        """Need Commission or large purchase level (FR-35)."""
         self.ensure_one()
-        if self.is_commission_item or self.is_high_value:
-            case = self.env['zvy.commission.case'].sudo().create({
+        return self.is_commission_item or self.purchase_level == 'large'
+
+    def _action_open_commission_case(self):
+        """Create or reopen a Holding Commission case and set state commission."""
+        self.ensure_one()
+        Case = self.env['zvy.commission.case'].sudo()
+        case = self.commission_case_id.sudo()
+        if case and case.state == 'corrections':
+            case.write({
+                'state': 'open',
+                'reason_high_value': self.is_high_value,
+                'reason_commission_item': self.is_commission_item,
+                'manager_decision': False,
+            })
+        else:
+            case = Case.create({
                 'request_id': self.id,
                 'reason_high_value': self.is_high_value,
                 'reason_commission_item': self.is_commission_item,
             })
-            self.write({
-                'commission_case_id': case.id,
-                'state': 'commission',
-            })
-            self.message_post(body=_(
-                'Routed to Holding Commission (%s).'
-            ) % case.name)
+        self.write({
+            'commission_case_id': case.id,
+            'state': 'commission',
+        })
+        self.message_post(body=_(
+            'Routed to Holding Commission (%s).'
+        ) % case.name)
+        return case
+
+    def _action_route_after_quotes(self):
+        """FR-35 enquiry: always signatory first. FR-27 tendering: commission-first when needed."""
+        self.ensure_one()
+        if self.procurement_type == 'enquiry':
+            self._action_spawn_signatory_approval()
+            return True
+        if self._needs_holding_commission():
+            self._action_open_commission_case()
         else:
             self._action_spawn_signatory_approval()
+        return True
+
+    def _action_route_after_signatory(self):
+        """After the current chain is approved: enquiry may still need commission."""
+        self.ensure_one()
+        if (
+            self.procurement_type == 'enquiry'
+            and self._needs_holding_commission()
+        ):
+            self._action_open_commission_case()
+            return True
+        self.write({'state': 'po_ready'})
+        self.message_post(body=_(
+            'Signatory approval completed (%s); ready for PO creation.'
+        ) % (self.approval_request_id.display_name if self.approval_request_id else ''))
         return True
 
     def _action_spawn_signatory_approval(self):

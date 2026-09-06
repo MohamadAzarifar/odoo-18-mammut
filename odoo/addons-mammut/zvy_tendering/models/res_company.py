@@ -14,8 +14,8 @@ class ResCompany(models.Model):
     zvy_high_value_threshold = fields.Monetary(
         string='High-Value Threshold',
         currency_field='currency_id',
-        help='Deprecated. Large purchase level now routes to the Holding '
-             'Commission. Kept until the Phase 7 cutover.',
+        help='Deprecated. Unused for routing. Large purchase level qualifies '
+             'for Holding Commission (enquiry after signatures, FR-35).',
     )
     zvy_default_bid_window_hours = fields.Integer(
         string='Default Bid Window (Hours)',

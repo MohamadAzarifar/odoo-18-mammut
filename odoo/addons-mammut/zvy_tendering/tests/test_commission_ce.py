@@ -18,27 +18,26 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        self._approve_all_signatories(pr, expected_state='commission')
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id)
         return pr, pr.commission_case_id
 
     def test_approve_without_meeting_when_all_approve(self):
         pr, case = self._route_to_commission()
-        case = case.with_user(self.user_comm_mgr)
-        case._action_assign_experts([self.user_comm_exp.id])
-        self.assertEqual(case.state, 'in_review')
-        review = case.review_ids[0]
-        review.with_user(self.user_comm_exp).write({
-            'recommendation': 'approve',
-            'notes_accuracy': 'ok',
-            'notes_policy': 'ok',
-            'notes_suppliers': 'ok',
-        })
-        review.with_user(self.user_comm_exp).action_submit()
-        case.action_approve_without_meeting()
+        approval = pr.sudo().approval_request_id
+        self.assertEqual(approval.request_status, 'approved')
+        self._approve_commission_without_meeting(case)
         self.assertEqual(case.state, 'approved')
-        self.assertEqual(pr.state, 'signatory')
-        self.assertTrue(pr.sudo().approval_request_id)
+        self.assertEqual(pr.state, 'po_ready')
+        self.assertEqual(pr.sudo().approval_request_id, approval)
+        self.assertEqual(
+            self.env['approval.request'].sudo().search_count([
+                ('zvy_purchase_request_id', '=', pr.id),
+            ]),
+            1,
+        )
 
     def test_approve_without_meeting_blocked_if_not_all_approve(self):
         pr, case = self._route_to_commission()
@@ -179,3 +178,38 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         self.assertEqual(envelope.state, 'awarded')
         self.assertEqual(pr.award_partner_id, self.partner_a)
         self.assertEqual(pr.state, 'quote_review')
+
+    def test_tendering_high_value_commission_before_signatory(self):
+        self._force_large_bands()
+        pr, envelope = self._create_ce_pending()
+        opening = fields.Datetime.now() - timedelta(minutes=5)
+        envelope.with_user(self.user_comm_mgr).write({
+            'opening_datetime': opening,
+            'bid_deadline': opening + timedelta(hours=24),
+        })
+        envelope.with_user(self.user_comm_mgr).action_approve_list()
+        self.env['zvy.closed.envelope.bid'].with_user(
+            self.user_comm_mgr
+        ).with_company(self.company_a).create({
+            'envelope_id': envelope.id,
+            'partner_id': self.partner_a.id,
+            'amount': 1234.5,
+        })
+        envelope.with_user(self.user_comm_mgr).action_open_bids()
+        envelope.with_user(self.user_comm_mgr).write({
+            'winner_partner_id': self.partner_a.id,
+        })
+        envelope.with_user(self.user_comm_mgr).action_select_winner()
+        self.assertEqual(pr.state, 'quote_review')
+        self.assertTrue(pr.is_high_value)
+        self.assertFalse(pr.sudo().approval_request_id)
+
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'commission')
+        self.assertTrue(pr.commission_case_id)
+        self.assertFalse(pr.sudo().approval_request_id)
+
+        self._approve_commission_without_meeting(pr.commission_case_id)
+        self.assertEqual(pr.state, 'signatory')
+        self.assertTrue(pr.sudo().approval_request_id)
+        self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')

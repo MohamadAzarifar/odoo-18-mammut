@@ -291,7 +291,7 @@ Sealing: override `read` / use computed “visible” fields so non-authorized u
 | `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours` |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
-| `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → PR `po_ready`. Stale/cancelled history records are ignored. |
+| `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
 
 ---
@@ -318,8 +318,9 @@ Canonical happy path:
 
 ```text
 draft → submitted → cm_review → inquiry → quote_review
-  → (route) commission | signatory
-  → po_ready → done
+  → enquiry: signatory → (optional commission) → po_ready
+  → tendering: (optional commission) → signatory → po_ready
+  → done
 ```
 
 Branches:
@@ -360,17 +361,23 @@ flowchart TD
     CEList -->|CM approves list| PortalOpen[CE portal_open]
     PortalOpen -->|bids then open| Award[CE awarded]
     Award --> QuoteReview
-    QuoteReview -->|CM approves quotes| Router{Router FR-27}
-    Router -->|high_value OR commission_item| Commission[commission case]
-    Router -->|else| Signatory[signatory chain]
-    Commission -->|approved| Signatory
+    QuoteReview -->|CM approves quotes| Kind{procurement_type}
+    Kind -->|enquiry| SignInquiry[signatory]
+    SignInquiry -->|Need Commission or large| Commission[commission case]
+    SignInquiry -->|else| PoReady[po_ready]
+    Commission -->|enquiry approved| PoReady
+    Kind -->|tendering| Router{Router FR-27}
+    Router -->|high_value| Commission
+    Router -->|else| SignTender[signatory after commission]
+    Commission -->|tendering approved| SignTender
     Commission -->|corrections| QuoteReview
-    Signatory -->|full approve| PoReady[po_ready]
-    Signatory -->|refuse| CMReview
+    SignTender -->|full approve| PoReady
+    SignInquiry -->|refuse| CMReview
+    SignTender -->|refuse| CMReview
     PoReady -->|CM create PO| Done[done]
 ```
 
-Sole source: after commission (if any), signatory category always includes CEO before `po_ready` (FR-14).
+Sole source: CEO / sole-source approvers are injected on the signatory chain (enquiry: before commission if any; tendering: after commission) before `po_ready` (FR-14).
 
 ---
 
@@ -383,7 +390,7 @@ Sole source: after commission (if any), signatory category always includes CEO b
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
 | BR-2 | ≥3 quotes, or ≥1 with `quote_shortfall_reason`; ≥1 sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10) |
 | BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
-| BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed |
+| BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed; enquiry signs first (FR-35) |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
 | BR-6 | PO only from `po_ready` by CM | `action_create_po` groups + state guard + award data required |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
@@ -395,11 +402,12 @@ Sole source: after commission (if any), signatory category always includes CEO b
 
 | FR | Behavior |
 |----|----------|
-| FR-27 | `_action_route_after_quotes`: if `is_commission_item or is_high_value` → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`, state `signatory`. `is_high_value` is `purchase_level == large`. |
+| FR-27 | Tendering `_action_route_after_quotes`: if `_needs_holding_commission()` (`is_commission_item or purchase_level == large`) → create/open `zvy.commission.case`, state `commission`; else → `_action_spawn_signatory_approval`. Enquiry uses FR-35. |
 | FR-28 | Block `po_ready` while the **current** `approval.request` is not approved; history records cannot complete or refuse the PR |
 | FR-32 | `purchase_level` from company scale × purchase nature vs `amount_for_level` |
 | FR-33 | Valid inquiry = priced + received &lt; 30 days; unpriced excluded |
 | FR-34 | `is_formalities` on enquiry when any line has &lt;3 valid inquiries; spawn extra signatories; effective change cancels and respawns the chain |
+| FR-35 | Enquiry after quote award always `_action_spawn_signatory_approval`. After sign-off: Need Commission or large → commission, else `po_ready`. Enquiry commission approve → `po_ready` (no second chain). Tendering stays FR-27 (commission then signatory). Enquiry cannot enter `commission` without an approved current chain. |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
@@ -455,9 +463,10 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 - Large: CEO list up to `large_ceo_max`, Board list above it (not both).
 - Effective change during `signatory` (qty, estimate, goods, awarded supplier, purchase nature): cancel the current document, spawn a new chain, keep history.
 - Sole source: ensure `company.zvy_sole_source_approver_ids` (e.g. CEO) are required last-sequence approvers before completion.
-- Approve chain complete → PR `po_ready`.
+- Approve chain complete → `_action_route_after_signatory` (enquiry may still need Holding Commission; otherwise `po_ready`).
 - Refuse → PR `cm_review` with reason (BR-8); optionally mirror [mammut_refuse_reason](../mammut_refuse_reason) UX.
 - FR-28: no transition to `po_ready` while approval pending.
+- FR-35: enquiry cannot enter `commission` without an approved current chain.
 
 ### 6.2 Purchase Order
 
@@ -538,7 +547,7 @@ Automated tests (PRD §7) mapped to design:
 |-------------|-----|
 | Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
-| Routing §4 | FR-27–30; BR-1–9 |
+| Routing §4 | FR-27–30, FR-32–35; BR-1–9 |
 | Security §5 | Personas §2; NFR Security |
 | Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |

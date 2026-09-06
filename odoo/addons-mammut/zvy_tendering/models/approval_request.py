@@ -24,10 +24,7 @@ class ApprovalRequest(models.Model):
             if not request._zvy_is_current_signatory(pr) or pr.state != 'signatory':
                 continue
             if request.request_status == 'approved':
-                pr.write({'state': 'po_ready'})
-                pr.message_post(body=_(
-                    'Signatory approval completed (%s); ready for PO creation.'
-                ) % request.display_name)
+                pr._action_route_after_signatory()
         return res
 
     def action_refuse(self, approver=None):

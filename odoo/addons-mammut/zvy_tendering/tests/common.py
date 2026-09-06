@@ -375,7 +375,7 @@ class ZvyTenderingCommon(TransactionCase):
                 quote = line.quote_ids.filtered(lambda q: q.state == 'submitted')[:1]
             line.with_user(self.user_cm).write({'awarded_quote_id': quote.id})
 
-    def _approve_all_signatories(self, pr):
+    def _approve_all_signatories(self, pr, expected_state='po_ready'):
         """Approve every pending/waiting approver in sequence until request is approved."""
         approval = pr.approval_request_id.sudo()
         self.assertTrue(approval)
@@ -389,5 +389,20 @@ class ZvyTenderingCommon(TransactionCase):
             pending[0].with_user(pending[0].user_id).action_approve()
         pr.invalidate_recordset()
         self.assertEqual(approval.request_status, 'approved')
-        self.assertEqual(pr.state, 'po_ready')
+        self.assertEqual(pr.state, expected_state)
         return approval
+
+    def _approve_commission_without_meeting(self, case):
+        """Assign one expert, submit approve, and manager-approve without a meeting."""
+        case = case.with_user(self.user_comm_mgr)
+        case._action_assign_experts([self.user_comm_exp.id])
+        review = case.review_ids[0]
+        review.with_user(self.user_comm_exp).write({
+            'recommendation': 'approve',
+            'notes_accuracy': 'ok',
+            'notes_policy': 'ok',
+            'notes_suppliers': 'ok',
+        })
+        review.with_user(self.user_comm_exp).action_submit()
+        case.action_approve_without_meeting()
+        return case

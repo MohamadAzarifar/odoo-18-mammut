@@ -239,6 +239,10 @@ class ZvyCommissionCase(models.Model):
         pr.message_post(body=_(
             'Holding Commission approved (%s).'
         ) % self.name)
-        pr._action_spawn_signatory_approval()
-        self.message_post(body=_('Case approved; PR advanced to signatory.'))
+        if pr.procurement_type == 'enquiry':
+            pr.write({'state': 'po_ready'})
+            self.message_post(body=_('Case approved; PR advanced to PO Ready.'))
+        else:
+            pr._action_spawn_signatory_approval()
+            self.message_post(body=_('Case approved; PR advanced to signatory.'))
         return True

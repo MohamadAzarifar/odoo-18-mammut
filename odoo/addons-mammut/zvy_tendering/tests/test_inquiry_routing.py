@@ -382,6 +382,9 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertTrue(pr.sudo().approval_request_id)
         self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')
         self.assertFalse(pr.commission_case_id)
+        self._approve_all_signatories(pr)
+        self.assertEqual(pr.state, 'po_ready')
+        self.assertFalse(pr.commission_case_id)
 
     def test_router_high_value_creates_commission_case(self):
         self._force_large_bands()
@@ -391,6 +394,9 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        self.assertFalse(pr.commission_case_id)
+        self._approve_all_signatories(pr, expected_state='commission')
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id)
         self.assertTrue(pr.commission_case_id.reason_high_value)
@@ -410,8 +416,21 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        self.assertFalse(pr.commission_case_id)
+        self._approve_all_signatories(pr, expected_state='commission')
         self.assertEqual(pr.state, 'commission')
         self.assertTrue(pr.commission_case_id.reason_commission_item)
+
+    def test_enquiry_cannot_enter_commission_without_approved_chain(self):
+        pr = self._submit_and_assign()
+        self._add_quotes(pr)
+        pr.with_user(self.user_cce).action_submit_quotes()
+        self._award_quotes(pr)
+        pr.with_user(self.user_cm).action_approve_quotes()
+        self.assertEqual(pr.state, 'signatory')
+        with self.assertRaises(UserError):
+            pr.sudo().write({'state': 'commission'})
 
     def test_approve_quotes_requires_award(self):
         pr = self._submit_and_assign()
