@@ -195,4 +195,23 @@
             </form>
         </field>
     </record>
+
+    <record id="view_zvy_meeting_transfer_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.meeting.transfer.wizard.form</field>
+        <field name="model">zvy.meeting.transfer.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Transfer to Another Meeting">
+                <group>
+                    <field name="meeting_case_id" invisible="1"/>
+                    <field name="source_meeting_id" readonly="1"/>
+                    <field name="requesting_company_id" invisible="1"/>
+                    <field name="target_meeting_id" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Transfer" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>

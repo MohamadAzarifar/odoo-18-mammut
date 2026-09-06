@@ -73,6 +73,12 @@ class ZvyCommissionCase(models.Model):
         string='Meeting',
         ondelete='set null',
         copy=False,
+        help='Current commission meeting. History is on meeting agenda rows.',
+    )
+    meeting_case_ids = fields.One2many(
+        'zvy.commission.meeting.case',
+        'case_id',
+        string='Meeting History',
     )
     manager_decision = fields.Selection(
         selection=[

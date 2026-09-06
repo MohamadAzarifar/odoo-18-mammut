@@ -3,6 +3,8 @@ from . import zvy_avl
 from . import zvy_commission_case
 from . import zvy_commission_review
 from . import zvy_commission_meeting
+from . import zvy_commission_meeting_case
+from . import zvy_commission_meeting_attendee
 from . import zvy_closed_envelope
 from . import zvy_closed_envelope_bid
 from . import zvy_closed_envelope_bid_line

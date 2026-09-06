@@ -395,8 +395,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Manager can create a meeting, link multiple cases, set date/time.
-- [x] Manager can upload MOM attachment after the meeting.
-- [x] Case outcome can be recorded after meeting.
+- [x] Manager can upload minutes; **held** requires one minutes file (FR-42).
+- [x] Case outcome can be recorded after the meeting is held (per-PR decision, FR-42).
 
 #### FR-19 Select CE winner *(Story 19)*
 
@@ -695,6 +695,23 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Lines with no winner are flagged `ce_retender`; a later closed envelope can cover those lines on the same PR.
 - [x] Create PO groups CE lines by per-item winner and uses `final_price`.
 
+#### FR-42 Commission meetings *(US-09)*
+
+| | |
+|--|--|
+| **As a** | Commission Manager |
+| **I want** | To hold several same-company PRs in one meeting, record attendees and minutes, and decide each PR independently |
+| **So that** | Undecided items can move to a later sitting without losing history |
+
+**Acceptance criteria**
+
+- [x] Meeting has location, datetime, and status `scheduled` / `held` / `signed` / `cancelled`.
+- [x] One minutes attachment is required to move `scheduled` → `held`.
+- [x] Attendees: internal users and external rows (name + role, no `res.users`).
+- [x] All agenda PRs share one requesting company; the meeting is owned by the head holding (`company_id` = `root_id`).
+- [x] Per-PR decision `approved` / `rejected` / `needs_correction` / `undecided`; transfer of pending/undecided items keeps the prior row (`removed`).
+- [x] Bid opening on a linked CE is allowed during a `held` meeting at/after opening datetime; inquiry-stage envelopes without a meeting still open as in Phase 10.
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -817,6 +834,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 39 | Supplier / Comm. Mgr | Per-item sealed bid lines | FR-39 |
 | 40 | Comm. Mgr | Bid-line discount + final_price + audit | FR-40 |
 | 41 | Comm. Mgr | Winner per item; leftover re-tender | FR-41 |
+| 42 | Comm. Mgr | Meeting status, attendees, per-PR decision + transfer | FR-42 |
 
 ---
 
@@ -1065,12 +1083,14 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; **enquiry** PR → `po_ready` (same approved `approval.request`, no second chain). **Tendering** PR → `signatory` with a new sequential `approval.request` |
 | 3 | On another case where an expert recommended corrections, try **Approve Without Meeting** | Blocked until all reviews approve |
 
-#### MT-3.3 Meeting + corrections (FR-18)
+#### MT-3.3 Meeting + corrections (FR-18 / FR-42)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As Commission Manager → **Meetings → New**; link open/in-review cases; set datetime; save | Linked cases move to `meeting`; MOM attachments can be uploaded |
-| 2 | On a meeting case, **Request Corrections** | Case `corrections`; PR → `quote_review` |
+| 1 | As Commission Manager → **Meetings → New**; set requesting company, datetime, location; add open/in-review cases on the agenda | Linked cases move to `meeting`; meeting `scheduled`; holding `company_id` is `root_id` |
+| 2 | Try **Mark Held** without minutes | Validation error |
+| 3 | Upload minutes; **Mark Held** | State `held` |
+| 4 | On a meeting case, **Request Corrections** (or agenda decision Needs Correction) | Case `corrections`; PR → `quote_review` |
 
 #### MT-3.4 Closed envelope list (FR-11 / FR-20 / FR-29)
 
@@ -1209,3 +1229,15 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 3 | Mark winners on 2 of 3 lines; **Select Winner** | Third line `ce_retender`; PR not fully awarded (`_has_award_data` false); awarded lines continue |
 | 4 | After `po_ready`, **Closed Envelope** for leftover lines; award the third item; **Create PO** | Later CE scoped to leftover; POs grouped by per-item winner |
 | 5 | Past deadline, **Re-open Bidding** | New deadline set; chatter audit; **Open Bids** still blocked before opening datetime |
+
+### Phase 11 — Meetings
+
+#### MT-11.1 Same-company sitting, attendees, transfer (FR-42)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Add an internal user and an external attendee (name + role, no user) | External row saves; internal name comes from the user |
+| 2 | Link a case from another requesting company | Rejected |
+| 3 | On a held meeting, approve one PR and leave the second `undecided`; **Transfer** the second to a later scheduled meeting | First meeting still shows both agenda rows (second `removed`); second meeting has a new pending row; case `meeting_id` is the later sitting |
+| 4 | **Cancel** a scheduled meeting that has agenda rows | History kept; pending cases are unlinked so they can be re-agenda’d |
+| 5 | Tender CE `portal_open` linked to a `scheduled` meeting; **Open Bids** | Blocked until the meeting is `held` and opening datetime has passed |

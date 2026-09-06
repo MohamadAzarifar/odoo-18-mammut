@@ -484,27 +484,27 @@ FR-39..41 pass; Create PO (Phase 9) can build orders from per-line winners; enve
 
 ### Scope
 
-- [ ] Meeting fields: location; date + time (keep or split `datetime`); status `scheduled` / `held` / `signed` / `cancelled`
-- [ ] Minutes attachment **required** to move `scheduled` → `held`; one minutes file for the whole meeting
-- [ ] Attendees: internal users + external rows (name + role; **no** `res.users` required)
-- [ ] All linked PRs / cases must share the same requesting `company_id` (one subsidiary per meeting). Meeting itself is owned by the head holding — FR-46; do not set `meeting.company_id` to the requesting company
-- [ ] Junction `review_status`: `pending` / `reviewed` / `removed`; `decision`: `approved` / `rejected` / `needs_correction` / `undecided`
-- [ ] Independent decision per PR (and per goods/line where the tender award needs it)
-- [ ] Transfer an `undecided` / `pending` PR to another meeting; prior meeting rows stay in history (`removed` or archived link)
-- [ ] Bid opening (Phase 10) is allowed during a `held` meeting at tender end
-- [ ] Filter PR picker by requesting company
+- [x] Meeting fields: location; date + time (keep or split `datetime`); status `scheduled` / `held` / `signed` / `cancelled`
+- [x] Minutes attachment **required** to move `scheduled` → `held`; one minutes file for the whole meeting
+- [x] Attendees: internal users + external rows (name + role; **no** `res.users` required)
+- [x] All linked PRs / cases must share the same requesting `company_id` (one subsidiary per meeting). Meeting itself is owned by the head holding — FR-46; do not set `meeting.company_id` to the requesting company
+- [x] Junction `review_status`: `pending` / `reviewed` / `removed`; `decision`: `approved` / `rejected` / `needs_correction` / `undecided`
+- [x] Independent decision per PR (and per goods/line where the tender award needs it)
+- [x] Transfer an `undecided` / `pending` PR to another meeting; prior meeting rows stay in history (`removed` or archived link)
+- [x] Bid opening (Phase 10) is allowed during a `held` meeting at tender end
+- [x] Filter PR picker by requesting company
 
 ### Stories / FRs checklist
 
-- [ ] **FR-42** — Meeting: location, SCHEDULED/HELD/SIGNED/CANCELLED, minutes required for HELD, internal+external attendees, same-company PRs, per-PR decision + transfer — US-09
+- [x] **FR-42** — Meeting: location, SCHEDULED/HELD/SIGNED/CANCELLED, minutes required for HELD, internal+external attendees, same-company PRs, per-PR decision + transfer — US-09
 
 ### Suggested tests
 
-- [ ] Linking a case from another company is rejected
-- [ ] Status → `held` without minutes fails; with minutes succeeds
-- [ ] External attendee saves without a user
-- [ ] Two PRs: approve one, leave the other `undecided`, transfer the second; first meeting still shows both historical rows
-- [ ] `cancelled` meeting does not wipe case history
+- [x] Linking a case from another company is rejected
+- [x] Status → `held` without minutes fails; with minutes succeeds
+- [x] External attendee saves without a user
+- [x] Two PRs: approve one, leave the other `undecided`, transfer the second; first meeting still shows both historical rows
+- [x] `cancelled` meeting does not wipe case history
 
 ### Done when
 
@@ -769,7 +769,7 @@ Track throughout (PRD §7):
 | 8 Inquiry fields & validity | Done | `18.0.2.2` — FR-36..37 |
 | 9 Partial PO | Done | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Done | `18.0.2.4` — FR-39..41 |
-| 11 Meetings | Pending | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
+| 11 Meetings | Done | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |
 | 13 Company procurement override | Pending | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
 | 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |

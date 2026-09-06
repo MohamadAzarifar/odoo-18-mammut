@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.4` |
+| Version | `18.0.2.5` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -36,6 +36,8 @@ zvy_tendering/
 │   ├── zvy_commission_case.py
 │   ├── zvy_commission_review.py
 │   ├── zvy_commission_meeting.py
+│   ├── zvy_commission_meeting_case.py
+│   ├── zvy_commission_meeting_attendee.py
 │   ├── zvy_closed_envelope.py
 │   ├── zvy_closed_envelope_bid.py
 │   ├── zvy_closed_envelope_bid_line.py
@@ -54,6 +56,7 @@ zvy_tendering/
 │   ├── request_award_not_lowest_wizard.py  # non-lowest award reason
 │   ├── request_split_wizard.py      # mixed enquiry/tendering (FR-31)
 │   ├── request_create_po_wizard.py  # partial Create PO (FR-38)
+│   ├── meeting_transfer_wizard.py   # FR-42 agenda transfer
 │   └── ce_clarification_wizard.py
 ├── security/
 │   ├── security.xml                 # category, groups, record rules
@@ -76,6 +79,7 @@ zvy_tendering/
     ├── test_signatory_bridge.py
     ├── test_partial_po.py
     ├── test_per_item_bids.py
+    ├── test_commission_meeting.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -105,7 +109,9 @@ erDiagram
     zvy_avl_entry }o--|| res_partner : vendor
     zvy_purchase_request ||--o| zvy_commission_case : commission
     zvy_commission_case ||--o{ zvy_commission_review : reviews
-    zvy_commission_meeting ||--o{ zvy_commission_case : cases
+    zvy_commission_meeting ||--o{ zvy_commission_meeting_case : agenda
+    zvy_commission_meeting ||--o{ zvy_commission_meeting_attendee : attendees
+    zvy_commission_meeting_case }o--|| zvy_commission_case : case
     zvy_purchase_request ||--o{ zvy_closed_envelope : envelopes
     zvy_closed_envelope }o--o{ zvy_purchase_request_line : scope
     zvy_closed_envelope ||--o{ zvy_closed_envelope_bid : bids
@@ -249,7 +255,8 @@ Vendor pickers must never be filtered by an `onchange`-returned domain (unsuppor
 | `reason_high_value` / `reason_commission_item` | Boolean | Why routed |
 | `expert_user_ids` | Many2many | Assigned Commission Experts (FR-16); set via Assign Experts wizard; UI-readonly |
 | `review_ids` | One2many | → `zvy.commission.review` |
-| `meeting_id` | Many2one | Optional linked meeting |
+| `meeting_id` | Many2one | Current meeting |
+| `meeting_case_ids` | One2many | Agenda history (`zvy.commission.meeting.case`) |
 | `manager_decision` | Selection | approve / reject / corrections |
 | `manager_notes` | Text | |
 
@@ -265,12 +272,40 @@ Vendor pickers must never be filtered by an `onchange`-returned domain (unsuppor
 
 #### `zvy.commission.meeting`
 
+Holding-owned sitting (FR-42). `company_id` is the head holding (`requesting_company_id.root_id`); agenda PRs must share `requesting_company_id`.
+
 | Field | Type | Notes |
 |-------|------|--------|
 | `name` | Char | |
-| `datetime` | Datetime | |
-| `case_ids` | Many2many | Aggregated cases (FR-18) |
-| `mom_attachment_ids` | Many2many / binary | Minutes of meeting |
+| `datetime` | Datetime | Sitting date/time |
+| `location` | Char | |
+| `state` | Selection | `scheduled` / `held` / `signed` / `cancelled` |
+| `requesting_company_id` | Many2one | Operating company of every agenda PR |
+| `company_id` | Many2one | Head holding that owns the meeting |
+| `minutes_attachment_id` | Many2one `ir.attachment` | Required to mark `held` |
+| `meeting_case_ids` | One2many | Agenda / history |
+| `attendee_ids` | One2many | Internal users + external name/role |
+| `case_ids` | Many2many (computed) | Non-removed agenda cases |
+
+#### `zvy.commission.meeting.case`
+
+Junction (one PR/case per meeting). Unique `(meeting_id, case_id)`. Transfer marks the old row `removed` and creates a new pending row on the target.
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `meeting_id` / `case_id` | Many2one | |
+| `review_status` | Selection | `pending` / `reviewed` / `removed` |
+| `decision` | Selection | `undecided` / `approved` / `rejected` / `needs_correction` |
+
+Terminal decisions are recorded only when the meeting is `held` or `signed` and call the existing case manager actions.
+
+#### `zvy.commission.meeting.attendee`
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `kind` | Selection | `internal` / `external` |
+| `user_id` | Many2one | Required for internal |
+| `name` / `role` | Char | External: both required; no user |
 
 #### `zvy.closed.envelope`
 
@@ -318,13 +353,13 @@ Per-item sealed offer keyed to `zvy.purchase.request.line` (FR-39). Unique `(bid
 | `final_price` | Monetary | `price_unit × (1 − discount/100)` |
 | `is_winner` | Boolean | Per-item award (FR-41) |
 
-Sealing: override `read` on header and lines so non-authorized users get empty/hidden amounts before `action_open_bids`. Before open, non-managers see **bid count only**. Portal user always reads **own** bid. Commission Expert may write `bid_deadline` only (meeting alignment is Phase 11). `action_reopen_bidding` extends the deadline after it has passed and logs chatter.
+Sealing: override `read` on header and lines so non-authorized users get empty/hidden amounts before `action_open_bids`. Before open, non-managers see **bid count only**. Portal user always reads **own** bid. Commission Expert may write `bid_deadline` only. If the PR has an active (non-removed, non-cancelled) meeting, `action_open_bids` also requires that meeting to be `held`. Linking a `portal_open` envelope to a meeting sets `opening_datetime` to the sitting. `action_reopen_bidding` extends the deadline after it has passed and logs chatter.
 
 #### Extensions
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours` |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id` |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
@@ -450,6 +485,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; unpriced needs comments; dedicated proforma |
 | FR-37 | Line `last_vendor_id` / `last_price` / `last_purchase_date` from confirmed PO or awarded history |
 | FR-38 | Partial Create PO: line `purchase_state`; wizard defaults to all pending; PR `done` only when no line remains pending; reject from `po_ready` cancels remaining pending lines |
+| FR-42 | Meeting: holding-owned, same requesting company, minutes for `held`, internal+external attendees, per-PR decision + transfer-with-history; linked CE opens only while meeting is `held` |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
@@ -585,6 +621,7 @@ Automated tests (PRD §7) mapped to design:
 | Partial PO | Subset of awarded lines → one PO; PR stays `po_ready`; remaining pending; second PO → `done`; reject cancels pending |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
 | Portal isolation | Non-invited portal user gets empty/403 |
+| Commission meeting | Same-company agenda; minutes required for `held`; external attendee without user; transfer keeps history; linked CE open gated on `held` |
 
 ---
 

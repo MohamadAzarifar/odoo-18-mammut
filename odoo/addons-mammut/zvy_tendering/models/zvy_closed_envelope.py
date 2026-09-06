@@ -208,8 +208,19 @@ class ZvyClosedEnvelope(models.Model):
                     raise UserError(_(
                         'Commission Experts can only set the bid deadline.'
                     ))
-                # Phase 11: align bid_deadline with the linked meeting datetime.
         return super().write(vals)
+
+    def _active_commission_meeting(self):
+        """Current non-removed, non-cancelled meeting for this envelope's PR."""
+        self.ensure_one()
+        if not self.request_id:
+            return self.env['zvy.commission.meeting']
+        row = self.env['zvy.commission.meeting.case'].sudo().search([
+            ('request_id', '=', self.request_id.id),
+            ('review_status', '!=', 'removed'),
+            ('meeting_id.state', '!=', 'cancelled'),
+        ], limit=1, order='id desc')
+        return row.meeting_id
 
     @api.constrains('line_ids', 'state')
     def _check_line_not_on_active_envelope(self):
@@ -522,6 +533,11 @@ class ZvyClosedEnvelope(models.Model):
         if now < self.opening_datetime:
             raise UserError(_(
                 'Cannot open bids before the scheduled opening datetime.'
+            ))
+        meeting = self._active_commission_meeting()
+        if meeting and meeting.state != 'held':
+            raise UserError(_(
+                'Bids can only be opened during a held commission meeting.'
             ))
         self.write({'state': 'opened'})
         self.message_post(body=_('Bids unsealed / opened.'))

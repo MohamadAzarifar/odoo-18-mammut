@@ -158,6 +158,11 @@ class ResCompany(models.Model):
         self.ensure_one()
         return zvy_level_from_amount(amount, self._zvy_band_ceilings(nature))
 
+    def _zvy_holding_company(self):
+        """Head holding: top of the company tree (`root_id`), or self if standalone."""
+        self.ensure_one()
+        return self.root_id or self
+
     def _zvy_signatory_users(self, level, amount, nature):
         """Users for this purchase level. Large uses CEO or Board, not both."""
         self.ensure_one()
