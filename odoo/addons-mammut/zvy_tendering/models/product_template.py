@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
 
+from ..hooks import ensure_product_template_columns
+
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+
+    @api.model
+    def _prepare_setup(self):
+        # Columns must exist before setup_models flushes product.template
+        # (UI install/upgrade on a ready registry, and restart without -u
+        # after deploying new fields). Missing columns break any form that
+        # prefetches product.product.display_name, including AVL.
+        ensure_product_template_columns(self.env.cr)
+        super()._prepare_setup()
 
     zvy_procurement_type = fields.Selection(
         selection=[

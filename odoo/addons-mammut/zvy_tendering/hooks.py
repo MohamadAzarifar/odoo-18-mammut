@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """Install/upgrade hooks.
 
-New stored columns on ``res.company`` must exist before the ORM prefetches
-``env.company``. That happens during Apps install/upgrade on a running server
-(``registry.ready`` is True) and on worker restart when the Python fields are
-already loaded but ``-u`` has not run yet. PostgreSQL then errors with
-``column res_company.zvy_company_scale does not exist``.
+New stored columns on ``res.company`` and ``product.template`` must exist
+before the ORM prefetches those models. That happens during Apps
+install/upgrade on a running server (``registry.ready`` is True) and on
+worker restart when the Python fields are already loaded but ``-u`` has
+not run yet. PostgreSQL then errors with
+``column res_company.zvy_company_scale does not exist`` or
+``column product_template.zvy_procurement_type does not exist``.
 """
 from odoo.tools.sql import create_column
 
@@ -68,5 +70,43 @@ def ensure_res_company_columns(cr):
         """)
 
 
+_PRODUCT_TEMPLATE_COLUMNS = (
+    ('zvy_procurement_type', 'varchar'),
+    ('zvy_need_commission', 'bool'),
+)
+
+
+def ensure_product_template_columns(cr):
+    """Create missing zvy_* columns on product_template and backfill defaults."""
+    cr.execute(
+        """
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'product_template' AND column_name IN %s
+        """,
+        [tuple(name for name, _unused in _PRODUCT_TEMPLATE_COLUMNS)],
+    )
+    existing = {row[0] for row in cr.fetchall()}
+    created = []
+    for name, coltype in _PRODUCT_TEMPLATE_COLUMNS:
+        if name not in existing:
+            create_column(cr, 'product_template', name, coltype)
+            created.append(name)
+    if not created:
+        return
+    if 'zvy_procurement_type' in created:
+        cr.execute("""
+            UPDATE product_template
+               SET zvy_procurement_type = 'enquiry'
+             WHERE zvy_procurement_type IS NULL
+        """)
+    if 'zvy_need_commission' in created:
+        cr.execute("""
+            UPDATE product_template
+               SET zvy_need_commission = false
+             WHERE zvy_need_commission IS NULL
+        """)
+
+
 def pre_init_hook(env):
     ensure_res_company_columns(env.cr)
+    ensure_product_template_columns(env.cr)
