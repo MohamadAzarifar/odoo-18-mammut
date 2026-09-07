@@ -381,8 +381,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] If all expert recommendations are approve (and no policy block), Manager can approve the case without scheduling a meeting.
-- [x] Approved case advances PR toward signatory stage.
+- [x] Manager can approve the case without a meeting from `open`, `in_review`, or `meeting`.
+- [x] Expert recommendations need not be unanimous; the manager is not bound (FR-43).
+- [x] Approved case advances the PR (`po_ready` on enquiry; signatory on tendering).
 
 #### FR-18 Meetings and MOM *(Story 18)*
 
@@ -712,6 +713,22 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Per-PR decision `approved` / `rejected` / `needs_correction` / `undecided`; transfer of pending/undecided items keeps the prior row (`removed`).
 - [x] Bid opening on a linked CE is allowed during a `held` meeting at/after opening datetime; inquiry-stage envelopes without a meeting still open as in Phase 10.
 
+#### FR-43 Commission pre-checks *(Story US-06)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | To run the US-06 Validation Report when an enquiry PR enters Holding Commission |
+| **So that** | Incomplete dossiers return to the requesting Commercial Manager, and the Commission Manager is not bound by unanimous expert approve |
+
+**Acceptance criteria**
+
+- [x] On enquiry commission entry, checks 1–10 are computed and stored on the case.
+- [x] Any hard fail returns the PR to `cm_review` with a system comment; the case is `returned` and not actionable.
+- [x] Checks 3 and 10 (SAP product master / split count) are stubs (`skipped`, never fail).
+- [x] Tendering PRs do not run this report.
+- [x] After a green report, the manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting — including approve without meeting when an expert did not recommend approve.
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -835,6 +852,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 40 | Comm. Mgr | Bid-line discount + final_price + audit | FR-40 |
 | 41 | Comm. Mgr | Winner per item; leftover re-tender | FR-41 |
 | 42 | Comm. Mgr | Meeting status, attendees, per-PR decision + transfer | FR-42 |
+| 43 | System | US-06 Validation Report on enquiry commission entry | FR-43 |
 
 ---
 
@@ -856,7 +874,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO; Phase 10 — Per-item bids.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO; Phase 10 — Per-item bids; Phase 11 — Meetings; Phase 12 — Commission pre-checks.
 
 ### Prerequisites
 
@@ -1081,7 +1099,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 |------|--------|----------|
 | 1 | As Commission Expert, open review; fill accuracy/policy/suppliers notes; recommendation **Approve**; **Submit Review** | Review `submitted`; case chatter notes submission |
 | 2 | As Commission Manager, **Approve Without Meeting** | Case `approved`; **enquiry** PR → `po_ready` (same approved `approval.request`, no second chain). **Tendering** PR → `signatory` with a new sequential `approval.request` |
-| 3 | On another case where an expert recommended corrections, try **Approve Without Meeting** | Blocked until all reviews approve |
+| 3 | On another case where an expert recommended corrections, **Approve Without Meeting** | Allowed; manager is not bound by unanimous expert approve |
 
 #### MT-3.3 Meeting + corrections (FR-18 / FR-42)
 

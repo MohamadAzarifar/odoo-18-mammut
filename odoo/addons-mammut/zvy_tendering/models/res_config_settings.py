@@ -114,3 +114,23 @@ class ResConfigSettings(models.TransientModel):
         string='Formalities Signatories',
         readonly=False,
     )
+    zvy_commission_notice_days = fields.Integer(
+        related='company_id.zvy_commission_notice_days',
+        string='Commission Notice Days',
+        readonly=False,
+    )
+    zvy_commission_require_proforma = fields.Boolean(
+        related='company_id.zvy_commission_require_proforma',
+        string='Require Awarded Proforma',
+        readonly=False,
+    )
+    zvy_commission_require_comparison = fields.Boolean(
+        related='company_id.zvy_commission_require_comparison',
+        string='Require Comparison Document',
+        readonly=False,
+    )
+    zvy_commission_require_technical = fields.Boolean(
+        related='company_id.zvy_commission_require_technical',
+        string='Require Technical Request',
+        readonly=False,
+    )

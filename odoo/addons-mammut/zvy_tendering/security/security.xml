@@ -292,6 +292,50 @@
             <field name="perm_unlink" eval="0"/>
         </record>
 
+        <!-- Commission validation report -->
+        <record id="rule_zvy_commission_precheck_multi_company" model="ir.rule">
+            <field name="name">Commission Pre-check: multi-company</field>
+            <field name="model_id" ref="model_zvy_commission_precheck"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_commission_precheck_comm_mgr_all" model="ir.rule">
+            <field name="name">Commission Pre-check: commission manager all</field>
+            <field name="model_id" ref="model_zvy_commission_precheck"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_commission_precheck_expert_assigned" model="ir.rule">
+            <field name="name">Commission Pre-check: expert assigned</field>
+            <field name="model_id" ref="model_zvy_commission_precheck"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
+            <field name="domain_force">[('case_id.expert_user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_commission_precheck_signatory_approver" model="ir.rule">
+            <field name="name">Commission Pre-check: signatory approver</field>
+            <field name="model_id" ref="model_zvy_commission_precheck"/>
+            <field name="groups" eval="[(4, ref('group_zvy_signatory'))]"/>
+            <field name="domain_force">[('case_id.request_id.approval_request_id.approver_ids.user_id', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
         <!-- Commission review -->
         <record id="rule_zvy_commission_review_multi_company" model="ir.rule">
             <field name="name">Commission Review: multi-company</field>

@@ -10,3 +10,4 @@ from . import test_purchase_level
 from . import test_partial_po
 from . import test_per_item_bids
 from . import test_commission_meeting
+from . import test_commission_precheck

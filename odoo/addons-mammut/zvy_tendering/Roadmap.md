@@ -520,33 +520,33 @@ FR-42 holds; Phase 3 meeting+MOM tests updated to the new statuses; same-request
 
 ### Scope
 
-- [ ] On enter `commission` (inquiry): compute checks 1–10; store a readable Validation Report on the case
-- [ ] Hard fail → return to requesting CM (`cm_review` or equivalent) with the system comment; do not leave the case actionable
-- [ ] Check 1: PR/regulation date vs allowed window before meeting date (placeholder window until commission-laws doc)
-- [ ] Check 2: all proformas ≤ 30 days vs commission review date
-- [ ] Check 3: product code/description vs SAP / Master Data — **stub** (skip or warn; no fail until integration)
-- [ ] Check 4: ≥3 valid inquiries **or** formalities signatures already complete
-- [ ] Check 5: dossier complete (comparison / proformas / technical request if required) — configurable required attachments
-- [ ] Check 6: all inquired vendors on AVL for the product
-- [ ] Check 7: arithmetic unit × qty = total (and line sums)
-- [ ] Check 8: lowest valid selected, or written non-lowest reason
-- [ ] Check 9: prior signature chain complete for purchase level (Phase 7)
-- [ ] Check 10: SAP “split count” / artificial PR split — **stub**
-- [ ] After green: manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting
-- [ ] Approve without meeting allowed even if an expert did not recommend approve (manager not bound)
+- [x] On enter `commission` (inquiry): compute checks 1–10; store a readable Validation Report on the case
+- [x] Hard fail → return to requesting CM (`cm_review` or equivalent) with the system comment; do not leave the case actionable
+- [x] Check 1: PR/regulation date vs allowed window before meeting date (placeholder window until commission-laws doc)
+- [x] Check 2: all proformas ≤ 30 days vs commission review date
+- [x] Check 3: product code/description vs SAP / Master Data — **stub** (skip or warn; no fail until integration)
+- [x] Check 4: ≥3 valid inquiries **or** formalities signatures already complete
+- [x] Check 5: dossier complete (comparison / proformas / technical request if required) — configurable required attachments
+- [x] Check 6: all inquired vendors on AVL for the product
+- [x] Check 7: arithmetic unit × qty = total (and line sums)
+- [x] Check 8: lowest valid selected, or written non-lowest reason
+- [x] Check 9: prior signature chain complete for purchase level (Phase 7)
+- [x] Check 10: SAP “split count” / artificial PR split — **stub**
+- [x] After green: manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting
+- [x] Approve without meeting allowed even if an expert did not recommend approve (manager not bound)
 
 ### Stories / FRs checklist
 
-- [ ] **FR-43** — Ten US-06 pre-checks; fail → return to requesting CM with system comment. Checks 3 and 10 (SAP) are **stubs** until integration — US-06
+- [x] **FR-43** — Ten US-06 pre-checks; fail → return to requesting CM with system comment. Checks 3 and 10 (SAP) are **stubs** until integration — US-06
 
 ### Suggested tests
 
-- [ ] Missing non-lowest reason fails check 8 and returns to CM
-- [ ] Non-AVL vendor on a quote fails check 6
-- [ ] Inquiry PR with no completed signatory chain fails check 9
-- [ ] All green checks leave the case open for the manager
-- [ ] Approve without meeting succeeds with a mixed expert recommendation
-- [ ] Checks 3 and 10 do not fail the report (stub)
+- [x] Missing non-lowest reason fails check 8 and returns to CM
+- [x] Non-AVL vendor on a quote fails check 6
+- [x] Inquiry PR with no completed signatory chain fails check 9
+- [x] All green checks leave the case open for the manager
+- [x] Approve without meeting succeeds with a mixed expert recommendation
+- [x] Checks 3 and 10 do not fail the report (stub)
 
 ### Done when
 
@@ -770,7 +770,7 @@ Track throughout (PRD §7):
 | 9 Partial PO | Done | `18.0.2.3` — FR-38 |
 | 10 Per-item bids | Done | `18.0.2.4` — FR-39..41 |
 | 11 Meetings | Done | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
-| 12 Commission pre-checks | Pending | `18.0.2.6` — FR-43; SAP checks stubbed |
+| 12 Commission pre-checks | Done | `18.0.2.6` — FR-43; SAP checks stubbed |
 | 13 Company procurement override | Pending | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
 | 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |
 | 15 Holding company commission | Pending | `18.0.2.9` — FR-46 |

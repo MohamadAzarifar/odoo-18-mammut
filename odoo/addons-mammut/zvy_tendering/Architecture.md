@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.5` |
+| Version | `18.0.2.6` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -34,6 +34,7 @@ zvy_tendering/
 │   ├── zvy_quote.py
 │   ├── zvy_avl.py
 │   ├── zvy_commission_case.py
+│   ├── zvy_commission_precheck.py
 │   ├── zvy_commission_review.py
 │   ├── zvy_commission_meeting.py
 │   ├── zvy_commission_meeting_case.py
@@ -80,6 +81,7 @@ zvy_tendering/
     ├── test_partial_po.py
     ├── test_per_item_bids.py
     ├── test_commission_meeting.py
+    ├── test_commission_precheck.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -109,6 +111,7 @@ erDiagram
     zvy_avl_entry }o--|| res_partner : vendor
     zvy_purchase_request ||--o| zvy_commission_case : commission
     zvy_commission_case ||--o{ zvy_commission_review : reviews
+    zvy_commission_case ||--o{ zvy_commission_precheck : prechecks
     zvy_commission_meeting ||--o{ zvy_commission_meeting_case : agenda
     zvy_commission_meeting ||--o{ zvy_commission_meeting_attendee : attendees
     zvy_commission_meeting_case }o--|| zvy_commission_case : case
@@ -148,6 +151,7 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `split_from_id` / `split_request_id` / `parent_request_id` | Many2one | Sibling PRs after FR-31 split; `parent_request_id` is the customer `parentRequestId` alias of `split_from_id` |
 | `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
+| `commission_comparison_attachment_ids` / `commission_technical_attachment_ids` | Many2many `ir.attachment` | Dossier for FR-43 check 5 when company flags require them |
 | `closed_envelope_id` | Many2one | Latest `zvy.closed.envelope` |
 | `closed_envelope_ids` | One2many | All envelopes (re-tender rounds) |
 | `has_ce_retender` | Boolean | Any line flagged for re-tender |
@@ -251,14 +255,30 @@ Vendor pickers must never be filtered by an `onchange`-returned domain (unsuppor
 |-------|------|--------|
 | `request_id` | Many2one | Source PR |
 | `name` | Char | Sequence or related PR name |
-| `state` | Selection | e.g. `open`, `in_review`, `meeting`, `approved`, `rejected`, `corrections` |
+| `state` | Selection | `open`, `in_review`, `meeting`, `approved`, `rejected`, `corrections`, `returned` |
 | `reason_high_value` / `reason_commission_item` | Boolean | Why routed |
 | `expert_user_ids` | Many2many | Assigned Commission Experts (FR-16); set via Assign Experts wizard; UI-readonly |
 | `review_ids` | One2many | → `zvy.commission.review` |
+| `precheck_ids` | One2many | US-06 Validation Report (`zvy.commission.precheck`) |
+| `precheck_failed` | Boolean | Any report line is `fail` |
 | `meeting_id` | Many2one | Current meeting |
 | `meeting_case_ids` | One2many | Agenda history (`zvy.commission.meeting.case`) |
 | `manager_decision` | Selection | approve / reject / corrections |
 | `manager_notes` | Text | |
+
+Enquiry entry (`_action_open_commission_case`) runs checks 1–10, stores the report, and on any hard fail sets case `returned`, PR `cm_review`, and a system chatter comment. Tendering skips the report. Checks 3 and 10 (SAP) are always `skipped`. Approve without meeting is allowed from `open` / `in_review` / `meeting` even when expert recommendations are mixed (FR-17 / FR-43).
+
+#### `zvy.commission.precheck`
+
+One Validation Report line per US-06 check, replaced on each enquiry commission entry.
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `case_id` | Many2one | |
+| `sequence` | Integer | Check number 1–10 |
+| `name` | Char | |
+| `result` | Selection | `pass` / `fail` / `skipped` |
+| `message` | Text | |
 
 #### `zvy.commission.review`
 
@@ -359,7 +379,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id` |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags (FR-43) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
@@ -376,7 +396,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 |-------|---------|
 | `draft` | Planner editing |
 | `submitted` | In CM queue |
-| `cm_review` | CM reviewing (also re-entry after signatory refuse / quote reject) |
+| `cm_review` | CM reviewing (also re-entry after signatory refuse / quote reject / failed commission pre-checks) |
 | `inquiry` | Experts collecting quotes / CE list |
 | `quote_review` | CM reviewing quote set |
 | `commission` | Holding commission case open |
@@ -402,6 +422,7 @@ Branches:
 - CM reject quotes → `inquiry`
 - Signatory refuse → `cm_review` (BR-8)
 - Commission corrections → company quote review (`quote_review` / `inquiry`) as designed
+- Enquiry commission pre-check hard fail → PR `cm_review`; case `returned` (FR-43)
 
 ### 3.2 Closed-envelope states
 
@@ -435,7 +456,9 @@ flowchart TD
     Award --> QuoteReview
     QuoteReview -->|CM approves quotes| Kind{procurement_type}
     Kind -->|enquiry| SignInquiry[signatory]
-    SignInquiry -->|Need Commission or large| Commission[commission case]
+    SignInquiry -->|Need Commission or large| Precheck{US-06 report}
+    Precheck -->|hard fail| CMReview
+    Precheck -->|green| Commission[commission case]
     SignInquiry -->|else| PoReady[po_ready]
     Commission -->|enquiry approved| PoReady
     Kind -->|tendering| Router{Router FR-27}
@@ -482,6 +505,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-33 | Valid inquiry = priced + received &lt; 30 days; unpriced excluded; minima and formalities share `_valid_inquiry_count` |
 | FR-34 | `is_formalities` on enquiry when any line has &lt;3 valid inquiries; spawn extra signatories; effective change cancels and respawns the chain |
 | FR-35 | Enquiry after quote award always `_action_spawn_signatory_approval`. After sign-off: Need Commission or large → commission, else `po_ready`. Enquiry commission approve → `po_ready` (no second chain). Tendering stays FR-27 (commission then signatory). Enquiry cannot enter `commission` without an approved current chain. |
+| FR-43 | On enquiry commission entry, run US-06 checks 1–10, store `zvy.commission.precheck` rows. Hard fail → case `returned`, PR `cm_review`, system comment. Checks 3 and 10 (SAP) are always skipped. Tendering does not run the report. Manager may approve without a meeting from `open` even with mixed expert recommendations. |
 | FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; unpriced needs comments; dedicated proforma |
 | FR-37 | Line `last_vendor_id` / `last_price` / `last_purchase_date` from confirmed PO or awarded history |
 | FR-38 | Partial Create PO: line `purchase_state`; wizard defaults to all pending; PR `done` only when no line remains pending; reject from `po_ready` cancels remaining pending lines |
@@ -593,6 +617,8 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
 | Commission on Enquiry product | `product.template.zvy_need_commission` | BR-4 |
 | Product procurement type | `product.template.zvy_procurement_type` | FR-1 / FR-10 / FR-11 / FR-31 |
+| Commission notice days | `res.company.zvy_commission_notice_days` | FR-43 check 1 (0 until commission-laws) |
+| Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` | FR-43 check 5 |
 | Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |
 | PR sequence | `ir.sequence` | FR-1 |
 
@@ -622,6 +648,7 @@ Automated tests (PRD §7) mapped to design:
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
 | Portal isolation | Non-invited portal user gets empty/403 |
 | Commission meeting | Same-company agenda; minutes required for `held`; external attendee without user; transfer keeps history; linked CE open gated on `held` |
+| Commission pre-checks | Enquiry entry stores a 10-row report; hard fail returns to `cm_review`; SAP checks 3 and 10 skipped; approve without meeting with mixed expert recs |
 
 ---
 

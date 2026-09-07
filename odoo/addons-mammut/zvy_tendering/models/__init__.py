@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import zvy_avl
 from . import zvy_commission_case
+from . import zvy_commission_precheck
 from . import zvy_commission_review
 from . import zvy_commission_meeting
 from . import zvy_commission_meeting_case

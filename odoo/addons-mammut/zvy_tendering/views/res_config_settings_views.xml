@@ -82,6 +82,24 @@
                             <field name="zvy_sole_source_approver_ids" widget="many2many_tags"/>
                         </setting>
                     </block>
+                    <block title="Commission Pre-checks">
+                        <setting string="Commission Notice Days"
+                                 help="Minimum days between the PR date and the commission review or meeting date. 0 disables the window until the commission-laws document is available.">
+                            <field name="zvy_commission_notice_days"/>
+                        </setting>
+                        <setting string="Require Awarded Proforma"
+                                 help="Fail the Validation Report when an awarded inquiry has no proforma attached.">
+                            <field name="zvy_commission_require_proforma"/>
+                        </setting>
+                        <setting string="Require Comparison Document"
+                                 help="Fail the Validation Report when the purchase request has no comparison attachment.">
+                            <field name="zvy_commission_require_comparison"/>
+                        </setting>
+                        <setting string="Require Technical Request"
+                                 help="Fail the Validation Report when the purchase request has no technical-request attachment.">
+                            <field name="zvy_commission_require_technical"/>
+                        </setting>
+                    </block>
                     <block title="Routing &amp; Approvals">
                         <setting string="High-Value Threshold (deprecated)"
                                  help="No longer used for routing. Large purchase level qualifies for Holding Commission (enquiry after signatures).">

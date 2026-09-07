@@ -39,7 +39,7 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
             1,
         )
 
-    def test_approve_without_meeting_blocked_if_not_all_approve(self):
+    def test_approve_without_meeting_with_mixed_recommendation(self):
         pr, case = self._route_to_commission()
         case = case.with_user(self.user_comm_mgr)
         case._action_assign_experts([self.user_comm_exp.id])
@@ -48,9 +48,16 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
             'recommendation': 'request_corrections',
         })
         review.with_user(self.user_comm_exp).action_submit()
-        with self.assertRaises(UserError):
-            case.action_approve_without_meeting()
-        self.assertEqual(pr.state, 'commission')
+        case.action_approve_without_meeting()
+        self.assertEqual(case.state, 'approved')
+        self.assertEqual(pr.state, 'po_ready')
+
+    def test_approve_without_meeting_from_open(self):
+        _pr, case = self._route_to_commission()
+        self.assertEqual(case.state, 'open')
+        case.with_user(self.user_comm_mgr).action_approve_without_meeting()
+        self.assertEqual(case.state, 'approved')
+        self.assertEqual(_pr.state, 'po_ready')
 
     def test_corrections_returns_to_quote_review(self):
         pr, case = self._route_to_commission()

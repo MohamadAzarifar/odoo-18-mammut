@@ -136,6 +136,25 @@ class ResCompany(models.Model):
         string='Formalities Signatories',
         help='Extra approvers appended when the PR is in formalities (تشریفات).',
     )
+    zvy_commission_notice_days = fields.Integer(
+        string='Commission Notice Days',
+        default=0,
+        help='Minimum days between PR date and commission review/meeting date '
+             '(US-06 check 1). 0 disables the window until the commission-laws '
+             'document is available.',
+    )
+    zvy_commission_require_proforma = fields.Boolean(
+        string='Require Awarded Proforma',
+        help='Commission pre-check 5 fails when an awarded inquiry has no proforma.',
+    )
+    zvy_commission_require_comparison = fields.Boolean(
+        string='Require Comparison Document',
+        help='Commission pre-check 5 fails when the PR has no comparison attachment.',
+    )
+    zvy_commission_require_technical = fields.Boolean(
+        string='Require Technical Request',
+        help='Commission pre-check 5 fails when the PR has no technical-request attachment.',
+    )
 
     def _zvy_band_ceilings(self, nature):
         """Return inclusive ceiling dict for this company and purchase nature."""

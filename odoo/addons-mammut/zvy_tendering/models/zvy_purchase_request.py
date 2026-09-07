@@ -78,6 +78,28 @@ class ZvyPurchaseRequest(models.Model):
         copy=False,
         readonly=True,
     )
+    commission_comparison_attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'zvy_pr_comparison_attachment_rel',
+        'request_id',
+        'attachment_id',
+        string='Comparison Documents',
+        help='Price comparison dossier for Holding Commission (FR-43 check 5).',
+    )
+    commission_technical_attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'zvy_pr_technical_attachment_rel',
+        'request_id',
+        'attachment_id',
+        string='Technical Request Documents',
+        help='Technical request dossier for Holding Commission (FR-43 check 5).',
+    )
+    commission_require_comparison = fields.Boolean(
+        related='company_id.zvy_commission_require_comparison',
+    )
+    commission_require_technical = fields.Boolean(
+        related='company_id.zvy_commission_require_technical',
+    )
     closed_envelope_id = fields.Many2one(
         'zvy.closed.envelope',
         string='Closed Envelope',
@@ -443,6 +465,8 @@ class ZvyPurchaseRequest(models.Model):
             'split_from_id',
             'split_request_id',
             'parent_request_id',
+            'commission_comparison_attachment_ids',
+            'commission_technical_attachment_ids',
         }
         if content_keys and not self.env.su:
             locked = self.filtered(lambda r: r.state not in _INTAKE_EDITABLE_STATES)
@@ -934,7 +958,7 @@ class ZvyPurchaseRequest(models.Model):
         self.ensure_one()
         Case = self.env['zvy.commission.case'].sudo()
         case = self.commission_case_id.sudo()
-        if case and case.state == 'corrections':
+        if case and case.state in ('corrections', 'returned'):
             case.write({
                 'state': 'open',
                 'reason_high_value': self.is_high_value,
@@ -947,10 +971,19 @@ class ZvyPurchaseRequest(models.Model):
                 'reason_high_value': self.is_high_value,
                 'reason_commission_item': self.is_commission_item,
             })
-        self.write({
-            'commission_case_id': case.id,
-            'state': 'commission',
-        })
+        self.write({'commission_case_id': case.id})
+        if (
+            self.procurement_type == 'enquiry'
+            and case._run_enquiry_prechecks()
+        ):
+            comment = case._precheck_failed_comment()
+            case.write({'state': 'returned'})
+            if self.state != 'cm_review':
+                self.write({'state': 'cm_review'})
+            self.message_post(body=comment)
+            case.message_post(body=comment)
+            return case
+        self.write({'state': 'commission'})
         self.message_post(body=_(
             'Routed to Holding Commission (%s).'
         ) % case.name)

@@ -139,6 +139,8 @@
                             <field name="is_commission_item" readonly="1"/>
                             <field name="has_sole_source" readonly="1"/>
                             <field name="commission_case_id" invisible="not commission_case_id"/>
+                            <field name="commission_require_comparison" invisible="1"/>
+                            <field name="commission_require_technical" invisible="1"/>
                             <field name="closed_envelope_id" invisible="not closed_envelope_id"/>
                             <field name="has_ce_retender" invisible="1"/>
                             <field name="award_partner_id" invisible="not award_partner_id"/>
@@ -152,6 +154,13 @@
                     </group>
                     <group invisible="not quote_reject_reason">
                         <field name="quote_reject_reason" readonly="1"/>
+                    </group>
+                    <group string="Commission Dossier"
+                           invisible="not commission_require_comparison and not commission_require_technical">
+                        <field name="commission_comparison_attachment_ids" widget="many2many_binary"
+                               invisible="not commission_require_comparison"/>
+                        <field name="commission_technical_attachment_ids" widget="many2many_binary"
+                               invisible="not commission_require_technical"/>
                     </group>
                     <notebook>
                         <page string="Lines" name="lines">
