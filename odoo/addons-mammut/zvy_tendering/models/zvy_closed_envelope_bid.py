@@ -29,6 +29,12 @@ class ZvyClosedEnvelopeBid(models.Model):
         store=True,
         index=True,
     )
+    holding_company_id = fields.Many2one(
+        related='envelope_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Holding Company',
+    )
     partner_id = fields.Many2one(
         'res.partner',
         string='Supplier',

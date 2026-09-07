@@ -13,3 +13,4 @@ from . import test_commission_meeting
 from . import test_commission_precheck
 from . import test_product_procurement_override
 from . import test_return_last_approver
+from . import test_holding_commission

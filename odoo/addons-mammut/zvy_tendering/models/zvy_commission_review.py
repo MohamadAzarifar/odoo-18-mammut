@@ -20,6 +20,12 @@ class ZvyCommissionReview(models.Model):
         store=True,
         index=True,
     )
+    holding_company_id = fields.Many2one(
+        related='case_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Holding Company',
+    )
     expert_user_id = fields.Many2one(
         'res.users',
         string='Commission Expert',

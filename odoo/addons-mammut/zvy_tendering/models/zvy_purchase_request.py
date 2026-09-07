@@ -45,6 +45,12 @@ class ZvyPurchaseRequest(models.Model):
         index=True,
         tracking=True,
     )
+    holding_company_id = fields.Many2one(
+        related='company_id.root_id',
+        store=True,
+        index=True,
+        string='Holding Company',
+    )
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency',
@@ -95,10 +101,10 @@ class ZvyPurchaseRequest(models.Model):
         help='Technical request dossier for Holding Commission (FR-43 check 5).',
     )
     commission_require_comparison = fields.Boolean(
-        related='company_id.zvy_commission_require_comparison',
+        related='holding_company_id.zvy_commission_require_comparison',
     )
     commission_require_technical = fields.Boolean(
-        related='company_id.zvy_commission_require_technical',
+        related='holding_company_id.zvy_commission_require_technical',
     )
     closed_envelope_id = fields.Many2one(
         'zvy.closed.envelope',

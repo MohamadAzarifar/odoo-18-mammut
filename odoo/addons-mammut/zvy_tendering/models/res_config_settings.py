@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class ResConfigSettings(models.TransientModel):
@@ -114,23 +114,32 @@ class ResConfigSettings(models.TransientModel):
         string='Formalities Signatories',
         readonly=False,
     )
+    zvy_is_holding_company = fields.Boolean(
+        compute='_compute_zvy_is_holding_company',
+    )
     zvy_commission_notice_days = fields.Integer(
-        related='company_id.zvy_commission_notice_days',
+        related='company_id.root_id.zvy_commission_notice_days',
         string='Commission Notice Days',
         readonly=False,
     )
     zvy_commission_require_proforma = fields.Boolean(
-        related='company_id.zvy_commission_require_proforma',
+        related='company_id.root_id.zvy_commission_require_proforma',
         string='Require Awarded Proforma',
         readonly=False,
     )
     zvy_commission_require_comparison = fields.Boolean(
-        related='company_id.zvy_commission_require_comparison',
+        related='company_id.root_id.zvy_commission_require_comparison',
         string='Require Comparison Document',
         readonly=False,
     )
     zvy_commission_require_technical = fields.Boolean(
-        related='company_id.zvy_commission_require_technical',
+        related='company_id.root_id.zvy_commission_require_technical',
         string='Require Technical Request',
         readonly=False,
     )
+
+    @api.depends('company_id', 'company_id.root_id')
+    def _compute_zvy_is_holding_company(self):
+        for rec in self:
+            company = rec.company_id
+            rec.zvy_is_holding_company = bool(company) and company == company._zvy_holding_company()

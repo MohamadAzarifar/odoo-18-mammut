@@ -134,11 +134,11 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
-        <!-- Purchase Request: multi-company (global) -->
+        <!-- Purchase Request: multi-company (global). Holding company sees descendants (FR-46). -->
         <record id="rule_zvy_purchase_request_multi_company" model="ir.rule">
             <field name="name">Purchase Request: multi-company</field>
             <field name="model_id" ref="model_zvy_purchase_request"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -148,7 +148,7 @@
         <record id="rule_zvy_purchase_request_line_multi_company" model="ir.rule">
             <field name="name">Purchase Request Line: multi-company</field>
             <field name="model_id" ref="model_zvy_purchase_request_line"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -178,12 +178,12 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
-        <!-- CM: all company PRs (company scope via multi-company rule) -->
+        <!-- CM: own operating companies only (not holding-descendant leak, FR-46) -->
         <record id="rule_zvy_purchase_request_cm_all" model="ir.rule">
             <field name="name">Purchase Request: commercial manager all</field>
             <field name="model_id" ref="model_zvy_purchase_request"/>
             <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -194,7 +194,7 @@
             <field name="name">Purchase Request Line: commercial manager all</field>
             <field name="model_id" ref="model_zvy_purchase_request_line"/>
             <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -228,7 +228,7 @@
         <record id="rule_zvy_quote_multi_company" model="ir.rule">
             <field name="name">Quote: multi-company</field>
             <field name="model_id" ref="model_zvy_quote"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -262,22 +262,55 @@
             <field name="name">Quote: commercial manager all</field>
             <field name="model_id" ref="model_zvy_quote"/>
             <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="1"/>
         </record>
 
-        <!-- Commission case: multi-company -->
+        <record id="rule_zvy_quote_comm_mgr_all" model="ir.rule">
+            <field name="name">Quote: commission manager all</field>
+            <field name="model_id" ref="model_zvy_quote"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_quote_comm_exp_all" model="ir.rule">
+            <field name="name">Quote: commission expert all</field>
+            <field name="model_id" ref="model_zvy_quote"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Commission case: multi-company (holding sees descendants) -->
         <record id="rule_zvy_commission_case_multi_company" model="ir.rule">
             <field name="name">Commission Case: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_case"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_commission_case_cm_company" model="ir.rule">
+            <field name="name">Commission Case: commercial manager company</field>
+            <field name="model_id" ref="model_zvy_commission_case"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
         </record>
 
         <record id="rule_zvy_commission_case_comm_mgr_all" model="ir.rule">
@@ -306,11 +339,22 @@
         <record id="rule_zvy_commission_precheck_multi_company" model="ir.rule">
             <field name="name">Commission Pre-check: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_precheck"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_commission_precheck_cm_company" model="ir.rule">
+            <field name="name">Commission Pre-check: commercial manager company</field>
+            <field name="model_id" ref="model_zvy_commission_precheck"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
         </record>
 
         <record id="rule_zvy_commission_precheck_comm_mgr_all" model="ir.rule">
@@ -350,7 +394,7 @@
         <record id="rule_zvy_commission_review_multi_company" model="ir.rule">
             <field name="name">Commission Review: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_review"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -379,11 +423,11 @@
             <field name="perm_unlink" eval="0"/>
         </record>
 
-        <!-- Commission meeting -->
+        <!-- Commission meeting: holding-owned; subsidiary experts see their requesting company -->
         <record id="rule_zvy_commission_meeting_multi_company" model="ir.rule">
             <field name="name">Commission Meeting: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_meeting"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids), ('requesting_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -393,7 +437,7 @@
         <record id="rule_zvy_commission_meeting_case_multi_company" model="ir.rule">
             <field name="name">Commission Meeting Agenda: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_meeting_case"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -403,7 +447,7 @@
         <record id="rule_zvy_commission_meeting_attendee_multi_company" model="ir.rule">
             <field name="name">Commission Meeting Attendee: multi-company</field>
             <field name="model_id" ref="model_zvy_commission_meeting_attendee"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -414,17 +458,94 @@
         <record id="rule_zvy_closed_envelope_multi_company" model="ir.rule">
             <field name="name">Closed Envelope: multi-company</field>
             <field name="model_id" ref="model_zvy_closed_envelope"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="1"/>
         </record>
 
+        <record id="rule_zvy_closed_envelope_cm_company" model="ir.rule">
+            <field name="name">Closed Envelope: commercial manager company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_cce_company" model="ir.rule">
+            <field name="name">Closed Envelope: commercial expert company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_comm_mgr_all" model="ir.rule">
+            <field name="name">Closed Envelope: commission manager all</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_comm_exp_all" model="ir.rule">
+            <field name="name">Closed Envelope: commission expert all</field>
+            <field name="model_id" ref="model_zvy_closed_envelope"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
         <record id="rule_zvy_closed_envelope_bid_multi_company" model="ir.rule">
             <field name="name">Closed Envelope Bid: multi-company</field>
             <field name="model_id" ref="model_zvy_closed_envelope_bid"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_cm_company" model="ir.rule">
+            <field name="name">Closed Envelope Bid: commercial manager company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_cce_company" model="ir.rule">
+            <field name="name">Closed Envelope Bid: commercial expert company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_comm_mgr_all" model="ir.rule">
+            <field name="name">Closed Envelope Bid: commission manager all</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -456,7 +577,40 @@
         <record id="rule_zvy_closed_envelope_bid_line_multi_company" model="ir.rule">
             <field name="name">Closed Envelope Bid Line: multi-company</field>
             <field name="model_id" ref="model_zvy_closed_envelope_bid_line"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', '|', ('company_id', '=', False), ('company_id', 'in', company_ids), ('holding_company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_line_cm_company" model="ir.rule">
+            <field name="name">Closed Envelope Bid Line: commercial manager company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_manager'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_line_cce_company" model="ir.rule">
+            <field name="name">Closed Envelope Bid Line: commercial expert company</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commercial_expert'))]"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_closed_envelope_bid_line_comm_mgr_all" model="ir.rule">
+            <field name="name">Closed Envelope Bid Line: commission manager all</field>
+            <field name="model_id" ref="model_zvy_closed_envelope_bid_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -490,6 +644,28 @@
             <field name="model_id" ref="model_zvy_purchase_request"/>
             <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
             <field name="domain_force">[('commission_case_id.expert_user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_comm_mgr_all" model="ir.rule">
+            <field name="name">Purchase Request Line: commission manager all</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="rule_zvy_purchase_request_line_comm_exp_commission" model="ir.rule">
+            <field name="name">Purchase Request Line: commission expert via case</field>
+            <field name="model_id" ref="model_zvy_purchase_request_line"/>
+            <field name="groups" eval="[(4, ref('group_zvy_commission_expert'))]"/>
+            <field name="domain_force">[('request_id.commission_case_id.expert_user_ids', 'in', [user.id])]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="0"/>

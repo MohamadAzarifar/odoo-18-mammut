@@ -46,6 +46,12 @@ class ZvyCommissionMeeting(models.Model):
         default=lambda self: self.env.company._zvy_holding_company(),
         help='Head holding that owns the meeting (FR-42 / FR-46).',
     )
+    holding_company_id = fields.Many2one(
+        related='company_id.root_id',
+        store=True,
+        index=True,
+        string='Head Holding',
+    )
     minutes_attachment_id = fields.Many2one(
         'ir.attachment',
         string='Minutes',

@@ -83,21 +83,22 @@
                         </setting>
                     </block>
                     <block title="Commission Pre-checks">
+                        <field name="zvy_is_holding_company" invisible="1"/>
                         <setting string="Commission Notice Days"
-                                 help="Minimum days between the PR date and the commission review or meeting date. 0 disables the window until the commission-laws document is available.">
-                            <field name="zvy_commission_notice_days"/>
+                                 help="Stored on the head holding and applied to all descendants. Minimum days between the PR date and the commission review or meeting date. 0 disables the window until the commission-laws document is available.">
+                            <field name="zvy_commission_notice_days" readonly="not zvy_is_holding_company"/>
                         </setting>
                         <setting string="Require Awarded Proforma"
-                                 help="Fail the Validation Report when an awarded inquiry has no proforma attached.">
-                            <field name="zvy_commission_require_proforma"/>
+                                 help="Holding-level. Fail the Validation Report when an awarded inquiry has no proforma attached.">
+                            <field name="zvy_commission_require_proforma" readonly="not zvy_is_holding_company"/>
                         </setting>
                         <setting string="Require Comparison Document"
-                                 help="Fail the Validation Report when the purchase request has no comparison attachment.">
-                            <field name="zvy_commission_require_comparison"/>
+                                 help="Holding-level. Fail the Validation Report when the purchase request has no comparison attachment.">
+                            <field name="zvy_commission_require_comparison" readonly="not zvy_is_holding_company"/>
                         </setting>
                         <setting string="Require Technical Request"
-                                 help="Fail the Validation Report when the purchase request has no technical-request attachment.">
-                            <field name="zvy_commission_require_technical"/>
+                                 help="Holding-level. Fail the Validation Report when the purchase request has no technical-request attachment.">
+                            <field name="zvy_commission_require_technical" readonly="not zvy_is_holding_company"/>
                         </setting>
                     </block>
                     <block title="Product Procurement">

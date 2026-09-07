@@ -31,6 +31,12 @@ class ZvyQuote(models.Model):
         store=True,
         index=True,
     )
+    holding_company_id = fields.Many2one(
+        related='request_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Holding Company',
+    )
     currency_id = fields.Many2one(related='request_id.currency_id')
     request_state = fields.Selection(
         related='request_id.state',

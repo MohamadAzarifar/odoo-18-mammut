@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.8` |
+| Version | `18.0.2.9` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -87,6 +87,7 @@ zvy_tendering/
     ├── test_commission_precheck.py
     ├── test_product_procurement_override.py
     ├── test_return_last_approver.py
+    ├── test_holding_commission.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -138,7 +139,8 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | Field | Type | Notes |
 |-------|------|--------|
 | `name` | Char | Sequence (e.g. `PR/2026/00001`), readonly after create |
-| `company_id` | Many2one `res.company` | Required; multi-company |
+| `company_id` | Many2one `res.company` | Required; requesting (operating) company |
+| `holding_company_id` | Many2one | Head holding (`company_id.root_id`); FR-46 record rules |
 | `requester_id` | Many2one `res.users` | Planner; default `env.user` |
 | `description` | Text | Header description |
 | `line_ids` | One2many | → `zvy.purchase.request.line` |
@@ -259,6 +261,8 @@ Vendor pickers must never be filtered by an `onchange`-returned domain (unsuppor
 | Field | Type | Notes |
 |-------|------|--------|
 | `request_id` | Many2one | Source PR |
+| `company_id` | Many2one | Requesting (operating) company, related from the PR |
+| `holding_company_id` | Many2one | Head holding (`company_id.root_id`); stored for FR-46 record rules |
 | `name` | Char | Sequence or related PR name |
 | `state` | Selection | `open`, `in_review`, `meeting`, `approved`, `rejected`, `corrections`, `returned` |
 | `reason_high_value` / `reason_commission_item` | Boolean | Why routed |
@@ -307,6 +311,7 @@ Holding-owned sitting (FR-42). `company_id` is the head holding (`requesting_com
 | `state` | Selection | `scheduled` / `held` / `signed` / `cancelled` |
 | `requesting_company_id` | Many2one | Operating company of every agenda PR |
 | `company_id` | Many2one | Head holding that owns the meeting |
+| `holding_company_id` | Many2one | Same as `company_id.root_id` (uniform FR-46 rule field) |
 | `minutes_attachment_id` | Many2one `ir.attachment` | Required to mark `held` |
 | `meeting_case_ids` | One2many | Agenda / history |
 | `attendee_ids` | One2many | Internal users + external name/role |
@@ -339,6 +344,8 @@ Closed-envelope tender linked to a PR (or line set).
 | Field | Type | Notes |
 |-------|------|--------|
 | `request_id` | Many2one | |
+| `company_id` | Many2one | Requesting company (from PR) |
+| `holding_company_id` | Many2one | Head holding; commission roles see descendant CEs (FR-46) |
 | `state` | Selection | See §3.2 |
 | `invite_partner_ids` | Many2many | AVL-only; domain `[('id', 'in', allowed_partner_ids)]` + `_check_invite_avl` |
 | `opening_datetime` | Datetime | Required on list approval (FR-20) |
@@ -384,7 +391,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags (FR-43) |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
 | `approval.request` | `zvy_purchase_request_id`; `zvy_resume_commission`; refuse of the **current** chain bounces to the previous signatory (FR-45) or PR `cm_review` if first; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large), or reopen commission when `zvy_resume_commission`. Stale/cancelled history records are ignored. |
@@ -524,6 +531,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. Types are **resolved** for the PR company (FR-44). |
 | FR-44 | Product template holds group defaults. `zvy.product.procurement.company` overlays: procurement type for `request.company_id`; Need Commission for `company.root_id` only. Line `procurement_type` / `is_commission_item` are stored computes. Tendering resolved type never sets commission. |
 | FR-45 | Signatory refuse bounces to the previous approver (reason required); first refuse → `cm_review`. Commission corrections → last signatory (new chain, `zvy_resume_commission`) or CM. On `cm_review`, return destination is planner (`correction`) or expert (`inquiry`). |
+| FR-46 | Commission cases/reviews/meetings/CE and related PRs/quotes store `holding_company_id` (`company.root_id`). Global record rules allow `company_id` or `holding_company_id` in `company_ids`. Commercial Manager/Expert group rules stay on requesting `company_id`. Commission notice/dossier flags are read from the head holding; Need Commission overlay is holding-only (FR-44). |
 
 ---
 
@@ -553,13 +561,13 @@ Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager +
 
 | Scope | Domain intent |
 |-------|----------------|
-| Multi-company | `company_id in company_ids` (or False) on all company-scoped models |
+| Multi-company | `company_id in company_ids` (or False) on operating-company models (AVL, overlays). Commission/CE/PR/quote globals also allow `holding_company_id in company_ids` (FR-46) |
 | Planner | Own PRs (`requester_id = user`) |
-| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8) |
-| Commercial Manager | All company PRs |
+| Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8). CE/quotes scoped to requesting `company_id` |
+| Commercial Manager | All PRs/quotes/CE of companies in `company_ids` (not holding descendants) |
 | Signatory | PRs (and lines/quotes/linked commission case & CE) where `user` is on `approval_request_id.approver_ids`; **read-only** (no write/create/unlink). Also read-only AVL (form computes sole_source / quote allowed vendors). |
-| Commission Expert | Cases where `user in expert_user_ids` |
-| Commission Manager | All open commission cases / CE for company |
+| Commission Expert | Cases where `user in expert_user_ids`; holding-scoped CE/case read via `holding_company_id` |
+| Commission Manager | Cases, meetings, and CE when `holding_company_id` (or requesting `company_id`) is in `company_ids` — sees all descendant companies |
 | Sealed bids | Until CE `opened`/`awarded`: amount/attachments readable only by Commission Manager (and admin); portal: `partner_id = user.partner_id` |
 | Portal invitations | CE visible only if partner in `invite_partner_ids` |
 
@@ -628,8 +636,8 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
 | Commission on Enquiry product | Template `zvy_need_commission`; holding overlay via `zvy.product.procurement.company` | BR-4 / FR-44 |
 | Product procurement type | Template `zvy_procurement_type`; per-company overlay | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
-| Commission notice days | `res.company.zvy_commission_notice_days` | FR-43 check 1 (0 until commission-laws) |
-| Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` | FR-43 check 5 |
+| Commission notice days | `res.company.zvy_commission_notice_days` on the head holding | FR-43 check 1 / FR-46 (0 until commission-laws) |
+| Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` on the head holding (readonly on children) | FR-43 check 5 / FR-46 |
 | Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |
 | PR sequence | `ir.sequence` | FR-1 |
 
@@ -661,6 +669,7 @@ Automated tests (PRD §7) mapped to design:
 | Portal isolation | Non-invited portal user gets empty/403 |
 | Commission meeting | Same-company agenda; minutes required for `held`; external attendee without user; transfer keeps history; linked CE open gated on `held` |
 | Commission pre-checks | Enquiry entry stores a 10-row report; hard fail returns to `cm_review`; SAP checks 3 and 10 skipped; approve without meeting with mixed expert recs |
+| Holding commission (FR-46) | Holding-only Commission Manager reads/acts on descendant cases and CE; Company A cannot read B; nested `root_id` skips mid parent; standalone is its own holding; holding settings apply and child flags are ignored |
 
 ---
 
@@ -670,8 +679,8 @@ Automated tests (PRD §7) mapped to design:
 |-------------|-----|
 | Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
-| Routing §4 | FR-27–30, FR-32–38, FR-44; BR-1–10 |
-| Security §5 | Personas §2; NFR Security |
+| Routing §4 | FR-27–30, FR-32–38, FR-44–46; BR-1–10 |
+| Security §5 | Personas §2; NFR Security; FR-46 holding rules |
 | Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |
 | Delivery order | [Roadmap.md](Roadmap.md) Phases 0–5 |

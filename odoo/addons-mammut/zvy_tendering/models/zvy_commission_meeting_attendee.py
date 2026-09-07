@@ -19,6 +19,13 @@ class ZvyCommissionMeetingAttendee(models.Model):
         related='meeting_id.company_id',
         store=True,
         index=True,
+        string='Company',
+    )
+    holding_company_id = fields.Many2one(
+        related='meeting_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Head Holding',
     )
     kind = fields.Selection(
         selection=[

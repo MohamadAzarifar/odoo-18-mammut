@@ -34,10 +34,16 @@ class ZvyCommissionCase(models.Model):
     )
     company_id = fields.Many2one(
         'res.company',
-        string='Company',
+        string='Requesting Company',
         related='request_id.company_id',
         store=True,
         index=True,
+    )
+    holding_company_id = fields.Many2one(
+        related='request_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Holding Company',
     )
     state = fields.Selection(
         selection=[
@@ -340,7 +346,7 @@ class ZvyCommissionCase(models.Model):
 
     def _precheck_notice_window(self):
         request = self.request_id
-        window = request.company_id.zvy_commission_notice_days or 0
+        window = request.company_id._zvy_holding_company().zvy_commission_notice_days or 0
         if window <= 0:
             return 'pass', _(
                 'No minimum notice window is configured (placeholder until '
@@ -432,7 +438,7 @@ class ZvyCommissionCase(models.Model):
 
     def _precheck_dossier(self):
         request = self.request_id
-        company = request.company_id
+        company = request.company_id._zvy_holding_company()
         missing = []
         if company.zvy_commission_require_proforma:
             awarded = request.line_ids.mapped('awarded_quote_id')

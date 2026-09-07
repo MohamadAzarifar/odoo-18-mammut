@@ -19,6 +19,12 @@ class ZvyCommissionPrecheck(models.Model):
         store=True,
         index=True,
     )
+    holding_company_id = fields.Many2one(
+        related='case_id.holding_company_id',
+        store=True,
+        index=True,
+        string='Holding Company',
+    )
     sequence = fields.Integer(string='Check', required=True, index=True)
     name = fields.Char(string='Name', required=True)
     result = fields.Selection(

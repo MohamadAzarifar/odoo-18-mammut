@@ -762,6 +762,22 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] A written reason is mandatory on every return. Previous approvals stay in history; a new chain is required after the correction is submitted (FR-34).
 - [x] Reject remains terminal (BR-9).
 
+#### FR-46 Holding company commission *(§12.8)*
+
+| | |
+|--|--|
+| **As a** | Holding Commission Manager |
+| **I want** | Commission cases, reviews, meetings, CE work, and commission rules to live on the head holding (`root_id`) |
+| **So that** | I can work descendant companies without being added to every subsidiary, while operating-company PRs stay isolated |
+
+**Acceptance criteria**
+
+- [x] `_zvy_holding_company()` is `root_id` (the company itself when standalone); nested mid-parents are skipped.
+- [x] Cases, reviews, meetings, CE, PRs, and quotes store `holding_company_id`. Case `company_id` remains the requesting company; meeting `company_id` is the holding.
+- [x] A Commission Manager allowed only on the holding can read and act on cases and CE from descendant companies.
+- [x] A Company A user cannot read Company B commission or CE. A holding Commercial Manager does not inherit subsidiary PRs.
+- [x] Commission notice days and dossier flags are stored on the holding; children show them readonly; prechecks read the holding. Need Commission overlay is holding-level (FR-44).
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -888,6 +904,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 43 | System | US-06 Validation Report on enquiry commission entry | FR-43 |
 | 44 | Admin / System | Per-company procurement type / Need Commission overlay | FR-44 |
 | 45 | System | Return to last actor; CM chooses planner vs expert | FR-45 |
+| 46 | Comm. Mgr | Holding-scoped commission queue and rules | FR-46 |
 
 ---
 
@@ -1328,4 +1345,17 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 4 | Repeat 1–2 on another PR; CM **Return for Correction** → **Commercial Expert** (keep assignment) | PR → `inquiry`; quotes/list editable; experts notified |
 | 5 | Enquiry commission **Request Corrections** with a reason | New signatory document pending on the last signatory; previous approved chain kept in history |
 | 6 | Tendering commission **Request Corrections** with a reason | PR → `cm_review` (no company chain yet) |
+
+### Phase 15 — Holding company commission
+
+#### MT-15.1 Holding Commission Manager across subsidiaries (FR-46)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Holding parent with Company A and B; Commission Manager allowed only on the holding | Cases and CE from A and B are visible; list approve / case write succeeds |
+| 2 | Company A Commercial Manager opens Company B commission / CE | Access denied |
+| 3 | Company under a mid-parent under the holding | Case `holding_company_id` is the head holding, not the mid parent |
+| 4 | Standalone company (no parent) | Holding is itself |
+| 5 | Set commission notice days / dossier flags on the holding; set different values on A | Precheck uses the holding; Settings on A shows holding values readonly |
+| 6 | Holding Commercial Manager (no commission group) searches A PRs | Empty / access denied |
 
