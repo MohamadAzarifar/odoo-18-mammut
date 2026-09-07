@@ -1,0 +1,72 @@
+# -*- coding: utf-8 -*-
+"""Install/upgrade hooks.
+
+New stored columns on ``res.company`` must exist before the ORM prefetches
+``env.company``. That happens during Apps install/upgrade on a running server
+(``registry.ready`` is True) and on worker restart when the Python fields are
+already loaded but ``-u`` has not run yet. PostgreSQL then errors with
+``column res_company.zvy_company_scale does not exist``.
+"""
+from odoo.tools.sql import create_column
+
+# Stored columns on res.company (Many2many uses separate tables).
+_RES_COMPANY_COLUMNS = (
+    ('zvy_high_value_threshold', 'numeric'),
+    ('zvy_default_bid_window_hours', 'int4'),
+    ('zvy_signatory_approval_category_id', 'int4'),
+    ('zvy_company_scale', 'varchar'),
+    ('zvy_use_custom_bands', 'bool'),
+    ('zvy_op_minor_max', 'numeric'),
+    ('zvy_op_medium_max', 'numeric'),
+    ('zvy_op_major_max', 'numeric'),
+    ('zvy_op_large_ceo_max', 'numeric'),
+    ('zvy_nop_minor_max', 'numeric'),
+    ('zvy_nop_medium_max', 'numeric'),
+    ('zvy_nop_major_max', 'numeric'),
+    ('zvy_nop_large_ceo_max', 'numeric'),
+    ('zvy_commission_notice_days', 'int4'),
+    ('zvy_commission_require_proforma', 'bool'),
+    ('zvy_commission_require_comparison', 'bool'),
+    ('zvy_commission_require_technical', 'bool'),
+)
+
+
+def ensure_res_company_columns(cr):
+    """Create missing zvy_* columns on res_company and backfill required defaults."""
+    cr.execute(
+        """
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'res_company' AND column_name IN %s
+        """,
+        [tuple(name for name, _unused in _RES_COMPANY_COLUMNS)],
+    )
+    existing = {row[0] for row in cr.fetchall()}
+    created = []
+    for name, coltype in _RES_COMPANY_COLUMNS:
+        if name not in existing:
+            create_column(cr, 'res_company', name, coltype)
+            created.append(name)
+    if not created:
+        return
+    if 'zvy_company_scale' in created:
+        cr.execute("""
+            UPDATE res_company
+               SET zvy_company_scale = 'small'
+             WHERE zvy_company_scale IS NULL
+        """)
+    if 'zvy_default_bid_window_hours' in created:
+        cr.execute("""
+            UPDATE res_company
+               SET zvy_default_bid_window_hours = 72
+             WHERE zvy_default_bid_window_hours IS NULL
+        """)
+    if 'zvy_commission_notice_days' in created:
+        cr.execute("""
+            UPDATE res_company
+               SET zvy_commission_notice_days = 0
+             WHERE zvy_commission_notice_days IS NULL
+        """)
+
+
+def pre_init_hook(env):
+    ensure_res_company_columns(env.cr)

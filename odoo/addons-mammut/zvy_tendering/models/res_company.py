@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+from odoo import api, fields, models
+
+from ..hooks import ensure_res_company_columns
 
 from .zvy_purchase_bands import (
     ZVY_BAND_KEYS,
@@ -10,6 +12,14 @@ from .zvy_purchase_bands import (
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
+
+    @api.model
+    def _prepare_setup(self):
+        # Columns must exist before setup_models reinstalls hooks and flushes
+        # env.company (UI install/upgrade on a ready registry, and restart
+        # without -u after deploying new fields).
+        ensure_res_company_columns(self.env.cr)
+        super()._prepare_setup()
 
     zvy_high_value_threshold = fields.Monetary(
         string='High-Value Threshold',

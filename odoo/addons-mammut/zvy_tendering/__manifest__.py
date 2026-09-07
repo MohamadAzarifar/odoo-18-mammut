@@ -46,6 +46,7 @@ holding commission review, closed-envelope tenders, and company signatory approv
             'zvy_tendering/static/src/js/portal_tender_bid.js',
         ],
     },
+    'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': True,
     'auto_install': False,
