@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.7` |
+| Version | `18.0.2.8` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -46,13 +46,15 @@ zvy_tendering/
 │   ├── zvy_product_procurement_company.py  # FR-44 company overlay
 │   ├── res_company.py
 │   ├── res_config_settings.py
-│   ├── approval_request.py          # bridge hooks (refuse → CM, approve → po_ready)
+│   ├── approval_request.py          # bridge hooks (refuse → previous / CM, approve → po_ready)
 │   └── purchase_order.py            # zvy_purchase_request_id traceability
 ├── wizard/
 │   ├── request_reject_wizard.py
 │   ├── request_return_wizard.py
+│   ├── request_signatory_return_wizard.py  # FR-45 refuse reason
 │   ├── request_assign_wizard.py
 │   ├── commission_assign_wizard.py  # assign Commission Experts (FR-16)
+│   ├── commission_corrections_wizard.py  # FR-45 commission return reason
 │   ├── request_quote_reject_wizard.py
 │   ├── request_quote_shortfall_wizard.py  # <3 quotes justification (FR-10)
 │   ├── request_award_not_lowest_wizard.py  # non-lowest award reason
@@ -84,7 +86,7 @@ zvy_tendering/
     ├── test_commission_meeting.py
     ├── test_commission_precheck.py
     ├── test_product_procurement_override.py
-    ├── test_portal_isolation.py
+    ├── test_return_last_approver.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -385,7 +387,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 | `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags (FR-43) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
-| `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
+| `approval.request` | `zvy_purchase_request_id`; `zvy_resume_commission`; refuse of the **current** chain bounces to the previous signatory (FR-45) or PR `cm_review` if first; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large), or reopen commission when `zvy_resume_commission`. Stale/cancelled history records are ignored. |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
 | `purchase.order.line` | Optional `zvy_purchase_request_line_id` so a PR line cannot be ordered twice |
 | `zvy.product.procurement.company` | Per-company overlay: optional `procurement_type`; `override_need_commission` + `need_commission` only on head holding (`root_id`). Unique `(product_tmpl_id, company_id)`. Resolve: type by PR company, Need Commission by holding; sudo so subsidiaries still apply holding flags (FR-44 / FR-46 overlay target) |
@@ -400,7 +402,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 |-------|---------|
 | `draft` | Planner editing |
 | `submitted` | In CM queue |
-| `cm_review` | CM reviewing (also re-entry after signatory refuse / quote reject / failed commission pre-checks) |
+| `cm_review` | CM reviewing (re-entry after signatory refuse / quote reject / failed commission pre-checks / commission corrections with no remaining signatory). Return wizard destination is planner or commercial expert (FR-45). |
 | `inquiry` | Experts collecting quotes / CE list |
 | `quote_review` | CM reviewing quote set |
 | `commission` | Holding commission case open |
@@ -422,10 +424,11 @@ draft → submitted → cm_review → inquiry → quote_review
 Branches:
 
 - CM reject → `rejected`
-- CM return → `correction` → (resubmit) `submitted`
+- CM return from `submitted` → `correction` → (resubmit) `submitted`
+- CM return from `cm_review` → planner (`correction`) or expert (`inquiry`) (FR-45)
 - CM reject quotes → `inquiry`
-- Signatory refuse → `cm_review` (BR-8)
-- Commission corrections → company quote review (`quote_review` / `inquiry`) as designed
+- Signatory refuse → previous signatory, or `cm_review` if first (FR-45 / BR-8)
+- Commission corrections → last signatory (enquiry, new chain) or `cm_review` (tendering / no chain)
 - Enquiry commission pre-check hard fail → PR `cm_review`; case `returned` (FR-43)
 
 ### 3.2 Closed-envelope states
@@ -450,8 +453,9 @@ flowchart TD
     TwoPRs --> PlannerCreate
     Mixed -->|no| CMReview[CM review]
     CMReview -->|reject| Rejected[rejected]
-    CMReview -->|return| Correction[correction]
+    CMReview -->|return planner| Correction[correction]
     Correction --> PlannerCreate
+    CMReview -->|return expert| Inquiry
     CMReview -->|assign experts| Inquiry[inquiry]
     Inquiry -->|Enquiry quotes| QuoteReview[quote_review]
     Inquiry -->|Tendering CE list| CEList[CE list_pending]
@@ -469,10 +473,11 @@ flowchart TD
     Router -->|high_value| Commission
     Router -->|else| SignTender[signatory after commission]
     Commission -->|tendering approved| SignTender
-    Commission -->|corrections| QuoteReview
+    Commission -->|enquiry corrections| SignInquiry
+    Commission -->|tendering corrections| CMReview
     SignTender -->|full approve| PoReady
-    SignInquiry -->|refuse| CMReview
-    SignTender -->|refuse| CMReview
+    SignInquiry -->|refuse first| CMReview
+    SignTender -->|refuse first| CMReview
     PoReady -->|subset Create PO| PoReady
     PoReady -->|all remaining lines ordered| Done[done]
     PoReady -->|reject pending lines| Rejected
@@ -495,7 +500,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
 | BR-6 | PO only from `po_ready` by CM or Commission Manager | Wizard / `action_create_po`; grouping by vendor of **selected pending** lines; award data required per selected line; PR stays `po_ready` while any line is pending |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
-| BR-8 | Signatory refuse → CM | `approval.request` refuse hook → PR `cm_review` |
+| BR-8 | Signatory refuse → previous, or CM if first | `approval.request` refuse: bounce chain or PR `cm_review` (FR-45) |
 | BR-9 | Reject terminal; correction editable | State machine + planner write rules |
 | BR-10 | Homogeneous procurement type | Mixed Enquiry+Tendering PRs cannot submit; FR-31 split uses **resolved** types (FR-44) |
 
@@ -518,6 +523,7 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
 | FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. Types are **resolved** for the PR company (FR-44). |
 | FR-44 | Product template holds group defaults. `zvy.product.procurement.company` overlays: procurement type for `request.company_id`; Need Commission for `company.root_id` only. Line `procurement_type` / `is_commission_item` are stored computes. Tendering resolved type never sets commission. |
+| FR-45 | Signatory refuse bounces to the previous approver (reason required); first refuse → `cm_review`. Commission corrections → last signatory (new chain, `zvy_resume_commission`) or CM. On `cm_review`, return destination is planner (`correction`) or expert (`inquiry`). |
 
 ---
 
@@ -570,8 +576,8 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 - Large: CEO list up to `large_ceo_max`, Board list above it (not both).
 - Effective change during `signatory` (qty, estimate, goods, awarded supplier, purchase nature): cancel the current document, spawn a new chain, keep history.
 - Sole source: ensure `company.zvy_sole_source_approver_ids` (e.g. CEO) are required last-sequence approvers before completion.
-- Approve chain complete → `_action_route_after_signatory` (enquiry may still need Holding Commission; otherwise `po_ready`).
-- Refuse → PR `cm_review` with reason (BR-8); optionally mirror [mammut_refuse_reason](../mammut_refuse_reason) UX.
+- Approve chain complete → `_action_route_after_signatory` (enquiry may still need Holding Commission; otherwise `po_ready`). Completing a `zvy_resume_commission` chain reopens the commission case.
+- Refuse → previous signatory on the same document, or PR `cm_review` when the first signatory refuses (FR-45 / BR-8); reason wizard is required. Does not depend on `mammut_refuse_reason`.
 - FR-28: no transition to `po_ready` while approval pending.
 - FR-35: enquiry cannot enter `commission` without an approved current chain.
 

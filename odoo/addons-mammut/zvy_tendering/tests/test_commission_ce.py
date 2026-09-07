@@ -59,13 +59,19 @@ class TestZvyCommissionCe(ZvyTenderingCommon):
         self.assertEqual(case.state, 'approved')
         self.assertEqual(_pr.state, 'po_ready')
 
-    def test_corrections_returns_to_quote_review(self):
+    def test_corrections_returns_to_last_signatory(self):
         pr, case = self._route_to_commission()
+        old = pr.sudo().approval_request_id
         case = case.with_user(self.user_comm_mgr)
         case._action_assign_experts([self.user_comm_exp.id])
-        case.action_manager_corrections()
+        case._action_manager_corrections('Need a corrected dossier')
         self.assertEqual(case.state, 'corrections')
-        self.assertEqual(pr.state, 'quote_review')
+        self.assertEqual(pr.state, 'signatory')
+        new = pr.sudo().approval_request_id
+        self.assertNotEqual(new, old)
+        self.assertTrue(new.zvy_resume_commission)
+        pending = new.approver_ids.filtered(lambda a: a.status == 'pending')
+        self.assertTrue(pending)
 
     def test_assign_experts_wizard(self):
         _pr, case = self._route_to_commission()

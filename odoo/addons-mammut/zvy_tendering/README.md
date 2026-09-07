@@ -188,7 +188,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [ ] CM can **reject** (terminal) with mandatory reason.
-- [ ] CM can **return for correction** with mandatory reason; PR returns to Planner.
+- [ ] CM can **return for correction** with mandatory reason. From `submitted` the PR returns to the Planner (`correction`). From `cm_review` the CM chooses planner (`correction`) or commercial expert (`inquiry`) (FR-45).
 - [ ] Both actions are logged (chatter/activity).
 
 #### FR-5 Assign line items to experts *(Story 5)*
@@ -325,7 +325,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] Approver has the **Signatory** tendering role (`group_zvy_signatory`) and can open PR context (summary, amounts, lines, quotes, awarded quote) from the approval document; PR is read-only.
 - [x] Approve advances the chain; full approval → PR `po_ready`.
-- [x] Refuse returns PR to CM (`cm_review`) with reason.
+- [x] Refuse returns to the previous signatory, or to CM (`cm_review`) if this is the first signatory, with a mandatory reason (FR-45).
 
 #### FR-14 CEO on Sole Source *(Story 14)*
 
@@ -745,6 +745,23 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Need Commission overlay is ignored when the resolved type is Tendering.
 - [x] Product form and Configuration show defaults and overlays without debug mode. No Bridge/SAP product sync.
 
+#### FR-45 Return to last approver *(§5.8)*
+
+| | |
+|--|--|
+| **As a** | System |
+| **I want** | Return-for-correction to go to the last actor, and when it reaches the Commercial Manager they choose planner or commercial expert |
+| **So that** | Corrections are not always dumped on the planner |
+
+**Acceptance criteria**
+
+- [x] Return from a later signatory leaves the PR in `signatory` pending on the previous signatory.
+- [x] Return from the first signatory sends the PR to `cm_review` (not the planner).
+- [x] Return from Holding Commission goes to the last signatory when an approved company chain exists; otherwise to the requesting-company CM.
+- [x] On `cm_review`, Return for Correction destination is planner (`correction`) or commercial expert (`inquiry`, keep or re-assign).
+- [x] A written reason is mandatory on every return. Previous approvals stay in history; a new chain is required after the correction is submitted (FR-34).
+- [x] Reject remains terminal (BR-9).
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -786,7 +803,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
-| BR-8 | Signatory refuse returns control to Commercial Manager, not Planner (unless CM then returns). |
+| BR-8 | Signatory refuse returns to the previous signatory, or to the Commercial Manager if first; never to the Planner unless CM then chooses planner (FR-45). |
 | BR-9 | Planner corrections use return path with reason; reject is terminal unless process reopens by policy. |
 | BR-10 | A PR may contain only Enquiry or only Tendering products (resolved for the PR company); mixed PRs cannot be submitted until split (FR-31 / FR-44). |
 
@@ -839,7 +856,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 10 | CCE | ≥3 / ≥1+reason / ≥1 sole source; submit to CM | FR-10 |
 | 11 | CCE | Closed Envelope supplier list | FR-11 |
 | 12 | Signatory | Sequential documents | FR-12 |
-| 13 | Signatory | Approve or reject → CM | FR-13 |
+| 13 | Signatory | Approve or return to previous / CM | FR-13 |
 | 14 | CEO | Sign all Sole Source | FR-14 |
 | 15 | Comm. Mgr | High Value / Commission dashboard | FR-15 |
 | 16 | Comm. Mgr | Assign Commission Experts | FR-16 |
@@ -870,6 +887,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 42 | Comm. Mgr | Meeting status, attendees, per-PR decision + transfer | FR-42 |
 | 43 | System | US-06 Validation Report on enquiry commission entry | FR-43 |
 | 44 | Admin / System | Per-company procurement type / Need Commission overlay | FR-44 |
+| 45 | System | Return to last actor; CM chooses planner vs expert | FR-45 |
 
 ---
 
@@ -1000,7 +1018,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As Planner, create and submit another PR | State `submitted` |
-| 2 | As CM, **Return for Correction** with a mandatory reason | State → `correction`; reason stored; chatter logs return; planner gets activity |
+| 2 | As CM, **Return for Correction** with a mandatory reason | State → `correction`; reason stored; chatter logs return; planner gets activity. From `submitted` there is no expert destination. |
 | 3 | As Planner, edit description or lines; **Submit** again | State → `submitted`; PR reappears in CM **Awaiting Review** |
 
 #### MT-1.5 Planner own-record isolation
@@ -1125,7 +1143,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 1 | As Commission Manager → **Meetings → New**; set requesting company, datetime, location; add open/in-review cases on the agenda | Linked cases move to `meeting`; meeting `scheduled`; holding `company_id` is `root_id` |
 | 2 | Try **Mark Held** without minutes | Validation error |
 | 3 | Upload minutes; **Mark Held** | State `held` |
-| 4 | On a meeting case, **Request Corrections** (or agenda decision Needs Correction) | Case `corrections`; PR → `quote_review` |
+| 4 | On a meeting case, **Request Corrections** with a reason (or agenda decision Needs Correction with a reason) | Case `corrections`; enquiry PR → last signatory; tendering / no chain → `cm_review` |
 
 #### MT-3.4 Closed envelope list (FR-11 / FR-20 / FR-29)
 
@@ -1156,14 +1174,15 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 4 | Approve in order until the chain completes | Approval `approved`; PR → `po_ready`; chatter notes sign-off complete |
 | 5 | As Admin/CM, try to force PR to `po_ready` while approval is still pending | Transition blocked (FR-28) |
 
-#### MT-4.2 Refuse → CM review & resubmit (FR-13 / BR-8)
+#### MT-4.2 Refuse → previous signatory or CM (FR-13 / FR-45 / BR-8)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | On another company-path PR in `signatory`, as a pending signatory click **Refuse** | Approval `refused`; PR → `cm_review` (not Planner); chatter notes refuse |
-| 2 | As CM on that PR | **Resubmit to Signatories**, Reject, Return for Correction, Assign Experts available |
-| 3 | **Resubmit to Signatories** | New `approval.request` spawned; PR → `signatory` again |
-| 4 | Complete the new chain | PR → `po_ready` |
+| 1 | On a two-signatory company-path PR in `signatory`, as the **second** pending signatory click **Refuse** with a reason | Approval stays pending; first signatory is pending again; PR stays `signatory` (not `correction`) |
+| 2 | As the first signatory, **Refuse** with a reason | Approval `refused`; PR → `cm_review` (not Planner); chatter notes actor and destination |
+| 3 | As CM on that PR | **Resubmit to Signatories**, Reject, Return for Correction (planner or expert), Assign Experts available |
+| 4 | **Resubmit to Signatories** | New `approval.request` spawned; PR → `signatory` again |
+| 5 | Complete the new chain | PR → `po_ready` |
 
 #### MT-4.3 Sole source includes CEO (FR-14 / BR-5)
 
@@ -1296,4 +1315,17 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Try the same Need Commission override on a subsidiary company | Rejected |
 | 3 | Overlay type Tendering (even with Need Commission set on the holding) | Line is Tendering; Commission Item is false |
 | 4 | Award quotes on a below-large Enquiry PR that is commission via holding overlay | Signatory first, then `commission` with `reason_commission_item` |
+
+### Phase 14 — Return to last approver
+
+#### MT-14.1 Signatory bounce and CM destination (FR-45)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Two-signatory company-path PR; signatory 1 approves; signatory 2 **Refuse** with a reason | PR stays `signatory`; signatory 1 is pending again |
+| 2 | Signatory 1 **Refuse** with a reason | PR → `cm_review`; approval `refused` |
+| 3 | As CM, **Return for Correction** → **Planner** with a reason | PR → `correction`; planner can edit and resubmit to `submitted` |
+| 4 | Repeat 1–2 on another PR; CM **Return for Correction** → **Commercial Expert** (keep assignment) | PR → `inquiry`; quotes/list editable; experts notified |
+| 5 | Enquiry commission **Request Corrections** with a reason | New signatory document pending on the last signatory; previous approved chain kept in history |
+| 6 | Tendering commission **Request Corrections** with a reason | PR → `cm_review` (no company chain yet) |
 

@@ -37,7 +37,7 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         pr = self._route_to_signatory()
         approval = pr.sudo().approval_request_id
         pending = approval.approver_ids.filtered(lambda a: a.status == 'pending')
-        pending[0].with_user(pending[0].user_id).action_refuse()
+        self._refuse_signatory(pending[0], reason='Refused by first signatory')
         self.assertEqual(approval.request_status, 'refused')
         self.assertEqual(pr.state, 'cm_review')
 
@@ -45,7 +45,7 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         pr = self._route_to_signatory()
         approval = pr.sudo().approval_request_id
         pending = approval.approver_ids.filtered(lambda a: a.status == 'pending')
-        pending[0].with_user(pending[0].user_id).action_refuse()
+        self._refuse_signatory(pending[0], reason='Refused by first signatory')
         self.assertEqual(pr.state, 'cm_review')
 
         pr.with_user(self.user_cm).action_resubmit_signatory()

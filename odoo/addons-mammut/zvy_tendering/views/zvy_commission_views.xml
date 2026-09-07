@@ -97,6 +97,7 @@
                                     <field name="meeting_id"/>
                                     <field name="review_status" widget="badge"/>
                                     <field name="decision"/>
+                                    <field name="correction_reason" optional="hide"/>
                                 </list>
                             </field>
                         </page>
@@ -267,6 +268,8 @@
                                     <field name="request_id"/>
                                     <field name="review_status" widget="badge" optional="show"/>
                                     <field name="decision"/>
+                                    <field name="correction_reason" optional="show"
+                                           required="decision == 'needs_correction'"/>
                                     <button name="action_transfer" type="object" string="Transfer"
                                             invisible="review_status == 'removed' or decision != 'undecided'"
                                             groups="zvy_tendering.group_zvy_commission_manager"/>

@@ -15,7 +15,7 @@ _ALLOWED_TRANSITIONS = {
     'cm_review': {'rejected', 'correction', 'inquiry', 'signatory'},
     'inquiry': {'quote_review'},
     'quote_review': {'inquiry', 'commission', 'signatory'},
-    'commission': {'signatory', 'quote_review', 'po_ready'},
+    'commission': {'signatory', 'quote_review', 'po_ready', 'cm_review'},
     'signatory': {'po_ready', 'cm_review', 'commission'},
     'po_ready': {'done', 'rejected'},
 }
@@ -844,12 +844,98 @@ class ZvyPurchaseRequest(models.Model):
             raise UserError(_(
                 'Only submitted or CM-review requests can be returned for correction.'
             ))
+        reason = reason.strip()
         self.write({
             'state': 'correction',
-            'return_reason': reason.strip(),
+            'return_reason': reason,
         })
-        self.message_post(body=_('Returned for correction: %s') % reason.strip())
-        self._notify_planner('return', reason.strip())
+        self.message_post(body=_(
+            'Returned for correction to planner: %s'
+        ) % reason)
+        self._notify_planner('return', reason)
+
+    def _action_return_to_expert(self, reason, line_assignments=None):
+        """CM destination expert: reopen inquiry so quotes / CE list are editable."""
+        self.ensure_one()
+        if not reason or not reason.strip():
+            raise ValidationError(_('A return reason is required.'))
+        if self.state != 'cm_review':
+            raise UserError(_(
+                'Only CM-review requests can be returned to a commercial expert.'
+            ))
+        reason = reason.strip()
+        if line_assignments:
+            for line in self.line_ids:
+                expert_ids = line_assignments.get(line.id, [])
+                if not expert_ids:
+                    raise ValidationError(_(
+                        'Assign at least one Commercial Expert to every line.'
+                    ))
+                line.write({'expert_user_ids': [(6, 0, expert_ids)]})
+        missing = self.line_ids.filtered(lambda l: not l.expert_user_ids)
+        if missing:
+            raise ValidationError(_(
+                'Every line must have a Commercial Expert before returning '
+                'to inquiry.'
+            ))
+        self.quote_ids.filtered(
+            lambda q: q.state in ('submitted', 'accepted')
+        ).sudo().write({'state': 'draft'})
+        self.sudo().line_ids.write({
+            'awarded_quote_id': False,
+            'awarded_bid_line_id': False,
+            'ce_retender': False,
+        })
+        envelopes = self.closed_envelope_ids.filtered(
+            lambda e: e.state in (
+                'draft', 'list_pending', 'portal_open', 'opened', 'awarded',
+            )
+        )
+        if envelopes:
+            envelopes.sudo().write({'state': 'draft'})
+        self.write({
+            'state': 'inquiry',
+            'return_reason': reason,
+        })
+        self.message_post(body=_(
+            'Returned to commercial expert (inquiry): %s'
+        ) % reason)
+        experts = self.line_ids.mapped('expert_user_ids')
+        for expert in experts:
+            self.activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=expert.id,
+                summary=_('Correction requested on %s') % self.name,
+                note=_(
+                    'Purchase request %s was returned for inquiry correction.\n'
+                    'Reason: %s'
+                ) % (self.name, reason),
+            )
+        return True
+
+    def _action_return_from_commission(self, reason):
+        """Bounce commission corrections to last signatory, or CM if none (FR-45)."""
+        self.ensure_one()
+        if not reason or not reason.strip():
+            raise ValidationError(_('A return reason is required.'))
+        if self.state != 'commission':
+            raise UserError(_(
+                'Only commission requests can be returned from Holding Commission.'
+            ))
+        reason = reason.strip()
+        self.write({'return_reason': reason})
+        approval = self.approval_request_id
+        if approval and approval.request_status == 'approved':
+            self._action_spawn_signatory_approval(resume_commission=True)
+            dest = _('last company signatory')
+        else:
+            self.write({'state': 'cm_review'})
+            dest = _('Commercial Manager')
+        self.message_post(body=_(
+            'Holding Commission requested corrections; returned to %(dest)s.\n'
+            'Reason: %(reason)s'
+        ) % {'dest': dest, 'reason': reason})
+        return True
 
     def _action_assign_experts(self, line_assignments):
         """Assign experts and move to inquiry.
@@ -1016,7 +1102,7 @@ class ZvyPurchaseRequest(models.Model):
         ) % (self.approval_request_id.display_name if self.approval_request_id else ''))
         return True
 
-    def _action_spawn_signatory_approval(self):
+    def _action_spawn_signatory_approval(self, resume_commission=False):
         """Create sequential approval.request from level + formalities (FR-12/14/32/34)."""
         self.ensure_one()
         category = self.company_id.zvy_signatory_approval_category_id
@@ -1062,6 +1148,7 @@ class ZvyPurchaseRequest(models.Model):
             'amount': self.amount_for_level,
             'reason': self.description or '',
             'zvy_purchase_request_id': self.id,
+            'zvy_resume_commission': bool(resume_commission),
         })
         self._zvy_replace_signatory_approvers(request, chain_users)
         if self.has_sole_source:
@@ -1073,14 +1160,40 @@ class ZvyPurchaseRequest(models.Model):
             ))
 
         request.action_confirm()
+        if resume_commission:
+            self._zvy_pending_last_signatory(request)
         self.with_context(zvy_skip_signatory_reset=True).write({
             'approval_request_id': request.id,
             'state': 'signatory',
         })
-        self.message_post(body=_(
-            'Routed to company signatory path (%s).'
-        ) % request.display_name)
+        if resume_commission:
+            self.message_post(body=_(
+                'Returned to the last company signatory (%s) after '
+                'Holding Commission corrections.'
+            ) % request.display_name)
+        else:
+            self.message_post(body=_(
+                'Routed to company signatory path (%s).'
+            ) % request.display_name)
         return request
+
+    def _zvy_pending_last_signatory(self, approval_request):
+        """Leave only the last signatory pending (FR-45 commission bounce).
+
+        Earlier approvers are marked approved so completing the last step
+        finishes the document; refuse still bounces to the previous signatory.
+        """
+        approvers = approval_request.approver_ids.sorted(
+            lambda a: (a.sequence, a.id)
+        )
+        if len(approvers) < 2:
+            return
+        last = approvers[-1]
+        earlier = approvers[:-1]
+        approval_request._cancel_activities()
+        earlier.sudo().write({'status': 'approved'})
+        last.sudo().write({'status': 'pending'})
+        last.sudo()._create_activity()
 
     def _zvy_replace_signatory_approvers(self, approval_request, users):
         """Replace category template approvers with the level / formalities chain."""

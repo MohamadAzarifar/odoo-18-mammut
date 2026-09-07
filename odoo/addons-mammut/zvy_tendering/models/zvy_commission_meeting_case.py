@@ -56,6 +56,10 @@ class ZvyCommissionMeetingCase(models.Model):
         default='undecided',
         required=True,
     )
+    correction_reason = fields.Text(
+        string='Correction Reason',
+        help='Required when the agenda decision is Needs Correction (FR-45).',
+    )
 
     _sql_constraints = [
         (
@@ -113,6 +117,17 @@ class ZvyCommissionMeetingCase(models.Model):
             self._apply_terminal_decisions()
         return res
 
+    @api.constrains('decision', 'correction_reason')
+    def _check_correction_reason(self):
+        for row in self:
+            if row.decision != 'needs_correction':
+                continue
+            if not (row.correction_reason or '').strip():
+                raise ValidationError(_(
+                    'A correction reason is required when the agenda decision '
+                    'is Needs Correction.'
+                ))
+
     def _sync_case_on_link(self):
         for row in self:
             if row.review_status == 'removed':
@@ -149,7 +164,7 @@ class ZvyCommissionMeetingCase(models.Model):
                     case.action_manager_reject()
             elif row.decision == 'needs_correction':
                 if case.state in ('in_review', 'meeting'):
-                    case.action_manager_corrections()
+                    case._action_manager_corrections(row.correction_reason)
             if row.review_status != 'reviewed':
                 row.with_context(zvy_skip_meeting_decision=True).write({
                     'review_status': 'reviewed',

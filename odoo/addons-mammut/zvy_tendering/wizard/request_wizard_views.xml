@@ -25,7 +25,20 @@
                 <group>
                     <field name="request_id" invisible="1"/>
                     <field name="reason" placeholder="Explain what needs to be corrected..."/>
+                    <field name="show_destination" invisible="1"/>
+                    <field name="destination" invisible="not show_destination"
+                           required="show_destination"/>
+                    <field name="reassign_experts"
+                           invisible="not show_destination or destination != 'expert'"/>
                 </group>
+                <field name="line_ids" invisible="not reassign_experts">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="line_id" column_invisible="1"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="expert_user_ids" widget="many2many_tags"
+                               options="{'no_create': True}"/>
+                    </list>
+                </field>
                 <footer>
                     <button name="action_confirm" string="Return" type="object" class="btn-primary"/>
                     <button string="Cancel" special="cancel"/>
@@ -209,6 +222,40 @@
                 </group>
                 <footer>
                     <button name="action_confirm" string="Transfer" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_request_signatory_return_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.request.signatory.return.wizard.form</field>
+        <field name="model">zvy.request.signatory.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Return for Correction">
+                <group>
+                    <field name="approval_request_id" invisible="1"/>
+                    <field name="reason" placeholder="Explain what needs to be corrected..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Return" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_commission_corrections_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.commission.corrections.wizard.form</field>
+        <field name="model">zvy.commission.corrections.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Request Corrections">
+                <group>
+                    <field name="case_id" invisible="1"/>
+                    <field name="reason" placeholder="Explain what needs to be corrected..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Request Corrections" type="object" class="btn-primary"/>
                     <button string="Cancel" special="cancel"/>
                 </footer>
             </form>

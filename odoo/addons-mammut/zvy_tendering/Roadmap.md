@@ -594,25 +594,25 @@ FR-44 holds; FR-31 split and FR-35 routing use the resolved type for the PR comp
 
 ### Scope
 
-- [ ] Return from a signatory step goes to the previous signatory (or CM if first)
-- [ ] Return from commission goes to last approver, then to CM when the chain is exhausted
-- [ ] When CM receives a correction: wizard destination `planner` (`correction`) or `expert` (`inquiry`, keep assignment or re-assign)
-- [ ] Mandatory written reason on every return (FR-4 unchanged)
-- [ ] Previous approvals stay in history; new chain required after the correction is submitted (FR-34)
-- [ ] Reject remains terminal (BR-9)
+- [x] Return from a signatory step goes to the previous signatory (or CM if first)
+- [x] Return from commission goes to last approver, then to CM when the chain is exhausted
+- [x] When CM receives a correction: wizard destination `planner` (`correction`) or `expert` (`inquiry`, keep assignment or re-assign)
+- [x] Mandatory written reason on every return (FR-4 unchanged)
+- [x] Previous approvals stay in history; new chain required after the correction is submitted (FR-34)
+- [x] Reject remains terminal (BR-9)
 
 ### Stories / FRs checklist
 
-- [ ] **FR-45** — Return-for-correction goes to last actor; when it reaches CM, destination is planner or commercial expert — §5.8
+- [x] **FR-45** — Return-for-correction goes to last actor; when it reaches CM, destination is planner or commercial expert — §5.8
 
 ### Suggested tests
 
-- [ ] Signatory 2 returns → pending on signatory 1; PR not `correction`
-- [ ] First signatory returns → CM queue; CM can send to planner or expert
-- [ ] CM → planner: `correction`; planner resubmit restarts signatory (or inquiry per destination)
-- [ ] CM → expert: `inquiry`; quotes/list editable again
-- [ ] Reason required; chatter logs actor and destination
-- [ ] Existing FR-4 planner return path still works when CM chooses planner
+- [x] Signatory 2 returns → pending on signatory 1; PR not `correction`
+- [x] First signatory returns → CM queue; CM can send to planner or expert
+- [x] CM → planner: `correction`; planner resubmit restarts signatory (or inquiry per destination)
+- [x] CM → expert: `inquiry`; quotes/list editable again
+- [x] Reason required; chatter logs actor and destination
+- [x] Existing FR-4 planner return path still works when CM chooses planner
 
 ### Done when
 
@@ -772,7 +772,7 @@ Track throughout (PRD §7):
 | 11 Meetings | Done | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Done | `18.0.2.6` — FR-43; SAP checks stubbed |
 | 13 Company procurement override | Done | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
-| 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |
+| 14 Return to last approver | Done | `18.0.2.8` — FR-45 |
 | 15 Holding company commission | Pending | `18.0.2.9` — FR-46 |
 
 ---

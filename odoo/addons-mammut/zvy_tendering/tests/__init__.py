@@ -12,3 +12,4 @@ from . import test_per_item_bids
 from . import test_commission_meeting
 from . import test_commission_precheck
 from . import test_product_procurement_override
+from . import test_return_last_approver

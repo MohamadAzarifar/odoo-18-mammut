@@ -234,16 +234,35 @@ class ZvyCommissionCase(models.Model):
             raise UserError(_(
                 'Corrections can only be requested from in-review or meeting.'
             ))
+        return {
+            'name': _('Request Corrections'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'zvy.commission.corrections.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_case_id': self.id},
+        }
+
+    def _action_manager_corrections(self, reason):
+        self.ensure_one()
+        self._ensure_manager()
+        if self.state not in ('in_review', 'meeting'):
+            raise UserError(_(
+                'Corrections can only be requested from in-review or meeting.'
+            ))
+        if not reason or not str(reason).strip():
+            raise ValidationError(_('A return reason is required.'))
+        reason = str(reason).strip()
         self.write({
             'state': 'corrections',
             'manager_decision': 'corrections',
+            'manager_notes': reason,
         })
         pr = self.request_id.sudo()
-        pr.write({'state': 'quote_review'})
-        pr.message_post(body=_(
-            'Holding Commission requested corrections (%s); returned to quote review.'
-        ) % self.name)
-        self.message_post(body=_('Corrections requested; PR returned to quote review.'))
+        pr._action_return_from_commission(reason)
+        self.message_post(body=_(
+            'Corrections requested: %s'
+        ) % reason)
         return True
 
     def _action_manager_approve(self):

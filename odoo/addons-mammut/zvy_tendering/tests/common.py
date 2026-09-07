@@ -400,6 +400,13 @@ class ZvyTenderingCommon(TransactionCase):
                 quote = line.quote_ids.filtered(lambda q: q.state == 'submitted')[:1]
             line.with_user(self.user_cm).write({'awarded_quote_id': quote.id})
 
+    def _refuse_signatory(self, approver, reason='Needs correction'):
+        """Refuse/return a pending signatory with the FR-45 reason context."""
+        return approver.with_user(approver.user_id).with_context(
+            zvy_skip_return_wizard=True,
+            zvy_refuse_reason=reason,
+        ).action_refuse()
+
     def _approve_all_signatories(self, pr, expected_state='po_ready'):
         """Approve every pending/waiting approver in sequence until request is approved."""
         approval = pr.approval_request_id.sudo()
