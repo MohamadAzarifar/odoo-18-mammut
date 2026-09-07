@@ -110,6 +110,13 @@
                   sequence="10"
                   groups="group_zvy_tendering_admin"/>
 
+        <menuitem id="menu_zvy_product_procurement_company"
+                  name="Product Procurement Overrides"
+                  parent="menu_zvy_tendering_config"
+                  action="action_zvy_product_procurement_company"
+                  sequence="15"
+                  groups="group_zvy_tendering_admin"/>
+
         <menuitem id="menu_zvy_tendering_settings"
                   name="Settings"
                   parent="menu_zvy_tendering_config"

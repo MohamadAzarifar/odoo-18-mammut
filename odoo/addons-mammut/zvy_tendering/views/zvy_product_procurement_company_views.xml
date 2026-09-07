@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_product_procurement_company_list" model="ir.ui.view">
+        <field name="name">zvy.product.procurement.company.list</field>
+        <field name="model">zvy.product.procurement.company</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="product_tmpl_id"/>
+                <field name="company_id"/>
+                <field name="is_holding" column_invisible="1"/>
+                <field name="procurement_type"/>
+                <field name="override_need_commission"/>
+                <field name="need_commission"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_product_procurement_company_form" model="ir.ui.view">
+        <field name="name">zvy.product.procurement.company.form</field>
+        <field name="model">zvy.product.procurement.company</field>
+        <field name="arch" type="xml">
+            <form string="Product Procurement Overlay">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id"/>
+                            <field name="company_id"/>
+                            <field name="is_holding" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="procurement_type"/>
+                            <field name="override_need_commission"
+                                   invisible="not is_holding"/>
+                            <field name="need_commission"
+                                   invisible="not is_holding or not override_need_commission"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_product_procurement_company_search" model="ir.ui.view">
+        <field name="name">zvy.product.procurement.company.search</field>
+        <field name="model">zvy.product.procurement.company</field>
+        <field name="arch" type="xml">
+            <search string="Product Procurement Overrides">
+                <field name="product_tmpl_id"/>
+                <field name="company_id"/>
+                <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                <filter string="Product" name="group_product" context="{'group_by': 'product_tmpl_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_product_procurement_company" model="ir.actions.act_window">
+        <field name="name">Product Procurement Overrides</field>
+        <field name="res_model">zvy.product.procurement.company</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_zvy_product_procurement_company_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a company procurement override
+            </p>
+            <p>
+                Group defaults live on the product. Override Enquiry/Tendering per
+                operating company. Need Commission can only be overridden on the
+                head holding and then applies to all subsidiaries.
+            </p>
+        </field>
+    </record>
+</odoo>

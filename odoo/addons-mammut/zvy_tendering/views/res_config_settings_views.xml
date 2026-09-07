@@ -100,6 +100,16 @@
                             <field name="zvy_commission_require_technical"/>
                         </setting>
                     </block>
+                    <block title="Product Procurement">
+                        <setting string="Company Overrides"
+                                 help="Group defaults live on the product. Override Enquiry/Tendering per operating company. Need Commission overlay is holding-level and applies to subsidiaries.">
+                            <button name="%(zvy_tendering.action_zvy_product_procurement_company)d"
+                                    icon="oi-arrow-right"
+                                    type="action"
+                                    string="Manage Overrides"
+                                    class="btn-link"/>
+                        </setting>
+                    </block>
                     <block title="Routing &amp; Approvals">
                         <setting string="High-Value Threshold (deprecated)"
                                  help="No longer used for routing. Large purchase level qualifies for Holding Commission (enquiry after signatures).">

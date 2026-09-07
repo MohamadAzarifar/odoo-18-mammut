@@ -10,6 +10,23 @@
                 <field name="zvy_need_commission"
                        invisible="zvy_procurement_type != 'enquiry'"/>
             </xpath>
+            <xpath expr="//page[@name='general_information']" position="inside">
+                <group string="Company Procurement Overrides">
+                    <field name="zvy_procurement_company_ids" nolabel="1" colspan="2">
+                        <list editable="bottom">
+                            <field name="company_id"/>
+                            <field name="is_holding" column_invisible="1"/>
+                            <field name="procurement_type"/>
+                            <field name="override_need_commission"
+                                   optional="show"
+                                   invisible="not is_holding"/>
+                            <field name="need_commission"
+                                   optional="show"
+                                   invisible="not is_holding or not override_need_commission"/>
+                        </list>
+                    </field>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>

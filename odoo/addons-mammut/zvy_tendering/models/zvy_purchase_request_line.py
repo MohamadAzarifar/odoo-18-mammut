@@ -70,14 +70,21 @@ class ZvyPurchaseRequestLine(models.Model):
     )
     is_commission_item = fields.Boolean(
         string='Commission Item',
-        compute='_compute_is_commission_item',
+        compute='_compute_procurement_flags',
         store=True,
-        help='True when the Enquiry product has Need Commission enabled.',
+        help='True when the resolved Enquiry product needs Holding Commission '
+             'for this request company (holding overlay, else product default).',
     )
     procurement_type = fields.Selection(
-        related='product_id.zvy_procurement_type',
+        selection=[
+            ('enquiry', 'Enquiry'),
+            ('tendering', 'Tendering'),
+        ],
         string='Procurement Type',
+        compute='_compute_procurement_flags',
         store=True,
+        help='Resolved for the request company from a company overlay, else '
+             'the product default.',
     )
     expert_user_ids = fields.Many2many(
         'res.users',
@@ -224,13 +231,45 @@ class ZvyPurchaseRequestLine(models.Model):
         'product_id',
         'product_id.zvy_need_commission',
         'product_id.zvy_procurement_type',
+        'product_id.product_tmpl_id.zvy_procurement_company_ids',
+        'product_id.product_tmpl_id.zvy_procurement_company_ids.company_id',
+        'product_id.product_tmpl_id.zvy_procurement_company_ids.procurement_type',
+        'product_id.product_tmpl_id.zvy_procurement_company_ids.override_need_commission',
+        'product_id.product_tmpl_id.zvy_procurement_company_ids.need_commission',
+        'company_id',
+        'company_id.root_id',
     )
-    def _compute_is_commission_item(self):
+    def _compute_procurement_flags(self):
+        by_company = {}
         for line in self:
-            line.is_commission_item = bool(
-                line.product_id.zvy_procurement_type == 'enquiry'
-                and line.product_id.zvy_need_commission
+            cid = line.company_id.id if line.company_id else False
+            by_company.setdefault(cid, self.browse())
+            by_company[cid] |= line
+        for lines in by_company.values():
+            company = lines[0].company_id
+            templates = lines.mapped('product_id.product_tmpl_id')
+            resolved = (
+                templates._zvy_resolve_procurement_map(company) if company else {}
             )
+            for line in lines:
+                tmpl = line.product_id.product_tmpl_id
+                if not tmpl:
+                    line.procurement_type = False
+                    line.is_commission_item = False
+                    continue
+                if not company:
+                    ptype = tmpl.zvy_procurement_type or False
+                    line.procurement_type = ptype
+                    line.is_commission_item = bool(
+                        ptype == 'enquiry' and tmpl.zvy_need_commission
+                    )
+                    continue
+                ptype, need = resolved.get(
+                    tmpl.id,
+                    (tmpl.zvy_procurement_type or False, False),
+                )
+                line.procurement_type = ptype
+                line.is_commission_item = bool(need)
 
     @api.depends('product_id', 'company_id')
     def _compute_sole_source(self):

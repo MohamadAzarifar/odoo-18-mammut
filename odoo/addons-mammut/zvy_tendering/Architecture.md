@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.6` |
+| Version | `18.0.2.7` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -43,6 +43,7 @@ zvy_tendering/
 │   ├── zvy_closed_envelope_bid.py
 │   ├── zvy_closed_envelope_bid_line.py
 │   ├── product_template.py          # enquiry/tendering + commission
+│   ├── zvy_product_procurement_company.py  # FR-44 company overlay
 │   ├── res_company.py
 │   ├── res_config_settings.py
 │   ├── approval_request.py          # bridge hooks (refuse → CM, approve → po_ready)
@@ -82,6 +83,8 @@ zvy_tendering/
     ├── test_per_item_bids.py
     ├── test_commission_meeting.py
     ├── test_commission_precheck.py
+    ├── test_product_procurement_override.py
+    ├── test_portal_isolation.py
     ├── test_portal_isolation.py
     └── test_product_split.py
 ```
@@ -145,7 +148,7 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `purchase_level` | Selection | `minor` / `medium` / `major` / `large` from company scale × nature vs amount (FR-32) |
 | `is_formalities` | Boolean | Enquiry: any line has &lt;3 valid inquiries (FR-34) |
 | `is_high_value` | Boolean | Computed: `purchase_level == large` (BR-3) |
-| `is_commission_item` | Boolean | Computed: any Enquiry line with product **Need Commission** (BR-4) |
+| `is_commission_item` | Boolean | Computed: any Enquiry line whose **resolved** Need Commission is set (holding overlay, else template; BR-4 / FR-44) |
 | `procurement_type` | Selection | Computed: `enquiry` / `tendering` when all lines match; empty if mixed |
 | `is_mixed_procurement` | Boolean | Computed: both Enquiry and Tendering lines present |
 | `split_from_id` / `split_request_id` / `parent_request_id` | Many2one | Sibling PRs after FR-31 split; `parent_request_id` is the customer `parentRequestId` alias of `split_from_id` |
@@ -177,12 +180,12 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `request_id` | Many2one | Parent PR |
 | `request_state` | Selection (related) | `request_id.state`; drives form/list `readonly` attrs |
 | `product_id` | Many2one `product.product` | |
-| `procurement_type` | Selection (related) | Product `zvy_procurement_type` |
+| `procurement_type` | Selection (stored compute) | Resolved for `request.company_id`: company overlay type, else template default (FR-44) |
 | `product_uom_qty` | Float | |
 | `product_uom_id` | Many2one `uom.uom` | |
 | `price_estimate` | Monetary | Planner estimate |
 | `sole_source` | Boolean | Forces ≥1 quote; CEO in chain (FR-14) |
-| `is_commission_item` | Boolean | Enquiry product **Need Commission**; computed, not planner-editable |
+| `is_commission_item` | Boolean | Resolved Enquiry Need Commission (holding overlay, else template); computed, not planner-editable |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `quote_ids` | One2many | → `zvy.quote`; collected on the line form (My Assignments) |
 | `quote_count` | Integer (compute) | Number of quotes on the line |
@@ -381,10 +384,11 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 |-------|-----------|
 | `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags (FR-43) |
 | `res.config.settings` | Related fields for settings UI |
-| `product.template` | `zvy_procurement_type` (`enquiry` default / `tendering`); `zvy_need_commission` (default False; visible only when Enquiry) |
+| `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
 | `approval.request` | `zvy_purchase_request_id`; on refuse of the **current** chain → PR `cm_review`; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large). Stale/cancelled history records are ignored. |
 | `purchase.order` | Optional `zvy_purchase_request_id` for traceability |
 | `purchase.order.line` | Optional `zvy_purchase_request_line_id` so a PR line cannot be ordered twice |
+| `zvy.product.procurement.company` | Per-company overlay: optional `procurement_type`; `override_need_commission` + `need_commission` only on head holding (`root_id`). Unique `(product_tmpl_id, company_id)`. Resolve: type by PR company, Need Commission by holding; sudo so subsidiaries still apply holding flags (FR-44 / FR-46 overlay target) |
 
 ---
 
@@ -487,13 +491,13 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
 | BR-2 | ≥3 valid inquiries, or ≥1 valid with `quote_shortfall_reason`; ≥1 valid sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10 / FR-33) |
 | BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
-| BR-4 | Commission items → Holding | Enquiry product `zvy_need_commission`; line/header flags computed; enquiry signs first (FR-35) |
+| BR-4 | Commission items → Holding | Resolved Enquiry Need Commission (holding overlay, else template); line/header flags computed; enquiry signs first (FR-35 / FR-44) |
 | BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
 | BR-6 | PO only from `po_ready` by CM or Commission Manager | Wizard / `action_create_po`; grouping by vendor of **selected pending** lines; award data required per selected line; PR stays `po_ready` while any line is pending |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
 | BR-8 | Signatory refuse → CM | `approval.request` refuse hook → PR `cm_review` |
 | BR-9 | Reject terminal; correction editable | State machine + planner write rules |
-| BR-10 | Homogeneous procurement type | Mixed Enquiry+Tendering PRs cannot submit; FR-31 split |
+| BR-10 | Homogeneous procurement type | Mixed Enquiry+Tendering PRs cannot submit; FR-31 split uses **resolved** types (FR-44) |
 
 ### 4.2 System FR methods
 
@@ -512,7 +516,8 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | FR-42 | Meeting: holding-owned, same requesting company, minutes for `held`, internal+external attendees, per-PR decision + transfer-with-history; linked CE opens only while meeting is `held` |
 | FR-29 | CE `action_approve_list` (requires `opening_datetime`, `bid_deadline`) → state `portal_open`; notify invited partners when portal live |
 | FR-30 | Before open: only Commission Manager (and seal roles) + bidder’s own portal view can read bid amounts/attachments; after `action_open_bids`, authorized roles see all |
-| FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. |
+| FR-31 | Mixed Enquiry+Tendering: UI submit opens split wizard; RPC raises. `action_split_mixed` keeps Enquiry lines, moves Tendering lines to a new draft PR. Types are **resolved** for the PR company (FR-44). |
+| FR-44 | Product template holds group defaults. `zvy.product.procurement.company` overlays: procurement type for `request.company_id`; Need Commission for `company.root_id` only. Line `procurement_type` / `is_commission_item` are stored computes. Tendering resolved type never sets commission. |
 
 ---
 
@@ -615,8 +620,8 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..14) |
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
-| Commission on Enquiry product | `product.template.zvy_need_commission` | BR-4 |
-| Product procurement type | `product.template.zvy_procurement_type` | FR-1 / FR-10 / FR-11 / FR-31 |
+| Commission on Enquiry product | Template `zvy_need_commission`; holding overlay via `zvy.product.procurement.company` | BR-4 / FR-44 |
+| Product procurement type | Template `zvy_procurement_type`; per-company overlay | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
 | Commission notice days | `res.company.zvy_commission_notice_days` | FR-43 check 1 (0 until commission-laws) |
 | Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` | FR-43 check 5 |
 | Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |
@@ -642,7 +647,8 @@ Automated tests (PRD §7) mapped to design:
 | Purchase level | Totals in each band; scale × nature; custom override |
 | Valid inquiry | Unpriced or &gt;30 days excluded; two valid quotes set header formalities |
 | Signatory reset | Qty change in `signatory` archives current approval; only the new chain reaches `po_ready` |
-| Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering |
+| Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering; types are resolved per company overlay |
+| Product procurement overlay | Company A type overlay does not affect B; holding Need Commission applies to children; subsidiary commission overlay is rejected; tendering resolved type ignores Need Commission |
 | Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
 | Partial PO | Subset of awarded lines → one PO; PR stays `po_ready`; remaining pending; second PO → `done`; reject cancels pending |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
@@ -658,7 +664,7 @@ Automated tests (PRD §7) mapped to design:
 |-------------|-----|
 | Models §2 | FR-1, FR-9, FR-11, FR-15–23, FR-24–25, FR-31 |
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
-| Routing §4 | FR-27–30, FR-32–38; BR-1–9 |
+| Routing §4 | FR-27–30, FR-32–38, FR-44; BR-1–10 |
 | Security §5 | Personas §2; NFR Security |
 | Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |

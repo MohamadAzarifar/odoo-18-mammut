@@ -729,6 +729,22 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Tendering PRs do not run this report.
 - [x] After a green report, the manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting — including approve without meeting when an expert did not recommend approve.
 
+#### FR-44 Company procurement override *(§12.7)*
+
+| | |
+|--|--|
+| **As a** | Administrator |
+| **I want** | To keep group defaults on the product and override Enquiry/Tendering or Need Commission per company |
+| **So that** | Mixed-PR split and routing use the resolved type for the requesting company, and Need Commission follows the head holding |
+
+**Acceptance criteria**
+
+- [x] Template `zvy_procurement_type` / `zvy_need_commission` remain the group default.
+- [x] Optional overlay (`zvy.product.procurement.company`): procurement type for the operating company; Need Commission only on the head holding (`root_id`) and applied to descendants.
+- [x] Line/header `procurement_type` and `is_commission_item` are resolved (not template-only). Mixed submit/split (FR-31) and enquiry routing (FR-35) use those values.
+- [x] Need Commission overlay is ignored when the resolved type is Tendering.
+- [x] Product form and Configuration show defaults and overlays without debug mode. No Bridge/SAP product sync.
+
 #### FR-29 Open portal after CE list approval *(Story 29)*
 
 | | |
@@ -766,13 +782,13 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
 | BR-2 | Standard lines require ≥3 **valid** inquiries before expert submit, or ≥1 valid with a shortfall reason; sole source (exactly one AVL vendor) ≥1 valid. Unpriced and stale quotes do not count (FR-33). |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
-| BR-4 | Commission items (Enquiry product **Need Commission**) force Holding Commission after company signatures (FR-35); line flag is computed, not editable. Tendering products have no commission checkbox. |
+| BR-4 | Commission items (resolved Enquiry **Need Commission**: holding overlay, else product default) force Holding Commission after company signatures (FR-35 / FR-44); line flag is computed, not editable. Tendering resolved type never sets commission. |
 | BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns control to Commercial Manager, not Planner (unless CM then returns). |
 | BR-9 | Planner corrections use return path with reason; reject is terminal unless process reopens by policy. |
-| BR-10 | A PR may contain only Enquiry or only Tendering products; mixed PRs cannot be submitted until split (FR-31). |
+| BR-10 | A PR may contain only Enquiry or only Tendering products (resolved for the PR company); mixed PRs cannot be submitted until split (FR-31 / FR-44). |
 
 ---
 
@@ -797,8 +813,8 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Company scale | Selects the R-PL small / medium / large bylaws table |
 | Purchase-level bands | Baked-in IRR ceilings; optional per-company override |
 | Signatory users per band | Minor / medium / major / large / board / formalities lists |
-| Product procurement type (Enquiry / Tendering) | Forces quote inquiry vs closed-envelope path; mixed PRs cannot submit |
-| Need Commission on Enquiry product | Sets line/header `is_commission_item` (computed); enquiry still signs first, then Holding Commission (FR-35) |
+| Product procurement type (Enquiry / Tendering) | Group default on the product; optional per-company overlay. Mixed PRs cannot submit |
+| Need Commission on Enquiry product | Group default; holding overlay applies to subsidiaries. Sets resolved line/header `is_commission_item`; enquiry still signs first (FR-35 / FR-44) |
 | Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
 | CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
@@ -853,6 +869,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 41 | Comm. Mgr | Winner per item; leftover re-tender | FR-41 |
 | 42 | Comm. Mgr | Meeting status, attendees, per-PR decision + transfer | FR-42 |
 | 43 | System | US-06 Validation Report on enquiry commission entry | FR-43 |
+| 44 | Admin / System | Per-company procurement type / Need Commission overlay | FR-44 |
 
 ---
 
@@ -874,7 +891,7 @@ Details and model design: [Architecture.md](Architecture.md). Phasing and checkl
 
 Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each phase is marked Done.
 
-**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO; Phase 10 — Per-item bids; Phase 11 — Meetings; Phase 12 — Commission pre-checks.
+**Current coverage:** Phase 0 — Foundation; Phase 1 — PR & CM intake; Phase 2 — Inquiry & routing; Phase 3 — Commission & CE; Phase 4 — Sign-off & PO; Phase 5 — Supplier portal; Phase 6 — Purchase level & formalities; Phase 7 — Inquiry routing invert; Phase 8 — Inquiry fields & validity; Phase 9 — Partial PO; Phase 10 — Per-item bids; Phase 11 — Meetings; Phase 12 — Commission pre-checks; Phase 13 — Company procurement override.
 
 ### Prerequisites
 
@@ -918,8 +935,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Open any **Product** form | **Procurement Type** (Enquiry / Tendering) is visible; default **Enquiry** |
-| 2 | Leave Enquiry; confirm **Need Commission** is visible and unchecked | Default is do not need commission |
+| 1 | Open any **Product** form | **Default Procurement Type** (Enquiry / Tendering) is visible; default **Enquiry** |
+| 2 | Leave Enquiry; confirm **Default Need Commission** is visible and unchecked | Default is do not need commission |
 | 3 | Enable **Need Commission**; save; reopen | Flag remains checked |
 | 4 | Switch type to **Tendering** | **Need Commission** disappears and is cleared |
 | 5 | As Planner, create a PR line with an Enquiry product that needs commission | Line **Commission Item** is checked and read-only; header `is_commission_item` is true |
@@ -1259,3 +1276,24 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 3 | On a held meeting, approve one PR and leave the second `undecided`; **Transfer** the second to a later scheduled meeting | First meeting still shows both agenda rows (second `removed`); second meeting has a new pending row; case `meeting_id` is the later sitting |
 | 4 | **Cancel** a scheduled meeting that has agenda rows | History kept; pending cases are unlinked so they can be re-agenda’d |
 | 5 | Tender CE `portal_open` linked to a `scheduled` meeting; **Open Bids** | Blocked until the meeting is `held` and opening datetime has passed |
+
+### Phase 13 — Company procurement override
+
+#### MT-13.1 Defaults and per-company type (FR-44)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | Open a product; confirm **Default Procurement Type** / **Default Need Commission** | Defaults visible without debug; Need Commission only when Enquiry |
+| 2 | Add a company overlay: Company A → Tendering | Company A PR line is Tendering; Company B PR line stays Enquiry |
+| 3 | Put that product and a still-Enquiry product on one Company A PR; Submit | Split wizard / blocked RPC; split uses resolved types |
+| 4 | Open **Configuration → Product Procurement Overrides** and Settings **Manage Overrides** | List opens without debug mode |
+
+#### MT-13.2 Holding Need Commission overlay (FR-44 / FR-46 target)
+
+| Step | Action | Expected |
+|------|--------|----------|
+| 1 | On a holding company overlay, enable **Override Need Commission** for an Enquiry product | Subsidiary PR line **Commission Item** is checked |
+| 2 | Try the same Need Commission override on a subsidiary company | Rejected |
+| 3 | Overlay type Tendering (even with Need Commission set on the holding) | Line is Tendering; Commission Item is false |
+| 4 | Award quotes on a below-large Enquiry PR that is commission via holding overlay | Signatory first, then `commission` with `reason_commission_item` |
+

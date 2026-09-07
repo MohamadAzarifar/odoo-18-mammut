@@ -562,23 +562,23 @@ FR-43 holds for non-SAP checks; FR-17 tests updated so unanimous expert approve 
 
 ### Scope
 
-- [ ] Keep template `zvy_procurement_type` / `zvy_need_commission` as the default
-- [ ] Per-company overlay: procurement type + Need Commission (Need Commission only meaningful for Enquiry). **Need Commission overlay is resolved against the head holding (`root_id`), not the subsidiary** — FR-46; do not lock overlay to `request.company_id` for commission flags
-- [ ] Line/header computes resolve overlay for `request.company_id` (procurement type) / holding `root_id` (Need Commission), else template
-- [ ] Mixed-PR split (FR-31) uses **resolved** types, not template-only
-- [ ] Settings / product UI: show default and company override without requiring debug mode
-- [ ] No Bridge/SAP product sync in this phase
+- [x] Keep template `zvy_procurement_type` / `zvy_need_commission` as the default
+- [x] Per-company overlay: procurement type + Need Commission (Need Commission only meaningful for Enquiry). **Need Commission overlay is resolved against the head holding (`root_id`), not the subsidiary** — FR-46; do not lock overlay to `request.company_id` for commission flags
+- [x] Line/header computes resolve overlay for `request.company_id` (procurement type) / holding `root_id` (Need Commission), else template
+- [x] Mixed-PR split (FR-31) uses **resolved** types, not template-only
+- [x] Settings / product UI: show default and company override without requiring debug mode
+- [x] No Bridge/SAP product sync in this phase
 
 ### Stories / FRs checklist
 
-- [ ] **FR-44** — Procurement type / Need Commission overridable per company — §12.7
+- [x] **FR-44** — Procurement type / Need Commission overridable per company — §12.7
 
 ### Suggested tests
 
-- [ ] Template Enquiry + company A overlay Tendering → company A PR line is Tendering; company B stays Enquiry
-- [ ] Mixed submit uses resolved types (split still Enquiry vs Tendering)
-- [ ] Need Commission overlay on Enquiry routes that company through Phase 7 commission path (holding overlay once FR-46 lands)
-- [ ] Overlay Need Commission ignored/cleared when resolved type is Tendering
+- [x] Template Enquiry + company A overlay Tendering → company A PR line is Tendering; company B stays Enquiry
+- [x] Mixed submit uses resolved types (split still Enquiry vs Tendering)
+- [x] Need Commission overlay on Enquiry routes that company through Phase 7 commission path (holding overlay once FR-46 lands)
+- [x] Overlay Need Commission ignored/cleared when resolved type is Tendering
 
 ### Done when
 
@@ -771,7 +771,7 @@ Track throughout (PRD §7):
 | 10 Per-item bids | Done | `18.0.2.4` — FR-39..41 |
 | 11 Meetings | Done | `18.0.2.5` — FR-42; meeting owned by holding (FR-46) |
 | 12 Commission pre-checks | Done | `18.0.2.6` — FR-43; SAP checks stubbed |
-| 13 Company procurement override | Pending | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
+| 13 Company procurement override | Done | `18.0.2.7` — FR-44; Need Commission overlay on holding (FR-46) |
 | 14 Return to last approver | Pending | `18.0.2.8` — FR-45 |
 | 15 Holding company commission | Pending | `18.0.2.9` — FR-46 |
 

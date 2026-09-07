@@ -12,6 +12,7 @@ from . import zvy_closed_envelope_bid_line
 from . import zvy_purchase_request
 from . import zvy_purchase_request_line
 from . import zvy_quote
+from . import zvy_product_procurement_company
 from . import product_template
 from . import zvy_purchase_bands
 from . import res_company
