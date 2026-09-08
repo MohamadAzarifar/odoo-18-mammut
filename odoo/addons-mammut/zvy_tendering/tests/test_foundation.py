@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from odoo.exceptions import AccessError
 from odoo.tests import tagged
 
 from .common import ZvyTenderingCommon
@@ -60,4 +61,25 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
     def test_product_procurement_type_defaults(self):
         self.assertEqual(self.product.zvy_procurement_type, 'enquiry')
         self.assertFalse(self.product.zvy_need_commission)
+
+    def test_product_menu_admin_only(self):
+        menu = self.env.ref('zvy_tendering.menu_zvy_product_template')
+        self.assertIn(self.group_admin, menu.groups_id)
+        self.assertNotIn(self.group_planner, menu.groups_id)
+        self.assertNotIn(self.group_cm, menu.groups_id)
+        self.assertNotIn(self.group_cce, menu.groups_id)
+        action = self.env.ref('zvy_tendering.action_zvy_product_template')
+        self.assertEqual(menu.action, action)
+
+        created = self.env['product.template'].with_user(self.user_company_a).create({
+            'name': 'Admin Created Product',
+            'type': 'consu',
+        })
+        self.assertEqual(created.zvy_procurement_type, 'enquiry')
+
+        with self.assertRaises(AccessError):
+            self.env['product.template'].with_user(self.user_planner).create({
+                'name': 'Planner Created Product',
+                'type': 'consu',
+            })
 

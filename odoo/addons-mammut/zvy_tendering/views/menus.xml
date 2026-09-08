@@ -103,6 +103,13 @@
                   sequence="90"
                   groups="group_zvy_tendering_admin"/>
 
+        <menuitem id="menu_zvy_product_template"
+                  name="Products"
+                  parent="menu_zvy_tendering_config"
+                  action="action_zvy_product_template"
+                  sequence="5"
+                  groups="group_zvy_tendering_admin"/>
+
         <menuitem id="menu_zvy_avl_entry"
                   name="Approved Vendor List"
                   parent="menu_zvy_tendering_config"

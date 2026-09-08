@@ -69,8 +69,9 @@ zvy_tendering/
 │   ├── ir_sequence_data.xml
 │   └── mail_template_data.xml
 ├── views/
-│   ├── menus.xml
+│   ├── menus.xml                    # Products menu is admin-only (Configuration)
 │   ├── zvy_purchase_request_views.xml
+│   ├── product_template_views.xml
 │   ├── ...
 │   └── res_config_settings_views.xml
 ├── controllers/
@@ -549,13 +550,13 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 | `group_zvy_signatory` | Signatory | Read-only PR context from Approvals when user is an approver |
 | `group_zvy_commission_manager` | Commission Manager | Cases, meetings, CE list/open/award; may also Create PO (FR-38) |
 | `group_zvy_commission_expert` | Commission Expert | Assigned case reviews |
-| `group_zvy_tendering_admin` | Administrator | Config, AVL admin, all records |
+| `group_zvy_tendering_admin` | Administrator | Config, AVL and product master, all records |
 
 Each role uses its own child `ir.module.category` under **Procurement & Tendering** so Access Rights shows them without debug mode (sibling groups in one category become boolean fields and are debug-only).
 
 `group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must also be listed on the Signatory Approval Category (or sole-source approvers). No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
 
-Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager + Expert groups as needed for support.
+Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager + Expert groups as needed for support, plus `product.group_product_manager` so Configuration → Products can create/edit `product.template`. The Products menu (`menu_zvy_product_template`) is admin-only.
 
 ### 5.2 Record rules (intent)
 
@@ -635,7 +636,7 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..14) |
 | Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
 | Commission on Enquiry product | Template `zvy_need_commission`; holding overlay via `zvy.product.procurement.company` | BR-4 / FR-44 |
-| Product procurement type | Template `zvy_procurement_type`; per-company overlay | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
+| Product procurement type | Template `zvy_procurement_type`; per-company overlay; Admin maintains products via Configuration → Products | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
 | Commission notice days | `res.company.zvy_commission_notice_days` on the head holding | FR-43 check 1 / FR-46 (0 until commission-laws) |
 | Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` on the head holding (readonly on children) | FR-43 check 5 / FR-46 |
 | Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |

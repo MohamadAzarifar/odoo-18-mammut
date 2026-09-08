@@ -29,4 +29,55 @@
             </xpath>
         </field>
     </record>
+
+    <record id="view_product_template_list_zvy_tendering" model="ir.ui.view">
+        <field name="name">product.template.list.zvy.tendering</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="zvy_procurement_type" optional="show"/>
+                <field name="zvy_need_commission" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_search_zvy_tendering" model="ir.ui.view">
+        <field name="name">product.template.search.zvy.tendering</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='filter_to_purchase']" position="after">
+                <separator/>
+                <filter string="Enquiry" name="zvy_enquiry"
+                        domain="[('zvy_procurement_type', '=', 'enquiry')]"/>
+                <filter string="Tendering" name="zvy_tendering_type"
+                        domain="[('zvy_procurement_type', '=', 'tendering')]"/>
+                <filter string="Need Commission" name="zvy_need_commission"
+                        domain="[('zvy_need_commission', '=', True)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Procurement Type" name="group_zvy_procurement_type"
+                        context="{'group_by': 'zvy_procurement_type'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_zvy_product_template" model="ir.actions.act_window">
+        <field name="name">Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="product.product_template_search_view"/>
+        <field name="context">{'default_purchase_ok': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a product
+            </p>
+            <p>
+                Set Default Procurement Type (Enquiry or Tendering) and, for
+                Enquiry products, Default Need Commission. Purchase requests
+                resolve these per company via optional overlays.
+            </p>
+        </field>
+    </record>
 </odoo>

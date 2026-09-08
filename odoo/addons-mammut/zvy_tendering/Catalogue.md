@@ -49,7 +49,7 @@ Assign roles on the user form → **Access Rights**, without debug mode. Under *
 | Signatory | Approve or refuse the linked Approvals document | No Tendering menus — they work in **Approvals** |
 | Commission Manager | Holding cases, meetings, CE list / open / award; may also Create PO | Commission → Cases, Meetings, Closed Envelopes, CE Lists Pending |
 | Commission Expert | Write audit reviews on assigned cases | Commission → Cases, My Assignments, My Reviews, Meetings, Closed Envelopes |
-| Administrator | Everything above plus Configuration | All of the above + Configuration |
+| Administrator | Everything above plus Configuration | All of the above + Configuration (Products, AVL, Product Procurement Overrides, Settings) |
 
 A user can hold more than one role. For clean tests, give each person **one** role (except the Administrator used for setup).
 
@@ -123,6 +123,8 @@ Then, as Administrator:
 - [ ] Archived entries disappear from the default list and reappear with the **Archived** filter
 
 ### 5. Create products
+
+As Administrator: `Procurement & Tendering → Configuration → Products → New`. Other roles do not see this menu.
 
 On each product form, after the category, you should see **Default Procurement Type** and (when type is Enquiry) **Default Need Commission**.
 
@@ -450,7 +452,7 @@ Run these after the happy paths. Each one is independent unless it says otherwis
 | Signatory | (Approvals app only) | Procurement & Tendering root |
 | Commission Manager | Commission → Cases, Meetings, Closed Envelopes, CE Lists Pending | Purchase Requests menus |
 | Commission Expert | Cases, My Assignments, My Reviews, Meetings, Closed Envelopes | CE Lists Pending, Configuration |
-| Administrator | everything, including Configuration | — |
+| Administrator | everything, including Configuration → Products, AVL, Overrides, Settings | — |
 
 - [ ] Menus match the table
 - [ ] Roles are visible on Access Rights with debug **off**
@@ -946,6 +948,7 @@ You do not need to verify every mail template body. Confirm a **chatter** line (
 | Create PO | CM, Commission Manager | Expert, Planner, Signatory |
 | Commission Assign / Approve Without Meeting | Commission Manager | Commission Expert |
 | Submit Review | Assigned Commission Expert | Other experts |
+| Maintain products (`Configuration → Products`) | Admin | Planner, CM, Expert, Commission roles |
 
 - [ ] Spot-check the table on one PR so a wrong role cannot skip the path
 
