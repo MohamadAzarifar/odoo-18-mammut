@@ -1,6 +1,6 @@
 # Manual Test Catalogue
 
-**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.11)  
+**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.12)  
 **App name in Odoo:** Procurement & Tendering  
 **Source of truth:** the screens and buttons in this module, mapped to PRD 1.3 and [Roadmap.md](Roadmap.md)
 
@@ -107,6 +107,8 @@ Create these logins in Company A (plus holding users). Give each the **Internal 
 
 Also create `planner.b` (Planner, Company A) so you can prove planners only see their own PRs, and `cm.b` (Commercial Manager, Company B) for isolation tests.
 
+Signatory users also need an **employee** in Company A (Employees app) with a **Job Position** and **Related User** pointing at their login — Settings assign those jobs, not the users themselves (see §6).
+
 ### 4. Create vendors and AVL
 
 Create three supplier partners, for example **Vendor A**, **Vendor B**, **Vendor C**, each with an email and a phone number. Create a fourth supplier **Outsider Vendor**. On each vendor form, leave **Company** empty so the partner is shared across companies.
@@ -160,19 +162,20 @@ For manual tests, turn **Override Purchase-Level Bands** on and use small number
 **Signatory Approvers (Company A)**
 
 1. In the **Approvals** app, create a category, for example **PR Signatories**.
-2. Turn **Approvers Sequence** on. You can leave the category’s own approver list empty — tendering replaces it from the company lists below.
-3. Back in Tendering Settings, set **Signatory Approval Category** to that category.
-4. Fill the lists (use the users you created):
+2. Turn **Approvers Sequence** on. You can leave the category’s own approver list empty — tendering replaces it from the company jobs below.
+3. In **Employees**, create job positions for Company A (examples below) and link each Signatory login as an employee’s **Related User** on the matching job. Every employee on a job must approve when that job is in the chain.
+4. Back in Tendering Settings, set **Signatory Approval Category** to that category.
+5. Fill the jobs:
 
-| Setting | Who to put on it |
+| Setting | Job (employees → Related User) |
 |---|---|
-| Minor Signatories | `signatory.1` |
-| Medium Signatories | `signatory.1` then `signatory.2` |
-| Major Signatories | `ceo.a` |
-| Large Signatories | `ceo.a` |
-| Board Signatories | `board.a` |
-| Formalities Signatories | `signatory.2` (extra person, used when a line has fewer than 3 valid quotes) |
-| Sole-Source Approvers | `ceo.a` |
+| Minor Signatory Job | e.g. Commercial Manager → `signatory.1` |
+| Medium Signatory Job | e.g. Commercial Deputy → `signatory.1` and `signatory.2` (both on this job) |
+| Major Signatory Job | e.g. CEO → `ceo.a` |
+| Large Signatory Job | e.g. CEO → `ceo.a` |
+| Board Signatory Job | e.g. Board Member → `board.a` |
+| Formalities Signatory Job | e.g. Formalities Officer → `signatory.2` (extra role when a line has fewer than 3 valid quotes) |
+| Sole-Source Signatory Job | e.g. CEO → `ceo.a` |
 
 **Commission Pre-checks (Holding Co)**
 
@@ -325,7 +328,7 @@ You should see:
 
 - [ ] Approval status Approved
 - [ ] PR status **PO Ready**
-- [ ] A later signatory (if any) could not approve before this one — only one person is on the Minor list in this setup
+- [ ] A later signatory (if any) could not approve before this one — only one person is on the Minor job in this setup
 
 ### A6. CM creates the Purchase Order
 
@@ -602,14 +605,16 @@ With the custom bands from setup:
 | ≤ 5 000 | Major |
 | above | Large |
 
-**Large** is treated as high value (Holding Commission after enquiry signatures). Inside Large, amounts above **Large CEO Max** add **Board Signatories**.
+**Large** is treated as high value (Holding Commission after enquiry signatures). Inside Large, amounts above **Large CEO Max** use the **Board Signatory Job**.
 
 #### 4.1 Level changes the signatory list
 
+For each purchase level, the chain is **every employee** on that level’s HR job (Related Users), in employee-id order — not a hand-picked user list.
+
 Run three small Enquiry PRs (3 quotes, award, Approve Quotes) at Minor / Medium / Large amounts.
 
-- [ ] Minor: only `signatory.1`
-- [ ] Medium: `signatory.1` then `signatory.2` (sequential — the second cannot approve first)
+- [ ] Minor: only members of the Minor job (`signatory.1`)
+- [ ] Medium: every member of the Medium job (`signatory.1` then `signatory.2` when both are on that job — sequential; the second cannot approve first)
 - [ ] Large enquiry: after the chain completes, status becomes **Commission** (not PO Ready), and a case is created
 
 #### 4.2 Formalities add extra signatories
@@ -618,7 +623,7 @@ Run three small Enquiry PRs (3 quotes, award, Approve Quotes) at Minor / Medium 
 2. Award and Approve Quotes.
 
 - [ ] Header **Formalities** is checked
-- [ ] Signatory chain includes **Formalities Signatories** (`signatory.2`) in addition to the band list
+- [ ] Signatory chain includes every member of the **Formalities Signatory Job** (`signatory.2`) in addition to the band job
 
 #### 4.3 Effective change resets the chain
 
@@ -637,7 +642,7 @@ Change **quantity**, or **Purchase Nature**, on a PR that already has a pending 
 2. Line **Sole Source** checks itself.
 3. Expert submits **one** quote. CM awards and approves.
 
-- [ ] Approval list includes **Sole-Source Approvers** (`ceo.a`) last
+- [ ] Approval list includes every member of the **Sole-Source Signatory Job** (`ceo.a`) last
 - [ ] PR stays Signatory until the CEO approves
 - [ ] Same CEO inject happens on the **pre-commission** chain of a large sole-source enquiry
 

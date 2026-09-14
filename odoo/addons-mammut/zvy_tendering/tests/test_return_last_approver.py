@@ -12,13 +12,7 @@ from .common import ZvyTenderingCommon
 class TestZvyReturnLastApprover(ZvyTenderingCommon):
 
     def _enable_two_signatories(self):
-        users = [self.user_signatory.id, self.user_signatory_other.id]
-        self.company_a.write({
-            'zvy_signatory_minor_ids': [(6, 0, users)],
-            'zvy_signatory_medium_ids': [(6, 0, users)],
-            'zvy_signatory_major_ids': [(6, 0, users)],
-            'zvy_signatory_large_ids': [(6, 0, users)],
-        })
+        self.employee_signatory_other.job_id = self.job_signatory
 
     def _route_to_signatory(self):
         pr = self._submit_and_assign()

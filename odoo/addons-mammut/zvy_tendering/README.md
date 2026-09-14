@@ -338,7 +338,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Sole-source lines are detected automatically from AVL (exactly one active vendor for the product); planners cannot toggle the flag.
-- [x] Any PR with sole-source line(s) includes CEO / company sole-source approver(s) in the signatory chain before `po_ready`.
+- [x] Any PR with sole-source line(s) includes every employee on the company sole-source HR job in the signatory chain before `po_ready`.
 - [x] Applies also after Commission approval when that path was used.
 
 ---
@@ -588,7 +588,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Enquiry PR `is_formalities` when any line has &lt;3 valid inquiries; tendering PRs stay false.
-- [x] Signatory chain is the band approver set (not cumulative), plus formalities users, plus sole-source CEO last.
+- [x] Signatory chain is every employee on the band HR job (not cumulative bands), plus every employee on the formalities job, plus sole-source job members last.
 - [x] Large uses CEO up to the inner ceiling, Board above it.
 - [x] Changing qty, estimate, goods, or awarded supplier during `signatory` cancels the current `approval.request`, spawns a new chain, and keeps the old record. Only the current chain can reach `po_ready`.
 
@@ -816,7 +816,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | BR-2 | Standard lines require ≥3 **valid** inquiries before expert submit, or ≥1 valid with a shortfall reason; sole source (exactly one AVL vendor) ≥1 valid. Unpriced and stale quotes do not count (FR-33). |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (resolved Enquiry **Need Commission**: holding overlay, else product default) force Holding Commission after company signatures (FR-35 / FR-44); line flag is computed, not editable. Tendering resolved type never sets commission. |
-| BR-5 | Sole source (exactly one active AVL vendor for the line product) always requires CEO / sole-source approvers in the signatory chain before PO. |
+| BR-5 | Sole source (exactly one active AVL vendor for the line product) always requires the sole-source HR job members in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns to the previous signatory, or to the Commercial Manager if first; never to the Planner unless CM then chooses planner (FR-45). |
@@ -845,12 +845,12 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | High-value threshold | Deprecated; unused for routing. Large purchase level qualifies for Holding Commission (FR-35) |
 | Company scale | Selects the R-PL small / medium / large bylaws table |
 | Purchase-level bands | Baked-in IRR ceilings; optional per-company override |
-| Signatory users per band | Minor / medium / major / large / board / formalities lists |
+| Signatory jobs per band | Minor / medium / major / large / board / formalities HR jobs (all employees must approve) |
 | Product procurement type (Enquiry / Tendering) | Group default on the product; optional per-company overlay. Mixed PRs cannot submit |
 | Need Commission on Enquiry product | Group default; holding overlay applies to subsidiaries. Sets resolved line/header `is_commission_item`; enquiry still signs first (FR-35 / FR-44) |
 | Active AVL (one vendor for product) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
-| CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
+| CEO / sole-source job | Injected last in signatory chain when PR has sole-source lines (FR-14) |
 | Default bid window | Suggests `bid_deadline` when CE opens |
 
 ---
@@ -930,13 +930,13 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 ### Prerequisites
 
-1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`).
+1. Install (or upgrade) `zvy_tendering` (depends: `mail`, `product`, `purchase`, `approvals`, `portal`, `hr`).
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Signatory, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
 5. For Phase 2: ensure ≥3 active **AVL** vendors (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
-7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Assign the **Signatory** role to those approvers and to Sole-Source Approver(s) (e.g. CEO). Commercial Manager implies Purchase User so they can open created POs.
+7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Create **HR jobs** per band (and sole-source / formalities), link Signatory users as employees’ Related Users on those jobs, and assign the jobs in Settings. Assign the **Signatory** access right to those users. Commercial Manager implies Purchase User so they can open created POs.
 8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
 
 ### Phase 0 — Foundation
@@ -1205,7 +1205,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Create a PR with a product that has exactly one active AVL vendor (**Sole Source** auto-checked); collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** company Sole-Source Approver(s) as required, last in sequence |
+| 1 | Create a PR with a product that has exactly one active AVL vendor (**Sole Source** auto-checked); collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** every employee on the company Sole-Source Signatory Job as required, last in sequence |
 | 2 | Approve category signatories only | PR stays `signatory` until CEO / sole-source approver(s) approve |
 | 3 | CEO approves last | PR → `po_ready` |
 | 4 | Repeat for a high-value sole-source **enquiry** PR | Same CEO inject on the **pre-commission** signatory document; after that chain completes the PR goes to Holding Commission |

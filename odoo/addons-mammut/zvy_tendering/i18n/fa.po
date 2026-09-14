@@ -2949,17 +2949,17 @@ msgid "Sole Source"
 msgstr "تک‌منبع"
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_sole_source_approver_ids
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_sole_source_approver_ids
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_sole_source_job_id
+#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_sole_source_job_id
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid "Sole-Source Approvers"
+msgid "Sole-Source Signatory Job"
 msgstr "تأییدکنندگان تک‌منبع"
 
 #. module: zvy_tendering
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
 msgid ""
-"Sole-source purchase requests require Sole-Source Approvers configured on "
+"Sole-source purchase requests require a Sole-Source Signatory Job configured on "
 "the company (FR-14)."
 msgstr ""
 "درخواست‌های خرید تک‌منبع نیازمند تأییدکنندگان تک‌منبع پیکربندی‌شده روی شرکت "
@@ -3356,8 +3356,8 @@ msgid "User"
 msgstr "کاربر"
 
 #. module: zvy_tendering
-#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_sole_source_approver_ids
-#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_sole_source_approver_ids
+#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_sole_source_job_id
+#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_sole_source_job_id
 msgid ""
 "Users (e.g. CEO) required in the signatory chain for sole-source PRs "
 "(FR-14)."

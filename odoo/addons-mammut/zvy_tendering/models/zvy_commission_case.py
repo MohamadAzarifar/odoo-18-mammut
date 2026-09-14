@@ -417,13 +417,17 @@ class ZvyCommissionCase(models.Model):
                 'Every line has at least 3 priced inquiries, or is sole source.'
             )
         approval = request.approval_request_id
-        formality_users = request.company_id.zvy_signatory_formalities_ids
+        formality_job = request.company_id.sudo().zvy_signatory_formalities_job_id
+        formality_users = (
+            request.company_id._zvy_users_from_job(formality_job, require_users=False)
+            if formality_job else self.env['res.users']
+        )
         approver_users = approval.approver_ids.mapped('user_id') if approval else self.env['res.users']
         signed = bool(
             approval
             and approval.request_status == 'approved'
             and formality_users
-            and any(user in approver_users for user in formality_users)
+            and all(user in approver_users for user in formality_users)
         )
         if signed:
             return 'pass', _(

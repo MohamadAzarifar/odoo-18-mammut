@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Mammut Procurement & Tendering',
-    'version': '18.0.2.11',
+    'version': '18.0.2.12',
     'category': 'Procurement & Tendering',
     'summary': 'Purchase requests, AVL inquiry, holding commission, and closed-envelope tenders',
     'description': """
@@ -18,6 +18,7 @@ holding commission review, closed-envelope tenders, and company signatory approv
         'purchase',
         'approvals',
         'portal',
+        'hr',
     ],
     'external_dependencies': {
         'python': ['num2fawords'],

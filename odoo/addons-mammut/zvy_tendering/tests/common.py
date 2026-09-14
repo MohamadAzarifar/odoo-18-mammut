@@ -216,8 +216,43 @@ class ZvyTenderingCommon(TransactionCase):
                 'sequence': 10,
             })],
         })
+        Job = cls.env['hr.job'].with_company(cls.company_a)
+        cls.job_signatory = Job.create({
+            'name': 'ZVY Band Signatory',
+            'company_id': cls.company_a.id,
+        })
+        cls.job_board = Job.create({
+            'name': 'ZVY Board Signatory',
+            'company_id': cls.company_a.id,
+        })
+        cls.job_formalities = Job.create({
+            'name': 'ZVY Formalities Signatory',
+            'company_id': cls.company_a.id,
+        })
+        cls.job_sole_source = Job.create({
+            'name': 'ZVY Sole-Source Signatory',
+            'company_id': cls.company_a.id,
+        })
+        Employee = cls.env['hr.employee'].with_company(cls.company_a)
+        cls.employee_signatory = Employee.create({
+            'name': cls.user_signatory.name,
+            'company_id': cls.company_a.id,
+            'user_id': cls.user_signatory.id,
+            'job_id': cls.job_signatory.id,
+        })
+        cls.employee_signatory_other = Employee.create({
+            'name': cls.user_signatory_other.name,
+            'company_id': cls.company_a.id,
+            'user_id': cls.user_signatory_other.id,
+            'job_id': cls.job_board.id,
+        })
+        cls.employee_ceo = Employee.create({
+            'name': cls.user_ceo.name,
+            'company_id': cls.company_a.id,
+            'user_id': cls.user_ceo.id,
+            'job_id': cls.job_sole_source.id,
+        })
         cls.company_a.zvy_signatory_approval_category_id = cls.signatory_category
-        cls.company_a.zvy_sole_source_approver_ids = [(6, 0, [cls.user_ceo.id])]
         cls.company_a.write({
             'zvy_company_scale': 'small',
             'zvy_use_custom_bands': True,
@@ -229,11 +264,12 @@ class ZvyTenderingCommon(TransactionCase):
             'zvy_nop_medium_max': 500.0,
             'zvy_nop_major_max': 5000.0,
             'zvy_nop_large_ceo_max': 10000.0,
-            'zvy_signatory_minor_ids': [(6, 0, [cls.user_signatory.id])],
-            'zvy_signatory_medium_ids': [(6, 0, [cls.user_signatory.id])],
-            'zvy_signatory_major_ids': [(6, 0, [cls.user_signatory.id])],
-            'zvy_signatory_large_ids': [(6, 0, [cls.user_signatory.id])],
-            'zvy_signatory_board_ids': [(6, 0, [cls.user_signatory_other.id])],
+            'zvy_signatory_minor_job_id': cls.job_signatory.id,
+            'zvy_signatory_medium_job_id': cls.job_signatory.id,
+            'zvy_signatory_major_job_id': cls.job_signatory.id,
+            'zvy_signatory_large_job_id': cls.job_signatory.id,
+            'zvy_signatory_board_job_id': cls.job_board.id,
+            'zvy_sole_source_job_id': cls.job_sole_source.id,
         })
 
         # Portal suppliers (true base.group_portal users on commercial child contacts)

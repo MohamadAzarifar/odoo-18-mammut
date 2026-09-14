@@ -123,7 +123,8 @@ class TestZvyPurchaseLevel(ZvyTenderingCommon):
         self.assertFalse(pr.is_formalities)
 
     def test_formalities_appends_extra_approvers(self):
-        self.company_a.zvy_signatory_formalities_ids = [(6, 0, [self.user_signatory_other.id])]
+        self.company_a.zvy_signatory_formalities_job_id = self.job_formalities
+        self.employee_signatory_other.job_id = self.job_formalities
         pr = self._submit_and_assign()
         self._add_quotes(pr, count=2)
         pr.line_ids.sudo().write({

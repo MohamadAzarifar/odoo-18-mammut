@@ -21,9 +21,9 @@ class ResConfigSettings(models.TransientModel):
         string='Signatory Approval Category',
         readonly=False,
     )
-    zvy_sole_source_approver_ids = fields.Many2many(
-        related='company_id.zvy_sole_source_approver_ids',
-        string='Sole-Source Approvers',
+    zvy_sole_source_job_id = fields.Many2one(
+        related='company_id.zvy_sole_source_job_id',
+        string='Sole-Source Signatory Job',
         readonly=False,
     )
     zvy_company_scale = fields.Selection(
@@ -84,34 +84,34 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         currency_field='company_currency_id',
     )
-    zvy_signatory_minor_ids = fields.Many2many(
-        related='company_id.zvy_signatory_minor_ids',
-        string='Minor Signatories',
+    zvy_signatory_minor_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_minor_job_id',
+        string='Minor Signatory Job',
         readonly=False,
     )
-    zvy_signatory_medium_ids = fields.Many2many(
-        related='company_id.zvy_signatory_medium_ids',
-        string='Medium Signatories',
+    zvy_signatory_medium_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_medium_job_id',
+        string='Medium Signatory Job',
         readonly=False,
     )
-    zvy_signatory_major_ids = fields.Many2many(
-        related='company_id.zvy_signatory_major_ids',
-        string='Major Signatories',
+    zvy_signatory_major_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_major_job_id',
+        string='Major Signatory Job',
         readonly=False,
     )
-    zvy_signatory_large_ids = fields.Many2many(
-        related='company_id.zvy_signatory_large_ids',
-        string='Large Signatories',
+    zvy_signatory_large_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_large_job_id',
+        string='Large Signatory Job',
         readonly=False,
     )
-    zvy_signatory_board_ids = fields.Many2many(
-        related='company_id.zvy_signatory_board_ids',
-        string='Board Signatories',
+    zvy_signatory_board_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_board_job_id',
+        string='Board Signatory Job',
         readonly=False,
     )
-    zvy_signatory_formalities_ids = fields.Many2many(
-        related='company_id.zvy_signatory_formalities_ids',
-        string='Formalities Signatories',
+    zvy_signatory_formalities_job_id = fields.Many2one(
+        related='company_id.zvy_signatory_formalities_job_id',
+        string='Formalities Signatory Job',
         readonly=False,
     )
     zvy_is_holding_company = fields.Boolean(

@@ -50,36 +50,36 @@
                     </block>
                     <block title="Signatory Approvers">
                         <setting string="Signatory Approval Category"
-                                 help="Sequential approval category used as the signatory document template. Approver users come from the lists below.">
+                                 help="Sequential approval category used as the signatory document template. Approver users come from the HR jobs below.">
                             <field name="zvy_signatory_approval_category_id"/>
                         </setting>
-                        <setting string="Minor Signatories"
-                                 help="Commercial Manager approvers for minor purchases.">
-                            <field name="zvy_signatory_minor_ids" widget="many2many_tags"/>
+                        <setting string="Minor Signatory Job"
+                                 help="Job whose employees all approve minor purchases (for example Commercial Manager).">
+                            <field name="zvy_signatory_minor_job_id"/>
                         </setting>
-                        <setting string="Medium Signatories"
-                                 help="Commercial Deputy approvers for medium purchases.">
-                            <field name="zvy_signatory_medium_ids" widget="many2many_tags"/>
+                        <setting string="Medium Signatory Job"
+                                 help="Job whose employees all approve medium purchases (for example Commercial Deputy).">
+                            <field name="zvy_signatory_medium_job_id"/>
                         </setting>
-                        <setting string="Major Signatories"
-                                 help="CEO approvers for major purchases.">
-                            <field name="zvy_signatory_major_ids" widget="many2many_tags"/>
+                        <setting string="Major Signatory Job"
+                                 help="Job whose employees all approve major purchases (for example CEO).">
+                            <field name="zvy_signatory_major_job_id"/>
                         </setting>
-                        <setting string="Large Signatories"
-                                 help="CEO approvers for large purchases up to the inner CEO ceiling.">
-                            <field name="zvy_signatory_large_ids" widget="many2many_tags"/>
+                        <setting string="Large Signatory Job"
+                                 help="Job whose employees all approve large purchases up to the inner CEO ceiling.">
+                            <field name="zvy_signatory_large_job_id"/>
                         </setting>
-                        <setting string="Board Signatories"
-                                 help="Board member approvers for large purchases above the inner CEO ceiling.">
-                            <field name="zvy_signatory_board_ids" widget="many2many_tags"/>
+                        <setting string="Board Signatory Job"
+                                 help="Job whose employees all approve large purchases above the inner CEO ceiling.">
+                            <field name="zvy_signatory_board_job_id"/>
                         </setting>
-                        <setting string="Formalities Signatories"
-                                 help="Extra approvers appended when the PR is in formalities.">
-                            <field name="zvy_signatory_formalities_ids" widget="many2many_tags"/>
+                        <setting string="Formalities Signatory Job"
+                                 help="Extra job whose employees are appended when the PR is in formalities.">
+                            <field name="zvy_signatory_formalities_job_id"/>
                         </setting>
-                        <setting string="Sole-Source Approvers"
-                                 help="Users (for example the CEO) who must approve every sole-source purchase request before PO Ready.">
-                            <field name="zvy_sole_source_approver_ids" widget="many2many_tags"/>
+                        <setting string="Sole-Source Signatory Job"
+                                 help="Job whose employees (for example the CEO) must all approve every sole-source purchase request before PO Ready.">
+                            <field name="zvy_sole_source_job_id"/>
                         </setting>
                     </block>
                     <block title="Commission Pre-checks">

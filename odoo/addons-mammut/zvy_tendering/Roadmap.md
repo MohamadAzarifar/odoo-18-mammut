@@ -32,7 +32,7 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 **Second delivery:** Phase 5.  
 **Third delivery (customer PRD 1.3):** Phases 6–15. Source: customer **PRD — Purchase Request System v1.3** (post-pilot). Does **not** reopen Phases 0–5. Version series **`18.0.2.x`** (breaking: inquiry routing order and partial PO). New FRs start at **FR-32**. Specs for 6–15 land in [README.md](README.md) / [Architecture.md](Architecture.md) **when each phase is implemented**; until then this roadmap is the backlog.
 
-Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operational/non-operational) with optional per-company overrides. Signatory users are per-band lists on the company.
+Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operational/non-operational) with optional per-company overrides. Signatory chains resolve from per-band HR jobs on the company (every employee on the job must approve).
 
 ---
 
@@ -294,7 +294,7 @@ Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-0
 - [x] Company settings: company scale × operational/non-operational baked-in IRR tables (R-PL-012/013/014) with optional custom ceilings
 - [x] Valid inquiry (FR-33 foundation): priced and received date &lt; 30 days; unpriced quotes allowed later in Phase 8 but **never** count toward the 3
 - [x] `is_formalities` when **any** line has fewer than 3 valid inquiries (whole PR, not per line)
-- [x] Spawn signatory chain from purchase level + formalities (per-band user lists; sole-source CEO inject from FR-14 still applies)
+- [x] Spawn signatory chain from purchase level + formalities (per-band HR jobs; sole-source job inject from FR-14 still applies)
 - [x] Effective-change list resets the in-progress chain and keeps prior `approval.request` records in history: request price, supplier list, quantity, add/remove goods
 - [x] `is_high_value` remains derived or deprecated in favor of `purchase_level` (no silent dual routing)
 
@@ -633,7 +633,7 @@ Architecture today only names “Holding Commission”: case `company_id` is rel
 | Owned by requesting (operating) company | Owned by head holding (`company.root_id`) | Global |
 |-----------------------------------------|-------------------------------------------|--------|
 | PR, lines, quotes, CE header | Commission cases, reviews, meetings | AVL |
-| Purchase level, signatory lists, sole-source CEO | Commission Manager / Expert work | |
+| Purchase level, signatory jobs, sole-source CEO job | Commission Manager / Expert work | |
 | Create PO | Commission rules / settings (readonly on children) | |
 
 Head holding = `request.company_id.root_id` (the company itself when it has no parent). Helper e.g. `res.company._zvy_holding_company()` → `root_id`. Do not use the immediate `parent_id` when a mid-level company sits between the subsidiary and the root.

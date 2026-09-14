@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 from ..hooks import ensure_res_company_columns
 
@@ -36,17 +37,15 @@ class ResCompany(models.Model):
         'approval.category',
         string='Signatory Approval Category',
         help='Sequential approval category used as the signatory document '
-             'template. Approver users come from the per-band lists, not '
+             'template. Approver users come from the per-band HR jobs, not '
              'from this category.',
     )
-    zvy_sole_source_approver_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_sole_source_approver_rel',
-        'company_id',
-        'user_id',
-        string='Sole-Source Approvers',
-        help='Users (e.g. CEO) required last in the signatory chain for '
-             'sole-source PRs (FR-14).',
+    zvy_sole_source_job_id = fields.Many2one(
+        'hr.job',
+        string='Sole-Source Signatory Job',
+        check_company=True,
+        help='Job position whose employees (e.g. CEO) must all approve last '
+             'in the signatory chain for sole-source PRs (FR-14).',
     )
     zvy_company_scale = fields.Selection(
         selection=[
@@ -98,53 +97,46 @@ class ResCompany(models.Model):
         currency_field='currency_id',
         help='Within large non-operational purchases, CEO signs up to this amount; Board above it.',
     )
-    zvy_signatory_minor_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_minor_rel',
-        'company_id',
-        'user_id',
-        string='Minor Signatories',
-        help='Commercial Manager approvers for minor (خرد) purchases.',
+    zvy_signatory_minor_job_id = fields.Many2one(
+        'hr.job',
+        string='Minor Signatory Job',
+        check_company=True,
+        help='Job whose employees all approve minor (خرد) purchases '
+             '(e.g. Commercial Manager).',
     )
-    zvy_signatory_medium_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_medium_rel',
-        'company_id',
-        'user_id',
-        string='Medium Signatories',
-        help='Commercial Deputy approvers for medium (متوسط) purchases.',
+    zvy_signatory_medium_job_id = fields.Many2one(
+        'hr.job',
+        string='Medium Signatory Job',
+        check_company=True,
+        help='Job whose employees all approve medium (متوسط) purchases '
+             '(e.g. Commercial Deputy).',
     )
-    zvy_signatory_major_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_major_rel',
-        'company_id',
-        'user_id',
-        string='Major Signatories',
-        help='CEO approvers for major (عمده) purchases.',
+    zvy_signatory_major_job_id = fields.Many2one(
+        'hr.job',
+        string='Major Signatory Job',
+        check_company=True,
+        help='Job whose employees all approve major (عمده) purchases (e.g. CEO).',
     )
-    zvy_signatory_large_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_large_rel',
-        'company_id',
-        'user_id',
-        string='Large Signatories',
-        help='CEO approvers for large (کلان) purchases up to the inner CEO ceiling.',
+    zvy_signatory_large_job_id = fields.Many2one(
+        'hr.job',
+        string='Large Signatory Job',
+        check_company=True,
+        help='Job whose employees all approve large (کلان) purchases up to '
+             'the inner CEO ceiling.',
     )
-    zvy_signatory_board_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_board_rel',
-        'company_id',
-        'user_id',
-        string='Board Signatories',
-        help='Board member approvers for large purchases above the inner CEO ceiling.',
+    zvy_signatory_board_job_id = fields.Many2one(
+        'hr.job',
+        string='Board Signatory Job',
+        check_company=True,
+        help='Job whose employees all approve large purchases above the '
+             'inner CEO ceiling.',
     )
-    zvy_signatory_formalities_ids = fields.Many2many(
-        'res.users',
-        'zvy_company_signatory_formalities_rel',
-        'company_id',
-        'user_id',
-        string='Formalities Signatories',
-        help='Extra approvers appended when the PR is in formalities (تشریفات).',
+    zvy_signatory_formalities_job_id = fields.Many2one(
+        'hr.job',
+        string='Formalities Signatory Job',
+        check_company=True,
+        help='Extra job whose employees are appended when the PR is in '
+             'formalities (تشریفات).',
     )
     zvy_commission_notice_days = fields.Integer(
         string='Commission Notice Days',
@@ -192,18 +184,69 @@ class ResCompany(models.Model):
         self.ensure_one()
         return self.root_id or self
 
-    def _zvy_signatory_users(self, level, amount, nature):
-        """Users for this purchase level. Large uses CEO or Board, not both."""
+    def _zvy_signatory_job(self, level, amount, nature):
+        """HR job for this purchase level. Large uses CEO or Board, not both."""
         self.ensure_one()
+        # Spawn runs as CM/admin; hr.job is Officer-restricted.
+        company = self.sudo()
         if level == 'minor':
-            return self.zvy_signatory_minor_ids
+            return company.zvy_signatory_minor_job_id
         if level == 'medium':
-            return self.zvy_signatory_medium_ids
+            return company.zvy_signatory_medium_job_id
         if level == 'major':
-            return self.zvy_signatory_major_ids
+            return company.zvy_signatory_major_job_id
         if level == 'large':
             ceilings = self._zvy_band_ceilings(nature)
             if (amount or 0.0) <= ceilings['large_ceo_max']:
-                return self.zvy_signatory_large_ids
-            return self.zvy_signatory_board_ids
-        return self.env['res.users']
+                return company.zvy_signatory_large_job_id
+            return company.zvy_signatory_board_job_id
+        return self.env['hr.job']
+
+    def _zvy_users_from_job(self, job, *, require_users=True):
+        """Active employees on ``job`` for this company, as linked users.
+
+        Order is stable by employee id. Every member must have a Related User
+        when ``require_users`` is True (spawn / inject paths).
+        """
+        self.ensure_one()
+        job = job.sudo() if job else job
+        if not job:
+            return self.env['res.users']
+        employees = self.env['hr.employee'].sudo().search([
+            ('job_id', '=', job.id),
+            ('company_id', '=', self.id),
+            ('active', '=', True),
+        ], order='id')
+        missing = employees.filtered(lambda e: not e.user_id)
+        if missing and require_users:
+            raise UserError(_(
+                'Employees on job "%(job)s" must have a Related User before '
+                'they can sign: %(names)s.',
+                job=job.display_name,
+                names=', '.join(missing.mapped('name')),
+            ))
+        user_ids = []
+        seen = set()
+        for employee in employees.filtered('user_id'):
+            uid = employee.user_id.id
+            if uid in seen:
+                continue
+            seen.add(uid)
+            user_ids.append(uid)
+        users = self.env['res.users'].browse(user_ids)
+        if require_users and job and not users:
+            raise UserError(_(
+                'Job "%(job)s" has no active employees with a Related User '
+                'in company "%(company)s".',
+                job=job.display_name,
+                company=self.display_name,
+            ))
+        return users
+
+    def _zvy_signatory_users(self, level, amount, nature):
+        """Users for this purchase level, resolved from the configured HR job."""
+        self.ensure_one()
+        job = self._zvy_signatory_job(level, amount, nature)
+        if not job:
+            return self.env['res.users']
+        return self._zvy_users_from_job(job)

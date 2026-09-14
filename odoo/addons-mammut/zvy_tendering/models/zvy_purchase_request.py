@@ -1123,23 +1123,30 @@ class ZvyPurchaseRequest(models.Model):
                 'so signatories approve in order.'
             ) % category.display_name)
 
+        band_job = self.company_id._zvy_signatory_job(
+            self.purchase_level,
+            self.amount_for_level,
+            self.purchase_nature or 'operational',
+        )
+        if not band_job:
+            raise UserError(_(
+                'Configure the signatory job for purchase level "%(level)s" '
+                'on the company.',
+                level=self.purchase_level or _('unknown'),
+            ))
         band_users = self.company_id._zvy_signatory_users(
             self.purchase_level,
             self.amount_for_level,
             self.purchase_nature or 'operational',
         )
-        if not band_users:
-            raise UserError(_(
-                'Configure signatories for purchase level "%(level)s" on the company.',
-                level=self.purchase_level or _('unknown'),
-            ))
         chain_users = list(band_users)
-        if self.is_formalities:
-            for user in self.company_id.zvy_signatory_formalities_ids:
+        formalities_job = self.company_id.sudo().zvy_signatory_formalities_job_id
+        if self.is_formalities and formalities_job:
+            for user in self.company_id._zvy_users_from_job(formalities_job):
                 if user not in chain_users:
                     chain_users.append(user)
         if not chain_users and not (
-            self.has_sole_source and self.company_id.zvy_sole_source_approver_ids
+            self.has_sole_source and self.company_id.sudo().zvy_sole_source_job_id
         ):
             raise UserError(_(
                 'Cannot spawn signatory approval without any approvers.'
@@ -1241,14 +1248,15 @@ class ZvyPurchaseRequest(models.Model):
             ) % old_name)
 
     def _inject_sole_source_approvers(self, approval_request):
-        """Ensure company sole-source / CEO approvers are last required in chain."""
+        """Ensure company sole-source / CEO job members are last required in chain."""
         self.ensure_one()
-        ceo_users = self.company_id.zvy_sole_source_approver_ids
-        if not ceo_users:
+        sole_job = self.company_id.sudo().zvy_sole_source_job_id
+        if not sole_job:
             raise UserError(_(
-                'Sole-source purchase requests require Sole-Source Approvers '
-                'configured on the company (FR-14).'
+                'Sole-source purchase requests require a Sole-Source Signatory '
+                'Job configured on the company (FR-14).'
             ))
+        ceo_users = self.company_id._zvy_users_from_job(sole_job)
         existing = approval_request.approver_ids.mapped('user_id')
         max_seq = max(approval_request.approver_ids.mapped('sequence') or [10])
         commands = []

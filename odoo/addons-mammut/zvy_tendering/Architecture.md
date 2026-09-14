@@ -15,8 +15,8 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.9` |
-| Depends | `mail`, `product`, `purchase`, `approvals`, `portal` |
+| Version | `18.0.2.12` |
+| Depends | `mail`, `product`, `purchase`, `approvals`, `portal`, `hr` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
 `portal` is declared from day one so CE invitation/partner links and Phase 5 controllers share one module. Portal **UI** ships in Roadmap Phase 5; until then Commission Manager may enter sealed bids manually (FR-29).
@@ -391,7 +391,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities signatory user lists; `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_approver_ids`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities **HR job** positions (`zvy_signatory_*_job_id`); `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_job_id`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
 | `approval.request` | `zvy_purchase_request_id`; `zvy_resume_commission`; refuse of the **current** chain bounces to the previous signatory (FR-45) or PR `cm_review` if first; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large), or reopen commission when `zvy_resume_commission`. Stale/cancelled history records are ignored. |
@@ -553,7 +553,7 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 
 Each role uses its own child `ir.module.category` under **Procurement & Tendering** so Access Rights shows them without debug mode (sibling groups in one category become boolean fields and are debug-only).
 
-`group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must also be listed on the Signatory Approval Category (or sole-source approvers). No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
+`group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must hold the HR job configured for the band (or sole-source job) and have a Related User. No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
 
 Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager + Expert groups as needed for support, plus `product.group_product_manager` so Configuration → Products can create/edit `product.template`. The Products menu (`menu_zvy_product_template`) is admin-only.
 
@@ -580,10 +580,10 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 ### 6.1 Approvals (hybrid — Stories 12–14 only)
 
 - PR remains `zvy.purchase.request`; never replace with `approval.request` or `purchase.requisition` (PRD non-goals).
-- `_action_spawn_signatory_approval`: create sequential `approval.request` from the company category **template**, then replace approvers with the purchase-level user list, optional formalities users, and sole-source CEO last. Link via `zvy_purchase_request_id` / `approval_request_id`.
+- `_action_spawn_signatory_approval`: create sequential `approval.request` from the company category **template**, then replace approvers with every Related User on the purchase-level HR job, optional formalities job members, and sole-source job members last. Link via `zvy_purchase_request_id` / `approval_request_id`.
 - Large: CEO list up to `large_ceo_max`, Board list above it (not both).
 - Effective change during `signatory` (qty, estimate, goods, awarded supplier, purchase nature): cancel the current document, spawn a new chain, keep history.
-- Sole source: ensure `company.zvy_sole_source_approver_ids` (e.g. CEO) are required last-sequence approvers before completion.
+- Sole source: ensure `company.zvy_sole_source_job_id` employees (e.g. CEO) are required last-sequence approvers before completion.
 - Approve chain complete → `_action_route_after_signatory` (enquiry may still need Holding Commission; otherwise `po_ready`). Completing a `zvy_resume_commission` chain reopens the commission case.
 - Refuse → previous signatory on the same document, or PR `cm_review` when the first signatory refuses (FR-45 / BR-8); reason wizard is required. Does not depend on `mammut_refuse_reason`.
 - FR-28: no transition to `po_ready` while approval pending.
@@ -629,11 +629,11 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 |---------|---------|---------|
 | Company scale | `res.company.zvy_company_scale` | FR-32 |
 | Purchase-level bands | Baked-in R-PL tables or `zvy_use_custom_bands` ceilings | FR-32 |
-| Signatory users per band | `zvy_signatory_*_ids` + formalities | FR-32 / FR-34 |
+| Signatory jobs per band | `zvy_signatory_*_job_id` + formalities job | FR-32 / FR-34 |
 | High-value threshold | `res.company.zvy_high_value_threshold` | Deprecated; unused in routing |
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..14) |
-| Sole-source approvers (CEO) | `res.company.zvy_sole_source_approver_ids` | FR-14 / BR-5 |
+| Sole-source job (CEO) | `res.company.zvy_sole_source_job_id` | FR-14 / BR-5 |
 | Commission on Enquiry product | Template `zvy_need_commission`; holding overlay via `zvy.product.procurement.company` | BR-4 / FR-44 |
 | Product procurement type | Template `zvy_procurement_type`; per-company overlay; Admin maintains products via Configuration → Products | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
 | Commission notice days | `res.company.zvy_commission_notice_days` on the head holding | FR-43 check 1 / FR-46 (0 until commission-laws) |

@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_job_zvy_admin,hr.job zvy admin,hr.model_hr_job,group_zvy_tendering_admin,1,0,0,0
 access_zvy_avl_entry_admin,zvy.avl.entry admin,model_zvy_avl_entry,group_zvy_tendering_admin,1,1,1,1
 access_zvy_product_procurement_company_admin,zvy.product.procurement.company admin,model_zvy_product_procurement_company,group_zvy_tendering_admin,1,1,1,1
 access_zvy_product_procurement_company_planner,zvy.product.procurement.company planner,model_zvy_product_procurement_company,group_zvy_planner,1,0,0,0
