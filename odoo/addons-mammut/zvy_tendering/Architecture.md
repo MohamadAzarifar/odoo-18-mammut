@@ -221,7 +221,7 @@ Expert-collected offer (standard inquiry path).
 | `request_id` | Many2one | |
 | `request_state` | Selection (related) | `request_id.state`; drives form `readonly` attrs |
 | `line_id` | Many2one | Optional: quote per line |
-| `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s company/product/category |
+| `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s product/category |
 | `partner_id` | Many2one | Domain: `[('id', 'in', allowed_partner_ids)]` (BR-1 / FR-9) |
 | `contact_name` / `contact_phone` | Char | Required; default from vendor master; remain editable (FR-36) |
 | `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit` not &gt; 0) is never a valid inquiry; total = unit × line qty when priced |
@@ -245,17 +245,16 @@ Approved Vendor List maintained in Odoo (no external sync).
 | Field | Type | Notes |
 |-------|------|--------|
 | `partner_id` | Many2one `res.partner` | Vendor |
-| `company_id` | Many2one | |
 | `product_id` | Many2one | Optional product scope |
 | `categ_id` | Many2one `product.category` | Optional category scope |
 | `active` | Boolean | Only active entries selectable |
 | `date_start` / `date_end` | Date | Optional validity |
 
-Domain helper: `_avl_partner_domain(company, product=None, categ=None)` used by quote and CE invite fields.
+Domain helper: `_avl_partner_domain(product=None, categ=None)` used by quote and CE invite fields. AVL is **global** (no `company_id`).
 
 Computed fields that read `self.env.user` (`allowed_partner_ids`) must declare `depends_context=('uid', ...)`; without it the cache serves the first user’s value to everyone in the same transaction.
 
-Vendor pickers must never be filtered by an `onchange`-returned domain (unsupported since Odoo 17 — it silently lists every contact). Each model exposes a non-stored computed `allowed_partner_ids` and the vendor field declares `domain="[('id', 'in', allowed_partner_ids)]"`: `zvy.quote` scopes by line company/product/category, `zvy.closed.envelope` by company. Views that let a vendor be picked must load the helper field (`invisible="1"` / `column_invisible="1"`). Server-side `_check_avl` / `_check_invite_avl` reuse the same helper so UI and validation cannot drift.
+Vendor pickers must never be filtered by an `onchange`-returned domain (unsupported since Odoo 17 — it silently lists every contact). Each model exposes a non-stored computed `allowed_partner_ids` and the vendor field declares `domain="[('id', 'in', allowed_partner_ids)]"`: `zvy.quote` scopes by line product/category, `zvy.closed.envelope` by the global active AVL. Views that let a vendor be picked must load the helper field (`invisible="1"` / `column_invisible="1"`). Server-side `_check_avl` / `_check_invite_avl` reuse the same helper so UI and validation cannot drift.
 
 #### `zvy.commission.case`
 
@@ -562,7 +561,7 @@ Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager +
 
 | Scope | Domain intent |
 |-------|----------------|
-| Multi-company | `company_id in company_ids` (or False) on operating-company models (AVL, overlays). Commission/CE/PR/quote globals also allow `holding_company_id in company_ids` (FR-46) |
+| Multi-company | `company_id in company_ids` (or False) on operating-company models (overlays). AVL has no company rule (global). Commission/CE/PR/quote globals also allow `holding_company_id in company_ids` (FR-46) |
 | Planner | Own PRs (`requester_id = user`) |
 | Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8). CE/quotes scoped to requesting `company_id` |
 | Commercial Manager | All PRs/quotes/CE of companies in `company_ids` (not holding descendants) |
@@ -654,7 +653,7 @@ Automated tests (PRD §7) mapped to design:
 |------|--------|
 | Quote minima | Standard line blocks submit with &lt;3 **valid** inquiries unless `quote_shortfall_reason` is set (still ≥1 valid); sole source allows 1 valid; stale/unpriced do not count |
 | Last purchase | Confirmed PO for product+company fills line `last_vendor_id` / `last_price` / `last_purchase_date`; empty without history |
-| AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL and other-company vendors |
+| AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
 | Non-lowest award | Awarding a quote with `price_unit` above the line minimum requires `award_not_lowest_reason`; UI opens the wizard; lowest award needs no reason |
 | Expert line lock | Content edits on lines blocked outside `draft`/`correction`; views use `request_state` readonly |

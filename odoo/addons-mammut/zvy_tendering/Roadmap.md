@@ -50,7 +50,7 @@ Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operation
 - [x] `res.company` / `res.config.settings`: high-value threshold, default bid window, signatory approval category
 - [x] `product.template.zvy_procurement_type` / `zvy_need_commission` (replaces former `product.category.zvy_is_commission_item`)
 - [x] `ir.sequence` for PR (and CE/case if needed)
-- [x] `zvy.avl.entry` CRUD + views (active vendor by company / product / category)
+- [x] `zvy.avl.entry` CRUD + views (active vendor by product / category)
 
 ### Stories / FRs
 
@@ -62,7 +62,7 @@ Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operation
 ### Suggested tests
 
 - [x] Settings write/read on company
-- [x] AVL `active` filter; multi-company isolation
+- [x] AVL `active` filter; global (not company-scoped)
 
 ### Done when
 
@@ -138,7 +138,7 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Expert cannot edit unassigned lines
 - [x] Assigned line product/qty locked outside draft/correction (server + view readonly)
 - [x] Non-AVL partner rejected on quote
-- [x] Quote vendor dropdown lists only AVL vendors for the line’s company/product
+- [x] Quote vendor dropdown lists only AVL vendors for the line’s product
 - [x] Expert saves a quote from the line one2many while the PR is in inquiry (parent content lock exempts `quote_ids`)
 - [x] Minima block/allow submit
 - [x] Split assignment: each expert submits their own line; PR advances only when all lines are in (no cross-line `AccessError`)
@@ -622,7 +622,7 @@ FR-45 holds; refuse/return no longer always dumps work on the planner; Phase 6 r
 
 ## Phase 15 — Holding company commission (`18.0.2.9`)
 
-**Goal:** Commission is not an operating-company queue. Cases, reviews, meetings, Commission Manager/Expert work, and **commission rules** live on the **head holding** — the top parent in Odoo’s company tree (`res.company.root_id`). The rest of `zvy_tendering` stays multi-company: PRs, AVL, quotes, CE headers, purchase level, and signatories stay on the requesting company.
+**Goal:** Commission is not an operating-company queue. Cases, reviews, meetings, Commission Manager/Expert work, and **commission rules** live on the **head holding** — the top parent in Odoo’s company tree (`res.company.root_id`). The rest of `zvy_tendering` stays multi-company: PRs, quotes, CE headers, purchase level, and signatories stay on the requesting company. AVL is global (not company-owned).
 
 Architecture today only names “Holding Commission”: case `company_id` is related from the PR, and record rules are `company_id in company_ids`. A holding user allowed only on the parent cannot see subsidiary cases or CE lists. This phase closes that gap. Specs: [Architecture.md](Architecture.md).
 
@@ -630,11 +630,11 @@ Architecture today only names “Holding Commission”: case `company_id` is rel
 
 ### Ownership
 
-| Owned by requesting (operating) company | Owned by head holding (`company.root_id`) |
-|-----------------------------------------|-------------------------------------------|
-| PR, lines, quotes, AVL, CE header | Commission cases, reviews, meetings |
-| Purchase level, signatory lists, sole-source CEO | Commission Manager / Expert work |
-| Create PO | Commission rules / settings (readonly on children) |
+| Owned by requesting (operating) company | Owned by head holding (`company.root_id`) | Global |
+|-----------------------------------------|-------------------------------------------|--------|
+| PR, lines, quotes, CE header | Commission cases, reviews, meetings | AVL |
+| Purchase level, signatory lists, sole-source CEO | Commission Manager / Expert work | |
+| Create PO | Commission rules / settings (readonly on children) | |
 
 Head holding = `request.company_id.root_id` (the company itself when it has no parent). Helper e.g. `res.company._zvy_holding_company()` → `root_id`. Do not use the immediate `parent_id` when a mid-level company sits between the subsidiary and the root.
 
@@ -645,7 +645,7 @@ Head holding = `request.company_id.root_id` (the company itself when it has no p
 - [x] Meeting `company_id` / `holding_company_id` is the holding (Phase 11: linked PRs still share one requesting company)
 - [x] Record rules for commission roles: see cases, reviews, meetings, and CE when `holding_company_id` is in `company_ids` (or requesting `company_id` is a descendant of an allowed holding)
 - [x] Subsidiary CM / planner keep access to **their** PR; they do not own the holding commission queue
-- [x] Commission settings stored on the holding company only; children inherit / show readonly. Operating-company settings unchanged: scale, bands, signatories, AVL, sole-source CEO
+- [x] Commission settings stored on the holding company only; children inherit / show readonly. Operating-company settings unchanged: scale, bands, signatories, sole-source CEO
 - [x] Need Commission overlay (FR-44) resolves against the **holding**, not the subsidiary. Procurement-type overlay may stay per operating company
 - [x] Do not build a Holding org chart — use `res.company.parent_id` / `root_id` only (already out of scope below)
 

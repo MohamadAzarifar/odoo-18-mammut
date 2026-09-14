@@ -53,8 +53,8 @@ class ZvyQuote(models.Model):
         'res.partner',
         string='Allowed Vendors',
         compute='_compute_allowed_partner_ids',
-        depends_context=('uid', 'company'),
-        help='Active AVL vendors for this company and the line product/category.',
+        depends_context=('uid',),
+        help='Active AVL vendors for the line product/category.',
     )
     contact_name = fields.Char(
         string='Contact Name',
@@ -228,8 +228,6 @@ class ZvyQuote(models.Model):
     @api.depends(
         'line_id',
         'line_id.product_id',
-        'line_id.company_id',
-        'request_id.company_id',
     )
     def _compute_allowed_partner_ids(self):
         Partner = self.env['res.partner']
@@ -276,11 +274,7 @@ class ZvyQuote(models.Model):
     def _partner_domain_for_line(self, line):
         if not line:
             return [('id', '=', False)]
-        company = line.company_id or line.request_id.company_id
-        if not company:
-            return [('id', '=', False)]
         return self.env['zvy.avl.entry']._avl_partner_domain(
-            company,
             product=line.product_id,
             categ=line.product_id.categ_id if line.product_id else None,
         )
@@ -292,7 +286,7 @@ class ZvyQuote(models.Model):
             )
             if quote.partner_id not in allowed:
                 raise ValidationError(_(
-                    'Vendor %(vendor)s is not on the active AVL for this product/company.',
+                    'Vendor %(vendor)s is not on the active AVL for this product.',
                     vendor=quote.partner_id.display_name,
                 ))
 

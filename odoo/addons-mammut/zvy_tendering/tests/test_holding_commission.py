@@ -23,14 +23,6 @@ class TestZvyHoldingCommission(ZvyTenderingCommon):
             'name': 'ZVY Sub B',
             'parent_id': cls.holding.id,
         })
-        cls.Avl.create({
-            'partner_id': cls.partner_a.id,
-            'company_id': cls.child_a.id,
-        })
-        cls.Avl.create({
-            'partner_id': cls.partner_a.id,
-            'company_id': cls.child_b.id,
-        })
         cls.user_holding_comm_mgr = cls._make_company_user(
             'ZVY Holding Comm Mgr',
             'zvy_holding_comm_mgr',

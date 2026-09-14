@@ -123,7 +123,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Planner can create a PR with header (requester, company, description) and one or more lines (product, qty, UoM, estimate).
 - [x] **Requester** defaults to the creating user, is read-only on the form, and cannot be changed (UI or RPC); create always forces `requester_id = env.user`.
 - [x] Line **Sole Source**, **Commission Item**, and **Procurement Type** are computed and read-only (not planner-editable):
-  - Sole Source = product has exactly one active AVL vendor for the PR company.
+  - Sole Source = product has exactly one active AVL vendor.
   - Procurement Type = product **Enquiry** or **Tendering** (product default Enquiry).
   - Commission Item = Enquiry product has **Need Commission** checked (default No; hidden on Tendering products).
 - [x] PR starts in `draft`; Planner can submit a homogeneous PR → `submitted` / CM queue.
@@ -261,7 +261,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [ ] Quote and CE supplier fields are domain-restricted to active `zvy.avl.entry` matching product/category (and company).
+- [ ] Quote and CE supplier fields are domain-restricted to active `zvy.avl.entry` matching product/category.
 - [ ] Non-AVL partners cannot be selected — they are absent from the dropdown, not merely rejected on save.
 
 #### FR-10 Quote collection minima *(Story 10)*
@@ -276,7 +276,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] Standard **Enquiry** line: submit blocked until ≥3 **valid** inquiries recorded, **or** ≥1 valid inquiry plus a written reason for the shortfall.
 - [x] Fewer than 3 valid inquiries (UI): **Submit Quotes** opens a justification wizard; RPC without a reason raises.
-- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product/company): ≥1 **valid** inquiry required.
+- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product): ≥1 **valid** inquiry required.
 - [x] Submit sends quote set to CM quote review.
 - [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
 - [x] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
@@ -337,7 +337,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 **Acceptance criteria**
 
-- [x] Sole-source lines are detected automatically from AVL (exactly one active vendor for the product/company); planners cannot toggle the flag.
+- [x] Sole-source lines are detected automatically from AVL (exactly one active vendor for the product); planners cannot toggle the flag.
 - [x] Any PR with sole-source line(s) includes CEO / company sole-source approver(s) in the signatory chain before `po_ready`.
 - [x] Applies also after Commission approval when that path was used.
 
@@ -812,11 +812,11 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 | ID | Rule |
 |----|------|
-| BR-1 | Inquiry vendors must be on active AVL for the relevant product/category/company. |
+| BR-1 | Inquiry vendors must be on active AVL for the relevant product/category. |
 | BR-2 | Standard lines require ≥3 **valid** inquiries before expert submit, or ≥1 valid with a shortfall reason; sole source (exactly one AVL vendor) ≥1 valid. Unpriced and stale quotes do not count (FR-33). |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (resolved Enquiry **Need Commission**: holding overlay, else product default) force Holding Commission after company signatures (FR-35 / FR-44); line flag is computed, not editable. Tendering resolved type never sets commission. |
-| BR-5 | Sole source (exactly one active AVL vendor for the line product/company) always requires CEO / sole-source approvers in the signatory chain before PO. |
+| BR-5 | Sole source (exactly one active AVL vendor for the line product) always requires CEO / sole-source approvers in the signatory chain before PO. |
 | BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns to the previous signatory, or to the Commercial Manager if first; never to the Planner unless CM then chooses planner (FR-45). |
@@ -848,7 +848,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Signatory users per band | Minor / medium / major / large / board / formalities lists |
 | Product procurement type (Enquiry / Tendering) | Group default on the product; optional per-company overlay. Mixed PRs cannot submit |
 | Need Commission on Enquiry product | Group default; holding overlay applies to subsidiaries. Sets resolved line/header `is_commission_item`; enquiry still signs first (FR-35 / FR-44) |
-| Active AVL (one vendor for product/company) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
+| Active AVL (one vendor for product) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
 | Approval category (sequential) | Company signatory chain |
 | CEO / sole-source approvers | Injected last in signatory chain when PR has sole-source lines (FR-14) |
 | Default bid window | Suggests `bid_deadline` when CE opens |
@@ -934,7 +934,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Signatory, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
-5. For Phase 2: ensure ≥3 active **AVL** vendors for the company (and product/category as needed); set a known **high-value threshold** in Settings.
+5. For Phase 2: ensure ≥3 active **AVL** vendors (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
 7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Assign the **Signatory** role to those approvers and to Sole-Source Approver(s) (e.g. CEO). Commercial Manager implies Purchase User so they can open created POs.
 8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
@@ -981,19 +981,19 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | **Configuration → Approved Vendor List → New** | Form: vendor, optional product / category, company, validity dates |
-| 2 | Create an active entry for the current company | Record appears in the list |
+| 1 | **Configuration → Approved Vendor List → New** | Form: vendor, optional product / category, validity dates |
+| 2 | Create an active entry | Record appears in the list |
 | 3 | Archive the entry (Action → Archive) | Entry hidden from default list; visible with Archived filter |
 | 4 | Create entries scoped by product and by category | Both save; list/search can filter by partner, product, category |
-| 5 | Ensure a product has **exactly one** active AVL vendor for the company; add that product on a draft PR line | Line **Sole Source** is checked and read-only |
+| 5 | Ensure a product has **exactly one** active AVL vendor; add that product on a draft PR line | Line **Sole Source** is checked and read-only |
 | 6 | Add a second active AVL vendor that covers the same product; reopen the draft line | **Sole Source** clears automatically |
 
-#### MT-0.6 Multi-company AVL isolation
+#### MT-0.6 Global AVL
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Create Company A and Company B; add one AVL vendor entry per company | Two entries exist (as Admin / multi-company user) |
-| 2 | Log in as a user allowed only on Company A, with Tendering Admin | User sees Company A’s AVL entry only; Company B’s entry is not in search results |
+| 1 | Create Company A and Company B; add AVL vendors (no company on the form) | The same entries appear regardless of current company |
+| 2 | Log in as a user allowed only on Company A, with Tendering Admin | User sees the full AVL; a Company B PR can pick the same vendors |
 
 #### MT-0.7 PR sequence
 
@@ -1089,7 +1089,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | As assigned Expert → **My Assignments** → open a line → **Quotes** → add a quote and save | Quote saves while the PR is in `inquiry`; vendor dropdown lists **only** active AVL vendors for the company (+ product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
+| 1 | As assigned Expert → **My Assignments** → open a line → **Quotes** → add a quote and save | Quote saves while the PR is in `inquiry`; vendor dropdown lists **only** active AVL vendors (product/category scope) — not all contacts; creating a new contact from the dropdown is disabled |
 | 1b | As CM (or Expert), open the PR → Lines → **Quotes** on a line | Opens the same line form as My Assignments (product, qty, experts, Quotes notebook). Experts still collect from My Assignments; CM can add quotes in `inquiry` and **Select as Awarded** in quote review |
 | 2 | Try to save a quote with a non-AVL vendor (e.g. via RPC or forced partner) | Validation error: vendor not on active AVL |
 | 3 | Save quotes with ≥3 distinct AVL vendors (standard line) | Quotes stored in `draft` with unit price / total; **Recorded By** = current Expert (read-only); **State** = Draft (read-only, advanced by Submit Quotes / CM actions) |

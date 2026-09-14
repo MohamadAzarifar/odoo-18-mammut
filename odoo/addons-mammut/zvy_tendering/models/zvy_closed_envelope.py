@@ -82,8 +82,8 @@ class ZvyClosedEnvelope(models.Model):
         'res.partner',
         string='Allowed Vendors',
         compute='_compute_allowed_partner_ids',
-        depends_context=('uid', 'company'),
-        help='Active AVL vendors for this company.',
+        depends_context=('uid',),
+        help='Active AVL vendors.',
     )
     opening_datetime = fields.Datetime(string='Opening Datetime', copy=False)
     bid_deadline = fields.Datetime(string='Bid Deadline', copy=False)
@@ -247,18 +247,18 @@ class ZvyClosedEnvelope(models.Model):
 
     def _invite_partner_domain(self):
         self.ensure_one()
-        return self.env['zvy.avl.entry']._avl_partner_domain(self.company_id)
+        return self.env['zvy.avl.entry']._avl_partner_domain()
 
-    @api.depends('company_id')
+    @api.depends_context('uid')
     def _compute_allowed_partner_ids(self):
         Partner = self.env['res.partner']
         Avl = self.env['zvy.avl.entry']
         for envelope in self:
             envelope.allowed_partner_ids = Partner.search(
-                Avl._avl_partner_domain(envelope.company_id)
+                Avl._avl_partner_domain()
             )
 
-    @api.constrains('invite_partner_ids', 'company_id')
+    @api.constrains('invite_partner_ids')
     def _check_invite_avl(self):
         Avl = self.env['zvy.avl.entry']
         for envelope in self:
@@ -266,7 +266,7 @@ class ZvyClosedEnvelope(models.Model):
                 continue
             allowed = set(
                 self.env['res.partner'].search(
-                    Avl._avl_partner_domain(envelope.company_id)
+                    Avl._avl_partner_domain()
                 ).ids
             )
             bad = envelope.invite_partner_ids.filtered(

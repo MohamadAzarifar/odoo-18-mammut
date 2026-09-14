@@ -39,19 +39,12 @@ class ZvyTenderingCommon(TransactionCase):
         cls.Avl = cls.env['zvy.avl.entry']
         cls.avl_a = cls.Avl.create({
             'partner_id': cls.partner_a.id,
-            'company_id': cls.company_a.id,
         })
         cls.avl_b = cls.Avl.create({
             'partner_id': cls.partner_b.id,
-            'company_id': cls.company_b.id,
-        })
-        cls.avl_a2 = cls.Avl.create({
-            'partner_id': cls.partner_b.id,
-            'company_id': cls.company_a.id,
         })
         cls.avl_a3 = cls.Avl.create({
             'partner_id': cls.partner_c.id,
-            'company_id': cls.company_a.id,
         })
         cls.group_admin = cls.env.ref('zvy_tendering.group_zvy_tendering_admin')
         cls.group_planner = cls.env.ref('zvy_tendering.group_zvy_planner')
@@ -305,15 +298,13 @@ class ZvyTenderingCommon(TransactionCase):
             'zvy_nop_large_ceo_max': large_ceo_max,
         })
 
-    def _ensure_sole_source_avl(self, product=None, company=None, partner=None):
-        """Leave exactly one active AVL vendor for product/company (sole source)."""
+    def _ensure_sole_source_avl(self, product=None, partner=None):
+        """Leave exactly one active AVL vendor for the product (sole source)."""
         product = product or self.product
-        company = company or self.company_a
         partner = partner or self.partner_a
-        self.Avl.search([('company_id', '=', company.id)]).write({'active': False})
+        self.Avl.search([]).write({'active': False})
         return self.Avl.create({
             'partner_id': partner.id,
-            'company_id': company.id,
             'product_id': product.id,
         })
 

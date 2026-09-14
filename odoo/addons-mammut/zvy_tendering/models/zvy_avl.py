@@ -6,7 +6,7 @@ from odoo.osv import expression
 class ZvyAvlEntry(models.Model):
     _name = 'zvy.avl.entry'
     _description = 'Approved Vendor List Entry'
-    _order = 'partner_id, company_id'
+    _order = 'partner_id'
 
     partner_id = fields.Many2one(
         'res.partner',
@@ -14,13 +14,6 @@ class ZvyAvlEntry(models.Model):
         required=True,
         index=True,
         ondelete='restrict',
-    )
-    company_id = fields.Many2one(
-        'res.company',
-        string='Company',
-        required=True,
-        default=lambda self: self.env.company,
-        index=True,
     )
     product_id = fields.Many2one(
         'product.product',
@@ -46,16 +39,15 @@ class ZvyAvlEntry(models.Model):
             entry.display_name = name
 
     @api.model
-    def _avl_partner_domain(self, company, product=None, categ=None):
+    def _avl_partner_domain(self, product=None, categ=None):
         """Return a domain on res.partner for active AVL vendors.
 
-        Without product/categ: all active company AVL partners.
-        With product/categ: company-wide entries plus matching product/category rows.
+        Without product/categ: all active AVL partners.
+        With product/categ: unscoped entries plus matching product/category rows.
         """
         today = fields.Date.context_today(self)
         domain = [
             ('active', '=', True),
-            ('company_id', '=', company.id if company else False),
             '|', ('date_start', '=', False), ('date_start', '<=', today),
             '|', ('date_end', '=', False), ('date_end', '>=', today),
         ]
@@ -76,20 +68,17 @@ class ZvyAvlEntry(models.Model):
         return [('id', 'in', partner_ids)]
 
     @api.model
-    def _avl_partner_count(self, company, product=None, categ=None):
-        """Distinct active AVL vendors for company/product/category scope."""
-        domain = self._avl_partner_domain(company, product=product, categ=categ)
+    def _avl_partner_count(self, product=None, categ=None):
+        """Distinct active AVL vendors for product/category scope."""
+        domain = self._avl_partner_domain(product=product, categ=categ)
         if domain and domain[0][:2] == ('id', 'in'):
             return len(domain[0][2])
         return self.env['res.partner'].search_count(domain)
 
+    @api.model
     def _trigger_pr_line_sole_source_recompute(self):
-        """Refresh sole-source flags on draft/correction lines for touched companies."""
-        companies = self.mapped('company_id')
-        if not companies:
-            return
+        """Refresh sole-source flags on draft/correction lines."""
         lines = self.env['zvy.purchase.request.line'].sudo().search([
-            ('company_id', 'in', companies.ids),
             ('request_id.state', 'in', ('draft', 'correction')),
         ])
         if lines:
@@ -104,20 +93,13 @@ class ZvyAvlEntry(models.Model):
     def write(self, vals):
         res = super().write(vals)
         if any(key in vals for key in (
-            'active', 'partner_id', 'company_id', 'product_id', 'categ_id',
+            'active', 'partner_id', 'product_id', 'categ_id',
             'date_start', 'date_end',
         )):
             self._trigger_pr_line_sole_source_recompute()
         return res
 
     def unlink(self):
-        companies = self.mapped('company_id')
         res = super().unlink()
-        if companies:
-            lines = self.env['zvy.purchase.request.line'].sudo().search([
-                ('company_id', 'in', companies.ids),
-                ('request_id.state', 'in', ('draft', 'correction')),
-            ])
-            if lines:
-                lines._compute_sole_source()
+        self.env['zvy.avl.entry']._trigger_pr_line_sole_source_recompute()
         return res

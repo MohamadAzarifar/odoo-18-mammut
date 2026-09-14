@@ -277,15 +277,15 @@ class ZvyPurchaseRequestLine(models.Model):
                 line.procurement_type = ptype
                 line.is_commission_item = bool(need)
 
-    @api.depends('product_id', 'company_id')
+    @api.depends('product_id')
     def _compute_sole_source(self):
         Avl = self.env['zvy.avl.entry']
         for line in self:
-            if not line.product_id or not line.company_id:
+            if not line.product_id:
                 line.sole_source = False
                 continue
             line.sole_source = Avl._avl_partner_count(
-                line.company_id, product=line.product_id,
+                product=line.product_id,
             ) == 1
 
     @api.depends('product_id', 'company_id', 'request_id')

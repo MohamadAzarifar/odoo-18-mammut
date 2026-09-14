@@ -115,16 +115,6 @@
             <field name="comment">Configuration, AVL and product administration, and all tendering records.</field>
         </record>
 
-        <record id="rule_zvy_avl_entry_multi_company" model="ir.rule">
-            <field name="name">AVL Entry: multi-company</field>
-            <field name="model_id" ref="model_zvy_avl_entry"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
-        </record>
-
         <record id="rule_zvy_product_procurement_company_multi_company" model="ir.rule">
             <field name="name">Product Procurement Overlay: multi-company</field>
             <field name="model_id" ref="model_zvy_product_procurement_company"/>

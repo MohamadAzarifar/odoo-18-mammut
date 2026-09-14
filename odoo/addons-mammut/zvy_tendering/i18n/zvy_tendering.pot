@@ -269,12 +269,12 @@ msgstr ""
 
 #. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_quote__allowed_partner_ids
-msgid "Active AVL vendors for this company and the line product/category."
+msgid "Active AVL vendors for the line product/category."
 msgstr ""
 
 #. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__allowed_partner_ids
-msgid "Active AVL vendors for this company."
+msgid "Active AVL vendors."
 msgstr ""
 
 #. module: zvy_tendering
@@ -939,7 +939,6 @@ msgid "Companies"
 msgstr ""
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__company_id
@@ -948,7 +947,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__company_id
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
 msgid "Company"
 msgstr ""
@@ -3207,7 +3205,7 @@ msgstr ""
 #. module: zvy_tendering
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_quote.py:0
-msgid "Vendor %(vendor)s is not on the active AVL for this product/company."
+msgid "Vendor %(vendor)s is not on the active AVL for this product."
 msgstr ""
 
 #. module: zvy_tendering

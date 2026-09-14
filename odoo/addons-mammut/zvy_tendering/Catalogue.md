@@ -1,6 +1,6 @@
 # Manual Test Catalogue
 
-**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.9)  
+**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.11)  
 **App name in Odoo:** Procurement & Tendering  
 **Source of truth:** the screens and buttons in this module, mapped to PRD 1.3 and [Roadmap.md](Roadmap.md)
 
@@ -53,7 +53,7 @@ Assign roles on the user form → **Access Rights**, without debug mode. Under *
 
 A user can hold more than one role. For clean tests, give each person **one** role (except the Administrator used for setup).
 
-**Company vs holding:** PRs, AVL, quotes, closed envelopes, purchase level, and signatories belong to the **requesting company**. Commission cases, reviews, meetings, and commission settings belong to the **head holding** (the top parent company, or the company itself if it has no parent).
+**Company vs holding:** PRs, quotes, closed envelopes, purchase level, and signatories belong to the **requesting company**. AVL is **global** (not company-owned). Commission cases, reviews, meetings, and commission settings belong to the **head holding** (the top parent company, or the company itself if it has no parent).
 
 ---
 
@@ -109,17 +109,17 @@ Also create `planner.b` (Planner, Company A) so you can prove planners only see 
 
 ### 4. Create vendors and AVL
 
-Create three supplier partners, for example **Vendor A**, **Vendor B**, **Vendor C**, each with an email and a phone number. Create a fourth supplier **Outsider Vendor**.
+Create three supplier partners, for example **Vendor A**, **Vendor B**, **Vendor C**, each with an email and a phone number. Create a fourth supplier **Outsider Vendor**. On each vendor form, leave **Company** empty so the partner is shared across companies.
 
 For each of A, B, and C, add a **Contact** child and turn that contact into a **Portal** user (Grant Portal Access). Those portal users log in later at `/my/tenders`.
 
 Then, as Administrator:
 
 1. `Procurement & Tendering → Configuration → Approved Vendor List → New`
-2. Add **Vendor A**, **Vendor B**, **Vendor C** for **Company A** (leave Product empty so they apply to all products).
+2. Add **Vendor A**, **Vendor B**, **Vendor C** (there is no company field; leave Product empty so they apply to all products).
 3. Optionally add validity dates. Leave them active.
 
-- [ ] Three AVL rows exist for Company A
+- [ ] Three AVL rows exist (same list for every company)
 - [ ] Archived entries disappear from the default list and reappear with the **Archived** filter
 
 ### 5. Create products
@@ -465,12 +465,13 @@ Run these after the happy paths. Each one is independent unless it says otherwis
 - [ ] `planner.b` does not see `planner.a`’s PR
 - [ ] `cm.a` sees both planners’ PRs for Company A
 
-#### 1.3 AVL isolation
+#### 1.3 AVL is global
 
-1. Create an AVL row for Company B.
-2. Log in as a Company A–only Administrator.
+1. Log in as a Company A–only Administrator and open **Configuration → Approved Vendor List**.
+2. As `cm.b` (Company B), start an Enquiry PR in Company B and open a quote vendor dropdown (or invite suppliers on a Closed Envelope).
 
-- [ ] Company B’s AVL row is not in the list
+- [ ] The Company A–only Administrator sees Vendor A, B, and C (no company column)
+- [ ] Company B can pick Vendor A; the same AVL applies in every company
 
 #### 1.4 Sequence
 
@@ -544,7 +545,7 @@ On an Inquiry line, try to use Outsider Vendor (RPC or any forced partner).
 | Zero quotes | **Submit Quotes** | Blocked |
 | 1 or 2 **valid** quotes on a normal line | **Submit Quotes** | Wizard **Fewer than 3 Valid Inquiries** — reason required; after confirm, reason stored on the line as **Fewer Quotes Reason** |
 | 3 valid quotes | **Submit Quotes** | Goes through with no wizard |
-| Sole source (exactly one AVL vendor for that product + company) | 1 valid quote | Allowed, no shortfall reason |
+| Sole source (exactly one AVL vendor for that product) | 1 valid quote | Allowed, no shortfall reason |
 | Priced quote with **Received Date** older than 30 days | Count it toward the 3 | It is **not** a valid inquiry; minima still fail |
 | Unpriced quote (empty unit price, fill Comments) | Save, then submit with only that quote | Saves; **Valid Inquiry** is off; does **not** count toward the 3 |
 
@@ -632,7 +633,7 @@ Change **quantity**, or **Purchase Nature**, on a PR that already has a pending 
 
 #### 4.4 Sole source always includes the CEO
 
-1. Archive AVL for Vendor B and C on this product/company so exactly **one** vendor remains.
+1. Archive AVL for Vendor B and C on this product so exactly **one** vendor remains.
 2. Line **Sole Source** checks itself.
 3. Expert submits **one** quote. CM awards and approves.
 

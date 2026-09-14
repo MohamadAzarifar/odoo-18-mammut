@@ -120,13 +120,26 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         allowed = quote.allowed_partner_ids._origin
         self.assertIn(self.partner_a, allowed)
         self.assertNotIn(self.partner_non_avl, allowed)
-        # partner_b is on company A's AVL too; company B-only entries stay out.
         self.assertIn(self.partner_b, allowed)
 
         # Without a line there is nothing to scope the AVL by.
         self.assertFalse(
             self.env['zvy.quote'].with_user(self.user_cce).new({}).allowed_partner_ids
         )
+
+        pr_b = self.env['zvy.purchase.request'].create({
+            'company_id': self.company_b.id,
+            'requester_id': self.user_planner.id,
+            'description': 'Company B PR uses the same AVL',
+            'line_ids': [(0, 0, {
+                'product_id': self.product.id,
+                'product_uom_qty': 1.0,
+                'product_uom_id': self.product.uom_id.id,
+                'price_estimate': 10.0,
+            })],
+        })
+        quote_b = self.env['zvy.quote'].new({'line_id': pr_b.line_ids[0].id})
+        self.assertIn(self.partner_a, quote_b.allowed_partner_ids._origin)
 
     def test_non_avl_partner_rejected_on_quote(self):
         pr = self._submit_and_assign()

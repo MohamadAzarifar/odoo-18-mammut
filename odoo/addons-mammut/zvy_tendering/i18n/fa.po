@@ -357,13 +357,13 @@ msgstr "فعال"
 
 #. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_quote__allowed_partner_ids
-msgid "Active AVL vendors for this company and the line product/category."
-msgstr "تأمین‌کنندگان فعال فهرست تأییدشده برای این شرکت و محصول/دسته سطر."
+msgid "Active AVL vendors for the line product/category."
+msgstr "تأمین‌کنندگان فعال فهرست تأییدشده برای محصول/دسته سطر."
 
 #. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_closed_envelope__allowed_partner_ids
-msgid "Active AVL vendors for this company."
-msgstr "تأمین‌کنندگان فعال فهرست تأییدشده برای این شرکت."
+msgid "Active AVL vendors."
+msgstr "تأمین‌کنندگان فعال فهرست تأییدشده."
 
 #. module: zvy_tendering
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__activity_ids
@@ -1042,7 +1042,6 @@ msgid "Companies"
 msgstr "شرکت‌ها"
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_avl_entry__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_closed_envelope_bid__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_commission_case__company_id
@@ -1051,7 +1050,6 @@ msgstr "شرکت‌ها"
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__company_id
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_quote__company_id
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_avl_entry_search
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
 msgid "Company"
 msgstr "شرکت"
@@ -3396,8 +3394,8 @@ msgstr "تأمین‌کننده"
 #. module: zvy_tendering
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_quote.py:0
-msgid "Vendor %(vendor)s is not on the active AVL for this product/company."
-msgstr "تأمین‌کننده %(vendor)s در فهرست تأییدشده فعال این محصول/شرکت نیست."
+msgid "Vendor %(vendor)s is not on the active AVL for this product."
+msgstr "تأمین‌کننده %(vendor)s در فهرست تأییدشده فعال این محصول نیست."
 
 #. module: zvy_tendering
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_home_tender

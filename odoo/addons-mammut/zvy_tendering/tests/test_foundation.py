@@ -41,22 +41,21 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         self.assertIn(self.user_ceo, reread.zvy_sole_source_approver_ids)
 
     def test_avl_active_filter_in_partner_domain(self):
-        domain = self.Avl._avl_partner_domain(self.company_a)
+        domain = self.Avl._avl_partner_domain()
         partners = self.env['res.partner'].search(domain)
         self.assertIn(self.partner_a, partners)
 
         self.avl_a.active = False
-        domain = self.Avl._avl_partner_domain(self.company_a)
+        domain = self.Avl._avl_partner_domain()
         partners = self.env['res.partner'].search(domain)
         self.assertNotIn(self.partner_a, partners)
 
-    def test_avl_multi_company_isolation(self):
+    def test_avl_is_global(self):
         Avl = self.env['zvy.avl.entry'].with_user(self.user_company_a)
         visible = Avl.search([])
         self.assertIn(self.avl_a, visible)
-        self.assertNotIn(self.avl_b, visible)
-        # Record rules apply on search/read; exists() checks the DB row only.
-        self.assertFalse(Avl.search([('id', '=', self.avl_b.id)]))
+        self.assertIn(self.avl_b, visible)
+        self.assertIn(self.avl_a3, visible)
 
     def test_product_procurement_type_defaults(self):
         self.assertEqual(self.product.zvy_procurement_type, 'enquiry')
