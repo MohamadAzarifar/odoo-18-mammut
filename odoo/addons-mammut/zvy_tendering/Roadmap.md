@@ -390,6 +390,7 @@ FR-35 holds for enquiry and tendering; Phase 4 sign-off/PO tests updated; no enq
 ### Suggested tests
 
 - [x] Priced quote computes total; unpriced quote saves without price and is excluded from valid count
+- [x] Quotes list UX (`18.0.2.14`): contact columns always visible; **No Price Obtained** + Comments on the list for unpriced entry
 - [x] Contact name/phone default from vendor and remain editable
 - [x] Line last-purchase fields populate when a prior PO exists for the product/company
 - [x] Expert submit still blocked at 0 valid quotes; 1–2 valid needs shortfall reason; 3 valid needs none

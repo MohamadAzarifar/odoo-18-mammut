@@ -555,6 +555,34 @@ class TestZvyInquiryRouting(ZvyTenderingCommon):
         self.assertFalse(unpriced.is_valid_inquiry)
         self.assertEqual(line._valid_inquiry_count(), 1)
 
+    def test_no_price_obtained_requires_comments_and_clears_unit(self):
+        pr = self._submit_and_assign()
+        Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)
+        line = pr.line_ids[0]
+
+        with self.assertRaises(ValidationError):
+            Quote.create({
+                'line_id': line.id,
+                'partner_id': self.partner_a.id,
+                'no_price_obtained': True,
+                'price_unit': 99.0,
+            })
+
+        unpriced = Quote.create({
+            'line_id': line.id,
+            'partner_id': self.partner_a.id,
+            'no_price_obtained': True,
+            'price_unit': 99.0,
+            'comments': 'Called supplier; no valid price yet',
+        })
+        self.assertTrue(unpriced.no_price_obtained)
+        self.assertEqual(unpriced.price_unit, 0.0)
+        self.assertFalse(unpriced.is_valid_inquiry)
+        self.assertFalse(unpriced._is_priced())
+
+        unpriced.write({'price_unit': 25.0})
+        self.assertEqual(unpriced.price_unit, 0.0)
+
     def test_quote_contact_defaults_from_vendor_and_stays_editable(self):
         pr = self._submit_and_assign()
         Quote = self.env['zvy.quote'].with_user(self.user_cce).with_company(self.company_a)

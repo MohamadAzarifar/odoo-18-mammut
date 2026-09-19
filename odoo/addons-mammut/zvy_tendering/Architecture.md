@@ -15,7 +15,7 @@ This document is the implementation design for the requirements in the PRD. Lock
 | Key | Value |
 |-----|--------|
 | Technical name | `zvy_tendering` |
-| Version | `18.0.2.12` |
+| Version | `18.0.2.14` |
 | Depends | `mail`, `product`, `purchase`, `approvals`, `portal`, `hr` |
 | Optional later | `approval_ext`, `mammut_refuse_reason` (reuse refuse/return UX if installed) |
 
@@ -221,10 +221,11 @@ Expert-collected offer (standard inquiry path).
 | `line_id` | Many2one | Optional: quote per line |
 | `allowed_partner_ids` | Many2many (compute) | AVL vendors for the line’s product/category |
 | `partner_id` | Many2one | Domain: `[('id', 'in', allowed_partner_ids)]` (BR-1 / FR-9) |
-| `contact_name` / `contact_phone` | Char | Required; default from vendor master; remain editable (FR-36) |
-| `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit` not &gt; 0) is never a valid inquiry; total = unit × line qty when priced |
+| `contact_name` / `contact_phone` | Char | Required; default from vendor master; remain editable; always shown on Quotes lists (FR-36) |
+| `no_price_obtained` | Boolean | Contacted supplier but no valid unit price; forces `price_unit` to 0 and requires `comments` |
+| `price_unit` / `amount_total` | Monetary | Unpriced (`price_unit` not &gt; 0) is never a valid inquiry; total = unit × line qty when priced; readonly when `no_price_obtained` |
 | `product_uom_qty` | Float (related) | Line quantity |
-| `comments` | Text | Required written details when unpriced |
+| `comments` | Text | Required written details when unpriced; shown on Quotes lists |
 | `received_date` | Datetime | Default now; validity window is 30 days (FR-33) |
 | `is_valid_inquiry` | Boolean (compute) | Not rejected, priced, received &lt; 30 days |
 | `tolerance_percent` | Float (compute) | Price variance vs line `last_price` |
@@ -520,7 +521,7 @@ Formalities: when any enquiry line has &lt;3 valid inquiries, Formalities Signat
 | FR-34 | `is_formalities` on enquiry when any line has &lt;3 valid inquiries; spawn extra signatories; effective change cancels and respawns the chain |
 | FR-35 | Enquiry after quote award always `_action_spawn_signatory_approval`. After sign-off: Need Commission or large → commission, else `po_ready`. Enquiry commission approve → `po_ready` (no second chain). Tendering stays FR-27 (commission then signatory). Enquiry cannot enter `commission` without an approved current chain. |
 | FR-43 | On enquiry commission entry, run US-06 checks 1–10, store `zvy.commission.precheck` rows. Hard fail → case `returned`, PR `cm_review`, system comment. Checks 3 and 10 (SAP) are always skipped. Tendering does not run the report. Manager may approve without a meeting from `open` even with mixed expert recommendations. |
-| FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; unpriced needs comments; dedicated proforma |
+| FR-36 | US-03 inquiry fields on `zvy.quote`; contact from vendor; auto total; `no_price_obtained` + comments for unpriced; dedicated proforma |
 | FR-37 | Line `last_vendor_id` / `last_price` / `last_purchase_date` from confirmed PO or awarded history |
 | FR-38 | Partial Create PO: line `purchase_state`; wizard defaults to all pending; PR `done` only when no line remains pending; reject from `po_ready` cancels remaining pending lines |
 | FR-42 | Meeting: holding-owned, same requesting company, minutes for `held`, internal+external attendees, per-PR decision + transfer-with-history; linked CE opens only while meeting is `held` |

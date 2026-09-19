@@ -608,9 +608,9 @@ Sole Source and the Sole-Source Signatory Job / CEO inject are **removed**. Quot
 
 **Acceptance criteria**
 
-- [x] Required: vendor, contact name, contact phone (defaulted from vendor, editable), unit price (optional if unpriced), qty (from the PR line), total (unit × qty when priced), inquiry datetime (`received_date`).
+- [x] Required: vendor, contact name, contact phone (defaulted from vendor, editable; always visible on Quotes lists), unit price (optional if unpriced), qty (from the PR line), total (unit × qty when priced), inquiry datetime (`received_date`).
 - [x] Optional: comments, delivery date, advance %, payment type, tolerance % (vs last purchase), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma, discount %.
-- [x] Unpriced inquiries require written details (`comments`) and never count as valid.
+- [x] Unpriced inquiries: check **No Price Obtained** (clears unit price) or leave price empty/zero; both require written details (`comments`) and never count as valid.
 - [x] Dedicated proforma attachment sits alongside generic attachments.
 
 #### FR-37 Line last purchase *(§12.2)*

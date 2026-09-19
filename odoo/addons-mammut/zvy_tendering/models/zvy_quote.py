@@ -67,6 +67,11 @@ class ZvyQuote(models.Model):
         default='',
         help='Defaults from the vendor master; editable on the inquiry.',
     )
+    no_price_obtained = fields.Boolean(
+        string='No Price Obtained',
+        help='Contacted the supplier but could not obtain a valid unit price. '
+             'Requires written details in Comments.',
+    )
     price_unit = fields.Monetary(
         string='Unit Price',
         currency_field='currency_id',
@@ -87,7 +92,8 @@ class ZvyQuote(models.Model):
     )
     comments = fields.Text(
         string='Comments',
-        help='Required written details when the inquiry is unpriced.',
+        help='Required written details when the inquiry is unpriced '
+             '(including when No Price Obtained is checked).',
     )
     delivery_date = fields.Date(string='Delivery Date')
     advance_percent = fields.Float(string='Advance %')
@@ -250,6 +256,11 @@ class ZvyQuote(models.Model):
         self.contact_name = self.partner_id.name
         self.contact_phone = self.partner_id.phone or self.partner_id.mobile or ''
 
+    @api.onchange('no_price_obtained')
+    def _onchange_no_price_obtained(self):
+        if self.no_price_obtained:
+            self.price_unit = 0.0
+
     @api.model
     def _contact_vals_from_partner(self, partner, vals):
         """Fill contact name/phone from the vendor when the caller omitted them."""
@@ -260,7 +271,13 @@ class ZvyQuote(models.Model):
         if not vals.get('contact_phone'):
             vals['contact_phone'] = partner.phone or partner.mobile or ''
 
-    @api.constrains('price_unit', 'comments')
+    @api.model
+    def _apply_no_price_obtained(self, vals):
+        """Force unit price to zero when No Price Obtained is set."""
+        if vals.get('no_price_obtained'):
+            vals['price_unit'] = 0.0
+
+    @api.constrains('price_unit', 'comments', 'no_price_obtained')
     def _check_unpriced_details(self):
         for quote in self:
             if quote._is_priced():
@@ -331,6 +348,7 @@ class ZvyQuote(models.Model):
             if vals.get('partner_id'):
                 partner = self.env['res.partner'].browse(vals['partner_id'])
                 self._contact_vals_from_partner(partner, vals)
+            self._apply_no_price_obtained(vals)
             if not self.env.su:
                 # Always attribute the quote to the user who creates it;
                 # State always starts as draft (workflow actions advance it).
@@ -351,9 +369,14 @@ class ZvyQuote(models.Model):
         if vals.get('partner_id'):
             partner = self.env['res.partner'].browse(vals['partner_id'])
             self._contact_vals_from_partner(partner, vals)
+        self._apply_no_price_obtained(vals)
         res = super().write(vals)
         if {'partner_id', 'line_id', 'company_id'} & set(vals):
             self._check_avl()
+        # Keep unit price cleared while No Price Obtained remains set.
+        stuck = self.filtered(lambda q: q.no_price_obtained and q._is_priced())
+        if stuck:
+            super(ZvyQuote, stuck).write({'price_unit': 0.0})
         return res
 
     def unlink(self):

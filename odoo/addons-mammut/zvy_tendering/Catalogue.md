@@ -1,6 +1,6 @@
 # Manual Test Catalogue
 
-**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.12)  
+**Product:** Mammut Procurement & Tendering (`zvy_tendering` 18.0.2.14)  
 **App name in Odoo:** Procurement & Tendering  
 **Source of truth:** the screens and buttons in this module, mapped to PRD 1.3 and [Roadmap.md](Roadmap.md)
 
@@ -289,7 +289,7 @@ You should see:
    | Vendor C | 15 |
 
 6. Open one quote form and confirm:
-   - **Contact Name** / **Contact Phone** filled from the vendor, editable
+   - **Contact Name** / **Contact Phone** are visible on the Quotes list (no table Settings needed) and filled from the vendor, editable
    - **Total** = unit price × quantity
    - **Received Date** is today
    - **Valid Inquiry** is checked
@@ -297,6 +297,7 @@ You should see:
    - **Proforma** can be attached on the Attachments tab
 7. Click **Submit Quotes** on the line (or on the PR header).
 
+- [ ] You can add multiple quote rows without enabling Contact Name/Phone via the table gear
 - [ ] Vendor dropdown listed only AVL vendors; you could not create a new contact from it
 - [ ] After submit, a **Quotes Submitted** ribbon appears on the line
 - [ ] PR status becomes **Quote Review** (only one line, so it advances immediately)
@@ -546,7 +547,7 @@ On an Inquiry line, try to use Outsider Vendor (RPC or any forced partner).
 | 1 or 2 **valid** quotes on a normal line | **Submit Quotes** | Wizard **Fewer than 3 Valid Inquiries** — reason required; after confirm, reason stored on the line as **Fewer Quotes Reason**; PR **Formalities** turns on |
 | 3 valid quotes | **Submit Quotes** | Goes through with no wizard |
 | Priced quote with **Received Date** older than 30 days | Count it toward the 3 | It is **not** a valid inquiry; minima still fail |
-| Unpriced quote (empty unit price, fill Comments) | Save, then submit with only that quote | Saves; **Valid Inquiry** is off; does **not** count toward the 3 |
+| Unpriced quote (check **No Price Obtained**, leave unit price empty/zero, fill **Comments**) | Save, then submit with only that quote | Saves without a fake price; **Valid Inquiry** is off; does **not** count toward the 3 |
 
 - [ ] Totals auto-compute when priced
 - [ ] Unpriced quotes never count as valid
