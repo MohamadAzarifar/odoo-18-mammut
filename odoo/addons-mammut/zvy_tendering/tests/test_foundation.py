@@ -16,7 +16,6 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         Settings = self.env['res.config.settings'].with_company(self.company_a)
         settings = Settings.create({
             'company_id': self.company_a.id,
-            'zvy_high_value_threshold': 50000.0,
             'zvy_company_scale': 'medium',
             'zvy_signatory_minor_job_id': self.job_signatory.id,
             'zvy_default_bid_window_hours': 48,
@@ -24,14 +23,12 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         })
         settings.execute()
         company = self.company_a
-        self.assertEqual(company.zvy_high_value_threshold, 50000.0)
         self.assertEqual(company.zvy_company_scale, 'medium')
         self.assertEqual(company.zvy_signatory_minor_job_id, self.job_signatory)
         self.assertEqual(company.zvy_default_bid_window_hours, 48)
         self.assertEqual(company.zvy_signatory_approval_category_id, category)
 
         reread = Settings.create({'company_id': self.company_a.id})
-        self.assertEqual(reread.zvy_high_value_threshold, 50000.0)
         self.assertEqual(reread.zvy_company_scale, 'medium')
         self.assertEqual(reread.zvy_signatory_minor_job_id, self.job_signatory)
         self.assertEqual(reread.zvy_default_bid_window_hours, 48)

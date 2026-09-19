@@ -190,7 +190,6 @@ For manual tests, turn **Override Purchase-Level Bands** on and use small number
 | Setting | Suggested test value |
 |---|---|
 | Default Bid Window | 72 hours |
-| High-Value Threshold (deprecated) | ignore — routing uses Purchase Level **Large**, not this field |
 
 Save.
 
@@ -651,7 +650,6 @@ Remember:
 - **Enquiry** always goes to **Signatory first**. Holding Commission runs **after** that chain, and only if Need Commission **or** Purchase Level is Large.
 - **Tendering** runs Closed Envelope during Inquiry. After CM **Approve Quotes**: Large → Commission then Signatory; otherwise Signatory directly.
 - Need Commission on a Tendering product is ignored.
-- The deprecated high-value threshold must **not** send an enquiry to commission before signatures.
 
 | Setup | After Approve Quotes | After sign-off |
 |---|---|---|
@@ -985,7 +983,6 @@ Do **not** fail the release for these:
 - Accounting or stock after the Purchase Order is created
 - Holding organisation chart (parent/child companies in Odoo are enough)
 - Commission-laws extra notice windows (Notice Days = 0 disables the check)
-- High-Value Threshold in Settings — unused; Large purchase level is the switch
 
 ---
 

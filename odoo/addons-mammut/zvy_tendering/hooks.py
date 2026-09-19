@@ -13,7 +13,6 @@ from odoo.tools.sql import create_column
 
 # Stored columns on res.company (Many2many uses separate tables).
 _RES_COMPANY_COLUMNS = (
-    ('zvy_high_value_threshold', 'numeric'),
     ('zvy_default_bid_window_hours', 'int4'),
     ('zvy_signatory_approval_category_id', 'int4'),
     ('zvy_signatory_minor_job_id', 'int4'),

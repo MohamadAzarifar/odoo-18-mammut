@@ -108,10 +108,6 @@
                         </setting>
                     </block>
                     <block title="Routing &amp; Approvals">
-                        <setting string="High-Value Threshold (deprecated)"
-                                 help="No longer used for routing. Large purchase level qualifies for Holding Commission (enquiry after signatures).">
-                            <field name="zvy_high_value_threshold"/>
-                        </setting>
                         <setting string="Default Bid Window"
                                  help="Default hours used to suggest the bid deadline when a closed-envelope supplier list is approved.">
                             <field name="zvy_default_bid_window_hours"/>

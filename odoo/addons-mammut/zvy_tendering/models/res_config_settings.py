@@ -5,12 +5,6 @@ from odoo import api, fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    zvy_high_value_threshold = fields.Monetary(
-        related='company_id.zvy_high_value_threshold',
-        string='High-Value Threshold',
-        readonly=False,
-        currency_field='company_currency_id',
-    )
     zvy_default_bid_window_hours = fields.Integer(
         related='company_id.zvy_default_bid_window_hours',
         string='Default Bid Window (Hours)',

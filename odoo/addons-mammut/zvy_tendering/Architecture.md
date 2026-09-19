@@ -389,7 +389,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities **HR job** positions (`zvy_signatory_*_job_id`); `zvy_signatory_approval_category_id` (document template); deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities **HR job** positions (`zvy_signatory_*_job_id`); `zvy_signatory_approval_category_id` (document template); `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
 | `approval.request` | `zvy_purchase_request_id`; `zvy_resume_commission`; refuse of the **current** chain bounces to the previous signatory (FR-45) or PR `cm_review` if first; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large), or reopen commission when `zvy_resume_commission`. Stale/cancelled history records are ignored. |
@@ -627,7 +627,6 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Company scale | `res.company.zvy_company_scale` | FR-32 |
 | Purchase-level bands | Baked-in R-PL tables or `zvy_use_custom_bands` ceilings | FR-32 |
 | Signatory jobs per band | `zvy_signatory_*_job_id` + formalities job | FR-32 / FR-34 |
-| High-value threshold | `res.company.zvy_high_value_threshold` | Deprecated; unused in routing |
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
 | Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..13) |
 | Formalities Signatory Job | `res.company.zvy_signatory_formalities_job_id` | FR-34 / BR-5 |

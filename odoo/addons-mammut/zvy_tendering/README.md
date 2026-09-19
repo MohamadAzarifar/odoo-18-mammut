@@ -522,7 +522,7 @@ Sole Source and the Sole-Source Signatory Job / CEO inject are **removed**. Quot
 
 - [x] Tendering after quote approval (CE award): if Need Commission **or** `purchase_level == large` → create/open commission case, then spawn signatory on commission approve.
 - [x] Else → spawn company sequential signatory path.
-- [x] `is_high_value` = `purchase_level == large` (four-band matrix; FR-32). The old company high-value threshold is unused for routing.
+- [x] `is_high_value` = `purchase_level == large` (four-band matrix; FR-32).
 - [x] Enquiry routing is FR-35 (signatures before commission). Tendering products never set `is_commission_item`.
 
 #### FR-28 Sequential approval enforcement *(Story 28)*
@@ -823,7 +823,7 @@ Sole Source and the Sole-Source Signatory Job / CEO inject are **removed**. Quot
 | Security | Role-based groups + record rules (expert own lines; commission own cases; sealed bids; portal by partner) |
 | Usability | Role-specific dashboards/queues; clear next-action buttons |
 | Notifications | Mail/activities for planner, assignees, signatories, and suppliers (portal phase) |
-| Extensibility | Web service for PR create/submit; settings for threshold, signatory category, product procurement type / commission |
+| Extensibility | Web service for PR create/submit; settings for company scale / bands, signatory category, product procurement type / commission |
 | Testability | Automated tests for quote minima, AVL domain, router, signatory bridge, bid seal, portal isolation |
 
 ---
@@ -832,7 +832,6 @@ Sole Source and the Sole-Source Signatory Job / CEO inject are **removed**. Quot
 
 | Setting | Purpose |
 |---------|---------|
-| High-value threshold | Deprecated; unused for routing. Large purchase level qualifies for Holding Commission (FR-35) |
 | Company scale | Selects the R-PL small / medium / large bylaws table |
 | Purchase-level bands | Baked-in IRR ceilings; optional per-company override |
 | Signatory jobs per band | Minor / medium / major / large / board / formalities HR jobs (all employees must approve) |
@@ -924,7 +923,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 2. As Administrator, open a user form → **Access Rights** (**without** debug mode).
 3. Confirm a **Procurement & Tendering** section lists: Planner, Commercial Manager, Commercial Expert, Signatory, Commission Manager, Commission Expert, Administrator (each as a selectable role). Roles must be assignable here; debug mode must not be required.
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
-5. For Phase 2: ensure ≥3 active **AVL** vendors (and product/category as needed); set a known **high-value threshold** in Settings.
+5. For Phase 2: ensure ≥3 active **AVL** vendors (and product/category as needed); set company scale / bands so Large routing can be forced in later tests.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
 7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Create **HR jobs** per band (and formalities), link Signatory users as employees’ Related Users on those jobs, and assign the jobs in Settings. Assign the **Signatory** access right to those users. Commercial Manager implies Purchase User so they can open created POs.
 8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
@@ -952,8 +951,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category, Formalities Signatory Job |
-| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick a sequential Approvals category, set Formalities Signatory Job; Save | Values persist after reopen |
+| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows company scale, purchase-level bands, default bid window (hours), signatory approval category, Formalities Signatory Job |
+| 2 | Set company scale (e.g. `medium`), bid window (e.g. `48`), pick a sequential Approvals category, set Formalities Signatory Job; Save | Values persist after reopen |
 | 3 | Open the same company again | Fields match what was saved |
 
 #### MT-0.4 Product procurement type and commission (FR-1 / BR-4)
@@ -1194,7 +1193,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Create an Enquiry PR; submit **1** or **2** valid quotes with a shortfall reason; award; approve (company path, below high-value threshold) | PR `signatory`; header **Formalities** is checked; approval approvers include the band job **and** every employee on the Formalities Signatory Job |
+| 1 | Create an Enquiry PR; submit **1** or **2** valid quotes with a shortfall reason; award; approve (company path, not Large) | PR `signatory`; header **Formalities** is checked; approval approvers include the band job **and** every employee on the Formalities Signatory Job |
 | 2 | Approve band-job signatories only | PR stays `signatory` until Formalities job members approve |
 | 3 | Formalities approvers finish | PR → `po_ready` |
 | 4 | Repeat for a large / Need Commission **enquiry** shortfall PR | Same Formalities append on the **pre-commission** signatory document; after that chain completes the PR goes to Holding Commission |

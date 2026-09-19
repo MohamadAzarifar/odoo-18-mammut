@@ -1397,13 +1397,6 @@ msgid "High Value"
 msgstr "ارزش بالا"
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_high_value_threshold
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid "High-Value Threshold"
-msgstr "آستانه ارزش بالا"
-
-#. module: zvy_tendering
 #: model:ir.model,name:zvy_tendering.model_zvy_commission_case
 msgid "Holding Commission Case"
 msgstr "پرونده کمیسیون هلدینگ"
@@ -2380,25 +2373,6 @@ msgstr "سطرهای درخواست خرید را فقط در پیش‌نویس 
 #: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
 msgid "Purchase request submitted for CM review."
 msgstr "درخواست خرید برای بررسی مدیر بازرگانی ارسال شد."
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid ""
-"Purchase requests at or above this amount are routed to the Holding "
-"Commission after quote approval."
-msgstr ""
-"درخواست‌های خرید با مبلغ برابر یا بالاتر از این مقدار پس از تأیید پیشنهادها "
-"به کمیسیون هلدینگ ارجاع می‌شوند."
-
-#. module: zvy_tendering
-#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_high_value_threshold
-#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
-msgid ""
-"Purchase requests with total at or above this amount are routed to the "
-"Holding Commission."
-msgstr ""
-"درخواست‌های خرید با جمع برابر یا بالاتر از این مبلغ به کمیسیون هلدینگ ارجاع "
-"می‌شوند."
 
 #. module: zvy_tendering
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.portal_my_tender

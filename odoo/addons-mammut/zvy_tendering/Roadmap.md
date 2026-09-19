@@ -47,7 +47,7 @@ Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operation
 - [x] ACL CSV stubs for models introduced in later phases (or create models empty and ACL as they land)
 - [x] Multi-company record-rule pattern
 - [x] Menus shell (Procurement & Tendering)
-- [x] `res.company` / `res.config.settings`: high-value threshold, default bid window, signatory approval category
+- [x] `res.company` / `res.config.settings`: company scale / bands, default bid window, signatory approval category
 - [x] `product.template.zvy_procurement_type` / `zvy_need_commission` (replaces former `product.category.zvy_is_commission_item`)
 - [x] `ir.sequence` for PR (and CE/case if needed)
 - [x] `zvy.avl.entry` CRUD + views (active vendor by product / category)
@@ -66,7 +66,7 @@ Purchase-level bands are the R-PL-012/013/014 matrix (company scale × operation
 
 ### Done when
 
-Module installs cleanly; Admin can maintain AVL and thresholds; role groups assignable to users.
+Module installs cleanly; Admin can maintain AVL and purchase-level bands; role groups assignable to users.
 
 ---
 
@@ -284,7 +284,7 @@ Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-0
 
 **Goal:** Replace the single high-value boolean with a four-band purchase level, define a **valid** inquiry, and put a PR into تشریفات (formalities) when any line has fewer than three valid inquiries. Signature chain follows level + formalities; an effective change resets the chain and keeps history.
 
-**Hooks:** [`models/res_company.py`](models/res_company.py) (level bands; keep `zvy_high_value_threshold` until cutover); [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_compute_routing_flags`, `_action_spawn_signatory_approval`.
+**Hooks:** [`models/res_company.py`](models/res_company.py) (level bands; `zvy_high_value_threshold` removed in `18.0.2.13`); [`models/zvy_purchase_request.py`](models/zvy_purchase_request.py) `_compute_routing_flags`, `_action_spawn_signatory_approval`.
 
 ### Scope
 

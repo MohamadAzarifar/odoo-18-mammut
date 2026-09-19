@@ -22,12 +22,6 @@ class ResCompany(models.Model):
         ensure_res_company_columns(self.env.cr)
         super()._prepare_setup()
 
-    zvy_high_value_threshold = fields.Monetary(
-        string='High-Value Threshold',
-        currency_field='currency_id',
-        help='Deprecated. Unused for routing. Large purchase level qualifies '
-             'for Holding Commission (enquiry after signatures, FR-35).',
-    )
     zvy_default_bid_window_hours = fields.Integer(
         string='Default Bid Window (Hours)',
         default=72,

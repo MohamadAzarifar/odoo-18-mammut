@@ -1281,13 +1281,6 @@ msgid "High Value"
 msgstr ""
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_high_value_threshold
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid "High-Value Threshold"
-msgstr ""
-
-#. module: zvy_tendering
 #: model:ir.model,name:zvy_tendering.model_zvy_commission_case
 msgid "Holding Commission Case"
 msgstr ""
@@ -2237,21 +2230,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
 msgid "Purchase request submitted for CM review."
-msgstr ""
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid ""
-"Purchase requests at or above this amount are routed to the Holding "
-"Commission after quote approval."
-msgstr ""
-
-#. module: zvy_tendering
-#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_high_value_threshold
-#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_high_value_threshold
-msgid ""
-"Purchase requests with total at or above this amount are routed to the "
-"Holding Commission."
 msgstr ""
 
 #. module: zvy_tendering
