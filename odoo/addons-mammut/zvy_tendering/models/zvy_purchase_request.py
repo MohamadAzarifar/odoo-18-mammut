@@ -230,11 +230,6 @@ class ZvyPurchaseRequest(models.Model):
         compute='_compute_routing_flags',
         store=True,
     )
-    has_sole_source = fields.Boolean(
-        string='Has Sole Source',
-        compute='_compute_routing_flags',
-        store=True,
-    )
     procurement_type = fields.Selection(
         selection=[
             ('enquiry', 'Enquiry'),
@@ -378,13 +373,11 @@ class ZvyPurchaseRequest(models.Model):
     @api.depends(
         'purchase_level',
         'line_ids.is_commission_item',
-        'line_ids.sole_source',
     )
     def _compute_routing_flags(self):
         for request in self:
             request.is_high_value = request.purchase_level == 'large'
             request.is_commission_item = any(request.line_ids.mapped('is_commission_item'))
-            request.has_sole_source = any(request.line_ids.mapped('sole_source'))
 
     @api.depends('line_ids.procurement_type')
     def _compute_procurement_type(self):
@@ -1145,9 +1138,7 @@ class ZvyPurchaseRequest(models.Model):
             for user in self.company_id._zvy_users_from_job(formalities_job):
                 if user not in chain_users:
                     chain_users.append(user)
-        if not chain_users and not (
-            self.has_sole_source and self.company_id.sudo().zvy_sole_source_job_id
-        ):
+        if not chain_users:
             raise UserError(_(
                 'Cannot spawn signatory approval without any approvers.'
             ))
@@ -1164,8 +1155,6 @@ class ZvyPurchaseRequest(models.Model):
             'zvy_resume_commission': bool(resume_commission),
         })
         self._zvy_replace_signatory_approvers(request, chain_users)
-        if self.has_sole_source:
-            self._inject_sole_source_approvers(request)
 
         if not request.approver_ids:
             raise UserError(_(
@@ -1246,42 +1235,6 @@ class ZvyPurchaseRequest(models.Model):
                 'Effective change reset the signatory chain. Previous approval '
                 '%s is kept in history.'
             ) % old_name)
-
-    def _inject_sole_source_approvers(self, approval_request):
-        """Ensure company sole-source / CEO job members are last required in chain."""
-        self.ensure_one()
-        sole_job = self.company_id.sudo().zvy_sole_source_job_id
-        if not sole_job:
-            raise UserError(_(
-                'Sole-source purchase requests require a Sole-Source Signatory '
-                'Job configured on the company (FR-14).'
-            ))
-        ceo_users = self.company_id._zvy_users_from_job(sole_job)
-        existing = approval_request.approver_ids.mapped('user_id')
-        max_seq = max(approval_request.approver_ids.mapped('sequence') or [10])
-        commands = []
-        seq = max_seq
-        for user in ceo_users:
-            if user in existing:
-                # Mark existing as required and push to the end.
-                approver = approval_request.approver_ids.filtered(
-                    lambda a, u=user: a.user_id == u
-                )[:1]
-                seq += 10
-                commands.append(Command.update(approver.id, {
-                    'required': True,
-                    'sequence': seq,
-                }))
-            else:
-                seq += 10
-                commands.append(Command.create({
-                    'user_id': user.id,
-                    'required': True,
-                    'sequence': seq,
-                    'status': 'new',
-                }))
-        if commands:
-            approval_request.write({'approver_ids': commands})
 
     def action_resubmit_signatory(self):
         self.ensure_one()

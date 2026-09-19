@@ -21,11 +21,6 @@ class ResConfigSettings(models.TransientModel):
         string='Signatory Approval Category',
         readonly=False,
     )
-    zvy_sole_source_job_id = fields.Many2one(
-        related='company_id.zvy_sole_source_job_id',
-        string='Sole-Source Signatory Job',
-        readonly=False,
-    )
     zvy_company_scale = fields.Selection(
         related='company_id.zvy_company_scale',
         string='Company Scale',

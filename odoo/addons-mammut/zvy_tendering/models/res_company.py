@@ -40,13 +40,6 @@ class ResCompany(models.Model):
              'template. Approver users come from the per-band HR jobs, not '
              'from this category.',
     )
-    zvy_sole_source_job_id = fields.Many2one(
-        'hr.job',
-        string='Sole-Source Signatory Job',
-        check_company=True,
-        help='Job position whose employees (e.g. CEO) must all approve last '
-             'in the signatory chain for sole-source PRs (FR-14).',
-    )
     zvy_company_scale = fields.Selection(
         selection=[
             ('small', 'Small Scale'),

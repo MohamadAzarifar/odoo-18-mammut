@@ -410,11 +410,11 @@ class ZvyCommissionCase(models.Model):
             ))
 
         short = request.line_ids.filtered(
-            lambda l: not l.sole_source and dossier_count(l) < 3
+            lambda l: dossier_count(l) < 3
         )
         if not short:
             return 'pass', _(
-                'Every line has at least 3 priced inquiries, or is sole source.'
+                'Every line has at least 3 priced inquiries.'
             )
         approval = request.approval_request_id
         formality_job = request.company_id.sudo().zvy_signatory_formalities_job_id

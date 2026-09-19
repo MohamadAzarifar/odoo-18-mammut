@@ -29,7 +29,7 @@ A standalone procurement and tendering application on Odoo 18 that:
 |------|----------------|
 | Controlled PR lifecycle | Every PR moves through defined states; reject/return paths are auditable |
 | AVL compliance | No inquiry/CE supplier outside active AVL |
-| Quote integrity | ≥3 valid inquiries (standard) or ≥1 valid with a shortfall reason / ≥1 valid (sole source) before CM review |
+| Quote integrity | ≥1 valid inquiry always; ≥3 valid or a shortfall reason when submitting 1–2; &lt;3 valid sets Formalities before CM review |
 | Correct routing | High-value / commission items always reach Commission; others follow company sign-off |
 | Sealed tenders | Closed-envelope bids invisible until official opening (except bidder’s own portal view) |
 | Traceable award → PO | Only Commercial Manager creates PO after `po_ready` |
@@ -67,7 +67,7 @@ Security groups and technical mapping: see [Architecture.md](Architecture.md).
 | PR create (UI + web service), notify planner | Yes | 1–2 |
 | CM dashboard, reject/return, assign lines, quote review, create PO | Yes | 3–7 |
 | Expert inquiry, AVL, quote minima, CE supplier list | Yes | 8–11 |
-| Sequential company signatories + CEO on sole source | Yes | 12–14 |
+| Sequential company signatories + Formalities when &lt;3 valid inquiries | Yes | 12–13, 34 |
 | Commission case, experts, meeting/MOM, CE approve & award | Yes | 15–23 |
 | Supplier portal (view, bid, notify) | Yes | 24–26 |
 | Auto-route, sequential lock, portal_open, bid seal, mixed-PR split | Yes | 27–31 |
@@ -88,7 +88,7 @@ Planner creates PR (products are Enquiry or Tendering)
     → System routes:
          High-value OR (Enquiry Need Commission) → Commission (experts → manager / meeting)
          Else → Company signatory chain
-    → Sole source: CEO always in signatory chain
+    → Formalities: when any enquiry line has &lt;3 valid inquiries, Formalities Signatory Job is appended
     → CM creates Purchase Order(s)
 ```
 
@@ -122,8 +122,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] Planner can create a PR with header (requester, company, description) and one or more lines (product, qty, UoM, estimate).
 - [x] **Requester** defaults to the creating user, is read-only on the form, and cannot be changed (UI or RPC); create always forces `requester_id = env.user`.
-- [x] Line **Sole Source**, **Commission Item**, and **Procurement Type** are computed and read-only (not planner-editable):
-  - Sole Source = product has exactly one active AVL vendor.
+- [x] Line **Commission Item** and **Procurement Type** are computed and read-only (not planner-editable):
   - Procurement Type = product **Enquiry** or **Tendering** (product default Enquiry).
   - Commission Item = Enquiry product has **Need Commission** checked (default No; hidden on Tendering products).
 - [x] PR starts in `draft`; Planner can submit a homogeneous PR → `submitted` / CM queue.
@@ -269,14 +268,14 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | | |
 |--|--|
 | **As a** | Company Commercial Expert |
-| **I want** | To request and record at least 3 quotes for standard items (or 1 for Sole Source), then submit to CM |
+| **I want** | To request and record at least 3 valid inquiries (or 1–2 with a shortfall reason), then submit to CM |
 | **So that** | Management can compare offers fairly |
 
 **Acceptance criteria**
 
-- [x] Standard **Enquiry** line: submit blocked until ≥3 **valid** inquiries recorded, **or** ≥1 valid inquiry plus a written reason for the shortfall.
+- [x] **Enquiry** line: always ≥1 **valid** inquiry; submit blocked until ≥3 **valid** inquiries, **or** 1–2 valid plus a written shortfall reason.
 - [x] Fewer than 3 valid inquiries (UI): **Submit Quotes** opens a justification wizard; RPC without a reason raises.
-- [x] Sole-source Enquiry line (exactly one active AVL vendor for the product): ≥1 **valid** inquiry required.
+- [x] Any enquiry line with &lt;3 valid inquiries sets PR **Formalities** (`is_formalities`) and appends the Formalities Signatory Job (FR-34).
 - [x] Submit sends quote set to CM quote review.
 - [x] Expert submits **per assigned line**, from My Assignments — no need to open the purchase request.
 - [x] The request moves to quote review only once every line has been submitted; the CM cannot submit on the Expert's behalf.
@@ -327,19 +326,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 - [x] Approve advances the chain; full approval → PR `po_ready`.
 - [x] Refuse returns to the previous signatory, or to CM (`cm_review`) if this is the first signatory, with a mandatory reason (FR-45).
 
-#### FR-14 CEO on Sole Source *(Story 14)*
+#### FR-14 Sole Source CEO inject *(Story 14 — removed)*
 
-| | |
-|--|--|
-| **As a** | CEO |
-| **I want** | To specifically review and sign all Sole Source requests before they proceed |
-| **So that** | Non-standard tenders get executive oversight |
-
-**Acceptance criteria**
-
-- [x] Sole-source lines are detected automatically from AVL (exactly one active vendor for the product); planners cannot toggle the flag.
-- [x] Any PR with sole-source line(s) includes every employee on the company sole-source HR job in the signatory chain before `po_ready`.
-- [x] Applies also after Commission approval when that path was used.
+Sole Source and the Sole-Source Signatory Job / CEO inject are **removed**. Quote shortfalls use Formalities instead (FR-34): any enquiry line with &lt;3 valid inquiries sets `is_formalities` and appends the Formalities Signatory Job. There is no AVL `sole_source` / `has_sole_source` flag and no sole-source exemption on commission pre-checks.
 
 ---
 
@@ -588,7 +577,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 **Acceptance criteria**
 
 - [x] Enquiry PR `is_formalities` when any line has &lt;3 valid inquiries; tendering PRs stay false.
-- [x] Signatory chain is every employee on the band HR job (not cumulative bands), plus every employee on the formalities job, plus sole-source job members last.
+- [x] Signatory chain is every employee on the band HR job (not cumulative bands), plus every employee on the Formalities Signatory Job when `is_formalities`.
 - [x] Large uses CEO up to the inner ceiling, Board above it.
 - [x] Changing qty, estimate, goods, or awarded supplier during `signatory` cancels the current `approval.request`, spawns a new chain, and keeps the old record. Only the current chain can reach `po_ready`.
 
@@ -725,6 +714,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 
 - [x] On enquiry commission entry, checks 1–10 are computed and stored on the case.
 - [x] Any hard fail returns the PR to `cm_review` with a system comment; the case is `returned` and not actionable.
+- [x] Check 4: ≥3 priced inquiries **or** completed Formalities signatures (no sole-source exemption).
 - [x] Checks 3 and 10 (SAP product master / split count) are stubs (`skipped`, never fail).
 - [x] Tendering PRs do not run this report.
 - [x] After a green report, the manager may comment, reject, return, assign experts, approve without meeting, or refer to a meeting — including approve without meeting when an expert did not recommend approve.
@@ -813,10 +803,10 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | ID | Rule |
 |----|------|
 | BR-1 | Inquiry vendors must be on active AVL for the relevant product/category. |
-| BR-2 | Standard lines require ≥3 **valid** inquiries before expert submit, or ≥1 valid with a shortfall reason; sole source (exactly one AVL vendor) ≥1 valid. Unpriced and stale quotes do not count (FR-33). |
+| BR-2 | Every Enquiry line requires ≥1 **valid** inquiry; ≥3 valid before expert submit, or 1–2 valid with a shortfall reason. Unpriced and stale quotes do not count (FR-33). |
 | BR-3 | Purchase level is computed from company scale × purchase nature vs awarded/estimated total (R-PL bands); `is_high_value` means `large`. |
 | BR-4 | Commission items (resolved Enquiry **Need Commission**: holding overlay, else product default) force Holding Commission after company signatures (FR-35 / FR-44); line flag is computed, not editable. Tendering resolved type never sets commission. |
-| BR-5 | Sole source (exactly one active AVL vendor for the line product) always requires the sole-source HR job members in the signatory chain before PO. |
+| BR-5 | Enquiry PR with any line having &lt;3 valid inquiries is Formalities: append Formalities Signatory Job members to the signatory chain (FR-34). |
 | BR-6 | PO creation only from `po_ready` with award data on the selected lines; Commercial Manager or Commission Manager. PR stays `po_ready` while any line is pending. |
 | BR-7 | Closed-envelope bids remain sealed until opening datetime / open action. |
 | BR-8 | Signatory refuse returns to the previous signatory, or to the Commercial Manager if first; never to the Planner unless CM then chooses planner (FR-45). |
@@ -848,9 +838,9 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Signatory jobs per band | Minor / medium / major / large / board / formalities HR jobs (all employees must approve) |
 | Product procurement type (Enquiry / Tendering) | Group default on the product; optional per-company overlay. Mixed PRs cannot submit |
 | Need Commission on Enquiry product | Group default; holding overlay applies to subsidiaries. Sets resolved line/header `is_commission_item`; enquiry still signs first (FR-35 / FR-44) |
-| Active AVL (one vendor for product) | Sets line `sole_source` (computed); quote minimum becomes ≥1 |
+| Active AVL | Restricts inquiry / CE vendors (BR-1); no sole-source flag |
 | Approval category (sequential) | Company signatory chain |
-| CEO / sole-source job | Injected last in signatory chain when PR has sole-source lines (FR-14) |
+| Formalities Signatory Job | Appended when any enquiry line has &lt;3 valid inquiries (FR-34) |
 | Default bid window | Suggests `bid_deadline` when CE opens |
 
 ---
@@ -869,11 +859,11 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | 7 | CM | Create PO after approvals | FR-7 |
 | 8 | CCE | View assigned PR items | FR-8 |
 | 9 | CCE | AVL-only suppliers | FR-9 |
-| 10 | CCE | ≥3 / ≥1+reason / ≥1 sole source; submit to CM | FR-10 |
+| 10 | CCE | ≥1 valid always; ≥3 or shortfall reason for 1–2; submit to CM | FR-10 |
 | 11 | CCE | Closed Envelope supplier list | FR-11 |
 | 12 | Signatory | Sequential documents | FR-12 |
 | 13 | Signatory | Approve or return to previous / CM | FR-13 |
-| 14 | CEO | Sign all Sole Source | FR-14 |
+| 14 | — | *(removed)* Sole Source / CEO inject | FR-14 |
 | 15 | Comm. Mgr | High Value / Commission dashboard | FR-15 |
 | 16 | Comm. Mgr | Assign Commission Experts | FR-16 |
 | 17 | Comm. Mgr | Approve without meeting | FR-17 |
@@ -913,7 +903,7 @@ Requirements are derived from user stories. Each FR maps to one or more stories.
 | Topic | Assumption (locked unless revisited) |
 |-------|--------------------------------------|
 | PR document | Standalone `zvy.purchase.request` |
-| Signatories | Hybrid Approvals only for Stories 12–14 |
+| Signatories | Hybrid Approvals for Stories 12–13; Formalities (FR-34) when &lt;3 valid inquiries; Sole Source / FR-14 removed |
 | AVL | In-Odoo `zvy.avl.entry` |
 | First delivery | Backend Stories 1–23, 27–30; portal UI 24–26 follows |
 | Final PO | Standard `purchase.order` |
@@ -936,7 +926,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 4. Prepare users for Phases 1–2 (same company): **Planner** only, **Commercial Manager** only, **Commercial Expert** only (optionally a second Expert for assignment isolation).
 5. For Phase 2: ensure ≥3 active **AVL** vendors (and product/category as needed); set a known **high-value threshold** in Settings.
 6. For Phase 3: prepare **Commission Manager** and **Commission Expert** users; confirm Settings **default bid window (hours)**.
-7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Create **HR jobs** per band (and sole-source / formalities), link Signatory users as employees’ Related Users on those jobs, and assign the jobs in Settings. Assign the **Signatory** access right to those users. Commercial Manager implies Purchase User so they can open created POs.
+7. For Phase 4: create a sequential **Approvals** category (Approvers Sequence on; ≥1 required approver); set it as **Signatory Approval Category** in Tendering Settings. Create **HR jobs** per band (and formalities), link Signatory users as employees’ Related Users on those jobs, and assign the jobs in Settings. Assign the **Signatory** access right to those users. Commercial Manager implies Purchase User so they can open created POs.
 8. For Phase 5: create **Portal** users linked to ≥2 invited AVL vendors (and one non-invited portal vendor). Ensure those partners have email addresses. Website/portal must be reachable so suppliers can open `/my` and `/my/tenders`.
 
 ### Phase 0 — Foundation
@@ -962,8 +952,8 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category, sole-source approvers |
-| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick a sequential Approvals category, set sole-source approver(s); Save | Values persist after reopen |
+| 1 | **Configuration → Settings** (or company settings app block for Procurement & Tendering) | Block shows high-value threshold, default bid window (hours), signatory approval category, Formalities Signatory Job |
+| 2 | Set threshold (e.g. `50000`), bid window (e.g. `48`), pick a sequential Approvals category, set Formalities Signatory Job; Save | Values persist after reopen |
 | 3 | Open the same company again | Fields match what was saved |
 
 #### MT-0.4 Product procurement type and commission (FR-1 / BR-4)
@@ -985,8 +975,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 2 | Create an active entry | Record appears in the list |
 | 3 | Archive the entry (Action → Archive) | Entry hidden from default list; visible with Archived filter |
 | 4 | Create entries scoped by product and by category | Both save; list/search can filter by partner, product, category |
-| 5 | Ensure a product has **exactly one** active AVL vendor; add that product on a draft PR line | Line **Sole Source** is checked and read-only |
-| 6 | Add a second active AVL vendor that covers the same product; reopen the draft line | **Sole Source** clears automatically |
+| 5 | Create entries for two products with different vendor counts | Both save; no sole-source flag appears on PR lines |
 
 #### MT-0.6 Global AVL
 
@@ -1008,7 +997,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | Log in as **Planner** → **Purchase Requests → All Requests → New** | Form opens in `draft`; **Requester** is current user and not editable |
-| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate) | Line subtotals and header total estimate compute; **Sole Source** / **Commission Item** / **Procurement Type** are read-only and filled from AVL / product |
+| 2 | Enter description; add ≥1 line (product, qty, UoM, price estimate) | Line subtotals and header total estimate compute; **Commission Item** / **Procurement Type** are read-only and filled from product / overlays |
 | 3 | Try to change **Requester** (UI) | Field remains locked to the creating user |
 | 4 | Save | Number is assigned (e.g. `PR/2026/00001`), not `New` |
 | 5 | Click **Submit** | State → `submitted`; chatter notes submission |
@@ -1081,7 +1070,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | Step | Action | Expected |
 |------|--------|----------|
 | 1 | As the assigned **Commercial Expert** → **Purchase Requests → My Assignments** | Only lines assigned to this user appear (parent in `inquiry` / `quote_review`) |
-| 2 | Open an assigned line / related PR | Can add and save quotes on assigned lines; product/qty/expert/**Sole Source**/**Commission Item** fields are greyed out (read-only), not editable-then-rejected |
+| 2 | Open an assigned line / related PR | Can add and save quotes on assigned lines; product/qty/expert/**Commission Item** fields are greyed out (read-only), not editable-then-rejected |
 | 3 | As a second Expert **not** assigned to that PR | PR / line not visible; cannot create quotes on those lines |
 | 4 | As Expert, open **Awaiting Review** / **Quote Review** | Menus not available (CM-only) |
 
@@ -1103,7 +1092,7 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 3 | When **every** line of the PR is submitted | PR state → `quote_review` automatically; chatter notes all quote sets submitted |
 | 4 | On a PR whose lines are split between two Experts, have only one submit | PR stays in `inquiry` until the second Expert submits their line |
 | 5 | As **CM**, try **Submit Quotes** | Not available / refused — the CM reviews, Experts submit |
-| 6 | Create another PR whose product has **exactly one** active AVL vendor (Sole Source auto-checked); assign Expert; record **1** AVL quote; **Submit Quotes** | Allowed (≥1); line submitted and PR → `quote_review` |
+| 6 | Assign Expert; record **1** valid AVL quote; enter shortfall reason via wizard; **Submit Quotes** | Allowed (≥1 + reason); line submitted; PR **Formalities** turns on; PR → `quote_review` |
 
 #### MT-2.5 CM reject quotes (FR-6)
 
@@ -1201,14 +1190,14 @@ Scenarios track [Roadmap.md](Roadmap.md) progress. Expand this section when each
 | 4 | **Resubmit to Signatories** | New `approval.request` spawned; PR → `signatory` again |
 | 5 | Complete the new chain | PR → `po_ready` |
 
-#### MT-4.3 Sole source includes CEO (FR-14 / BR-5)
+#### MT-4.3 Formalities appends extra signatories (FR-34 / BR-5)
 
 | Step | Action | Expected |
 |------|--------|----------|
-| 1 | Create a PR with a product that has exactly one active AVL vendor (**Sole Source** auto-checked); collect ≥1 quote; award; approve (company path, below high-value threshold) | PR `signatory`; approval approvers include category signatories **and** every employee on the company Sole-Source Signatory Job as required, last in sequence |
-| 2 | Approve category signatories only | PR stays `signatory` until CEO / sole-source approver(s) approve |
-| 3 | CEO approves last | PR → `po_ready` |
-| 4 | Repeat for a high-value sole-source **enquiry** PR | Same CEO inject on the **pre-commission** signatory document; after that chain completes the PR goes to Holding Commission |
+| 1 | Create an Enquiry PR; submit **1** or **2** valid quotes with a shortfall reason; award; approve (company path, below high-value threshold) | PR `signatory`; header **Formalities** is checked; approval approvers include the band job **and** every employee on the Formalities Signatory Job |
+| 2 | Approve band-job signatories only | PR stays `signatory` until Formalities job members approve |
+| 3 | Formalities approvers finish | PR → `po_ready` |
+| 4 | Repeat for a large / Need Commission **enquiry** shortfall PR | Same Formalities append on the **pre-commission** signatory document; after that chain completes the PR goes to Holding Commission |
 
 #### MT-4.4 Create PO (FR-7 / BR-6)
 

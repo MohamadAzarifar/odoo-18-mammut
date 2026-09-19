@@ -4,7 +4,7 @@
 **Platform:** Odoo 18 (standalone addon `zvy_tendering`)  
 **Related:** [README.md](README.md) (PRD) · [Roadmap.md](Roadmap.md) (phasing)
 
-This document is the implementation design for the requirements in the PRD. Locked assumptions (PRD §10): standalone `zvy.purchase.request`, hybrid `approval.request` for Stories 12–14 only, in-Odoo AVL, portal UI after backend, final PO = standard `purchase.order`.
+This document is the implementation design for the requirements in the PRD. Locked assumptions (PRD §10): standalone `zvy.purchase.request`, hybrid `approval.request` for Stories 12–13 (plus Formalities FR-34; Sole Source / FR-14 removed), in-Odoo AVL, portal UI after backend, final PO = standard `purchase.order`.
 
 ---
 
@@ -157,7 +157,6 @@ PR header. Inherits `mail.thread`, `mail.activity.mixin`.
 | `procurement_type` | Selection | Computed: `enquiry` / `tendering` when all lines match; empty if mixed |
 | `is_mixed_procurement` | Boolean | Computed: both Enquiry and Tendering lines present |
 | `split_from_id` / `split_request_id` / `parent_request_id` | Many2one | Sibling PRs after FR-31 split; `parent_request_id` is the customer `parentRequestId` alias of `split_from_id` |
-| `has_sole_source` | Boolean | Computed: any line `sole_source` |
 | `commission_case_id` | Many2one | → `zvy.commission.case` |
 | `commission_comparison_attachment_ids` / `commission_technical_attachment_ids` | Many2many `ir.attachment` | Dossier for FR-43 check 5 when company flags require them |
 | `closed_envelope_id` | Many2one | Latest `zvy.closed.envelope` |
@@ -174,7 +173,7 @@ Key actions: `action_submit`, `action_split_mixed`, `action_reject`, `action_ret
 
 `action_submit` blocks mixed Enquiry+Tendering PRs (FR-31). UI (`zvy_ui_submit` context) opens `zvy.request.split.wizard`; RPC raises `ValidationError` and callers must invoke `action_split_mixed` then submit each PR. Split keeps Enquiry lines on the original sequence and moves Tendering lines to a new draft PR; neither is auto-submitted.
 
-**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). Standard lines require ≥3 **valid** inquiries **or** ≥1 valid inquiry plus `quote_shortfall_reason`; sole source requires ≥1 valid inquiry. Unpriced or stale quotes do not count (FR-33). UI submit (`zvy_ui_submit`) with 1–2 valid inquiries and no reason opens `zvy.request.quote.shortfall.wizard`; RPC raises `ValidationError`. The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
+**Quote submission (FR-10) is per line, Enquiry PRs only.** `zvy.purchase.request.line.action_submit_quotes` is the primary entry point (button on My Assignments list + line form): it checks minima for those lines, flips their draft quotes to `submitted`, and calls `zvy.purchase.request._try_advance_to_quote_review`, which moves the PR to `quote_review` only when **every** line reports `quotes_submitted` (or a CE award already satisfies inquiry). Every Enquiry line requires ≥1 **valid** inquiry; ≥3 valid **or** 1–2 valid plus `quote_shortfall_reason`. Unpriced or stale quotes do not count (FR-33). Lines with &lt;3 valid inquiries set header `is_formalities` (FR-34). UI submit (`zvy_ui_submit`) with 1–2 valid inquiries and no reason opens `zvy.request.quote.shortfall.wizard`; RPC raises `ValidationError`. The request-level `action_submit_quotes` is a convenience wrapper that submits just the caller’s own assigned lines. Only assigned Commercial Experts (and Admin) may submit — **not** the CM, who reviews the result. Tendering PRs collect a closed-envelope list instead of quotes.
 
 Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_quote_minima`, `_try_advance_to_quote_review`) must read lines with `sudo`: experts can only read the lines assigned to them, so a plain `self.line_ids` raises `AccessError` on split-assignment PRs.
 
@@ -189,13 +188,12 @@ Anything that aggregates across all lines (`_user_is_assigned_expert`, `_check_q
 | `product_uom_qty` | Float | |
 | `product_uom_id` | Many2one `uom.uom` | |
 | `price_estimate` | Monetary | Planner estimate |
-| `sole_source` | Boolean | Forces ≥1 quote; CEO in chain (FR-14) |
 | `is_commission_item` | Boolean | Resolved Enquiry Need Commission (holding overlay, else template); computed, not planner-editable |
 | `expert_user_ids` | Many2many `res.users` | Assigned Commercial Experts (FR-5); set via Assign Experts wizard |
 | `quote_ids` | One2many | → `zvy.quote`; collected on the line form (My Assignments) |
 | `quote_count` | Integer (compute) | Number of quotes on the line |
 | `quotes_submitted` | Boolean (compute, stored) | True once the line’s live quotes all left `draft`; drives PR advancement |
-| `quote_shortfall_reason` | Text | Required to submit 1–2 valid inquiries on a non-sole-source line; set by the shortfall wizard |
+| `quote_shortfall_reason` | Text | Required to submit 1–2 valid inquiries; set by the shortfall wizard |
 | `awarded_quote_id` | Many2one `zvy.quote` | Selected quote for PO (CM sets in `quote_review`) |
 | `awarded_bid_line_id` | Many2one `zvy.closed.envelope.bid.line` | Winning CE bid line (FR-41) |
 | `ce_retender` | Boolean | No winner in the last envelope; leftover item for a later CE |
@@ -391,7 +389,7 @@ Sealing: override `read` on header and lines so non-authorized users get empty/h
 
 | Model | Additions |
 |-------|-----------|
-| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities **HR job** positions (`zvy_signatory_*_job_id`); `zvy_signatory_approval_category_id` (document template); `zvy_sole_source_job_id`; deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
+| `res.company` | `zvy_company_scale`; baked-in / custom purchase-level ceilings; per-band and formalities **HR job** positions (`zvy_signatory_*_job_id`); `zvy_signatory_approval_category_id` (document template); deprecated `zvy_high_value_threshold`; `zvy_default_bid_window_hours`; `_zvy_holding_company()` → `root_id`; commission pre-check notice days + dossier flags stored on the head holding and applied to descendants (FR-43 / FR-46) |
 | `res.config.settings` | Related fields for settings UI |
 | `product.template` | Group defaults: `zvy_procurement_type` (`enquiry` / `tendering`); `zvy_need_commission` (Enquiry only). Optional overlays: `zvy_procurement_company_ids` (FR-44) |
 | `approval.request` | `zvy_purchase_request_id`; `zvy_resume_commission`; refuse of the **current** chain bounces to the previous signatory (FR-45) or PR `cm_review` if first; on full approve of the **current** chain → `_action_route_after_signatory` (`po_ready`, or enquiry commission when Need Commission / large), or reopen commission when `zvy_resume_commission`. Stale/cancelled history records are ignored. |
@@ -490,7 +488,7 @@ flowchart TD
     PoReady -->|reject pending lines| Rejected
 ```
 
-Sole source: CEO / sole-source approvers are injected on the signatory chain (enquiry: before commission if any; tendering: after commission) before `po_ready` (FR-14).
+Formalities: when any enquiry line has &lt;3 valid inquiries, Formalities Signatory Job members are appended to the signatory chain (FR-34). There is no sole-source / CEO inject path.
 
 ---
 
@@ -501,10 +499,10 @@ Sole source: CEO / sole-source approvers are injected on the signatory chain (en
 | ID | Rule | Enforcement |
 |----|------|-------------|
 | BR-1 | AVL-only vendors | Domain on `zvy.quote.partner_id` and CE invites; `_check_avl` on write/submit |
-| BR-2 | ≥3 valid inquiries, or ≥1 valid with `quote_shortfall_reason`; ≥1 valid sole source | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10 / FR-33) |
+| BR-2 | ≥1 valid always; ≥3 valid, or 1–2 valid with `quote_shortfall_reason` | `zvy.purchase.request.line._check_quote_minima` before expert submit (FR-10 / FR-33) |
 | BR-3 | Four-band purchase level | `company._zvy_band_ceilings`; PR `purchase_level`; `is_high_value` iff `large` |
 | BR-4 | Commission items → Holding | Resolved Enquiry Need Commission (holding overlay, else template); line/header flags computed; enquiry signs first (FR-35 / FR-44) |
-| BR-5 | Sole source → CEO in chain | When spawning `approval.request`, ensure CEO/sole-source approvers in sequence |
+| BR-5 | Formalities → Formalities job in chain | When spawning `approval.request`, append Formalities Signatory Job members if `is_formalities` (FR-34) |
 | BR-6 | PO only from `po_ready` by CM or Commission Manager | Wizard / `action_create_po`; grouping by vendor of **selected pending** lines; award data required per selected line; PR stays `po_ready` while any line is pending |
 | BR-7 | Seal bids until open | Record rules + field read masking on `zvy.closed.envelope.bid` |
 | BR-8 | Signatory refuse → previous, or CM if first | `approval.request` refuse: bounce chain or PR `cm_review` (FR-45) |
@@ -553,7 +551,7 @@ Category: **Procurement & Tendering** (`ir.module.category`).
 
 Each role uses its own child `ir.module.category` under **Procurement & Tendering** so Access Rights shows them without debug mode (sibling groups in one category become boolean fields and are debug-only).
 
-`group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must hold the HR job configured for the band (or sole-source job) and have a Related User. No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
+`group_zvy_signatory` implies only `base.group_user` (not Approvals Officer/Admin). Standard employees already approve requests they are assigned to via Approvals record rules. Assign Signatory to company approvers (Finance, CEO, etc.); they must hold the HR job configured for the band (or Formalities job when applicable) and have a Related User. No Tendering menus — they open PR detail from the linked Approval Request. Portal suppliers use `base.group_portal` linked to `res.partner`.
 
 Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager + Expert groups as needed for support, plus `product.group_product_manager` so Configuration → Products can create/edit `product.template`. The Products menu (`menu_zvy_product_template`) is admin-only.
 
@@ -565,7 +563,7 @@ Implied hierarchy (example): Admin implies CM + Signatory + Commission Manager +
 | Planner | Own PRs (`requester_id = user`) |
 | Commercial Expert | Lines where `user in expert_user_ids`; may add/edit quotes in `inquiry` only, **from the line** (no PR write ACL); product/qty/expert fields UI- and write-locked outside `draft`/`correction` (FR-8). CE/quotes scoped to requesting `company_id` |
 | Commercial Manager | All PRs/quotes/CE of companies in `company_ids` (not holding descendants) |
-| Signatory | PRs (and lines/quotes/linked commission case & CE) where `user` is on `approval_request_id.approver_ids`; **read-only** (no write/create/unlink). Also read-only AVL (form computes sole_source / quote allowed vendors). |
+| Signatory | PRs (and lines/quotes/linked commission case & CE) where `user` is on `approval_request_id.approver_ids`; **read-only** (no write/create/unlink). Also read-only AVL (quote allowed vendors). |
 | Commission Expert | Cases where `user in expert_user_ids`; holding-scoped CE/case read via `holding_company_id` |
 | Commission Manager | Cases, meetings, and CE when `holding_company_id` (or requesting `company_id`) is in `company_ids` — sees all descendant companies |
 | Sealed bids | Until CE `opened`/`awarded`: amount/attachments readable only by Commission Manager (and admin); portal: `partner_id = user.partner_id` |
@@ -577,13 +575,12 @@ ACL CSV: CRUD matrix per model × group (experts create quotes; planners create 
 
 ## 6. Integrations
 
-### 6.1 Approvals (hybrid — Stories 12–14 only)
+### 6.1 Approvals (hybrid — Stories 12–13; Formalities FR-34)
 
 - PR remains `zvy.purchase.request`; never replace with `approval.request` or `purchase.requisition` (PRD non-goals).
-- `_action_spawn_signatory_approval`: create sequential `approval.request` from the company category **template**, then replace approvers with every Related User on the purchase-level HR job, optional formalities job members, and sole-source job members last. Link via `zvy_purchase_request_id` / `approval_request_id`.
+- `_action_spawn_signatory_approval`: create sequential `approval.request` from the company category **template**, then replace approvers with every Related User on the purchase-level HR job, plus Formalities Signatory Job members when `is_formalities`. Link via `zvy_purchase_request_id` / `approval_request_id`.
 - Large: CEO list up to `large_ceo_max`, Board list above it (not both).
 - Effective change during `signatory` (qty, estimate, goods, awarded supplier, purchase nature): cancel the current document, spawn a new chain, keep history.
-- Sole source: ensure `company.zvy_sole_source_job_id` employees (e.g. CEO) are required last-sequence approvers before completion.
 - Approve chain complete → `_action_route_after_signatory` (enquiry may still need Holding Commission; otherwise `po_ready`). Completing a `zvy_resume_commission` chain reopens the commission case.
 - Refuse → previous signatory on the same document, or PR `cm_review` when the first signatory refuses (FR-45 / BR-8); reason wizard is required. Does not depend on `mammut_refuse_reason`.
 - FR-28: no transition to `po_ready` while approval pending.
@@ -632,13 +629,13 @@ All status changes, reasons, assignments, awards tracked on chatter (`mail.threa
 | Signatory jobs per band | `zvy_signatory_*_job_id` + formalities job | FR-32 / FR-34 |
 | High-value threshold | `res.company.zvy_high_value_threshold` | Deprecated; unused in routing |
 | Default bid window (hours) | `res.company.zvy_default_bid_window_hours` | Suggests `bid_deadline` on CE open |
-| Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..14) |
-| Sole-source job (CEO) | `res.company.zvy_sole_source_job_id` | FR-14 / BR-5 |
+| Signatory approval category | `res.company.zvy_signatory_approval_category_id` | Document template (FR-12..13) |
+| Formalities Signatory Job | `res.company.zvy_signatory_formalities_job_id` | FR-34 / BR-5 |
 | Commission on Enquiry product | Template `zvy_need_commission`; holding overlay via `zvy.product.procurement.company` | BR-4 / FR-44 |
 | Product procurement type | Template `zvy_procurement_type`; per-company overlay; Admin maintains products via Configuration → Products | FR-1 / FR-10 / FR-11 / FR-31 / FR-44 |
 | Commission notice days | `res.company.zvy_commission_notice_days` on the head holding | FR-43 check 1 / FR-46 (0 until commission-laws) |
 | Commission dossier flags | `zvy_commission_require_proforma` / `_comparison` / `_technical` on the head holding (readonly on children) | FR-43 check 5 / FR-46 |
-| Commission / sole source on line | Line flags (computed) | BR-4 / BR-5 |
+| Commission on line | Line `is_commission_item` (computed) | BR-4 |
 | PR sequence | `ir.sequence` | FR-1 |
 
 Expose via `res.config.settings` under a Tendering settings block.
@@ -651,7 +648,7 @@ Automated tests (PRD §7) mapped to design:
 
 | Area | Assert |
 |------|--------|
-| Quote minima | Standard line blocks submit with &lt;3 **valid** inquiries unless `quote_shortfall_reason` is set (still ≥1 valid); sole source allows 1 valid; stale/unpriced do not count |
+| Quote minima | Line blocks submit with 0 valid inquiries; blocks &lt;3 **valid** unless `quote_shortfall_reason` is set; stale/unpriced do not count; &lt;3 valid sets Formalities |
 | Last purchase | Confirmed PO for product+company fills line `last_vendor_id` / `last_price` / `last_purchase_date`; empty without history |
 | AVL domain | Non-AVL partner cannot be set on quote / CE invite; `allowed_partner_ids` excludes non-AVL vendors |
 | Quote collection | Expert saves a quote via `line.write({'quote_ids': ...})` in `inquiry`; other line content still blocked; `action_view_quotes` opens the line form (details + quotes) |
@@ -663,7 +660,7 @@ Automated tests (PRD §7) mapped to design:
 | Signatory reset | Qty change in `signatory` archives current approval; only the new chain reaches `po_ready` |
 | Mixed PR split | Mixed submit blocked; split keeps Enquiry, new PR gets Tendering; types are resolved per company overlay |
 | Product procurement overlay | Company A type overlay does not affect B; holding Need Commission applies to children; subsidiary commission overlay is rejected; tendering resolved type ignores Need Commission |
-| Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; sole source includes CEO |
+| Signatory bridge | Refuse → `cm_review`; approve → `po_ready`; Formalities appends Formalities job |
 | Partial PO | Subset of awarded lines → one PO; PR stays `po_ready`; remaining pending; second PO → `done`; reject cancels pending |
 | Bid seal | Non-manager cannot read amount before open; bidder can read own |
 | Portal isolation | Non-invited portal user gets empty/403 |
@@ -681,6 +678,6 @@ Automated tests (PRD §7) mapped to design:
 | States §3 | §4 process; FR-4, FR-7, FR-20, FR-29 |
 | Routing §4 | FR-27–30, FR-32–38, FR-44–46; BR-1–10 |
 | Security §5 | Personas §2; NFR Security; FR-46 holding rules |
-| Integrations §6 | FR-7, FR-12–14, FR-24–26, FR-1 API |
+| Integrations §6 | FR-7, FR-12–13, FR-34, FR-24–26, FR-1 API |
 | Config §7 | PRD §8 |
 | Delivery order | [Roadmap.md](Roadmap.md) Phases 0–5 |

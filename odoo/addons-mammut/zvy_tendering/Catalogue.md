@@ -97,7 +97,7 @@ Create these logins in Company A (plus holding users). Give each the **Internal 
 | `expert.a2` | Commercial Expert (second person, for split assignment) | Company A |
 | `signatory.1` | Signatory | Company A |
 | `signatory.2` | Signatory | Company A |
-| `ceo.a` | Signatory (used as sole-source / large-level approver) | Company A |
+| `ceo.a` | Signatory (e.g. formalities / large-level approver) | Company A |
 | `board.a` | Signatory | Company A |
 | `comm.mgr` | Commission Manager | Holding Co |
 | `comm.exp` | Commission Expert | Holding Co |
@@ -175,7 +175,6 @@ For manual tests, turn **Override Purchase-Level Bands** on and use small number
 | Large Signatory Job | e.g. CEO → `ceo.a` |
 | Board Signatory Job | e.g. Board Member → `board.a` |
 | Formalities Signatory Job | e.g. Formalities Officer → `signatory.2` (extra role when a line has fewer than 3 valid quotes) |
-| Sole-Source Signatory Job | e.g. CEO → `ceo.a` |
 
 **Commission Pre-checks (Holding Co)**
 
@@ -253,7 +252,6 @@ You should see:
 - [ ] Number like `PR/2026/00001` (not “New”)
 - [ ] **Procurement Type** = Enquiry
 - [ ] **Commission Item** unchecked
-- [ ] **Sole Source** unchecked (three AVL vendors)
 - [ ] **Purchase Level** = Minor
 - [ ] **Formalities** unchecked (no quotes yet — this flag is computed from valid inquiries later)
 - [ ] Status **Draft**
@@ -546,9 +544,8 @@ On an Inquiry line, try to use Outsider Vendor (RPC or any forced partner).
 | Situation | What to do | Expected |
 |---|---|---|
 | Zero quotes | **Submit Quotes** | Blocked |
-| 1 or 2 **valid** quotes on a normal line | **Submit Quotes** | Wizard **Fewer than 3 Valid Inquiries** — reason required; after confirm, reason stored on the line as **Fewer Quotes Reason** |
+| 1 or 2 **valid** quotes on a normal line | **Submit Quotes** | Wizard **Fewer than 3 Valid Inquiries** — reason required; after confirm, reason stored on the line as **Fewer Quotes Reason**; PR **Formalities** turns on |
 | 3 valid quotes | **Submit Quotes** | Goes through with no wizard |
-| Sole source (exactly one AVL vendor for that product) | 1 valid quote | Allowed, no shortfall reason |
 | Priced quote with **Received Date** older than 30 days | Count it toward the 3 | It is **not** a valid inquiry; minima still fail |
 | Unpriced quote (empty unit price, fill Comments) | Save, then submit with only that quote | Saves; **Valid Inquiry** is off; does **not** count toward the 3 |
 
@@ -636,15 +633,14 @@ Change **quantity**, or **Purchase Nature**, on a PR that already has a pending 
 - [ ] Only the new chain can reach PO Ready
 - [ ] Old approval remains readable
 
-#### 4.4 Sole source always includes the CEO
+#### 4.4 Fewer than 3 quotes includes Formalities
 
-1. Archive AVL for Vendor B and C on this product so exactly **one** vendor remains.
-2. Line **Sole Source** checks itself.
-3. Expert submits **one** quote. CM awards and approves.
+1. Expert submits **one** or **two** valid quotes with a shortfall reason. CM awards and approves.
+2. PR **Formalities** is checked.
 
-- [ ] Approval list includes every member of the **Sole-Source Signatory Job** (`ceo.a`) last
-- [ ] PR stays Signatory until the CEO approves
-- [ ] Same CEO inject happens on the **pre-commission** chain of a large sole-source enquiry
+- [ ] Approval list includes every member of the **Formalities Signatory Job** (e.g. `signatory.2` / `ceo.a`) after the band job
+- [ ] PR stays Signatory until band and formalities approvers finish
+- [ ] Same formalities append happens on the **pre-commission** chain of a large shortfall enquiry
 
 ---
 
@@ -976,7 +972,7 @@ If you have one tester and one day, run in this order:
 10. Per-item re-tender (8.4)
 11. Product overlay + holding isolation (11, 12)
 
-That set covers every PRD 1.3 path that is implemented. The remaining catalogue rows are extra confidence (sole source, board signatories, dossier fail, portal outsider, etc.).
+That set covers every PRD 1.3 path that is implemented. The remaining catalogue rows are extra confidence (formalities, board signatories, dossier fail, portal outsider, etc.).
 
 ---
 
@@ -1002,7 +998,7 @@ Do **not** fail the release for these:
 | Happy path B — Tendering / portal | | | | |
 | Intake, split, return | | | | |
 | Quotes, AVL, minima, formalities | | | | |
-| Signatories, sole source, reset | | | | |
+| Signatories, formalities, reset | | | | |
 | Commission, pre-checks, meetings | | | | |
 | Closed envelope, seal, per-item award | | | | |
 | Partial PO | | | | |

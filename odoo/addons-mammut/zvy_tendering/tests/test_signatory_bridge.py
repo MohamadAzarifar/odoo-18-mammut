@@ -8,9 +8,7 @@ from .common import ZvyTenderingCommon
 @tagged('post_install', '-at_install')
 class TestZvySignatoryBridge(ZvyTenderingCommon):
 
-    def _route_to_signatory(self, sole_source=False):
-        if sole_source:
-            self._ensure_sole_source_avl()
+    def _route_to_signatory(self, quote_count=3, shortfall_reason=None):
         line_vals = [{
             'product_id': self.product.id,
             'product_uom_qty': 2.0,
@@ -18,9 +16,10 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
             'price_estimate': 50.0,
         }]
         pr = self._create_draft_pr(line_vals=line_vals)
-        self.assertEqual(pr.has_sole_source, sole_source)
         pr = self._submit_and_assign(pr=pr)
-        self._add_quotes(pr, count=1 if sole_source else 3)
+        self._add_quotes(pr, count=quote_count)
+        if shortfall_reason:
+            pr.line_ids.sudo().write({'quote_shortfall_reason': shortfall_reason})
         pr.with_user(self.user_cce).action_submit_quotes()
         self._award_quotes(pr)
         pr.with_user(self.user_cm).action_approve_quotes()
@@ -54,23 +53,18 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         self.assertNotEqual(pr.sudo().approval_request_id, approval)
         self.assertEqual(pr.sudo().approval_request_id.request_status, 'pending')
 
-    def test_sole_source_includes_ceo(self):
-        pr = self._route_to_signatory(sole_source=True)
+    def test_shortfall_quotes_include_formalities_job(self):
+        self.company_a.zvy_signatory_formalities_job_id = self.job_formalities
+        pr = self._route_to_signatory(
+            quote_count=1,
+            shortfall_reason='Only one vendor responded',
+        )
+        self.assertTrue(pr.is_formalities)
         approval = pr.sudo().approval_request_id
         approver_users = approval.approver_ids.mapped('user_id')
         self.assertIn(self.user_signatory, approver_users)
         self.assertIn(self.user_ceo, approver_users)
-        ceo_approver = approval.approver_ids.filtered(
-            lambda a: a.user_id == self.user_ceo
-        )
-        self.assertTrue(ceo_approver.required)
-        # CEO must be last in sequence.
-        self.assertEqual(
-            ceo_approver.sequence,
-            max(approval.approver_ids.mapped('sequence')),
-        )
 
-        # Signatory first, then CEO.
         self._approve_all_signatories(pr)
         self.assertEqual(pr.state, 'po_ready')
 
@@ -129,8 +123,7 @@ class TestZvySignatoryBridge(ZvyTenderingCommon):
         self.assertTrue(pr_as_sig.line_ids)
         self.assertTrue(pr_as_sig.quote_ids)
         self.assertTrue(pr_as_sig.line_ids.awarded_quote_id)
-        # Form loads sole_source / allowed_partner_ids which touch AVL.
-        self.assertTrue(isinstance(pr_as_sig.line_ids.sole_source, bool))
+        # Form loads allowed_partner_ids which touch AVL.
         self.assertTrue(pr_as_sig.quote_ids.allowed_partner_ids)
 
     def test_signatory_cannot_write_pr(self):

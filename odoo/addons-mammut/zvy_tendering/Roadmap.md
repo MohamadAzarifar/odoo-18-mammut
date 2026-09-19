@@ -15,7 +15,7 @@ Phasing follows PRD §10: backend Stories **1–23** and **27–30** first; supp
 | **1 — PR & CM intake** | PR lifecycle, CM queues, reject/return, planner notify | 1–4 (FR-1..4) | 0 |
 | **2 — Inquiry & routing** | Assign experts, AVL quotes, minima, CM quote review, auto-route | 5–6, 8–10, 27 | 1 |
 | **3 — Holding Commission** | Cases, reviews, meetings, CE list/seal/open/award (manual bids) | 11, 15–23, 29–30 | 2 |
-| **4 — Sign-off & PO** | Sequential Approvals, CEO sole source, create PO | 7, 12–14, 28 | 2 (and 3 if commission path) |
+| **4 — Sign-off & PO** | Sequential Approvals, create PO (Formalities via Phase 6) | 7, 12–13, 28 | 2 (and 3 if commission path) |
 | **5 — Supplier portal** | `/my/tenders`, sealed submit, notifications | 24–26 | 3 |
 | **6 — Purchase level & formalities** | `MINOR/MEDIUM/MAJOR/LARGE`, valid-inquiry rules, تشریفات, signature reset | FR-32..34 | 4 |
 | **7 — Inquiry routing invert** | Signatures before commission on inquiry; tender still commission-first | FR-35 (replaces FR-27 inquiry path) | 6 |
@@ -116,11 +116,11 @@ Acceptance criteria for FR-1..4 are met; planner and CM can run the intake loop 
 - [x] Expert dashboard: only assigned lines (FR-8)
 - [x] Assigned-line / quote forms: product/qty/expert (and quote fields outside inquiry) UI-readonly via `request_state` — no edit-then-error UX
 - [x] `zvy.quote` with AVL domain (FR-9 / BR-1) — vendor picker filtered by computed `allowed_partner_ids`, not an onchange domain
-- [x] Quote minima: ≥3 standard, or ≥1 with a shortfall reason; ≥1 sole source before submit (FR-10 / BR-2)
+- [x] Quote minima: ≥1 valid always; ≥3 valid, or 1–2 with a shortfall reason before submit (FR-10 / BR-2)
 - [x] Expert submit → `quote_review`
 - [x] Per-line submit by the assigned expert; PR advances to `quote_review` only when all lines are submitted (CM cannot submit)
 - [x] CM approve quotes → `_action_route_after_quotes` (FR-27); CM reject quotes → back to `inquiry` with reason (FR-6)
-- [x] Compute `is_high_value`, `is_commission_item`, `has_sole_source`
+- [x] Compute `is_high_value`, `is_commission_item`
 - [x] On route to commission: create `zvy.commission.case` shell (full UX in Phase 3) **or** set state `commission` ready for Phase 3
 - [x] On route to company path: set state `signatory` placeholder / spawn Approvals in Phase 4
 
@@ -206,14 +206,13 @@ FR-11, 15–23, 29–30 pass with **manual** bids; sealed integrity holds; appro
 
 ## Phase 4 — Sign-off & Purchase Order
 
-**Goal:** Sequential company signatories via Approvals; CEO on sole source; refuse returns to CM; CM creates standard POs from `po_ready`.
+**Goal:** Sequential company signatories via Approvals; refuse returns to CM; CM creates standard POs from `po_ready`. (Formalities shortfall chain is Phase 6 / FR-34; Sole Source / FR-14 CEO inject removed.)
 
 ### Scope
 
 - [x] Spawn sequential `approval.request` from company signatory category (FR-12)
 - [x] Link PR ↔ approval; PR context from approval form via Signatory role (approver-only, read-only) (FR-13)
 - [x] Full approval → `po_ready`; refuse → `cm_review` with reason (BR-8)
-- [x] Sole source always includes CEO / sole-source approvers in chain, including after commission (FR-14)
 - [x] Enforce no `po_ready` while approval pending (FR-28)
 - [x] After commission approval, enter same signatory path
 - [x] `action_create_po`: CM only, `po_ready` + award data → one or more `purchase.order`; PR → `done` (FR-7 / BR-6)
@@ -224,20 +223,19 @@ FR-11, 15–23, 29–30 pass with **manual** bids; sealed integrity holds; appro
 - [x] **Story 7 / FR-7** — Create PO after approvals
 - [x] **Story 12 / FR-12** — Sequential signatory documents
 - [x] **Story 13 / FR-13** — Approve or refuse → CM
-- [x] **Story 14 / FR-14** — CEO on all sole source
+- [x] **Story 14 / FR-14** — *(removed)* Sole Source / CEO inject; Formalities covers shortfalls (FR-34)
 - [x] **Story 28 / FR-28** — Sequential enforcement; no unauthorized bypass
 
 ### Suggested tests
 
 - [x] Signatory bridge: approve → `po_ready`; refuse → `cm_review`
-- [x] Sole-source PR includes CEO before `po_ready`
 - [x] Cannot create PO from non-`po_ready` or without award
 - [x] Non-CM cannot create PO
 - [x] Signatory can read linked PR/lines/quotes; cannot write; non-approver Signatory cannot read
 
 ### Done when
 
-FR-7, 12–14, 28 pass; end-to-end company path and commission→signatory→PO path work without portal.
+FR-7, 12–13, 28 pass; end-to-end company path and commission→signatory→PO path work without portal. FR-14 sole-source CEO inject withdrawn.
 
 **MVP backend complete** (Stories 1–23, 27–30).
 
@@ -294,7 +292,7 @@ Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-0
 - [x] Company settings: company scale × operational/non-operational baked-in IRR tables (R-PL-012/013/014) with optional custom ceilings
 - [x] Valid inquiry (FR-33 foundation): priced and received date &lt; 30 days; unpriced quotes allowed later in Phase 8 but **never** count toward the 3
 - [x] `is_formalities` when **any** line has fewer than 3 valid inquiries (whole PR, not per line)
-- [x] Spawn signatory chain from purchase level + formalities (per-band HR jobs; sole-source job inject from FR-14 still applies)
+- [x] Spawn signatory chain from purchase level + formalities (per-band HR jobs; Formalities job when `is_formalities`; no sole-source inject)
 - [x] Effective-change list resets the in-progress chain and keeps prior `approval.request` records in history: request price, supplier list, quantity, add/remove goods
 - [x] `is_high_value` remains derived or deprecated in favor of `purchase_level` (no silent dual routing)
 
@@ -315,7 +313,7 @@ Does not reopen Phases 0–5. Customer user-story IDs (US-03, US-05, US-06, US-0
 
 ### Done when
 
-FR-32..34 pass with placeholder bands; existing company-path and sole-source tests still green after chain spawn uses level + formalities.
+FR-32..34 pass with placeholder bands; existing company-path and Formalities tests still green after chain spawn uses level + formalities.
 
 ---
 
@@ -381,7 +379,7 @@ FR-35 holds for enquiry and tendering; Phase 4 sign-off/PO tests updated; no enq
 - [x] Optional: comments, delivery date, advance %, payment type, tolerance % (from last purchase, system), shipping, packaging type/count, contract ref, Nikan amount, price adjustment, warranty, proforma attachment, discount %
 - [x] Unpriced quote: allowed with written details; `price_unit` not required; **does not** count toward 3 valid inquiries
 - [x] Line `last_vendor_id`, `last_price`, `last_purchase_date` (from prior POs / awarded history for product + company)
-- [x] `_check_quote_minima` / shortfall wizard: count **valid** inquiries; shortfall reason still required when submitting with 1–2 valid quotes on a non-sole-source line (FR-10)
+- [x] `_check_quote_minima` / shortfall wizard: count **valid** inquiries; shortfall reason required when submitting with 1–2 valid inquiries (FR-10)
 - [x] Auto total = unit × qty when priced; arithmetic reused by Phase 12 check 7
 
 ### Stories / FRs checklist
@@ -633,7 +631,7 @@ Architecture today only names “Holding Commission”: case `company_id` is rel
 | Owned by requesting (operating) company | Owned by head holding (`company.root_id`) | Global |
 |-----------------------------------------|-------------------------------------------|--------|
 | PR, lines, quotes, CE header | Commission cases, reviews, meetings | AVL |
-| Purchase level, signatory jobs, sole-source CEO job | Commission Manager / Expert work | |
+| Purchase level, signatory jobs (incl. Formalities) | Commission Manager / Expert work | |
 | Create PO | Commission rules / settings (readonly on children) | |
 
 Head holding = `request.company_id.root_id` (the company itself when it has no parent). Helper e.g. `res.company._zvy_holding_company()` → `root_id`. Do not use the immediate `parent_id` when a mid-level company sits between the subsidiary and the root.
@@ -645,7 +643,7 @@ Head holding = `request.company_id.root_id` (the company itself when it has no p
 - [x] Meeting `company_id` / `holding_company_id` is the holding (Phase 11: linked PRs still share one requesting company)
 - [x] Record rules for commission roles: see cases, reviews, meetings, and CE when `holding_company_id` is in `company_ids` (or requesting `company_id` is a descendant of an allowed holding)
 - [x] Subsidiary CM / planner keep access to **their** PR; they do not own the holding commission queue
-- [x] Commission settings stored on the holding company only; children inherit / show readonly. Operating-company settings unchanged: scale, bands, signatories, sole-source CEO
+- [x] Commission settings stored on the holding company only; children inherit / show readonly. Operating-company settings unchanged: scale, bands, signatories, Formalities job
 - [x] Need Commission overlay (FR-44) resolves against the **holding**, not the subsidiary. Procurement-type overlay may stay per operating company
 - [x] Do not build a Holding org chart — use `res.company.parent_id` / `root_id` only (already out of scope below)
 
@@ -715,7 +713,7 @@ Track throughout (PRD §7):
 | 11 | FR-11 | 3 |
 | 12 | FR-12 | 4 |
 | 13 | FR-13 | 4 |
-| 14 | FR-14 | 4 |
+| 14 | FR-14 *(removed)* | 4 (withdrawn; Formalities = FR-34 / Phase 6) |
 | 15 | FR-15 | 3 |
 | 16 | FR-16 | 3 |
 | 17 | FR-17 | 3 |
@@ -759,7 +757,7 @@ Track throughout (PRD §7):
 | 1 PR & CM intake | Done | PR lifecycle, CM queues, reject/return, planner notify, intake tests |
 | 2 Inquiry & routing | Done | Assign experts, AVL quotes, minima, quote review, auto-route + case shell; expert line/quote UI readonly aligned with write rules (`18.0.1.3.1`); AVL-only vendor pickers on quote + CE invites (`18.0.1.3.2`); quote collection unblocked on locked parents (`18.0.1.3.3`); Recorded By / State system-only (`18.0.1.3.4`); per-line expert submit drives PR advancement (`18.0.1.4.0`); fewer than 3 quotes allowed with a stored shortfall reason (`18.0.1.8.0`); PR Quotes tab replaced by a per-line Quotes button |
 | 3 Commission & CE | Done | Cases, reviews, meetings/MOM, CE list/open/award, manual bids + seal (`18.0.1.4.x`) |
-| 4 Sign-off & PO | Done | Sequential Approvals bridge, sole-source CEO inject, award→PO, CM Create PO (`18.0.1.5.0`) |
+| 4 Sign-off & PO | Done | Sequential Approvals bridge, award→PO, CM Create PO (`18.0.1.5.0`); sole-source CEO inject later removed |
 | 5 Supplier portal | Done | `/my/tenders`, sealed portal bids, invite/result/clarification mail (`18.0.1.6.0`) |
 | Product type & mixed split | Done | Enquiry vs Tendering on product; commission on Enquiry product only; mixed PRs must split before submit (`18.0.1.7.0`) |
 | Quote shortfall reason | Done | Standard Enquiry lines may submit 1–2 quotes with a stored justification (`18.0.1.8.0`) |
@@ -795,5 +793,5 @@ Does not reopen Phases 0–5. Specs: [README.md](README.md) FR-10 / BR-2; [Archi
 
 - [x] Standard Enquiry lines may submit 1–2 quotes when the expert provides a justification
 - [x] UI **Submit Quotes** opens a wizard; RPC without a reason still raises
-- [x] Zero quotes remain blocked; sole source still ≥1 without a reason
+- [x] Zero quotes remain blocked; 1–2 valid need a shortfall reason; Formalities when &lt;3 valid
 - [x] Reason stored on the line (`quote_shortfall_reason`) for CM review

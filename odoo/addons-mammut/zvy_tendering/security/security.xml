@@ -82,7 +82,7 @@
             <field name="name">User</field>
             <field name="category_id" ref="module_category_zvy_signatory"/>
             <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
-            <field name="comment">Read-only Purchase Request context from linked Approvals where the user is an approver. Approvals Officer/Admin is not required — category/sole-source approvers approve via standard employee Approvals access.</field>
+            <field name="comment">Read-only Purchase Request context from linked Approvals where the user is an approver. Approvals Officer/Admin is not required — category/formalities approvers approve via standard employee Approvals access.</field>
         </record>
 
         <record id="group_zvy_commission_manager" model="res.groups">

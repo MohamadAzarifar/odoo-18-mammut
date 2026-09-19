@@ -16,7 +16,6 @@ _RES_COMPANY_COLUMNS = (
     ('zvy_high_value_threshold', 'numeric'),
     ('zvy_default_bid_window_hours', 'int4'),
     ('zvy_signatory_approval_category_id', 'int4'),
-    ('zvy_sole_source_job_id', 'int4'),
     ('zvy_signatory_minor_job_id', 'int4'),
     ('zvy_signatory_medium_job_id', 'int4'),
     ('zvy_signatory_major_job_id', 'int4'),

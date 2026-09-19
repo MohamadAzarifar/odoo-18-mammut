@@ -21,7 +21,6 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
             'zvy_signatory_minor_job_id': self.job_signatory.id,
             'zvy_default_bid_window_hours': 48,
             'zvy_signatory_approval_category_id': category.id,
-            'zvy_sole_source_job_id': self.job_sole_source.id,
         })
         settings.execute()
         company = self.company_a
@@ -30,7 +29,6 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         self.assertEqual(company.zvy_signatory_minor_job_id, self.job_signatory)
         self.assertEqual(company.zvy_default_bid_window_hours, 48)
         self.assertEqual(company.zvy_signatory_approval_category_id, category)
-        self.assertEqual(company.zvy_sole_source_job_id, self.job_sole_source)
 
         reread = Settings.create({'company_id': self.company_a.id})
         self.assertEqual(reread.zvy_high_value_threshold, 50000.0)
@@ -38,7 +36,6 @@ class TestZvyTenderingFoundation(ZvyTenderingCommon):
         self.assertEqual(reread.zvy_signatory_minor_job_id, self.job_signatory)
         self.assertEqual(reread.zvy_default_bid_window_hours, 48)
         self.assertEqual(reread.zvy_signatory_approval_category_id, category)
-        self.assertEqual(reread.zvy_sole_source_job_id, self.job_sole_source)
 
     def test_signatory_job_expands_all_employees(self):
         self.employee_signatory_other.job_id = self.job_signatory

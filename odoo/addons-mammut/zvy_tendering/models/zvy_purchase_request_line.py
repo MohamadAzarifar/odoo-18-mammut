@@ -67,13 +67,6 @@ class ZvyPurchaseRequestLine(models.Model):
         compute='_compute_price_subtotal',
         store=True,
     )
-    sole_source = fields.Boolean(
-        string='Sole Source',
-        compute='_compute_sole_source',
-        store=True,
-        help='True when the product has exactly one active AVL vendor for the '
-             'request company. Forces ≥1 quote and includes CEO in the signatory chain.',
-    )
     is_commission_item = fields.Boolean(
         string='Commission Item',
         compute='_compute_procurement_flags',
@@ -119,8 +112,7 @@ class ZvyPurchaseRequestLine(models.Model):
     quote_shortfall_reason = fields.Text(
         string='Fewer Quotes Reason',
         copy=False,
-        help='Required when submitting fewer than 3 valid inquiries on a '
-             'non-sole-source line.',
+        help='Required when submitting fewer than 3 valid inquiries.',
     )
     awarded_quote_id = fields.Many2one(
         'zvy.quote',
@@ -276,17 +268,6 @@ class ZvyPurchaseRequestLine(models.Model):
                 )
                 line.procurement_type = ptype
                 line.is_commission_item = bool(need)
-
-    @api.depends('product_id')
-    def _compute_sole_source(self):
-        Avl = self.env['zvy.avl.entry']
-        for line in self:
-            if not line.product_id:
-                line.sole_source = False
-                continue
-            line.sole_source = Avl._avl_partner_count(
-                product=line.product_id,
-            ) == 1
 
     @api.depends('product_id', 'company_id', 'request_id')
     def _compute_last_purchase(self):
@@ -557,17 +538,15 @@ class ZvyPurchaseRequestLine(models.Model):
         return len(self.quote_ids.filtered('is_valid_inquiry'))
 
     def _needs_quote_shortfall_reason(self):
-        """True when 1–2 valid inquiries on a standard line and no justification yet."""
+        """True when 1–2 valid inquiries and no justification yet."""
         self.ensure_one()
-        if self.sole_source:
-            return False
         count = self._valid_inquiry_count()
         if count < 1 or count >= 3:
             return False
         return not (self.quote_shortfall_reason or '').strip()
 
     def _check_quote_minima(self):
-        """≥1 valid inquiry always; ≥3 on standard lines unless a shortfall reason is set (FR-10 / FR-33)."""
+        """≥1 valid inquiry always; ≥3 unless a shortfall reason is set (FR-10 / FR-33)."""
         for line in self:
             count = line._valid_inquiry_count()
             if count < 1:
@@ -576,8 +555,6 @@ class ZvyPurchaseRequestLine(models.Model):
                     product=line.product_id.display_name,
                     count=count,
                 ))
-            if line.sole_source:
-                continue
             if count < 3 and not (line.quote_shortfall_reason or '').strip():
                 raise ValidationError(_(
                     'Line %(product)s has %(count)s valid inquiry(ies). '
@@ -650,7 +627,7 @@ class ZvyPurchaseRequestLine(models.Model):
             for line in lines:
                 name = line.product_id.display_name
                 reason = (line.quote_shortfall_reason or '').strip()
-                if reason and not line.sole_source and line._valid_inquiry_count() < 3:
+                if reason and line._valid_inquiry_count() < 3:
                     details.append(_('%s (%s)') % (name, reason))
                 else:
                     details.append(name)

@@ -77,10 +77,6 @@
                                  help="Extra job whose employees are appended when the PR is in formalities.">
                             <field name="zvy_signatory_formalities_job_id"/>
                         </setting>
-                        <setting string="Sole-Source Signatory Job"
-                                 help="Job whose employees (for example the CEO) must all approve every sole-source purchase request before PO Ready.">
-                            <field name="zvy_sole_source_job_id"/>
-                        </setting>
                     </block>
                     <block title="Commission Pre-checks">
                         <field name="zvy_is_holding_company" invisible="1"/>

@@ -229,10 +229,6 @@ class ZvyTenderingCommon(TransactionCase):
             'name': 'ZVY Formalities Signatory',
             'company_id': cls.company_a.id,
         })
-        cls.job_sole_source = Job.create({
-            'name': 'ZVY Sole-Source Signatory',
-            'company_id': cls.company_a.id,
-        })
         Employee = cls.env['hr.employee'].with_company(cls.company_a)
         cls.employee_signatory = Employee.create({
             'name': cls.user_signatory.name,
@@ -250,7 +246,7 @@ class ZvyTenderingCommon(TransactionCase):
             'name': cls.user_ceo.name,
             'company_id': cls.company_a.id,
             'user_id': cls.user_ceo.id,
-            'job_id': cls.job_sole_source.id,
+            'job_id': cls.job_formalities.id,
         })
         cls.company_a.zvy_signatory_approval_category_id = cls.signatory_category
         cls.company_a.write({
@@ -269,7 +265,6 @@ class ZvyTenderingCommon(TransactionCase):
             'zvy_signatory_major_job_id': cls.job_signatory.id,
             'zvy_signatory_large_job_id': cls.job_signatory.id,
             'zvy_signatory_board_job_id': cls.job_board.id,
-            'zvy_sole_source_job_id': cls.job_sole_source.id,
         })
 
         # Portal suppliers (true base.group_portal users on commercial child contacts)
@@ -334,16 +329,6 @@ class ZvyTenderingCommon(TransactionCase):
             'zvy_nop_large_ceo_max': large_ceo_max,
         })
 
-    def _ensure_sole_source_avl(self, product=None, partner=None):
-        """Leave exactly one active AVL vendor for the product (sole source)."""
-        product = product or self.product
-        partner = partner or self.partner_a
-        self.Avl.search([]).write({'active': False})
-        return self.Avl.create({
-            'partner_id': partner.id,
-            'product_id': product.id,
-        })
-
     def _create_draft_pr(self, user=None, company=None, **extra):
         user = user or self.user_planner
         company = company or self.company_a
@@ -379,14 +364,13 @@ class ZvyTenderingCommon(TransactionCase):
         return pr
 
     def _add_quotes(self, pr, count=3, user=None, partners=None):
-        """Add `count` AVL quotes on the first line (or all lines if sole source uses 1)."""
+        """Add `count` AVL quotes on each line."""
         user = user or self.user_cce
         partners = partners or [self.partner_a, self.partner_b, self.partner_c]
         Quote = self.env['zvy.quote'].with_user(user).with_company(pr.company_id)
         quotes = self.env['zvy.quote']
         for line in pr.line_ids:
-            needed = 1 if line.sole_source else count
-            for i in range(needed):
+            for i in range(count):
                 partner = partners[i % len(partners)]
                 quotes |= Quote.create({
                     'line_id': line.id,

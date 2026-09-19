@@ -75,31 +75,3 @@ class ZvyAvlEntry(models.Model):
             return len(domain[0][2])
         return self.env['res.partner'].search_count(domain)
 
-    @api.model
-    def _trigger_pr_line_sole_source_recompute(self):
-        """Refresh sole-source flags on draft/correction lines."""
-        lines = self.env['zvy.purchase.request.line'].sudo().search([
-            ('request_id.state', 'in', ('draft', 'correction')),
-        ])
-        if lines:
-            lines._compute_sole_source()
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        records._trigger_pr_line_sole_source_recompute()
-        return records
-
-    def write(self, vals):
-        res = super().write(vals)
-        if any(key in vals for key in (
-            'active', 'partner_id', 'product_id', 'categ_id',
-            'date_start', 'date_end',
-        )):
-            self._trigger_pr_line_sole_source_recompute()
-        return res
-
-    def unlink(self):
-        res = super().unlink()
-        self.env['zvy.avl.entry']._trigger_pr_line_sole_source_recompute()
-        return res

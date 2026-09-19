@@ -1274,11 +1274,6 @@ msgid "Has Message"
 msgstr ""
 
 #. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__has_sole_source
-msgid "Has Sole Source"
-msgstr ""
-
-#. module: zvy_tendering
 #: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request__is_high_value
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_commission_case_search
 #: model_terms:ir.ui.view,arch_db:zvy_tendering.view_zvy_purchase_request_search
@@ -2389,7 +2384,7 @@ msgstr ""
 #: model:res.groups,comment:zvy_tendering.group_zvy_signatory
 msgid ""
 "Read-only Purchase Request context from linked Approvals where the user is "
-"an approver. Approvals Officer/Admin is not required — category/sole-source "
+"an approver. Approvals Officer/Admin is not required — category/formalities "
 "approvers approve via standard employee Approvals access."
 msgstr ""
 
@@ -2508,7 +2503,7 @@ msgstr ""
 #. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__quote_shortfall_reason
 msgid ""
-"Required when submitting fewer than 3 quotes on a non-sole-source line."
+"Required when submitting fewer than 3 valid inquiries."
 msgstr ""
 
 #. module: zvy_tendering
@@ -2779,26 +2774,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
 msgid "Signatory: %s"
-msgstr ""
-
-#. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_zvy_purchase_request_line__sole_source
-msgid "Sole Source"
-msgstr ""
-
-#. module: zvy_tendering
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_company__zvy_sole_source_job_id
-#: model:ir.model.fields,field_description:zvy_tendering.field_res_config_settings__zvy_sole_source_job_id
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid "Sole-Source Signatory Job"
-msgstr ""
-
-#. module: zvy_tendering
-#. odoo-python
-#: code:addons/zvy_tendering/models/zvy_purchase_request.py:0
-msgid ""
-"Sole-source purchase requests require a Sole-Source Signatory Job configured on "
-"the company (FR-14)."
 msgstr ""
 
 #. module: zvy_tendering
@@ -3100,13 +3075,6 @@ msgid "True when the Enquiry product has Need Commission enabled."
 msgstr ""
 
 #. module: zvy_tendering
-#: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request_line__sole_source
-msgid ""
-"True when the product has exactly one active AVL vendor for the request "
-"company. Forces ≥1 quote and includes CEO in the signatory chain."
-msgstr ""
-
-#. module: zvy_tendering
 #: model:ir.model.fields,help:zvy_tendering.field_zvy_purchase_request__is_mixed_procurement
 msgid "True when the request has both Enquiry and Tendering product lines."
 msgstr ""
@@ -3168,21 +3136,6 @@ msgstr ""
 #: model:res.groups,name:zvy_tendering.group_zvy_signatory
 #: model:res.groups,name:zvy_tendering.group_zvy_tendering_admin
 msgid "User"
-msgstr ""
-
-#. module: zvy_tendering
-#: model:ir.model.fields,help:zvy_tendering.field_res_company__zvy_sole_source_job_id
-#: model:ir.model.fields,help:zvy_tendering.field_res_config_settings__zvy_sole_source_job_id
-msgid ""
-"Users (e.g. CEO) required in the signatory chain for sole-source PRs "
-"(FR-14)."
-msgstr ""
-
-#. module: zvy_tendering
-#: model_terms:ir.ui.view,arch_db:zvy_tendering.view_res_config_settings_zvy_tendering
-msgid ""
-"Users (for example the CEO) who must approve every sole-source purchase "
-"request before PO Ready."
 msgstr ""
 
 #. module: zvy_tendering
