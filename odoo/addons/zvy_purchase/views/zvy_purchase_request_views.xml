@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_request_list" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.list</field>
+        <field name="model">zvy.purchase.request</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="create_uid" string="Creator" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_request_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.form</field>
+        <field name="model">zvy.purchase.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_send"
+                        string="Send"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not can_edit_items"/>
+                    <button
+                        name="action_assign_expert"
+                        string="Assign Expert"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="state != 'in_review'"/>
+                    <button
+                        name="action_back_to_draft"
+                        string="Back to Draft"
+                        type="object"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="state != 'in_review'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Purchase Request"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                        <field name="create_uid" string="Creator" readonly="1"/>
+                        <field name="can_edit_items" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Purchase Items" name="purchase_items">
+                            <field name="item_ids" widget="zvy_open_form_one2many" readonly="not can_edit_items">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom_category_id" column_invisible="1"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="purchase_type_display"/>
+                                    <field name="commercial_expert_ids" widget="many2many_tags" optional="show" readonly="1"/>
+                                    <field name="offer_count" string="Offers"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_item_list" model="ir.ui.view">
+        <field name="name">zvy.purchase.item.list</field>
+        <field name="model">zvy.purchase.item</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="product_uom_id"/>
+                <field name="purchase_type_display"/>
+                <field name="commercial_expert_ids" widget="many2many_tags" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_item_search" model="ir.ui.view">
+        <field name="name">zvy.purchase.item.search</field>
+        <field name="model">zvy.purchase.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="product_id"/>
+                <field name="commercial_expert_ids"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_in_review" string="In Review" domain="[('state', '=', 'in_review')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_item_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.item.form</field>
+        <field name="model">zvy.purchase.item</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Item">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,in_review"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field
+                            name="request_id"
+                            readonly="1"
+                            force_save="1"
+                            options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="request_state" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="can_edit" invisible="1"/>
+                        <field name="can_assign_experts" invisible="1"/>
+                        <field name="can_add_offers" invisible="1"/>
+                        <field name="product_id" readonly="not can_edit"/>
+                        <field name="product_qty" readonly="not can_edit"/>
+                        <field name="product_uom_category_id" invisible="1"/>
+                        <field name="product_uom_id" readonly="not can_edit"/>
+                        <field name="purchase_type_display" readonly="1"/>
+                        <field
+                            name="commercial_expert_ids"
+                            widget="many2many_tags"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            readonly="not can_assign_experts"/>
+                    </group>
+                    <notebook>
+                        <page string="Offers" name="offers">
+                            <field
+                                name="offer_ids"
+                                widget="zvy_open_form_one2many"
+                                readonly="not can_add_offers">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="create_uid" string="Creator" optional="show"/>
+                                    <field name="can_edit" column_invisible="1"/>
+                                    <field name="vendor_id" readonly="not can_edit"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="unit_price" readonly="not can_edit"/>
+                                    <field name="quantity" readonly="not can_edit"/>
+                                    <field name="total_price"/>
+                                    <field name="discount_percent_per_unit" readonly="not can_edit"/>
+                                    <field name="final_price"/>
+                                    <field name="deliver_time" optional="hide" readonly="not can_edit"/>
+                                    <field name="payment_method" optional="hide" readonly="not can_edit"/>
+                                    <field name="payment_duration" optional="hide" readonly="not can_edit"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_offer_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.offer.form</field>
+        <field name="model">zvy.purchase.offer</field>
+        <field name="arch" type="xml">
+            <form string="Offer">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="can_edit" invisible="1"/>
+                            <field name="item_id" readonly="1" force_save="1"/>
+                            <field name="product_id" readonly="1" string="Product"/>
+                            <field name="create_uid" string="Creator" readonly="1"/>
+                            <field name="allowed_vendor_ids" invisible="1"/>
+                            <field
+                                name="vendor_id"
+                                readonly="not can_edit"
+                                context="{'default_is_company': True, 'zvy_avl_product_id': product_id}"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="unit_price" readonly="not can_edit"/>
+                            <field name="quantity" readonly="not can_edit"/>
+                            <field name="total_price"/>
+                            <field
+                                name="discount_percent_per_unit"
+                                widget="percentage"
+                                readonly="not can_edit"/>
+                            <field name="final_price"/>
+                        </group>
+                    </group>
+                    <group string="Payment &amp; Delivery">
+                        <group>
+                            <field name="payment_method" readonly="not can_edit"/>
+                            <field name="payment_duration" readonly="not can_edit"/>
+                        </group>
+                        <group>
+                            <field name="deliver_time" readonly="not can_edit"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_request_search" model="ir.ui.view">
+        <field name="name">zvy.purchase.request.search</field>
+        <field name="model">zvy.purchase.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_in_review" string="In Review" domain="[('state', '=', 'in_review')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_request" model="ir.actions.act_window">
+        <field name="name">Purchase Requests</field>
+        <field name="res_model">zvy.purchase.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_zvy_purchase_request_list"/>
+        <field name="search_view_id" ref="view_zvy_purchase_request_search"/>
+        <field name="groups_id" eval="[(4, ref('group_planner')), (4, ref('group_commercial_manager'))]"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_zvy_purchase_request_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_zvy_purchase_request_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a purchase request
+            </p>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_item_to_review" model="ir.actions.act_window">
+        <field name="name">To Review</field>
+        <field name="res_model">zvy.purchase.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('commercial_expert_ids', 'in', uid)]</field>
+        <field name="context">{'create': False}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_zvy_purchase_item_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_zvy_purchase_item_form')})]"/>
+        <field name="search_view_id" ref="view_zvy_purchase_item_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase items assigned to you
+            </p>
+        </field>
+    </record>
+
+    <record id="menu_zvy_purchase_root" model="ir.ui.menu">
+        <field name="name">Purchase</field>
+        <field name="sequence">140</field>
+        <field name="action" eval="False"/>
+        <field name="groups_id" eval="[(4, ref('group_planner')), (4, ref('group_commercial_manager')), (4, ref('group_commercial_expert')), (4, ref('group_commission_manager'))]"/>
+    </record>
+
+    <menuitem
+        id="menu_zvy_purchase_request"
+        name="Purchase Requests"
+        parent="menu_zvy_purchase_root"
+        action="action_zvy_purchase_request"
+        sequence="10"/>
+
+    <!-- Force-replace groups: menuitem @groups can leave stale links on upgrade. -->
+    <record id="menu_zvy_purchase_request" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('group_planner'), ref('group_commercial_manager')])]"/>
+    </record>
+    <menuitem
+        id="menu_zvy_purchase_item_to_review"
+        name="To Review"
+        parent="menu_zvy_purchase_root"
+        action="action_zvy_purchase_item_to_review"
+        groups="zvy_purchase.group_commercial_expert"
+        sequence="20"/>
+</odoo>

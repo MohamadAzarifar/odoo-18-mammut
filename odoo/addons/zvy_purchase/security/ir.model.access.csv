@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zvy_purchase_request_planner,zvy.purchase.request.planner,model_zvy_purchase_request,group_planner,1,1,1,1
+access_zvy_purchase_request_commercial_manager,zvy.purchase.request.commercial.manager,model_zvy_purchase_request,group_commercial_manager,1,1,1,1
+access_zvy_purchase_request_commercial_expert,zvy.purchase.request.commercial.expert,model_zvy_purchase_request,group_commercial_expert,1,0,0,0
+access_zvy_purchase_item_planner,zvy.purchase.item.planner,model_zvy_purchase_item,group_planner,1,1,1,1
+access_zvy_purchase_item_commercial_manager,zvy.purchase.item.commercial.manager,model_zvy_purchase_item,group_commercial_manager,1,1,1,1
+access_zvy_purchase_item_commercial_expert,zvy.purchase.item.commercial.expert,model_zvy_purchase_item,group_commercial_expert,1,1,0,0
+access_zvy_purchase_offer_planner,zvy.purchase.offer.planner,model_zvy_purchase_offer,group_planner,1,0,0,0
+access_zvy_purchase_offer_commercial_manager,zvy.purchase.offer.commercial.manager,model_zvy_purchase_offer,group_commercial_manager,1,1,1,1
+access_zvy_purchase_offer_commercial_expert,zvy.purchase.offer.commercial.expert,model_zvy_purchase_offer,group_commercial_expert,1,1,1,1
+access_zvy_purchase_avl_user,zvy.purchase.avl.user,model_zvy_purchase_avl,base.group_user,1,1,1,1
+access_product_product_commission_manager,product.product.commission.manager,product.model_product_product,group_commission_manager,1,1,0,0
+access_zvy_purchase_assign_expert_wizard_cm,zvy.purchase.assign.expert.wizard.cm,model_zvy_purchase_assign_expert_wizard,group_commercial_manager,1,1,1,1
+access_zvy_purchase_assign_expert_wizard_line_cm,zvy.purchase.assign.expert.wizard.line.cm,model_zvy_purchase_assign_expert_wizard_line,group_commercial_manager,1,1,1,1
+access_zvy_purchase_back_to_draft_wizard_cm,zvy.purchase.back.to.draft.wizard.cm,model_zvy_purchase_back_to_draft_wizard,group_commercial_manager,1,1,1,1

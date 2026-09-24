@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_avl_list" model="ir.ui.view">
+        <field name="name">zvy.purchase.avl.list</field>
+        <field name="model">zvy.purchase.avl</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="vendor_id"/>
+                <field name="product_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_avl_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.avl.form</field>
+        <field name="model">zvy.purchase.avl</field>
+        <field name="arch" type="xml">
+            <form string="AVL">
+                <sheet>
+                    <group>
+                        <field name="vendor_id"/>
+                        <field name="product_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_avl_search" model="ir.ui.view">
+        <field name="name">zvy.purchase.avl.search</field>
+        <field name="model">zvy.purchase.avl</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="vendor_id"/>
+                <field name="product_id"/>
+                <group>
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_avl" model="ir.actions.act_window">
+        <field name="name">AVL</field>
+        <field name="res_model">zvy.purchase.avl</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Connect a vendor to a product
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_zvy_purchase_config"
+        name="Configuration"
+        parent="menu_zvy_purchase_root"
+        sequence="100"/>
+
+    <menuitem
+        id="menu_zvy_purchase_avl"
+        name="AVL"
+        parent="menu_zvy_purchase_config"
+        action="action_zvy_purchase_avl"
+        sequence="10"/>
+</odoo>

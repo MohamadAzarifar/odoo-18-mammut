@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_back_to_draft_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.back.to.draft.wizard.form</field>
+        <field name="model">zvy.purchase.back.to.draft.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Back to Draft">
+                <group>
+                    <field name="request_id"/>
+                    <field name="reason" required="1" placeholder="Explain why this request is returned to draft"/>
+                </group>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Back to Draft"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"/>
+                    <button special="cancel" string="Discard" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

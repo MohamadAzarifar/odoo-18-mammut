@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_zvy_purchase_request" model="ir.sequence">
+            <field name="name">Purchase Request</field>
+            <field name="code">zvy.purchase.request</field>
+            <field name="prefix">PR-</field>
+            <field name="padding">0</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>
