@@ -8,12 +8,15 @@ class ProductProduct(models.Model):
     _ZVY_PURCHASE_ATTR_FIELDS = (
         "zvy_purchase_type",
         "zvy_need_commission",
+        "zvy_operational",
         "zvy_purchase_type_company_values",
         "zvy_need_commission_company_values",
+        "zvy_operational_company_values",
     )
 
     zvy_purchase_type_company_values = fields.Json(copy=False)
     zvy_need_commission_company_values = fields.Json(copy=False)
+    zvy_operational_company_values = fields.Json(copy=False)
     zvy_purchase_type = fields.Selection(
         selection=[
             ("enquiry", "Enquiry"),
@@ -29,6 +32,13 @@ class ProductProduct(models.Model):
         string="Need Commission?",
         compute="_compute_zvy_need_commission",
         inverse="_inverse_zvy_need_commission",
+        store=False,
+        default=False,
+    )
+    zvy_operational = fields.Boolean(
+        string="Operational",
+        compute="_compute_zvy_operational",
+        inverse="_inverse_zvy_operational",
         store=False,
         default=False,
     )
@@ -101,6 +111,25 @@ class ProductProduct(models.Model):
                 False,
             )
 
+    @api.depends("zvy_operational_company_values")
+    @api.depends_context("company")
+    def _compute_zvy_operational(self):
+        for product in self:
+            product.zvy_operational = bool(
+                product._zvy_resolve_company_map(
+                    product.zvy_operational_company_values,
+                    False,
+                )
+            )
+
+    def _inverse_zvy_operational(self):
+        for product in self:
+            product._zvy_store_company_override(
+                "zvy_operational_company_values",
+                bool(product.zvy_operational),
+                False,
+            )
+
     @api.onchange("zvy_purchase_type")
     def _onchange_zvy_purchase_type(self):
         if self.zvy_purchase_type == "tendering":
@@ -126,17 +155,19 @@ class ProductProduct(models.Model):
         defaults = {
             "zvy_purchase_type": "enquiry",
             "zvy_need_commission": False,
+            "zvy_operational": False,
         }
         json_fields = {
             "zvy_purchase_type_company_values",
             "zvy_need_commission_company_values",
+            "zvy_operational_company_values",
         }
         for fname in changed:
             if fname in json_fields or defaults.get(fname) != vals[fname]:
                 raise AccessError(
                     _(
-                        "Only Commission Managers can change Purchase Type "
-                        "and Need Commission."
+                        "Only Commission Managers can change Purchase Type, "
+                        "Need Commission, and Operational."
                     )
                 )
 

@@ -13,3 +13,12 @@ access_product_product_commission_manager,product.product.commission.manager,pro
 access_zvy_purchase_assign_expert_wizard_cm,zvy.purchase.assign.expert.wizard.cm,model_zvy_purchase_assign_expert_wizard,group_commercial_manager,1,1,1,1
 access_zvy_purchase_assign_expert_wizard_line_cm,zvy.purchase.assign.expert.wizard.line.cm,model_zvy_purchase_assign_expert_wizard_line,group_commercial_manager,1,1,1,1
 access_zvy_purchase_back_to_draft_wizard_cm,zvy.purchase.back.to.draft.wizard.cm,model_zvy_purchase_back_to_draft_wizard,group_commercial_manager,1,1,1,1
+access_zvy_purchase_offer_reject_wizard_cm,zvy.purchase.offer.reject.wizard.cm,model_zvy_purchase_offer_reject_wizard,group_commercial_manager,1,1,1,1
+access_zvy_purchase_offer_select_wizard_cm,zvy.purchase.offer.select.wizard.cm,model_zvy_purchase_offer_select_wizard,group_commercial_manager,1,1,1,1
+access_zvy_purchase_offer_select_reason_wizard_cm,zvy.purchase.offer.select.reason.wizard.cm,model_zvy_purchase_offer_select_reason_wizard,group_commercial_manager,1,1,1,1
+access_zvy_purchase_scale_user,zvy.purchase.scale.user,model_zvy_purchase_scale,base.group_user,1,0,0,0
+access_zvy_purchase_scale_commercial_manager,zvy.purchase.scale.commercial.manager,model_zvy_purchase_scale,group_commercial_manager,1,1,1,1
+access_zvy_purchase_scale_system,zvy.purchase.scale.system,model_zvy_purchase_scale,base.group_system,1,1,1,1
+access_zvy_purchase_scale_rule_user,zvy.purchase.scale.rule.user,model_zvy_purchase_scale_rule,base.group_user,1,0,0,0
+access_zvy_purchase_scale_rule_commercial_manager,zvy.purchase.scale.rule.commercial.manager,model_zvy_purchase_scale_rule,group_commercial_manager,1,1,1,1
+access_zvy_purchase_scale_rule_system,zvy.purchase.scale.rule.system,model_zvy_purchase_scale_rule,base.group_system,1,1,1,1

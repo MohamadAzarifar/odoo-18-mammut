@@ -12,10 +12,8 @@ data strcuture:
 
 - Purchase Request
 Each Purchase Request consists of list of Purchase Items.
-
 - Purchase Item
 Each Purchase Item consists of a product and list of Offers.
-
 - Offers
 Each Offer has a vendor.
 
@@ -141,3 +139,83 @@ add these fields to Offer:
 ---
 
 only who created the offer could change it. no one else can edit another offers created by another one.
+
+---
+
+add a new menu item (Offers) next to To Review menu item. this menu item shows list of offers that created by the current user. this menu item is only visible by commercial expert and commercial manager. commercial manager sees all offers in their company in this menu item.
+
+---
+
+add status and status bar for offer.  
+when an offer is created, the status is in Draft.
+
+if purchase request status is In Review and purchase item status is In Review and offer status is Draft, show a button in beside actions just for creator of Offer labeled Submit.
+
+by clicking Submit button, the status of offer should change to Submitted.  
+a Submitted offer is read-only and values could not change by anyone.
+
+---
+
+show an action button to commercial manager labeled Reject only when offer status is In Review.
+
+by clicking this button, a wizard asks the reason of rejection. the reason is mandatory. then change the status of offer to Rejected and log the reason in the chatter.  
+a Rejected offer could be changed by creator as same as when status is Draft. also the creator could submit the offer again. rules are as same as Draft status.
+
+---
+
+show an action button to commercial manager labeled Validate only when offer status is In Review.
+by clicking this button, the status of offer changes to Validated.
+
+---
+
+show an action button for purchase item to the assigned commercial expert labeled Submit. by clicking the Submit by assigned commercial expert, only the offers created by themself status changes to In Review (like clicking Submit button in the offer but for all offers).
+
+---
+
+to simplify statusbar items, when the status of offer is Validated, do not show Rejected any more.
+
+---
+
+add an action button labeled Validate. show it just for commercial manager when there is offers with In Review status. by clicking the button, change status of In Review offers to Validated.
+
+---
+
+when there is even one validated offer, show a new action button labeled Select, which by clicking on it, a wizard with list of validated offers are shown to select only one of them. by selecting offer, the status of the it changes to Selected. show this button in purchase item screen and offers screen when status of offer is Validated. show this only for commercial manager.
+
+after selecting offer from the list, show a wizard to write a mandatory reason for selection.
+
+when an offer's status is Selected, all other statuses change to Closed.
+
+the Select button is not for the Tendering purchase type.
+
+by clicking Select or if purchase item has a Selected offer, the status of purchase item changes to Selected.
+
+---
+
+ add a new tab in company settings (odoo/settings/{id}/companies/{id})
+
+each company has a purchase rule.
+
+a selection field (Scale) in company settings. (minor/ medium / major). defualt is minor.  
+Scale has dedicated screen to configure attributes of each scale based on attached documents.
+
+also a tab beside Branhes tab to show attributes of Purchase Rules based on company scale.
+
+add a new attribute to each product (Purchase -> Configurations -> Products). a bolean checkbox with Operational label which is false by default.
+
+---
+
+when all Enquiry purchase items status are Selected:
+
+- hidden Assign Expert button and Back to Draft in purchase request screen.
+- show an action button labeled Approval in purchase request screen.
+- show two calculated properties in purchase request (Operational Amount, Non-Operation Amount) screen which based on sum of Final Price of selected offers in not Tendering items for operational and non-operationl products.
+- show type of request in purchase request screen based on scale of company and threshold of the scale.
+
+---
+
+the approver column in scale purchase rules should accept an approval type from approval addone as input.  
+by clicking approval button, a new approval should created based on approver column.  
+each purchase request could have list of approvals which a new one will be created baseed on clicking approval button.
+
+the created approval by clicking Approval button shoud have connection to purchase request.

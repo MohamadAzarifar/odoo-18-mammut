@@ -1,18 +1,24 @@
 {
     "name": "Purchase",
-    "version": "1.36",
+    "version": "1.56",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
-    "depends": ["product", "mail", "web"],
+    "depends": ["product", "mail", "web", "approvals"],
     "data": [
         "security/zvy_purchase_security.xml",
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml",
+        "data/zvy_purchase_scale_data.xml",
         "views/zvy_purchase_request_views.xml",
         "views/zvy_purchase_avl_views.xml",
+        "views/zvy_purchase_scale_views.xml",
         "views/product_product_views.xml",
+        "views/res_company_views.xml",
         "wizard/zvy_purchase_assign_expert_wizard_views.xml",
         "wizard/zvy_purchase_back_to_draft_wizard_views.xml",
+        "wizard/zvy_purchase_offer_reject_wizard_views.xml",
+        "wizard/zvy_purchase_offer_select_wizard_views.xml",
+        "wizard/zvy_purchase_offer_select_reason_wizard_views.xml",
     ],
     "assets": {
         "web.assets_backend": [

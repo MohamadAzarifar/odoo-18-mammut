@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_offer_select_reason_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.offer.select.reason.wizard.form</field>
+        <field name="model">zvy.purchase.offer.select.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Selection Reason">
+                <group>
+                    <field name="offer_id"/>
+                    <field
+                        name="reason"
+                        required="1"
+                        placeholder="Explain why this offer is selected"/>
+                </group>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Select"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"/>
+                    <button special="cancel" string="Discard" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

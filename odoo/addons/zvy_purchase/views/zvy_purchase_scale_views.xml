@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_scale_list" model="ir.ui.view">
+        <field name="name">zvy.purchase.scale.list</field>
+        <field name="model">zvy.purchase.scale</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="scale"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_scale_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.scale.form</field>
+        <field name="model">zvy.purchase.scale</field>
+        <field name="arch" type="xml">
+            <form string="Scale">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="scale"/>
+                    </group>
+                    <notebook>
+                        <page string="Operational" name="operational">
+                            <field name="operational_rule_ids"
+                                     context="{'default_category': 'operational', 'default_currency_id': %(base.IRR)d}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="category" column_invisible="1"/>
+                                    <field name="tier"/>
+                                    <field name="amount_max"/>
+                                    <field name="is_open_ended"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="announcement"/>
+                                    <field name="approval_category_id"/>
+                                    <field name="advance_guarantee"/>
+                                    <field name="performance_guarantee"/>
+                                    <field name="required_documents"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Non-Operational" name="non_operational">
+                            <field name="non_operational_rule_ids"
+                                     context="{'default_category': 'non_operational', 'default_currency_id': %(base.IRR)d}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="category" column_invisible="1"/>
+                                    <field name="tier"/>
+                                    <field name="amount_max"/>
+                                    <field name="is_open_ended"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="announcement"/>
+                                    <field name="approval_category_id"/>
+                                    <field name="advance_guarantee"/>
+                                    <field name="performance_guarantee"/>
+                                    <field name="required_documents"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zvy_purchase_scale_search" model="ir.ui.view">
+        <field name="name">zvy.purchase.scale.search</field>
+        <field name="model">zvy.purchase.scale</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="scale"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zvy_purchase_scale" model="ir.actions.act_window">
+        <field name="name">Scales</field>
+        <field name="res_model">zvy.purchase.scale</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure purchase rules for each company scale
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_zvy_purchase_scale"
+        name="Scales"
+        parent="menu_zvy_purchase_config"
+        action="action_zvy_purchase_scale"
+        sequence="30"/>
+</odoo>

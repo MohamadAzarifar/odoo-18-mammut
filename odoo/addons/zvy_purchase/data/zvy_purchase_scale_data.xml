@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Scales: Minor (کوچک), Medium (متوسط), Major (بزرگ) -->
+    <record id="scale_minor" model="zvy.purchase.scale">
+        <field name="name">Minor</field>
+        <field name="scale">minor</field>
+    </record>
+    <record id="scale_medium" model="zvy.purchase.scale">
+        <field name="name">Medium</field>
+        <field name="scale">medium</field>
+    </record>
+    <record id="scale_major" model="zvy.purchase.scale">
+        <field name="name">Major</field>
+        <field name="scale">major</field>
+    </record>
+
+    <!-- ========== Minor — Operational ========== -->
+    <record id="scale_minor_op_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">1000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_minor_op_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">10000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_minor_op_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">20000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_minor_op_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">20000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+
+    <!-- ========== Minor — Non-Operational ========== -->
+    <record id="scale_minor_nop_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">non_operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">100000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">—</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_minor_nop_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">non_operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">1000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_minor_nop_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">non_operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">3000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_minor_nop_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_minor"/>
+        <field name="category">non_operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">3000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+
+    <!-- ========== Medium — Operational ========== -->
+    <record id="scale_medium_op_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">3000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_medium_op_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">30000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_medium_op_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">50000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_medium_op_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">50000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+
+    <!-- ========== Medium — Non-Operational ========== -->
+    <record id="scale_medium_nop_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">non_operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">300000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">—</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_medium_nop_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">non_operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">3000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_medium_nop_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">non_operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">10000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_medium_nop_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_medium"/>
+        <field name="category">non_operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">10000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+
+    <!-- ========== Major — Operational ========== -->
+    <record id="scale_major_op_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">5000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_major_op_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">50000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_major_op_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">100000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_major_op_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">100000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، آنالیز بها و سازوکار کشف قیمت، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+
+    <!-- ========== Major — Non-Operational ========== -->
+    <record id="scale_major_nop_small" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">non_operational</field>
+        <field name="tier">small</field>
+        <field name="sequence">10</field>
+        <field name="amount_max">500000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی یا شفاهی مستند در فرم درخواست استعلام</field>
+        <field name="advance_guarantee">—</field>
+        <field name="performance_guarantee">—</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد یا تفاهم‌نامه، تأیید فنی واحد مصرف‌کننده در صورت نیاز</field>
+    </record>
+    <record id="scale_major_nop_medium" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">non_operational</field>
+        <field name="tier">medium</field>
+        <field name="sequence">20</field>
+        <field name="amount_max">5000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_major_nop_major" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">non_operational</field>
+        <field name="tier">major</field>
+        <field name="sequence">30</field>
+        <field name="amount_max">20000000000</field>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (چک صیادی یا ضمانت‌نامه بانکی)</field>
+        <field name="performance_guarantee">معادل ۱۰٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+    <record id="scale_major_nop_grand" model="zvy.purchase.scale.rule">
+        <field name="scale_id" ref="scale_major"/>
+        <field name="category">non_operational</field>
+        <field name="tier">grand</field>
+        <field name="sequence">40</field>
+        <field name="amount_max">20000000000</field>
+        <field name="is_open_ended" eval="True"/>
+        <field name="currency_id" ref="base.IRR"/>
+        <field name="announcement">سه استعلام کتبی</field>
+        <field name="advance_guarantee">معادل ۱۲۰٪ مبلغ پیش‌پرداخت (ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="performance_guarantee">معادل ۱۵٪ مبلغ قرارداد (چک صیادی ثبت‌شده، ضمانت‌نامه بانکی یا وثیقه ملکی)</field>
+        <field name="required_documents">پیش‌فاکتور و فاکتور رسمی، قرارداد، برنامه CapEx (برای خریدهای سرمایه‌ای)، تأیید فنی واحد مصرف‌کننده</field>
+    </record>
+</odoo>

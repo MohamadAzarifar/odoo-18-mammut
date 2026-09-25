@@ -9,6 +9,7 @@
                 <field name="default_code" optional="show"/>
                 <field name="zvy_purchase_type"/>
                 <field name="zvy_need_commission" optional="hide"/>
+                <field name="zvy_operational" optional="show"/>
             </list>
         </field>
     </record>
@@ -37,6 +38,13 @@
                         <field
                             name="zvy_need_commission"
                             invisible="zvy_purchase_type == 'tendering'"
+                            groups="zvy_purchase.group_commission_manager"/>
+                        <field
+                            name="zvy_operational"
+                            readonly="1"
+                            groups="!zvy_purchase.group_commission_manager"/>
+                        <field
+                            name="zvy_operational"
                             groups="zvy_purchase.group_commission_manager"/>
                     </group>
                 </sheet>
@@ -80,6 +88,13 @@
                                 name="zvy_need_commission"
                                 invisible="zvy_purchase_type == 'tendering'"
                                 groups="zvy_purchase.group_commission_manager"/>
+                            <field
+                                name="zvy_operational"
+                                readonly="1"
+                                groups="!zvy_purchase.group_commission_manager"/>
+                            <field
+                                name="zvy_operational"
+                                groups="zvy_purchase.group_commission_manager"/>
                         </group>
                     </group>
                 </page>
@@ -95,6 +110,7 @@
             <field name="categ_id" position="after">
                 <field name="zvy_purchase_type" optional="hide"/>
                 <field name="zvy_need_commission" optional="hide"/>
+                <field name="zvy_operational" optional="hide"/>
             </field>
         </field>
     </record>

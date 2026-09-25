@@ -1,5 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.osv import expression
+
+from .zvy_purchase_scale import TIER_SELECTION
 
 
 class ZvyPurchaseMailMixin(models.AbstractModel):
@@ -88,6 +91,43 @@ class ZvyPurchaseRequest(models.Model):
     can_edit_items = fields.Boolean(
         compute="_compute_can_edit_items",
     )
+    currency_id = fields.Many2one(
+        comodel_name="res.currency",
+        related="company_id.currency_id",
+        readonly=True,
+    )
+    all_enquiry_items_selected = fields.Boolean(
+        compute="_compute_approval_amounts_and_types",
+    )
+    operational_amount = fields.Monetary(
+        string="Operational Amount",
+        currency_field="currency_id",
+        compute="_compute_approval_amounts_and_types",
+    )
+    non_operational_amount = fields.Monetary(
+        string="Non-Operational Amount",
+        currency_field="currency_id",
+        compute="_compute_approval_amounts_and_types",
+    )
+    operational_request_type = fields.Selection(
+        selection=TIER_SELECTION,
+        string="Operational Type",
+        compute="_compute_approval_amounts_and_types",
+    )
+    non_operational_request_type = fields.Selection(
+        selection=TIER_SELECTION,
+        string="Non-Operational Type",
+        compute="_compute_approval_amounts_and_types",
+    )
+    approval_request_ids = fields.One2many(
+        comodel_name="approval.request",
+        inverse_name="zvy_purchase_request_id",
+        string="Approvals",
+        copy=False,
+    )
+    approval_request_count = fields.Integer(
+        compute="_compute_approval_request_count",
+    )
 
     @api.depends("state", "create_uid")
     @api.depends_context("uid")
@@ -105,6 +145,76 @@ class ZvyPurchaseRequest(models.Model):
                     or not request.id
                 )
             )
+
+    @api.depends(
+        "item_ids.state",
+        "item_ids.purchase_type_display",
+        "item_ids.product_id.zvy_operational_company_values",
+        "item_ids.product_id.zvy_purchase_type_company_values",
+        "item_ids.product_id.zvy_need_commission_company_values",
+        "item_ids.offer_ids.state",
+        "item_ids.offer_ids.unit_price",
+        "item_ids.offer_ids.quantity",
+        "item_ids.offer_ids.discount_percent_per_unit",
+        "company_id",
+        "company_id.zvy_purchase_scale",
+        "company_id.currency_id",
+    )
+    def _compute_approval_amounts_and_types(self):
+        Scale = self.env["zvy.purchase.scale"]
+        for request in self:
+            enquiry_items = request.item_ids.filtered(
+                lambda item: item.purchase_type_display
+                and item.purchase_type_display != "tendering"
+            )
+            request.all_enquiry_items_selected = bool(enquiry_items) and all(
+                item.state == "selected" for item in enquiry_items
+            )
+
+            operational_amount = 0.0
+            non_operational_amount = 0.0
+            has_operational = False
+            has_non_operational = False
+            for item in enquiry_items:
+                selected_offers = item.offer_ids.filtered(
+                    lambda offer: offer.state == "selected"
+                )
+                if not selected_offers:
+                    continue
+                product = item.product_id.with_company(request.company_id)
+                is_operational = bool(product.zvy_operational)
+                line_total = sum(selected_offers.mapped("final_price"))
+                if is_operational:
+                    operational_amount += line_total
+                    has_operational = True
+                else:
+                    non_operational_amount += line_total
+                    has_non_operational = True
+
+            request.operational_amount = operational_amount
+            request.non_operational_amount = non_operational_amount
+
+            scale = Scale.search(
+                [("scale", "=", request.company_id.zvy_purchase_scale)],
+                limit=1,
+            )
+            request.operational_request_type = (
+                scale._get_tier_for_amount("operational", operational_amount)
+                if scale and has_operational
+                else False
+            )
+            request.non_operational_request_type = (
+                scale._get_tier_for_amount(
+                    "non_operational", non_operational_amount
+                )
+                if scale and has_non_operational
+                else False
+            )
+
+    @api.depends("approval_request_ids")
+    def _compute_approval_request_count(self):
+        for request in self:
+            request.approval_request_count = len(request.approval_request_ids)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -154,6 +264,13 @@ class ZvyPurchaseRequest(models.Model):
             raise UserError(
                 _("Only purchase requests in review can be sent back to draft.")
             )
+        if self.all_enquiry_items_selected:
+            raise UserError(
+                _(
+                    "Back to Draft is not available once all Enquiry purchase "
+                    "items are Selected."
+                )
+            )
         wizard = self.env["zvy.purchase.back.to.draft.wizard"].create(
             {"request_id": self.id}
         )
@@ -177,6 +294,13 @@ class ZvyPurchaseRequest(models.Model):
                 _(
                     "Assign Expert is only available when the purchase request "
                     "is in review."
+                )
+            )
+        if self.all_enquiry_items_selected:
+            raise UserError(
+                _(
+                    "Assign Expert is not available once all Enquiry purchase "
+                    "items are Selected."
                 )
             )
         wizard = self.env["zvy.purchase.assign.expert.wizard"].create(
@@ -205,6 +329,111 @@ class ZvyPurchaseRequest(models.Model):
             "view_mode": "form",
             "target": "new",
         }
+
+    def action_approval(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can request purchase approval.")
+            )
+        if not self.all_enquiry_items_selected:
+            raise UserError(
+                _(
+                    "Approval is only available when all Enquiry purchase "
+                    "items are Selected."
+                )
+            )
+        scale = self.env["zvy.purchase.scale"].search(
+            [("scale", "=", self.company_id.zvy_purchase_scale)],
+            limit=1,
+        )
+        if not scale:
+            raise UserError(
+                _(
+                    "No purchase scale is configured for company scale "
+                    "'%(scale)s'.",
+                    scale=self.company_id.zvy_purchase_scale,
+                )
+            )
+
+        category_labels = {
+            "operational": _("Operational"),
+            "non_operational": _("Non-Operational"),
+        }
+        specs = []
+        for category, tier, amount in (
+            (
+                "operational",
+                self.operational_request_type,
+                self.operational_amount,
+            ),
+            (
+                "non_operational",
+                self.non_operational_request_type,
+                self.non_operational_amount,
+            ),
+        ):
+            if not tier:
+                continue
+            rule = scale._get_rule(category, tier)
+            label = category_labels[category]
+            if not rule:
+                raise UserError(
+                    _(
+                        "No purchase rule found for %(category)s type "
+                        "%(tier)s on the company scale.",
+                        category=label,
+                        tier=tier,
+                    )
+                )
+            if not rule.approval_category_id:
+                raise UserError(
+                    _(
+                        "Set an Approver (Approval Type) on the %(category)s "
+                        "%(tier)s purchase rule before requesting approval.",
+                        category=label,
+                        tier=tier,
+                    )
+                )
+            specs.append((category, label, rule, amount, tier))
+
+        if not specs:
+            raise UserError(
+                _("There is no Operational or Non-Operational amount to approve.")
+            )
+
+        ApprovalRequest = self.env["approval.request"]
+        created = ApprovalRequest
+        for _category, label, rule, amount, tier in specs:
+            vals = {
+                "name": _("%(request)s — %(category)s", request=self.name, category=label),
+                "category_id": rule.approval_category_id.id,
+                "request_owner_id": self.env.user.id,
+                "reference": self.name,
+                "zvy_purchase_request_id": self.id,
+                "reason": _(
+                    "<p>Purchase Request %(request)s</p>"
+                    "<p>%(category)s type: %(tier)s</p>"
+                    "<p>Amount: %(amount)s</p>",
+                    request=self.name,
+                    category=label,
+                    tier=tier,
+                    amount=amount,
+                ),
+            }
+            if rule.approval_category_id.has_amount != "no":
+                vals["amount"] = amount
+            approval = ApprovalRequest.create(vals)
+            approval.action_confirm()
+            created |= approval
+
+        self._message_log(
+            body=_(
+                "Approval requested: %(names)s",
+                names=", ".join(created.mapped("name")),
+            )
+        )
+        return True
 
     def unlink(self):
         self.item_ids.with_context(zvy_skip_item_edit_check=True).unlink()
@@ -255,6 +484,7 @@ class ZvyPurchaseItem(models.Model):
             ("draft", "Draft"),
             ("submitted", "Submitted"),
             ("in_review", "In Review"),
+            ("selected", "Selected"),
         ],
         default="draft",
         required=True,
@@ -329,6 +559,15 @@ class ZvyPurchaseItem(models.Model):
     can_add_offers = fields.Boolean(
         compute="_compute_can_add_offers",
     )
+    can_submit_offers = fields.Boolean(
+        compute="_compute_can_submit_offers",
+    )
+    can_validate_offers = fields.Boolean(
+        compute="_compute_can_validate_offers",
+    )
+    can_select_offers = fields.Boolean(
+        compute="_compute_can_select_offers",
+    )
 
     @api.depends(
         "product_id",
@@ -401,6 +640,131 @@ class ZvyPurchaseItem(models.Model):
             else:
                 item.can_add_offers = False
 
+    @api.depends(
+        "commercial_expert_ids",
+        "request_state",
+        "state",
+        "offer_ids",
+        "offer_ids.state",
+        "offer_ids.create_uid",
+    )
+    @api.depends_context("uid")
+    def _compute_can_submit_offers(self):
+        user = self.env.user
+        editable = self.env["zvy.purchase.offer"]._EDITABLE_STATES
+        for item in self:
+            item.can_submit_offers = bool(
+                user in item.commercial_expert_ids
+                and item.request_state == "in_review"
+                and item.state == "in_review"
+                and any(
+                    offer.state in editable and offer.create_uid == user
+                    for offer in item.offer_ids
+                )
+            )
+
+    @api.depends("offer_ids", "offer_ids.state")
+    @api.depends_context("uid")
+    def _compute_can_validate_offers(self):
+        is_cm = self.env.user.has_group("zvy_purchase.group_commercial_manager")
+        for item in self:
+            item.can_validate_offers = bool(
+                is_cm and any(offer.state == "in_review" for offer in item.offer_ids)
+            )
+
+    @api.depends(
+        "offer_ids",
+        "offer_ids.state",
+        "purchase_type_display",
+        "product_id",
+        "product_id.zvy_purchase_type",
+        "product_id.zvy_purchase_type_company_values",
+    )
+    @api.depends_context("uid", "company")
+    def _compute_can_select_offers(self):
+        is_cm = self.env.user.has_group("zvy_purchase.group_commercial_manager")
+        for item in self:
+            item.can_select_offers = bool(
+                is_cm
+                and item.purchase_type_display != "tendering"
+                and any(offer.state == "validated" for offer in item.offer_ids)
+            )
+
+    def _zvy_check_can_select_offers(self):
+        """Select is for Commercial Managers on non-Tendering items only."""
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can select an offer.")
+            )
+        if self.purchase_type_display == "tendering":
+            raise UserError(
+                _("Selecting an offer is not available for Tendering purchase type.")
+            )
+
+    def action_submit_offers(self):
+        """Submit the CE's own Draft/Rejected offers on this item to In Review."""
+        self.ensure_one()
+        user = self.env.user
+        if user not in self.commercial_expert_ids:
+            raise AccessError(
+                _(
+                    "Only an assigned Commercial Expert can submit offers "
+                    "on this purchase item."
+                )
+            )
+        if self.state != "in_review" or self.request_state != "in_review":
+            raise UserError(
+                _(
+                    "Offers can only be submitted when the purchase request "
+                    "and purchase item are In Review."
+                )
+            )
+        editable = self.env["zvy.purchase.offer"]._EDITABLE_STATES
+        # Same transitions as per-offer Submit: own draft/rejected → in_review.
+        # Other users' offers and already in_review / validated are left unchanged.
+        to_submit = self.offer_ids.filtered(
+            lambda o: o.state in editable and o.create_uid == user
+        )
+        if to_submit:
+            to_submit.write({"state": "in_review"})
+            body = _(
+                "Submitted own offers to In Review: %(offers)s.",
+                offers=", ".join(to_submit.mapped("display_name")),
+            )
+            self._message_log(body=body)
+            self._zvy_log_on_request(body)
+        return True
+
+    def action_validate_offers(self):
+        """Validate all In Review offers on this item (Commercial Manager)."""
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can validate offers on this purchase item.")
+            )
+        # Same end state as per-offer Validate; draft/rejected/validated left unchanged.
+        to_validate = self.offer_ids.filtered(lambda o: o.state == "in_review")
+        if to_validate:
+            to_validate.with_context(zvy_skip_offer_edit_check=True).write(
+                {"state": "validated"}
+            )
+            body = _(
+                "Validated offers: %(offers)s.",
+                offers=", ".join(to_validate.mapped("display_name")),
+            )
+            self._message_log(body=body)
+            self._zvy_log_on_request(body)
+        return True
+
+    def action_select_offers(self):
+        """Open Select Offer wizard for this item's validated offers (CM only)."""
+        self.ensure_one()
+        self._zvy_check_can_select_offers()
+        return self.env["zvy.purchase.offer.select.wizard"]._action_open(
+            item=self
+        )
+
     def _zvy_check_can_add_offers(self):
         """Commercial Experts may add offers only when request and item are In Review."""
         if self.env.su:
@@ -438,13 +802,28 @@ class ZvyPurchaseItem(models.Model):
         if self.env.context.get("zvy_skip_item_state_sync"):
             return
         to_review = self.filtered(
-            lambda item: item.commercial_expert_ids and item.state != "in_review"
+            lambda item: item.commercial_expert_ids
+            and item.state in ("draft", "submitted")
         )
         if to_review:
             to_review.with_context(
                 zvy_skip_item_state_sync=True,
                 zvy_skip_item_edit_check=True,
             ).write({"state": "in_review"})
+
+    def _zvy_mark_selected_if_offer_selected(self):
+        """Set item to Selected when it has at least one Selected offer."""
+        if self.env.context.get("zvy_skip_item_state_sync"):
+            return
+        to_select = self.filtered(
+            lambda item: item.state != "selected"
+            and any(offer.state == "selected" for offer in item.offer_ids)
+        )
+        if to_select:
+            to_select.with_context(
+                zvy_skip_item_state_sync=True,
+                zvy_skip_item_edit_check=True,
+            ).write({"state": "selected"})
 
     def _zvy_check_item_editable(self, requests=None):
         if self.env.su or self.env.context.get("zvy_skip_item_edit_check"):
@@ -661,9 +1040,52 @@ class ZvyPurchaseOffer(models.Model):
         compute="_compute_prices",
         currency_field="currency_id",
     )
+    # Locked: in_review / validated / selected / closed. Editable: draft / rejected.
+    _EDITABLE_STATES = ("draft", "rejected")
+
+    state = fields.Selection(
+        selection=[
+            ("draft", "Draft"),
+            ("in_review", "In Review"),
+            ("validated", "Validated"),
+            ("selected", "Selected"),
+            ("rejected", "Rejected"),
+            ("closed", "Closed"),
+        ],
+        default="draft",
+        required=True,
+        copy=False,
+        index=True,
+        tracking=True,
+    )
+    item_state = fields.Selection(
+        related="item_id.state",
+    )
+    request_state = fields.Selection(
+        related="item_id.request_state",
+    )
     can_edit = fields.Boolean(
         compute="_compute_can_edit",
     )
+    can_submit = fields.Boolean(
+        compute="_compute_can_submit",
+    )
+    can_select_offers = fields.Boolean(
+        compute="_compute_can_select_offers",
+    )
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Offers menu: CE sees own offers; CM sees company offers (record rule)."""
+        if self.env.context.get("zvy_offers_menu"):
+            is_cm = self.env.user.has_group(
+                "zvy_purchase.group_commercial_manager"
+            )
+            if not is_cm:
+                domain = expression.AND(
+                    [domain, [("create_uid", "=", self.env.uid)]]
+                )
+        return super()._search(domain, offset=offset, limit=limit, order=order)
 
     @api.model
     def default_get(self, fields_list):
@@ -675,23 +1097,127 @@ class ZvyPurchaseOffer(models.Model):
                 res["quantity"] = item.product_qty
         return res
 
-    @api.depends("create_uid")
+    @api.depends("state", "create_uid")
     @api.depends_context("uid")
     def _compute_can_edit(self):
         for offer in self:
             offer.can_edit = bool(
-                not offer.create_uid or offer.create_uid == self.env.user
+                offer.state in self._EDITABLE_STATES
+                and (not offer.create_uid or offer.create_uid == self.env.user)
+            )
+
+    @api.depends("state", "create_uid", "item_state", "request_state")
+    @api.depends_context("uid")
+    def _compute_can_submit(self):
+        for offer in self:
+            offer.can_submit = bool(
+                offer.state in self._EDITABLE_STATES
+                and offer.create_uid
+                and offer.create_uid == self.env.user
+                and offer.item_state == "in_review"
+                and offer.request_state == "in_review"
+            )
+
+    @api.depends(
+        "state",
+        "item_id.purchase_type_display",
+        "product_id",
+        "product_id.zvy_purchase_type",
+        "product_id.zvy_purchase_type_company_values",
+    )
+    @api.depends_context("uid", "company")
+    def _compute_can_select_offers(self):
+        """True for CM when this offer is Validated and not Tendering."""
+        is_cm = self.env.user.has_group("zvy_purchase.group_commercial_manager")
+        for offer in self:
+            offer.can_select_offers = bool(
+                is_cm
+                and offer.state == "validated"
+                and offer.item_id.purchase_type_display != "tendering"
             )
 
     def _zvy_check_can_edit(self):
-        """Only the offer creator may write or unlink the offer."""
-        if self.env.su:
+        """Draft/Rejected: creator only. In Review/Validated/Selected/Closed: read-only."""
+        if self.env.su or self.env.context.get("zvy_skip_offer_edit_check"):
             return
         for offer in self:
+            if offer.state not in self._EDITABLE_STATES:
+                raise AccessError(
+                    _(
+                        "In Review, Validated, Selected, or Closed offers "
+                        "cannot be modified or deleted."
+                    )
+                )
             if offer.create_uid and offer.create_uid != self.env.user:
                 raise AccessError(
                     _("Only the creator of an offer can modify or delete it.")
                 )
+
+    def action_submit(self):
+        self.ensure_one()
+        if self.state not in self._EDITABLE_STATES:
+            raise UserError(
+                _("Only draft or rejected offers can be submitted.")
+            )
+        if self.create_uid != self.env.user:
+            raise AccessError(_("Only the creator of an offer can submit it."))
+        if self.item_state != "in_review" or self.request_state != "in_review":
+            raise UserError(
+                _(
+                    "Offers can only be submitted when the purchase request "
+                    "and purchase item are In Review."
+                )
+            )
+        self.write({"state": "in_review"})
+        return True
+
+    def action_reject(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can reject an offer.")
+            )
+        if self.state != "in_review":
+            raise UserError(_("Only offers in review can be rejected."))
+        wizard = self.env["zvy.purchase.offer.reject.wizard"].create(
+            {"offer_id": self.id}
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Offer"),
+            "res_model": "zvy.purchase.offer.reject.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
+
+    def action_validate(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can validate an offer.")
+            )
+        if self.state != "in_review":
+            raise UserError(_("Only offers in review can be validated."))
+        self.with_context(zvy_skip_offer_edit_check=True).write(
+            {"state": "validated"}
+        )
+        return True
+
+    def action_select_offers(self):
+        """Open Select Offer wizard from a Validated offer form (CM only).
+
+        Wizard is scoped to this offer's item validated offers.
+        """
+        self.ensure_one()
+        self.item_id._zvy_check_can_select_offers()
+        if self.state != "validated":
+            raise UserError(
+                _("Select is only available when the offer is Validated.")
+            )
+        return self.env["zvy.purchase.offer.select.wizard"]._action_open(
+            item=self.item_id
+        )
 
     @api.onchange("item_id")
     def _onchange_item_id(self):
@@ -716,6 +1242,7 @@ class ZvyPurchaseOffer(models.Model):
             )
             items._zvy_check_can_add_offers()
         for vals in vals_list:
+            vals.setdefault("state", "draft")
             if vals.get("item_id") and "quantity" not in vals:
                 item = Item.browse(vals["item_id"])
                 vals["quantity"] = item.product_qty
@@ -744,10 +1271,15 @@ class ZvyPurchaseOffer(models.Model):
         return super().unlink()
 
     def write(self, vals):
+        sequence_only = set(vals) <= {"sequence_number", "name"}
+        if self.env.context.get("mail_notrack") and sequence_only:
+            return super().write(vals)
         self._zvy_check_can_edit()
         res = super().write(vals)
         if "vendor_id" in vals or "item_id" in vals:
             self._ensure_vendor_avl()
+        if vals.get("state") == "selected":
+            self.mapped("item_id")._zvy_mark_selected_if_offer_selected()
         return res
 
     @api.depends("item_id.product_id", "vendor_id")

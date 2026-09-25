@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_zvy_purchase" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.zvy.purchase</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="zvy_purchase_scale"/>
+            </xpath>
+            <xpath expr="//page[@name='branches']" position="after">
+                <page string="Purchase Rules" name="zvy_purchase_rules">
+                    <group>
+                        <field name="zvy_purchase_scale"/>
+                    </group>
+                    <separator string="Operational"/>
+                    <field name="zvy_purchase_operational_rule_ids" readonly="1" nolabel="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="tier"/>
+                            <field name="amount_max"/>
+                            <field name="is_open_ended"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="announcement"/>
+                            <field name="approval_category_id"/>
+                            <field name="advance_guarantee"/>
+                            <field name="performance_guarantee"/>
+                            <field name="required_documents"/>
+                        </list>
+                    </field>
+                    <separator string="Non-Operational"/>
+                    <field name="zvy_purchase_non_operational_rule_ids" readonly="1" nolabel="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="tier"/>
+                            <field name="amount_max"/>
+                            <field name="is_open_ended"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="announcement"/>
+                            <field name="approval_category_id"/>
+                            <field name="advance_guarantee"/>
+                            <field name="performance_guarantee"/>
+                            <field name="required_documents"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
