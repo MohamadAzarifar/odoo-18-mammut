@@ -18,6 +18,7 @@
                         <list create="0" delete="0" edit="0">
                             <field name="tier"/>
                             <field name="amount_max"/>
+                            <field name="need_commission"/>
                             <field name="is_open_ended"/>
                             <field name="currency_id" column_invisible="1"/>
                             <field name="announcement"/>
@@ -32,6 +33,7 @@
                         <list create="0" delete="0" edit="0">
                             <field name="tier"/>
                             <field name="amount_max"/>
+                            <field name="need_commission"/>
                             <field name="is_open_ended"/>
                             <field name="currency_id" column_invisible="1"/>
                             <field name="announcement"/>

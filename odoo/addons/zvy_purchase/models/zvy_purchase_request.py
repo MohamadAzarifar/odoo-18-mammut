@@ -128,6 +128,15 @@ class ZvyPurchaseRequest(models.Model):
     approval_request_count = fields.Integer(
         compute="_compute_approval_request_count",
     )
+    has_pending_approval = fields.Boolean(
+        compute="_compute_approval_status_flags",
+    )
+    has_approved_approval = fields.Boolean(
+        compute="_compute_approval_status_flags",
+    )
+    show_commission_button = fields.Boolean(
+        compute="_compute_show_commission_button",
+    )
 
     @api.depends("state", "create_uid")
     @api.depends_context("uid")
@@ -215,6 +224,52 @@ class ZvyPurchaseRequest(models.Model):
     def _compute_approval_request_count(self):
         for request in self:
             request.approval_request_count = len(request.approval_request_ids)
+
+    @api.depends("approval_request_ids.request_status")
+    def _compute_approval_status_flags(self):
+        for request in self:
+            statuses = request.approval_request_ids.mapped("request_status")
+            request.has_pending_approval = "pending" in statuses
+            request.has_approved_approval = "approved" in statuses
+
+    @api.depends(
+        "has_approved_approval",
+        "operational_request_type",
+        "non_operational_request_type",
+        "company_id.zvy_purchase_scale",
+    )
+    def _compute_show_commission_button(self):
+        Scale = self.env["zvy.purchase.scale"]
+        for request in self:
+            show = False
+            if request.has_approved_approval:
+                scale = Scale.search(
+                    [("scale", "=", request.company_id.zvy_purchase_scale)],
+                    limit=1,
+                )
+                if scale:
+                    for category, tier in (
+                        ("operational", request.operational_request_type),
+                        ("non_operational", request.non_operational_request_type),
+                    ):
+                        if not tier:
+                            continue
+                        rule = scale._get_rule(category, tier)
+                        if rule and rule.need_commission:
+                            show = True
+                            break
+            request.show_commission_button = show
+
+    def action_view_approvals(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Approvals"),
+            "res_model": "approval.request",
+            "view_mode": "list,form",
+            "domain": [("zvy_purchase_request_id", "=", self.id)],
+            "context": {"default_zvy_purchase_request_id": self.id},
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -343,6 +398,13 @@ class ZvyPurchaseRequest(models.Model):
                     "items are Selected."
                 )
             )
+        if self.has_pending_approval:
+            raise UserError(
+                _(
+                    "Approval is not available while a submitted approval "
+                    "is pending."
+                )
+            )
         scale = self.env["zvy.purchase.scale"].search(
             [("scale", "=", self.company_id.zvy_purchase_scale)],
             limit=1,
@@ -433,6 +495,22 @@ class ZvyPurchaseRequest(models.Model):
                 names=", ".join(created.mapped("name")),
             )
         )
+        return True
+
+    def action_commission(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can request commission.")
+            )
+        if not self.show_commission_button:
+            raise UserError(
+                _(
+                    "Commission is only available when a linked approval is "
+                    "approved and the matched scale rule needs commission."
+                )
+            )
+        self._message_log(body=_("Commission requested."))
         return True
 
     def unlink(self):

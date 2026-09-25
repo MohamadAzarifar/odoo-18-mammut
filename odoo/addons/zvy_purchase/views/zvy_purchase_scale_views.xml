@@ -30,6 +30,7 @@
                                     <field name="category" column_invisible="1"/>
                                     <field name="tier"/>
                                     <field name="amount_max"/>
+                                    <field name="need_commission"/>
                                     <field name="is_open_ended"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="announcement"/>
@@ -48,6 +49,7 @@
                                     <field name="category" column_invisible="1"/>
                                     <field name="tier"/>
                                     <field name="amount_max"/>
+                                    <field name="need_commission"/>
                                     <field name="is_open_ended"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="announcement"/>

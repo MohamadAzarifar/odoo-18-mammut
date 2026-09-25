@@ -84,6 +84,9 @@ Specified: owns `item_ids`. Numbered `PR-1`, `PR-2`, … on create.
 | `non_operational_amount` | Monetary, computed | Same for non-operational products |
 | `approval_request_ids` | One2many → `approval.request` | Linked Approvals app requests |
 | `approval_request_count` | Integer, computed | Len of `approval_request_ids` |
+| `has_pending_approval` | Boolean, computed | Any linked approval `request_status == 'pending'` (Submitted) |
+| `has_approved_approval` | Boolean, computed | Any linked approval `request_status == 'approved'` |
+| `show_commission_button` | Boolean, computed | `has_approved_approval` and any matched op/non-op scale rule has `need_commission` |
 
 `action_send()` writes `state = 'in_review'`. Allowed only from `draft` and only by the request creator (`create_uid`); otherwise `UserError` / `AccessError`. Form header **Send** button is `invisible="not can_edit_items"` (Draft + creator + Planner/CM). On Send, all purchase items are set to `submitted`; items that already have commercial experts are then promoted to `in_review`.
 
@@ -91,7 +94,13 @@ Specified: owns `item_ids`. Numbered `PR-1`, `PR-2`, … on create.
 
 `action_assign_expert()` (Commercial Manager only, `state == 'in_review'`, and not `all_enquiry_items_selected`) opens transient wizard `zvy.purchase.assign.expert.wizard` with one line per purchase item. Confirm writes `commercial_expert_ids` on each item (which promotes assigned items to `in_review`). Form: `invisible="state != 'in_review' or all_enquiry_items_selected"`.
 
-`action_approval()` (Commercial Manager only, `all_enquiry_items_selected`): for each of Operational / Non-Operational with a computed request type, load the company Scale rule for that category+tier; require `approval_category_id` or `UserError`. Create `approval.request` (name, category, owner, reference=PR name, amount when category has amount, link `zvy_purchase_request_id`), then `action_confirm()`. Log on PR chatter. Each click may create additional approvals.
+`action_approval()` (Commercial Manager only, `all_enquiry_items_selected`, not `has_pending_approval`): for each of Operational / Non-Operational with a computed request type, load the company Scale rule for that category+tier; require `approval_category_id` or `UserError`. Create `approval.request` (name, category, owner, reference=PR name, amount when category has amount, link `zvy_purchase_request_id`), then `action_confirm()`. Log on PR chatter. Hidden in UI while any linked approval is Submitted (`pending`).
+
+`action_view_approvals()` opens linked `approval.request` records (domain on `zvy_purchase_request_id`). Form smart button uses `approval_request_count`.
+
+`action_commission()` (Commercial Manager only, `show_commission_button`): UI stub — logs “Commission requested.” on chatter and returns `True`. No calculation yet.
+
+On `approval.request` (inherit): `zvy_purchase_request_id` Many2one; form shows the field (readonly) and a smart button `action_open_purchase_request()` that opens the linked PR.
 
 Tier lookup: `zvy.purchase.scale._get_tier_for_amount(category, amount)` — first closed rule with `amount <= amount_max` (sorted ascending); else open-ended grand rule. Rule lookup: `_get_rule(category, tier)`.
 
@@ -266,6 +275,7 @@ Menu: Purchase → Configuration → Scales (seq 30).
 | `tier` | Selection `small` / `medium` / `major` / `grand` | خرد / متوسط / عمده / کلان |
 | `sequence` | Integer | Display order within category |
 | `amount_max` | Monetary (IRR) | Upper bound; for grand with `is_open_ended`, floor (“above X”) |
+| `need_commission` | Boolean, default False | **Need Commission**; gates PR Commission button |
 | `is_open_ended` | Boolean | Grand tier “above previous” |
 | `currency_id` | Many2one `res.currency`, default IRR | |
 | `announcement` | Text | اعلام |
@@ -347,6 +357,7 @@ zvy_purchase/
     zvy_purchase_scale_views.xml
     product_product_views.xml
     res_company_views.xml
+    approval_request_views.xml
   security/
     ir.model.access.csv
     zvy_purchase_security.xml
@@ -360,7 +371,8 @@ zvy_purchase/
 
 UX mapping:
 
-- Form for `zvy.purchase.request` with an items list (product, quantity, UoM, purchase type, commercial experts, offer count last), statusbar, Send (Draft + creator), Assign Expert and Back to Draft (In Review, CM, hidden when all Enquiry items Selected), Approval (when all Enquiry items Selected, CM — creates Approvals app requests), Approval Summary amounts/types, Approvals notebook tab, and chatter.
+- Form for `zvy.purchase.request` with an items list (product, quantity, UoM, purchase type, commercial experts, offer count last), statusbar, Send (Draft + creator), Assign Expert and Back to Draft (In Review, CM, hidden when all Enquiry items Selected), Approval (when all Enquiry items Selected and no Submitted approval, CM — creates Approvals app requests), Commission (CM, when Approved + matched rule Need Commission — UI stub), Approval Summary amounts/types, Approvals notebook tab, Approvals smart button, and chatter.
+- Inherited Approvals form: readonly Purchase Request field + smart button to open the linked PR when `zvy_purchase_request_id` is set.
 - Item and offer forms include chatter.
 - Each item row: product, quantity, UoM + embedded offers list (or a smart button to offers).
 - Offer row: vendor, unit price, quantity, totals, discount, final price, state. Offer form shows statusbar + Submit (when eligible) + Reject (Commercial Manager, In Review), item/product/vendor, price block, and payment/delivery.
@@ -386,6 +398,7 @@ Items are also reachable from **To Review** when assigned; offers are editable f
 - Only that group may change `zvy_purchase_type` / `zvy_need_commission` / `zvy_operational` (server-side check + readonly views).
 - AVL CRUD stays with `base.group_user`.
 - Scale / scale rule: read for `base.group_user`; create/write/unlink for Commercial Manager and Settings (`base.group_system`).
+- Approval-sequence approvers (any `base.group_user` listed on `approval.request.approver_ids` for a linked approval): read-only ACL on purchase request, item, and offer, limited by record rules to records under that linked purchase request. No Purchase menus. Lets Approvals users open the linked PR from the Approvals form.
 - Do not copy `zvy_tendering` planner / CM / commission *calculation* rules. Commission Manager only gates the product flags above.
 
 ## 8. Relation to other modules
@@ -428,7 +441,10 @@ Do not reuse `zvy.purchase.request` from tendering until that question is answer
 27. Product **Operational** flag (company-dependent, Commission Manager write-only; module `1.53`).
 28. PR Approval Summary (module `1.54` / `1.55`): when all Enquiry items are Selected — hide Assign Expert and Back to Draft; Operational/Non-Operational amounts and types from Selected offer final prices and company Scale thresholds.
 29. Scale Approver → `approval.category`; Approval button creates/confirms `approval.request` per applicable category; Approvals list on PR (module `1.56`). Depends on `approvals`.
-30. Stop. Add further states, approvals outcome → PR state, or PO integration only after `PRD.md` is updated.
+30. Bidirectional Approval ↔ PR UI (module `1.57`): Approvals form shows linked Purchase Request + smart button; PR form Approvals smart button opens linked approvals.
+31. Approval-sequence approvers get read-only access to linked purchase requests, items, and offers (module `1.58`).
+32. Scale rule **Need Commission**; Approval hidden while Submitted; Commission UI stub when Approved + need commission (module `1.59`).
+33. Stop. Add further states, approvals outcome → PR state, commission calculation, or PO integration only after `PRD.md` is updated.
 
 ## 10. Open technical decisions
 

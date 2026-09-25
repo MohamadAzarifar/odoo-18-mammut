@@ -59,6 +59,16 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_zvy_purchase_request_approval_approver" model="ir.rule">
+        <field name="name">Purchase Request: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_request"/>
+        <field name="domain_force">[('approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- Purchase Item visibility -->
     <record id="rule_zvy_purchase_item_planner" model="ir.rule">
         <field name="name">Purchase Item: Planner own request</field>
@@ -83,6 +93,16 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_zvy_purchase_item_approval_approver" model="ir.rule">
+        <field name="name">Purchase Item: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_item"/>
+        <field name="domain_force">[('request_id.approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- Offer visibility -->
     <record id="rule_zvy_purchase_offer_planner" model="ir.rule">
         <field name="name">Offer: Planner own request</field>
@@ -103,5 +123,15 @@
         <field name="model_id" ref="model_zvy_purchase_offer"/>
         <field name="domain_force">[('item_id.commercial_expert_ids', 'in', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_commercial_expert'))]"/>
+    </record>
+
+    <record id="rule_zvy_purchase_offer_approval_approver" model="ir.rule">
+        <field name="name">Offer: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_offer"/>
+        <field name="domain_force">[('item_id.request_id.approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 </odoo>

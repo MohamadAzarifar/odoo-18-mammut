@@ -44,10 +44,27 @@
                         type="object"
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
-                        invisible="not all_enquiry_items_selected"/>
+                        invisible="not all_enquiry_items_selected or has_pending_approval"/>
+                    <button
+                        name="action_commission"
+                        string="Commission"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="not show_commission_button"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_approvals"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-check-square-o"
+                            invisible="approval_request_count == 0">
+                            <field name="approval_request_count" widget="statinfo" string="Approvals"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -59,6 +76,8 @@
                         <field name="create_uid" string="Creator" readonly="1"/>
                         <field name="can_edit_items" invisible="1"/>
                         <field name="all_enquiry_items_selected" invisible="1"/>
+                        <field name="has_pending_approval" invisible="1"/>
+                        <field name="show_commission_button" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                     <group

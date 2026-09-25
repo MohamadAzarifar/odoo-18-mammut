@@ -219,3 +219,12 @@ by clicking approval button, a new approval should created based on approver col
 each purchase request could have list of approvals which a new one will be created baseed on clicking approval button.
 
 the created approval by clicking Approval button shoud have connection to purchase request.
+
+users who is in the approval sequence should have access to the purchase request attached to approval.
+
+---
+
+add another column in Scale next to threshold labeled Need Commision.  
+if Need Commision is true (default is false), show an action button labeled Commission next to Approval when a purchase request has an approved approval. 
+
+when purchase request has an submitted approval, hidden the Approval action button.

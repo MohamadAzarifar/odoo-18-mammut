@@ -109,6 +109,10 @@ class ZvyPurchaseScaleRule(models.Model):
         currency_field="currency_id",
         required=True,
     )
+    need_commission = fields.Boolean(
+        string="Need Commission",
+        default=False,
+    )
     is_open_ended = fields.Boolean(
         string="Open-Ended",
         help="When set, the threshold is above amount_max rather than up to it.",

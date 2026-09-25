@@ -33,7 +33,7 @@ The module is not Odoo’s core Purchase app (`purchase`). Core purchase orders,
 - Only the request creator may add purchase items, and only while the request is Draft. After **In Review**, purchase items are locked.
 - Only **Commercial Expert** and **Commercial Manager** may add offers on a purchase item. Commercial Experts may do so only when both the purchase request and the purchase item are **In Review**.
 - Configure each company’s **Scale** (Minor / Medium / Major, default Minor) and maintain per-scale **purchase rule** matrices (operational and non-operational thresholds from Mammut purchase regulations).
-- When all Enquiry items are Selected, show Approval Summary amounts/types and **Approval** (creates Approvals app requests from scale Approver types); hide **Assign Expert** and **Back to Draft**.
+- When all Enquiry items are Selected, show Approval Summary amounts/types and **Approval** (creates Approvals app requests from scale Approver types; hidden while any linked approval is Submitted); hide **Assign Expert** and **Back to Draft**. Show **Commission** (UI stub) when a linked approval is Approved and a matched scale rule has Need Commission.
 
 ## 3. Non-goals (until specified)
 
@@ -102,10 +102,11 @@ Rules implied by the draft:
 - Commercial Managers can return an **In Review** request to **Draft** with **Back to Draft** (mandatory reason wizard; see FR-2).
 - When every **Enquiry** purchase item (Enquiry and Enquiry / Commission; Tendering ignored) is **Selected**, and there is at least one such item:
   - **Assign Expert** and **Back to Draft** are hidden (and blocked server-side).
-  - Commercial Managers see an **Approval** button. Clicking it creates one Approvals app request per applicable category (Operational and/or Non-Operational) from the matched scale rule’s **Approver** (Approval Type). Missing Approval Type raises an error. Each click can add more approvals to the request’s Approvals list.
+  - Commercial Managers see an **Approval** button. Clicking it creates one Approvals app request per applicable category (Operational and/or Non-Operational) from the matched scale rule’s **Approver** (Approval Type). Missing Approval Type raises an error. Each created approval is linked to the purchase request (`zvy_purchase_request_id`); the Approvals form shows that link and a smart button to open the request. Users listed as approvers on a linked Approvals request may open that purchase request (and its items/offers) read-only. While any linked approval is **Submitted** (`pending`), **Approval** is hidden (and blocked server-side).
   - The form shows **Operational Amount** and **Non-Operational Amount**: sums of **Final Price** of **Selected** offers on non-Tendering items, split by the product’s **Operational** flag (company currency).
   - The form shows **Operational Type** and **Non-Operational Type**: scale tiers (Small / Medium / Major / Grand) from the company’s Scale purchase rules for that category and amount. A type is empty when that category has no Selected offers.
-  - An **Approvals** notebook tab lists linked `approval.request` records (created via the Approval button).
+  - An **Approvals** notebook tab lists linked `approval.request` records (created via the Approval button). An **Approvals** smart button opens the same linked records when any exist.
+  - Commercial Managers see a **Commission** button next to Approval when at least one linked approval is **Approved** and any matched scale rule (Operational or Non-Operational) has **Need Commission** true. Clicking it currently only logs to chatter (commission calculation out of scope).
 - Until that condition holds, amounts, types, and Approval stay hidden.
 
 ### FR-2 — Purchase Item
@@ -207,7 +208,7 @@ Rules implied by the draft:
 - Each company has a **Scale** selection: **Minor**, **Medium**, or **Major**. Default is **Minor**.
 - Configuration has a **Scales** menu. Each scale record holds the purchase-rule matrix for that company size (seeded from Mammut purchase regulations; editable by Commercial Managers and Settings administrators).
 - Each scale has rules in two categories: **Operational** and **Non-Operational**.
-- Each rule has a purchase type tier (**Small** / **Medium** / **Major** / **Grand**), threshold amount (IRR), open-ended flag (for “above X”), announcement method, **Approver** (Many2one Approval Type from the Approvals app), advance-payment guarantee, performance guarantee, and required documents.
+- Each rule has a purchase type tier (**Small** / **Medium** / **Major** / **Grand**), threshold amount (IRR), **Need Commission** (boolean, default false), open-ended flag (for “above X”), announcement method, **Approver** (Many2one Approval Type from the Approvals app), advance-payment guarantee, performance guarantee, and required documents.
 - On the company form (Settings → Companies), **Scale** is shown with other company fields. A **Purchase Rules** tab (after **Branches**) shows the selected scale’s operational and non-operational rules read-only. Editing rules is done only on the Scales screen.
 
 ## 7. Data fields in scope
@@ -216,14 +217,14 @@ Only these facts are required by the draft:
 
 | Record | Required content |
 |---|---|
-| Purchase Request | Number (`PR-n`), company (read-only, creator’s company), creator name, list of purchase items, status (Draft / In Review; default Draft); when all Enquiry items are Selected: Operational/Non-Operational Amount and Type; Approval creates linked Approvals; Approvals list |
+| Purchase Request | Number (`PR-n`), company (read-only, creator’s company), creator name, list of purchase items, status (Draft / In Review; default Draft); when all Enquiry items are Selected: Operational/Non-Operational Amount and Type; Approval creates linked Approvals (hidden while Submitted); Commission UI stub when Approved + scale Need Commission; Approvals list and smart button; Approvals form shows linked Purchase Request |
 | Purchase Item | Number (`PR-n-PI-m`), product, quantity, unit of measure, purchase type display (Enquiry / Enquiry / Commission / Tendering), list of offers, commercial experts (users in the current company with the Commercial Expert role), status (Draft / Submitted / In Review / Selected; default Draft) |
 | AVL | Vendor, product |
 | Offer | Number (`PR-n-PI-m-OFR-k`), vendor (from AVL for the item’s product), unit price, quantity (default from item), total price (computed), payment method, payment duration, delivery time, discount % / unit (decimal rate), final price (computed), status (Draft / In Review / Validated / Selected / Rejected / Closed; default Draft) |
 | Product | Purchase type (Enquiry / Tendering, default Enquiry), Need commission? (default false; hidden and forced false when type is Tendering), Operational (default false). Company-specific, holding default with per-company override. |
 | Company | Scale (Minor / Medium / Major, default Minor) |
 | Scale | Scale key (Minor / Medium / Major), name, list of purchase rules |
-| Purchase Rule | Category (Operational / Non-Operational), tier (Small / Medium / Major / Grand), threshold amount, open-ended flag, announcement, Approver (`approval.category`), advance guarantee, performance guarantee, required documents |
+| Purchase Rule | Category (Operational / Non-Operational), tier (Small / Medium / Major / Grand), threshold amount, Need Commission (default false), open-ended flag, announcement, Approver (`approval.category`), advance guarantee, performance guarantee, required documents |
 
 Price and commercial terms on offers are in scope (unit price, quantity, totals, payment method/duration, delivery time, discount, final price). Currency follows the request company. Other fields not listed above remain out of scope until added here.
 
@@ -250,7 +251,7 @@ Price and commercial terms on offers are in scope (unit price, quantity, totals,
 - Offers start in Draft; the creator can Submit when request and item are In Review (from Draft or Rejected); In Review offers are locked for everyone; Commercial Managers can Validate In Review offers (→ Validated, locked) or Reject them with a mandatory reason (→ Rejected, editable like Draft). An assigned Commercial Expert can Submit their own Draft/Rejected offers on an item in one action (skips other users’ offers, In Review, Validated, and Selected). A Commercial Manager can Validate all In Review offers on an item in one action (leaves Draft/Rejected/Validated unchanged). A Commercial Manager can Select one Validated offer (→ Selected, locked); all other offers on that item become Closed (locked).
 - Only the creator of a **Draft** or **Rejected** offer can edit or delete it; other users see it readonly. **In Review**, **Validated**, **Selected**, and **Closed** offers are read-only for everyone.
 - Each company has a Scale (default Minor). Configuration → Scales edits rule matrices. The company **Purchase Rules** tab shows the selected scale’s rules read-only.
-- When all Enquiry items on a request are Selected, Assign Expert and Back to Draft are hidden, Approval creates Approvals-app requests from scale-rule Approver types, and Operational/Non-Operational amounts and types are shown from Selected offer final prices and the company Scale thresholds.
+- When all Enquiry items on a request are Selected, Assign Expert and Back to Draft are hidden, Approval creates Approvals-app requests from scale-rule Approver types (linked both ways on PR and Approvals forms; approval-sequence users may open the linked PR read-only; Approval hidden while Submitted), Commission UI stub shows when Approved and a matched rule needs commission, and Operational/Non-Operational amounts and types are shown from Selected offer final prices and the company Scale thresholds.
 
 ## 9. Open questions
 
