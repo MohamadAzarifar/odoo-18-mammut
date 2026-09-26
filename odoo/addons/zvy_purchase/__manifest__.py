@@ -1,6 +1,6 @@
 {
     "name": "Purchase",
-    "version": "1.59",
+    "version": "1.64",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
     "depends": ["product", "mail", "web", "approvals"],
@@ -10,6 +10,7 @@
         "data/ir_sequence_data.xml",
         "data/zvy_purchase_scale_data.xml",
         "views/zvy_purchase_request_views.xml",
+        "views/zvy_purchase_commission_case_views.xml",
         "views/zvy_purchase_avl_views.xml",
         "views/zvy_purchase_scale_views.xml",
         "views/product_product_views.xml",

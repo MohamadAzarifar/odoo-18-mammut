@@ -8,5 +8,12 @@
             <field name="padding">0</field>
             <field name="company_id" eval="False"/>
         </record>
+        <record id="seq_zvy_purchase_commission_case" model="ir.sequence">
+            <field name="name">Commission Case</field>
+            <field name="code">zvy.purchase.commission.case</field>
+            <field name="prefix">COM-</field>
+            <field name="padding">0</field>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo>

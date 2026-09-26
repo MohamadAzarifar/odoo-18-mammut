@@ -215,7 +215,7 @@ when all Enquiry purchase items status are Selected:
 ---
 
 the approver column in scale purchase rules should accept an approval type from approval addone as input.  
-by clicking approval button, a new approval should created based on approver column.  
+by clicking approval button, a new approval should created based on approver column and change status of purchase request to Approval and approval button should hidden.  
 each purchase request could have list of approvals which a new one will be created baseed on clicking approval button.
 
 the created approval by clicking Approval button shoud have connection to purchase request.
@@ -225,6 +225,23 @@ users who is in the approval sequence should have access to the purchase request
 ---
 
 add another column in Scale next to threshold labeled Need Commision.  
-if Need Commision is true (default is false), show an action button labeled Commission next to Approval when a purchase request has an approved approval. 
+if Need Commision is true (default is false), show an action button labeled Commission next to Approval when all purchase request has an approved approval. 
 
-when purchase request has an submitted approval, hidden the Approval action button.
+when purchase request has an submitted approval, hidden the Approval action button. (deprecated. when approval button clicked, hide the approval button.)
+
+---
+
+a purchase request could have list of commission cases.
+
+a commission case is generated if there is at least one commission purchase item in the purchase request OR purchase request is commision based on Scale configures.  
+by clicking Commision button, a new commission case should generated.
+
+a commission case has reference to PR and also a list of references to purchase items which purchase type is Enquiry (Enquiry and Enquiry/Commission).
+
+there is a menu item labeled Commission. which shows list of commission cases. only commission manager has access to this menu item.
+
+the commercial manager only has access to the commission cases which referenced in the purchase request Commission Tab.
+
+commission is in top parent company (holding), so the rule of commission manager has access to all cases in all the companies.
+
+when Commission button is clicked, change the status of purchase request to Commission.

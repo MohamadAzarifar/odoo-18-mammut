@@ -8,7 +8,7 @@
                 <field name="name"/>
                 <field name="create_uid" string="Creator" optional="show"/>
                 <field name="company_id" optional="show"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'" decoration-primary="state == 'approval'" decoration-success="state == 'commission'"/>
             </list>
         </field>
     </record>
@@ -44,7 +44,7 @@
                         type="object"
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
-                        invisible="not all_enquiry_items_selected or has_pending_approval"/>
+                        invisible="state != 'in_review' or not all_enquiry_items_selected"/>
                     <button
                         name="action_commission"
                         string="Commission"
@@ -52,7 +52,7 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
                         invisible="not show_commission_button"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review,approval,commission"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -63,6 +63,14 @@
                             icon="fa-check-square-o"
                             invisible="approval_request_count == 0">
                             <field name="approval_request_count" widget="statinfo" string="Approvals"/>
+                        </button>
+                        <button
+                            name="action_view_commission_cases"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-percent"
+                            invisible="commission_case_count == 0">
+                            <field name="commission_case_count" widget="statinfo" string="Commission"/>
                         </button>
                     </div>
                     <div class="oe_title">
@@ -76,7 +84,6 @@
                         <field name="create_uid" string="Creator" readonly="1"/>
                         <field name="can_edit_items" invisible="1"/>
                         <field name="all_enquiry_items_selected" invisible="1"/>
-                        <field name="has_pending_approval" invisible="1"/>
                         <field name="show_commission_button" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
@@ -116,6 +123,15 @@
                                     <field name="request_status" widget="badge"/>
                                     <field name="amount" optional="show"/>
                                     <field name="request_owner_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Commission" name="commission">
+                            <field name="commission_case_ids" readonly="1" create="0" delete="0">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="company_id"/>
+                                    <field name="item_count" string="Items"/>
                                 </list>
                             </field>
                         </page>
