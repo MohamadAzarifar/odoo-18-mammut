@@ -33,7 +33,7 @@ The module is not Odoo’s core Purchase app (`purchase`). Core purchase orders,
 - Only the request creator may add purchase items, and only while the request is Draft. After **In Review**, purchase items are locked.
 - Only **Commercial Expert** and **Commercial Manager** may add offers on a purchase item. Commercial Experts may do so only when both the purchase request and the purchase item are **In Review**.
 - Configure each company’s **Scale** (Minor / Medium / Major, default Minor) and maintain per-scale **purchase rule** matrices (operational and non-operational thresholds from Mammut purchase regulations).
-- When all Enquiry items are Selected, show Approval Summary amounts/types and **Approval** (creates Approvals app requests from scale Approver types, sets request state to **Approval**, and hides the Approval button); hide **Assign Expert** and **Back to Draft**. Show **Commission** when all linked approvals are Approved and (a matched scale rule has Need Commission **or** the request has at least one Enquiry / Commission item); clicking it creates one **commission case** (one-shot) linked to the request and its Enquiry items, and sets the request state to **Commission**.
+- When all Enquiry items are Selected, show Approval Summary amounts/types and **Approval** (creates Approvals app requests from scale Approver types, sets request state to **Approval**, and hides the Approval button); hide **Assign Expert** and **Back to Draft**. Show **Commission** when all linked approvals are Approved and (a matched scale rule has Need Commission **or** the request has at least one Enquiry / Commission item); clicking it creates one **commission case** (one-shot) linked to the request and its Enquiry items, and sets the request state to **Commission**. Show **Tender** when every Tendering item has at least one Validated offer and no tender exists yet; clicking it creates one **tender** (one-shot) linked to the request and its Tendering items (does not change request state).
 
 ## 3. Non-goals (until specified)
 
@@ -47,13 +47,13 @@ The module is not Odoo’s core Purchase app (`purchase`). Core purchase orders,
 
 Internal purchasing users create requests, add items, and record offers.
 
-**Commission Manager** is a named role. Only that role can change a product’s purchase type, need-commission, and Operational flags. Other users may see the values. Commission Managers also have the **Commission** menu listing all commission cases across all companies (holding-wide). They have read-only access to all purchase requests (and their items/offers) in all companies so they can open a request from a commission case; they do not get the Purchase Requests menu. Their company switcher includes every active company (holding-wide).
+**Commission Manager** is a named role. Only that role can change a product’s purchase type, need-commission, and Operational flags. Other users may see the values. Commission Managers also have the **Commission** and **Tenders** menus listing all commission cases and tenders across all companies (holding-wide). They have read-only access to all purchase requests (and their items/offers) in all companies so they can open a request from a commission case or tender; they do not get the Purchase Requests menu. Their company switcher includes every active company (holding-wide).
 
 **Commercial Expert** is a named role. Purchase items can list users who have this role and belong to the current company. Together with Commercial Managers, they can add offers on purchase items — Commercial Experts only when both the request and the item are In Review. Assigned experts can **Submit** their own Draft/Rejected offers on an item. They can open the related purchase request from an assigned item (read-only); they do not get the Purchase Requests menu. They have an **Offers** menu listing offers they created.
 
-**Planner** is a named role. Planners can create purchase requests and add items. They only see purchase requests they created.
+**Planner** is a named role. Planners can create purchase requests and add items. They only see purchase requests they created. They can read commission cases and tenders linked to those requests (via the purchase request tabs); they do not get the Commission or Tenders menus.
 
-**Commercial Manager** is a named role. Commercial Managers can create purchase requests and add items. In the Purchase Requests list they see all purchase requests in their company, regardless of status. Only they can assign Commercial Experts on purchase items. They can also add offers. Their **Offers** menu lists all offers on purchase requests in their company. They create commission cases via the **Commission** button and see those cases on the purchase request **Commission** tab (no global Commission menu).
+**Commercial Manager** is a named role. Commercial Managers can create purchase requests and add items. In the Purchase Requests list they see all purchase requests in their company, regardless of status. Only they can assign Commercial Experts on purchase items. They can also add offers. Their **Offers** menu lists all offers on purchase requests in their company. They create commission cases via the **Commission** button and see those cases on the purchase request **Commission** tab (no global Commission menu). They create tenders via the **Tender** button and see those tenders on the purchase request **Tender** tab (no global Tenders menu).
 
 ## 5. Domain model
 
@@ -64,7 +64,8 @@ Purchase Request  1 ──*  Purchase Item  1 ──*  Offer
        │              Product               Vendor
        │                 *                     *
        │                 └────── AVL ──────────┘
-       └──* Commission Case ──* Purchase Item (Enquiry / Enquiry-Commission)
+       ├──* Commission Case ──* Purchase Item (Enquiry / Enquiry-Commission)
+       └──* Tender ──* Purchase Item (Tendering)
 ```
 
 | Entity | Cardinality | Meaning |
@@ -73,6 +74,7 @@ Purchase Request  1 ──*  Purchase Item  1 ──*  Offer
 | Purchase Item | 1 item → 1 product; 1 item → many offers | One product line on a request, with the offers collected for it. |
 | Offer | 1 offer → 1 vendor; many offers → 1 item | A vendor’s response for that item. |
 | Commission Case | 1 request → at most one case (one-shot); case → many Enquiry items | Holding-level commission case created from the Commission button. |
+| Tender | 1 request → at most one tender (one-shot); tender → many Tendering items | Holding-level tender created from the Tender button. |
 | AVL | vendor ↔ product | Vendors that may procure a given product. |
 | Scale | 1 scale → many purchase rules | Company size band (Minor / Medium / Major) with threshold matrices. |
 | Purchase Rule | 1 rule → 1 scale | One tier (Small / Medium / Major / Grand) in one category (Operational / Non-Operational). |
@@ -109,7 +111,9 @@ Rules implied by the draft:
   - The form shows **Operational Type** and **Non-Operational Type**: scale tiers (Small / Medium / Major / Grand) from the company’s Scale purchase rules for that category and amount. A type is empty when that category has no Selected offers.
   - An **Approvals** notebook tab lists linked `approval.request` records (created via the Approval button). An **Approvals** smart button opens the same linked records when any exist.
   - Commercial Managers see a **Commission** button when every linked approval is **Approved**, the request has no commission case yet, and either any matched scale rule (Operational or Non-Operational) has **Need Commission** true **or** the request has at least one **Enquiry / Commission** purchase item. Clicking it creates one commission case linked to the request and all non-Tendering (Enquiry and Enquiry / Commission) purchase items, sets the purchase request state to **Commission**, logs on chatter, and hides the button (one-shot). Commission calculation remains out of scope.
-  - A **Commission** notebook tab lists linked commission cases. A **Commission** smart button opens them when any exist. Commercial Managers see cases only via this tab (company-scoped). Commission Managers have a root **Commission** menu listing all cases across all companies.
+  - A **Commission** notebook tab lists linked commission cases. A **Commission** smart button opens them when any exist. Commercial Managers see cases only via this tab (company-scoped). The request creator (Planner) can read cases linked to their own requests via this tab. Commission Managers have a root **Commission** menu listing all cases across all companies.
+- Commercial Managers see a **Tender** button when the request has at least one **Tendering** purchase item, every Tendering item has at least one **Validated** offer, and the request has no tender yet. Clicking it creates one tender linked to the request and all Tendering purchase items, logs on chatter, and hides the button (one-shot). It does **not** change the purchase request state.
+- A **Tender** notebook tab lists linked tenders. A **Tenders** smart button opens them when any exist. Commercial Managers see tenders only via this tab (company-scoped). The request creator (Planner) can read tenders linked to their own requests via this tab. Commission Managers have a root **Tenders** menu listing all tenders across all companies.
 - Until that condition holds, amounts, types, and Approval stay hidden.
 
 ### FR-2 — Purchase Item
@@ -220,9 +224,10 @@ Only these facts are required by the draft:
 
 | Record | Required content |
 |---|---|
-| Purchase Request | Number (`PR-n`), company (read-only, creator’s company), creator name, list of purchase items, status (Draft / In Review / Approval / Commission; default Draft); when all Enquiry items are Selected: Operational/Non-Operational Amount and Type; Approval creates linked Approvals and sets state Approval (button then hidden); Commission creates one commission case and sets state Commission when all linked approvals Approved and (scale Need Commission or ≥1 Enquiry / Commission item), then hides; Approvals and Commission lists/smart buttons; Approvals form shows linked Purchase Request |
+| Purchase Request | Number (`PR-n`), company (read-only, creator’s company), creator name, list of purchase items, status (Draft / In Review / Approval / Commission; default Draft); when all Enquiry items are Selected: Operational/Non-Operational Amount and Type; Approval creates linked Approvals and sets state Approval (button then hidden); Commission creates one commission case and sets state Commission when all linked approvals Approved and (scale Need Commission or ≥1 Enquiry / Commission item), then hides; Tender creates one tender (does not change state) when every Tendering item has ≥1 Validated offer, then hides; Approvals / Commission / Tender lists/smart buttons; Approvals form shows linked Purchase Request |
 | Purchase Item | Number (`PR-n-PI-m`), product, quantity, unit of measure, purchase type display (Enquiry / Enquiry / Commission / Tendering), list of offers, commercial experts (users in the current company with the Commercial Expert role), status (Draft / Submitted / In Review / Selected; default Draft) |
 | Commission Case | Number (`COM-n`), purchase request, company (from request), list of linked Enquiry / Enquiry-Commission purchase items |
+| Tender | Number (`TEN-n`), purchase request, company (from request), list of linked Tendering purchase items |
 | AVL | Vendor, product |
 | Offer | Number (`PR-n-PI-m-OFR-k`), vendor (from AVL for the item’s product), unit price, quantity (default from item), total price (computed), payment method, payment duration, delivery time, discount % / unit (decimal rate), final price (computed), status (Draft / In Review / Validated / Selected / Rejected / Closed; default Draft) |
 | Product | Purchase type (Enquiry / Tendering, default Enquiry), Need commission? (default false; hidden and forced false when type is Tendering), Operational (default false). Company-specific, holding default with per-company override. |
@@ -255,7 +260,8 @@ Price and commercial terms on offers are in scope (unit price, quantity, totals,
 - Offers start in Draft; the creator can Submit when request and item are In Review (from Draft or Rejected); In Review offers are locked for everyone; Commercial Managers can Validate In Review offers (→ Validated, locked) or Reject them with a mandatory reason (→ Rejected, editable like Draft). An assigned Commercial Expert can Submit their own Draft/Rejected offers on an item in one action (skips other users’ offers, In Review, Validated, and Selected). A Commercial Manager can Validate all In Review offers on an item in one action (leaves Draft/Rejected/Validated unchanged). A Commercial Manager can Select one Validated offer (→ Selected, locked); all other offers on that item become Closed (locked).
 - Only the creator of a **Draft** or **Rejected** offer can edit or delete it; other users see it readonly. **In Review**, **Validated**, **Selected**, and **Closed** offers are read-only for everyone.
 - Each company has a Scale (default Minor). Configuration → Scales edits rule matrices. The company **Purchase Rules** tab shows the selected scale’s rules read-only.
-- When all Enquiry items on a request are Selected, Assign Expert and Back to Draft are hidden, Approval creates Approvals-app requests from scale-rule Approver types and sets the request to Approval (button hidden; linked both ways on PR and Approvals forms; approval-sequence users may open the linked PR read-only), Commission creates one commission case and sets the request to Commission when all linked approvals are Approved and (a matched rule needs commission or ≥1 Enquiry / Commission item) then hides, Commercial Managers see cases on the PR Commission tab, Commission Managers see all cases via the Commission menu (all companies), and Operational/Non-Operational amounts and types are shown from Selected offer final prices and the company Scale thresholds.
+- When all Enquiry items on a request are Selected, Assign Expert and Back to Draft are hidden, Approval creates Approvals-app requests from scale-rule Approver types and sets the request to Approval (button hidden; linked both ways on PR and Approvals forms; approval-sequence users may open the linked PR read-only), Commission creates one commission case and sets the request to Commission when all linked approvals are Approved and (a matched rule needs commission or ≥1 Enquiry / Commission item) then hides, Commercial Managers see cases on the PR Commission tab, the request creator can read those cases on the same tab, Commission Managers see all cases via the Commission menu (all companies), and Operational/Non-Operational amounts and types are shown from Selected offer final prices and the company Scale thresholds.
+- When every Tendering item on a request has at least one Validated offer, Commercial Managers can create one tender (one-shot) via **Tender**; they see tenders on the PR Tender tab; the request creator can read those tenders on the same tab; Commission Managers see all tenders via the Tenders menu (all companies). Creating a tender does not change the purchase request state.
 
 ## 9. Open questions
 

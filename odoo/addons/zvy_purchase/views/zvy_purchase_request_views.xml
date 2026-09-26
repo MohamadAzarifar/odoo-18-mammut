@@ -52,6 +52,13 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
                         invisible="not show_commission_button"/>
+                    <button
+                        name="action_tender"
+                        string="Tender"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="not show_tender_button"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review,approval,commission"/>
                 </header>
                 <sheet>
@@ -72,6 +79,14 @@
                             invisible="commission_case_count == 0">
                             <field name="commission_case_count" widget="statinfo" string="Commission"/>
                         </button>
+                        <button
+                            name="action_view_tenders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-gavel"
+                            invisible="tender_count == 0">
+                            <field name="tender_count" widget="statinfo" string="Tenders"/>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
@@ -85,6 +100,7 @@
                         <field name="can_edit_items" invisible="1"/>
                         <field name="all_enquiry_items_selected" invisible="1"/>
                         <field name="show_commission_button" invisible="1"/>
+                        <field name="show_tender_button" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                     <group
@@ -128,6 +144,15 @@
                         </page>
                         <page string="Commission" name="commission">
                             <field name="commission_case_ids" readonly="1" create="0" delete="0">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="company_id"/>
+                                    <field name="item_count" string="Items"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Tender" name="tender">
+                            <field name="tender_ids" readonly="1" create="0" delete="0">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>
                                     <field name="company_id"/>

@@ -145,6 +145,18 @@ class ZvyPurchaseRequest(models.Model):
     show_commission_button = fields.Boolean(
         compute="_compute_show_commission_button",
     )
+    tender_ids = fields.One2many(
+        comodel_name="zvy.purchase.tender",
+        inverse_name="request_id",
+        string="Tenders",
+        copy=False,
+    )
+    tender_count = fields.Integer(
+        compute="_compute_tender_count",
+    )
+    show_tender_button = fields.Boolean(
+        compute="_compute_show_tender_button",
+    )
 
     @api.depends("state", "create_uid")
     @api.depends_context("uid")
@@ -246,6 +258,25 @@ class ZvyPurchaseRequest(models.Model):
         for request in self:
             request.commission_case_count = len(request.commission_case_ids)
 
+    @api.depends("tender_ids")
+    def _compute_tender_count(self):
+        for request in self:
+            request.tender_count = len(request.tender_ids)
+
+    def _get_tendering_items(self):
+        self.ensure_one()
+        return self.item_ids.filtered(
+            lambda item: item.purchase_type_display == "tendering"
+        )
+
+    def _tendering_items_have_validated_offers(self):
+        self.ensure_one()
+        tendering_items = self._get_tendering_items()
+        return bool(tendering_items) and all(
+            any(offer.state == "validated" for offer in item.offer_ids)
+            for item in tendering_items
+        )
+
     def _scale_needs_commission(self):
         self.ensure_one()
         scale = self.env["zvy.purchase.scale"].search(
@@ -295,6 +326,20 @@ class ZvyPurchaseRequest(models.Model):
             )
             request.show_commission_button = show
 
+    @api.depends(
+        "tender_ids",
+        "item_ids.purchase_type_display",
+        "item_ids.offer_ids.state",
+        "item_ids.product_id.zvy_purchase_type_company_values",
+        "item_ids.product_id.zvy_need_commission_company_values",
+    )
+    def _compute_show_tender_button(self):
+        for request in self:
+            request.show_tender_button = bool(
+                not request.tender_ids
+                and request._tendering_items_have_validated_offers()
+            )
+
     def action_view_approvals(self):
         self.ensure_one()
         return {
@@ -312,6 +357,17 @@ class ZvyPurchaseRequest(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Commission"),
             "res_model": "zvy.purchase.commission.case",
+            "view_mode": "list,form",
+            "domain": [("request_id", "=", self.id)],
+            "context": {"default_request_id": self.id},
+        }
+
+    def action_view_tenders(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Tenders"),
+            "res_model": "zvy.purchase.tender",
             "view_mode": "list,form",
             "domain": [("request_id", "=", self.id)],
             "context": {"default_request_id": self.id},
@@ -571,6 +627,35 @@ class ZvyPurchaseRequest(models.Model):
             body=_(
                 "Commission case created: %(name)s",
                 name=case.name,
+            )
+        )
+        return True
+
+    def action_tender(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can create a tender.")
+            )
+        if not self.show_tender_button:
+            raise UserError(
+                _(
+                    "Tender is only available when the request has Tendering "
+                    "purchase items, every Tendering item has at least one "
+                    "Validated offer, and no tender exists yet."
+                )
+            )
+        tendering_items = self._get_tendering_items()
+        tender = self.env["zvy.purchase.tender"].create(
+            {
+                "request_id": self.id,
+                "item_ids": [(6, 0, tendering_items.ids)],
+            }
+        )
+        self._message_log(
+            body=_(
+                "Tender created: %(name)s",
+                name=tender.name,
             )
         )
         return True

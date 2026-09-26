@@ -245,3 +245,19 @@ the commercial manager only has access to the commission cases which referenced 
 commission is in top parent company (holding), so the rule of commission manager has access to all cases in all the companies.
 
 when Commission button is clicked, change the status of purchase request to Commission.
+
+---
+
+show a new action button in purchase requst label (Tender).
+
+the Tendering button is visible when there is Tendering purchase type in the purchase request and tendering purchase items has Validated offers.
+
+by clicking Tender, a new Tender record is created.
+
+show a new menu items which shows list of tenders. this menu item is only visible for commission manager.
+
+reference purchase request to the created tender and add list of tendering purchase items to the new tender record.
+
+commercial manager has access to the related tender to the purchase request.
+
+the creator of purchase request should have access to related commision and tenders to the purchase request.
