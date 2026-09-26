@@ -1,6 +1,6 @@
 {
     "name": "Purchase",
-    "version": "1.66",
+    "version": "1.70",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
     "depends": ["product", "mail", "web", "approvals"],
@@ -18,6 +18,7 @@
         "views/res_company_views.xml",
         "views/approval_request_views.xml",
         "wizard/zvy_purchase_assign_expert_wizard_views.xml",
+        "wizard/zvy_purchase_assign_commission_expert_wizard_views.xml",
         "wizard/zvy_purchase_back_to_draft_wizard_views.xml",
         "wizard/zvy_purchase_offer_reject_wizard_views.xml",
         "wizard/zvy_purchase_offer_select_wizard_views.xml",

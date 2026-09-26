@@ -652,6 +652,7 @@ class ZvyPurchaseRequest(models.Model):
                 "item_ids": [(6, 0, tendering_items.ids)],
             }
         )
+        tendering_items._zvy_mark_tendering_if_on_tender()
         self._message_log(
             body=_(
                 "Tender created: %(name)s",
@@ -709,6 +710,7 @@ class ZvyPurchaseItem(models.Model):
             ("draft", "Draft"),
             ("submitted", "Submitted"),
             ("in_review", "In Review"),
+            ("tendering", "Tendering"),
             ("selected", "Selected"),
         ],
         default="draft",
@@ -1049,6 +1051,25 @@ class ZvyPurchaseItem(models.Model):
                 zvy_skip_item_state_sync=True,
                 zvy_skip_item_edit_check=True,
             ).write({"state": "selected"})
+
+    def _zvy_mark_tendering_if_on_tender(self):
+        """Set items linked to a tender to Tendering."""
+        if self.env.context.get("zvy_skip_item_state_sync"):
+            return
+        if not self:
+            return
+        tenders = self.env["zvy.purchase.tender"].search(
+            [("item_ids", "in", self.ids)]
+        )
+        linked_ids = set(tenders.mapped("item_ids").ids)
+        to_tender = self.filtered(
+            lambda item: item.id in linked_ids and item.state != "tendering"
+        )
+        if to_tender:
+            to_tender.with_context(
+                zvy_skip_item_state_sync=True,
+                zvy_skip_item_edit_check=True,
+            ).write({"state": "tendering"})
 
     def _zvy_check_item_editable(self, requests=None):
         if self.env.su or self.env.context.get("zvy_skip_item_edit_check"):

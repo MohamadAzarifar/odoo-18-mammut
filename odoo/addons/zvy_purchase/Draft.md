@@ -261,3 +261,23 @@ reference purchase request to the created tender and add list of tendering purch
 commercial manager has access to the related tender to the purchase request.
 
 the creator of purchase request should have access to related commision and tenders to the purchase request.
+
+---
+
+a commision case could be assigned to multiple commission experts by commission manager.
+
+add a new tab in commision case labeled Experts.
+
+it shows list of assigned commision experts to commission case.
+
+experts has access to commision menu item and sees only cases which assigned to them.
+
+also show an action button in commission case for commission manager to show a wizard for assign experts.
+
+---
+
+if a tendering purchase item is in a related tendering record, the status of purchase item should be tendering.
+
+only show tendering status in purchase item for tendering products. for enquiry products do not show tendering step.
+
+show the tendering step in statusbar before selected step.

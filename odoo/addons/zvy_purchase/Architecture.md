@@ -100,7 +100,7 @@ Specified: owns `item_ids`. Numbered `PR-1`, `PR-2`, … on create.
 
 `action_send()` writes `state = 'in_review'`. Allowed only from `draft` and only by the request creator (`create_uid`); otherwise `UserError` / `AccessError`. Form header **Send** button is `invisible="not can_edit_items"` (Draft + creator + Planner/CM). On Send, all purchase items are set to `submitted`; items that already have commercial experts are then promoted to `in_review`.
 
-`action_back_to_draft()` (Commercial Manager only, `state == 'in_review'`, and not `all_enquiry_items_selected`) opens transient wizard `zvy.purchase.back.to.draft.wizard` with a mandatory `reason` Text field. Confirm writes request `state = 'draft'`, resets all items to `draft`, and `_message_log`s the reason on the request chatter. Form header **Back to Draft**: `invisible="state != 'in_review' or all_enquiry_items_selected"`.
+`action_back_to_draft()` (Commercial Manager only, `state == 'in_review'`, and not `all_enquiry_items_selected`) opens transient wizard `zvy.purchase.back.to.draft.wizard` with a mandatory `reason` Text field. Confirm writes request `state = 'draft'`, resets all items to `draft`, then re-applies `tendering` on items still linked to a tender, and `_message_log`s the reason on the request chatter. Form header **Back to Draft**: `invisible="state != 'in_review' or all_enquiry_items_selected"`.
 
 `action_assign_expert()` (Commercial Manager only, `state == 'in_review'`, and not `all_enquiry_items_selected`) opens transient wizard `zvy.purchase.assign.expert.wizard` with one line per purchase item. Confirm writes `commercial_expert_ids` on each item (which promotes assigned items to `in_review`). Form: `invisible="state != 'in_review' or all_enquiry_items_selected"`.
 
@@ -112,7 +112,7 @@ Specified: owns `item_ids`. Numbered `PR-1`, `PR-2`, … on create.
 
 `action_view_commission_cases()` opens linked commission cases. Form smart button uses `commission_case_count`.
 
-`action_tender()` (Commercial Manager only, `show_tender_button`): creates one `zvy.purchase.tender` with `request_id` and `item_ids` = all Tendering items. Does **not** change PR `state` (Tendering track is independent of Enquiry/Commission). Logs on PR chatter. One-shot — button hidden once a tender exists.
+`action_tender()` (Commercial Manager only, `show_tender_button`): creates one `zvy.purchase.tender` with `request_id` and `item_ids` = all Tendering items. Sets those items’ `state = 'tendering'`. Does **not** change PR `state` (Tendering track is independent of Enquiry/Commission). Logs on PR chatter. One-shot — button hidden once a tender exists.
 
 `action_view_tenders()` opens linked tenders. Form smart button uses `tender_count`.
 
@@ -136,7 +136,7 @@ Specified: one product, list of offers, belongs to one request. Numbered `{reque
 | `request_state` | related `request_id.state`, stored | For readonly UI without browsing when needed |
 | `request_name` | related `request_id.name`, stored | Kept for search/display helpers |
 | `request_create_uid` | related `request_id.create_uid`, stored | For `can_edit` without browsing the request |
-| `state` | Selection `draft` / `submitted` / `in_review` / `selected`, default `draft`, tracking | Item workflow. Statusbar on item form; badge on lists. |
+| `state` | Selection `draft` / `submitted` / `in_review` / `tendering` / `selected`, default `draft`, tracking | Item workflow. Dual statusbar on item form: Enquiry omits Tendering; Tendering products show `draft,submitted,in_review,tendering,selected`. Badge on lists. |
 | `can_edit` | Boolean, computed | Planner/CM + Draft + creator; False for Commercial Experts |
 | `can_assign_experts` | Boolean, computed | Commercial Manager (on requests they can access) |
 | `can_add_offers` | Boolean, computed | CM: always True. CE: True only when `request_state` and item `state` are both `in_review`. |
@@ -314,7 +314,7 @@ Company form: Scale after `currency_id`. Page `zvy_purchase_rules` after `branch
 
 ### 3.9 Commission Case (`zvy.purchase.commission.case`)
 
-Specified: created by Commercial Manager via PR **Commission** button; links PR and Enquiry items; holding-wide Commission Manager access.
+Specified: created by Commercial Manager via PR **Commission** button; links PR and Enquiry items; holding-wide Commission Manager access; Commission Manager assigns Commission Experts.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -322,8 +322,10 @@ Specified: created by Commercial Manager via PR **Commission** button; links PR 
 | `request_id` | Many2one `zvy.purchase.request`, required, `ondelete='cascade'` | Parent PR |
 | `company_id` | Many2one `res.company`, related stored from `request_id.company_id` | Display; Commission Manager has holding-wide `res.company` read |
 | `item_ids` | Many2many `zvy.purchase.item` | Snapshot of non-Tendering items at create |
+| `commission_expert_ids` | Many2many `res.users` | Assigned Commission Experts; domain = users in `group_commission_expert` (holding-wide) |
+| `can_assign_commission_experts` | Boolean, computed | True only for Commission Manager |
 
-`mail.thread` + form chatter. Create only via `action_commission` (Commercial Manager). Menu **Commission** (Commission Manager only) lists all cases. PR form **Commission** tab + smart button for linked cases.
+`mail.thread` + form chatter. Create only via `action_commission` (Commercial Manager). Only Commission Manager may write `commission_expert_ids` (`AccessError` otherwise). Form header **Assign Experts** opens wizard `zvy.purchase.assign.commission.expert.wizard` (pre-filled with current assignees). Form notebook **Experts** tab shows the tags field. Menu **Commission** lists all cases for Commission Manager and assigned cases for Commission Expert. PR form **Commission** tab + smart button for linked cases.
 
 ### 3.10 Tender (`zvy.purchase.tender`)
 
@@ -336,7 +338,7 @@ Specified: created by Commercial Manager via PR **Tender** button; links PR and 
 | `company_id` | Many2one `res.company`, related stored from `request_id.company_id` | Display; Commission Manager has holding-wide `res.company` read |
 | `item_ids` | Many2many `zvy.purchase.item` | Snapshot of Tendering items at create |
 
-`mail.thread` + form chatter. Create only via `action_tender` (Commercial Manager). Menu **Tenders** (Commission Manager only) lists all tenders. PR form **Tender** tab + smart button for linked tenders. Does not change PR `state`.
+`mail.thread` + form chatter. Create only via `action_tender` (Commercial Manager). Create/write of `item_ids` sets those items’ `state = 'tendering'`. Menu **Tenders** (Commission Manager only) lists all tenders. PR form **Tender** tab + smart button for linked tenders. Does not change PR `state`.
 
 ## 4. Integrity
 
@@ -426,7 +428,7 @@ UX mapping:
 - **Purchase Requests** menu and window action: Planner and Commercial Manager only. Menu `groups_id` is force-replaced with `(6, 0, [...])` so upgrades do not leave a stale Commercial Expert link.
 - **To Review**: list of `zvy.purchase.item` with domain `commercial_expert_ids in uid`. Opens the existing item form. Create/delete not offered from this menu. Commercial Expert group only. Item form shows clickable readonly `request_id` for all roles that can open the item. Assigned CEs see a header **Submit** (`can_submit_offers`) that bulk-submits their own Draft/Rejected offers to In Review. Commercial Managers see a header **Validate** (`can_validate_offers`) that bulk-validates all In Review offers on the item, and **Select** (`can_select_offers`) that opens the Select Offer wizard for that item’s Validated offers.
 - **Offers**: list of `zvy.purchase.offer` next to To Review. Visible to Commercial Expert and Commercial Manager. Action context `zvy_offers_menu` scopes the list: non-CM users to `create_uid = uid`; Commercial Managers rely on the existing company offer record rule (`item_id.request_id.company_id in company_ids`). Opens the existing offer form. Create disabled from this menu (offers are added on the item). Delete/edit follow creator-only rules on Draft/Rejected; In Review / Validated / Selected / Closed are locked. Offer form **Select** only when that offer’s status is Validated (wizard scoped to the item’s Validated offers).
-- **Commission**: list of `zvy.purchase.commission.case`. Commission Manager only. Holding-wide (no company filter on the Commission Manager record rule). Create disabled from menu (cases are created via the PR Commission button). Form shows request, company, linked Enquiry items, chatter.
+- **Commission**: list of `zvy.purchase.commission.case`. Commission Manager (all cases, holding-wide) and Commission Expert (assigned cases only). Create disabled from menu (cases are created via the PR Commission button). Form shows request, company, linked Enquiry items, **Experts** tab, chatter.
 - **Tenders**: list of `zvy.purchase.tender`. Commission Manager only. Holding-wide. Create disabled from menu (tenders are created via the PR Tender button). Form shows request, company, linked Tendering items, chatter.
 - Configuration → Products: list + form of `product.product` with purchase type and need commission. Standard product form also shows the same group.
 - Configuration → Scales: list + form of `zvy.purchase.scale` with Operational / Non-Operational rule tabs. Commercial Manager and Settings (`base.group_system`) may write; all internal users may read.
@@ -442,9 +444,10 @@ Items are also reachable from **To Review** when assigned; offers are editable f
 - Group `zvy_purchase.group_commercial_expert` (**Commercial Expert**). Implies `base.group_user`. Read/write on assigned items (write used so offer one2many create works); create/write/unlink on offers for assigned items. Read-only ACL on purchase requests limited by record rule to requests that have an item where the user is in `commercial_expert_ids` (so the item’s request many2one can open). No Purchase Requests menu. **Offers** menu lists offers they created (`create_uid`). Record rules: items/offers where the user is in `commercial_expert_ids`.
 - Only Commercial Expert and Commercial Manager may create offers (ACL + `AccessError` on create for others). Commercial Experts may create offers only when both the purchase request and the purchase item are In Review.
 - Only the offer **creator** may write or unlink a **Draft** or **Rejected** offer (`AccessError` otherwise), including when the other user is a Commercial Manager. Views use `can_edit` so non-creators see others’ offers readonly. **In Review**, **Validated**, **Selected**, and **Closed** offers are read-only for everyone (including the creator); write/unlink raise `AccessError`. Commercial Managers may validate In Review offers (`action_validate` with `zvy_skip_offer_edit_check`) or reject them via the Reject wizard (state write uses `zvy_skip_offer_edit_check`). Commercial Managers may also bulk-validate all In Review offers on an item via `action_validate_offers` (same lock skip). Commercial Managers may select one Validated offer via the Select wizards (`action_select_offers`; sets `selected` and siblings to `closed` with lock skip). Assigned Commercial Experts may bulk-submit their own Draft/Rejected offers on an item via `action_submit_offers` (`create_uid` must be the current user; other users’ offers are untouched).
-- Group `zvy_purchase.group_commission_manager` (**Commission Manager**). Implies `base.group_user`. Written access on `product.product` so the configuration form can save the purchase attributes. Create/unlink on products stay with product managers. Read/write on `zvy.purchase.commission.case` and `zvy.purchase.tender` (no create/unlink — created via PR buttons by Commercial Managers). Record rules: all commission cases and tenders in all companies `[(1, '=', 1)]`. Read-only on all purchase requests, items, and offers in all companies `[(1, '=', 1)]` (no Purchase Requests menu — open via commission case or tender). Record rule on `res.company` `[(1, '=', 1)]`. `_get_company_ids()` and session `user_companies` include every active company so opening a PR from another company does not hit “Access to unauthorized or invalid companies” (Approval Summary compute also uses `sudo().with_company(request.company_id)`). **Commission** and **Tenders** menus are this group only.
-- Only that group may change `zvy_purchase_type` / `zvy_need_commission` / `zvy_operational` (server-side check + readonly views).
-- Commercial Manager: create + read (+ write for M2M on create) on commission cases and tenders; record rule `request_id.company_id in company_ids`. Sees cases/tenders via the PR Commission / Tender tabs only (no Commission or Tenders menu).
+- Group `zvy_purchase.group_commission_manager` (**Commission Manager**). Implies `base.group_user`. Written access on `product.product` so the configuration form can save the purchase attributes. Create/unlink on products stay with product managers. Read/write on `zvy.purchase.commission.case` and `zvy.purchase.tender` (no create/unlink — created via PR buttons by Commercial Managers). Only this group may write `commission_expert_ids` on commission cases. Record rules: all commission cases and tenders in all companies `[(1, '=', 1)]`. Read-only on all purchase requests, items, and offers in all companies `[(1, '=', 1)]` (no Purchase Requests menu — open via commission case or tender). Record rule on `res.company` `[(1, '=', 1)]`. `_get_company_ids()` and session `user_companies` include every active company so opening a PR from another company does not hit “Access to unauthorized or invalid companies” (Approval Summary compute also uses `sudo().with_company(request.company_id)`). **Commission** and **Tenders** menus include this group.
+- Group `zvy_purchase.group_commission_expert` (**Commission Expert**). Implies `base.group_user`. Read-only on commission cases where the user is in `commission_expert_ids`. Read-only on linked purchase requests, items, offers, and tenders on the same request (via the assigned case). Record rule on `res.company` `[(1, '=', 1)]`. Same holding-wide `_get_company_ids` / session treatment as Commission Manager. **Commission** menu (shared with Commission Manager); no Purchase Requests or Tenders menu.
+- Only Commission Manager may change `zvy_purchase_type` / `zvy_need_commission` / `zvy_operational` (server-side check + readonly views).
+- Commercial Manager: create + read (+ write for M2M on create) on commission cases and tenders; record rule `request_id.company_id in company_ids`. Sees cases/tenders via the PR Commission / Tender tabs only (no Commission or Tenders menu). Experts tab on cases is readonly for Commercial Manager.
 - Planner (request creator): read-only on commission cases and tenders for requests they created (`request_id.create_uid = user.id`). No Commission / Tenders menu.
 - AVL CRUD stays with `base.group_user`.
 - Scale / scale rule: read for `base.group_user`; create/write/unlink for Commercial Manager and Settings (`base.group_system`).
@@ -479,7 +482,7 @@ Do not reuse `zvy.purchase.request` from tendering until that question is answer
 15. Assign Expert wizard on In Review requests (Commercial Manager).
 16. Quantity and UoM on purchase items (creator-only edit while Draft).
 17. Back to Draft wizard with mandatory reason logged in chatter (Commercial Manager, In Review).
-18. Purchase item workflow: Draft → Submitted (on request Send) → In Review (when commercial experts assigned) → Selected (when an offer is Selected); Back to Draft resets items to Draft.
+18. Purchase item workflow: Draft → Submitted (on request Send) → In Review (when commercial experts assigned) → Selected (when an offer is Selected, Enquiry) or Tendering (when linked to a tender). Back to Draft resets items to Draft, then re-applies Tendering for items still on a tender.
 19. Offer commercial terms: unit price, quantity (default from item), total/final price, payment method/duration, delivery time, discount rate.
 20. Offer edit/delete limited to the offer creator (Draft or Rejected).
 21. Offers menu (CE: own offers; CM: company offers).
@@ -501,7 +504,11 @@ Do not reuse `zvy.purchase.request` from tendering until that question is answer
 37. Commission Manager `_get_company_ids` + session expose all companies; Approval Summary `sudo().with_company` (module `1.64`) — fixes “Access to unauthorized or invalid companies” when opening a cross-company PR.
 38. Tenders (module `1.65`): `zvy.purchase.tender`; Tender button creates one tender (Tendering items) when every Tendering item has ≥1 Validated offer; one-shot hide; does not change PR state; PR Tender tab + smart button; Tenders menu for Commission Manager (all companies); CM sees tenders via PR tab only.
 39. Request creator (Planner) read access to linked commission cases and tenders (module `1.66`) — fixes AccessError when opening own PR with Commission / Tender tabs.
-40. Stop. Add further states, approvals outcome → PR state, commission calculation, tender envelopes, or PO integration only after `PRD.md` is updated.
+40. Commission Expert assignment (module `1.67`): `group_commission_expert`; `commission_expert_ids` on cases (Commission Manager write-only); Experts tab; Commission menu for Manager + Expert (experts see assigned cases only); holding-wide company session for experts.
+41. Commission case **Assign Experts** wizard for Commission Manager (module `1.68`).
+42. Commission Expert read access to tenders on PRs of assigned commission cases (module `1.69`) — fixes AccessError opening PR from a case when the request has a Tender tab.
+43. Purchase item state **Tendering** when linked to a tender (module `1.70`); statusbar shows Tendering step only for Tendering products (before Selected); migration backfills existing linked items.
+44. Stop. Add further states, approvals outcome → PR state, commission calculation, tender envelopes, or PO integration only after `PRD.md` is updated.
 
 ## 10. Open technical decisions
 

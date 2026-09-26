@@ -18,6 +18,15 @@
         <field name="model">zvy.purchase.commission.case</field>
         <field name="arch" type="xml">
             <form create="0" delete="0">
+                <header>
+                    <button
+                        name="action_assign_commission_experts"
+                        string="Assign Experts"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_assign_commission_experts"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button
@@ -44,6 +53,7 @@
                         </group>
                         <group>
                             <field name="item_count" readonly="1"/>
+                            <field name="can_assign_commission_experts" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -58,6 +68,16 @@
                                     <field name="state" widget="badge"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="Experts" name="experts">
+                            <group>
+                                <field name="can_assign_commission_experts" invisible="1"/>
+                                <field
+                                    name="commission_expert_ids"
+                                    widget="many2many_tags"
+                                    options="{'no_create': True}"
+                                    readonly="not can_assign_commission_experts"/>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
@@ -101,6 +121,6 @@
         action="action_zvy_purchase_commission_case"
         sequence="30"/>
     <record id="menu_zvy_purchase_commission_case" model="ir.ui.menu">
-        <field name="groups_id" eval="[(6, 0, [ref('group_commission_manager')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_commission_manager'), ref('group_commission_expert')])]"/>
     </record>
 </odoo>

@@ -40,6 +40,9 @@ class ZvyPurchaseTender(models.Model):
         for tender in self:
             tender.item_count = len(tender.item_ids)
 
+    def _zvy_sync_item_tendering_state(self):
+        self.mapped("item_ids")._zvy_mark_tendering_if_on_tender()
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -48,7 +51,15 @@ class ZvyPurchaseTender(models.Model):
                     self.env["ir.sequence"].next_by_code("zvy.purchase.tender")
                     or "New"
                 )
-        return super().create(vals_list)
+        tenders = super().create(vals_list)
+        tenders._zvy_sync_item_tendering_state()
+        return tenders
+
+    def write(self, vals):
+        res = super().write(vals)
+        if "item_ids" in vals:
+            self._zvy_sync_item_tendering_state()
+        return res
 
     def action_open_purchase_request(self):
         self.ensure_one()

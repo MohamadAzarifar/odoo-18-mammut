@@ -32,6 +32,7 @@ class ZvyPurchaseBackToDraftWizard(models.TransientModel):
         items = self.request_id.item_ids.with_context(zvy_skip_item_edit_check=True)
         if items:
             items.write({"state": "draft"})
+            items._zvy_mark_tendering_if_on_tender()
         self.request_id._message_log(
             body=_("Sent back to draft. Reason: %s") % reason
         )

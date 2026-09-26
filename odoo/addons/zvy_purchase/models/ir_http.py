@@ -8,7 +8,10 @@ class IrHttp(models.AbstractModel):
     def session_info(self):
         result = super().session_info()
         user = request.env.user
-        if not user.has_group("zvy_purchase.group_commission_manager"):
+        if not (
+            user.has_group("zvy_purchase.group_commission_manager")
+            or user.has_group("zvy_purchase.group_commission_expert")
+        ):
             return result
         user_companies = result.get("user_companies")
         if not user_companies:

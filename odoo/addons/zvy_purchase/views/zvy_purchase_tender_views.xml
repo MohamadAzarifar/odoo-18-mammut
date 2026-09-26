@@ -55,7 +55,7 @@
                                     <field name="purchase_type_display"/>
                                     <field name="product_qty"/>
                                     <field name="product_uom_id"/>
-                                    <field name="state" widget="badge"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'"/>
                                 </list>
                             </field>
                         </page>

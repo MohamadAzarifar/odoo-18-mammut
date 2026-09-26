@@ -127,7 +127,7 @@
                                     <field name="purchase_type_display"/>
                                     <field name="commercial_expert_ids" widget="many2many_tags" optional="show" readonly="1"/>
                                     <field name="offer_count" string="Offers"/>
-                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-primary="state == 'selected'" optional="show"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'" optional="show"/>
                                 </list>
                             </field>
                         </page>
@@ -179,7 +179,7 @@
                 <field name="product_uom_id"/>
                 <field name="purchase_type_display"/>
                 <field name="commercial_expert_ids" widget="many2many_tags" optional="show"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-primary="state == 'selected'"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'"/>
             </list>
         </field>
     </record>
@@ -227,7 +227,16 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
                         invisible="not can_select_offers"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,in_review,selected"/>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,submitted,in_review,selected"
+                        invisible="purchase_type_display == 'tendering'"/>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,submitted,in_review,tendering,selected"
+                        invisible="purchase_type_display != 'tendering'"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -489,7 +498,7 @@
         <field name="name">Purchase</field>
         <field name="sequence">140</field>
         <field name="action" eval="False"/>
-        <field name="groups_id" eval="[(4, ref('group_planner')), (4, ref('group_commercial_manager')), (4, ref('group_commercial_expert')), (4, ref('group_commission_manager'))]"/>
+        <field name="groups_id" eval="[(4, ref('group_planner')), (4, ref('group_commercial_manager')), (4, ref('group_commercial_expert')), (4, ref('group_commission_manager')), (4, ref('group_commission_expert'))]"/>
     </record>
 
     <menuitem
