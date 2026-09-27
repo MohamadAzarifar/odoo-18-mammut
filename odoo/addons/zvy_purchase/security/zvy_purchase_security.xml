@@ -87,9 +87,9 @@
     </record>
 
     <record id="rule_zvy_purchase_request_commission_expert" model="ir.rule">
-        <field name="name">Purchase Request: Commission Expert assigned case</field>
+        <field name="name">Purchase Request: Commission Expert assigned case or tender</field>
         <field name="model_id" ref="model_zvy_purchase_request"/>
-        <field name="domain_force">[('commission_case_ids.commission_expert_ids', 'in', user.id)]</field>
+        <field name="domain_force">['|', ('commission_case_ids.commission_expert_ids', 'in', user.id), ('tender_ids.commission_expert_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -162,9 +162,9 @@
     </record>
 
     <record id="rule_zvy_purchase_item_commission_expert" model="ir.rule">
-        <field name="name">Purchase Item: Commission Expert assigned case</field>
+        <field name="name">Purchase Item: Commission Expert assigned case or tender</field>
         <field name="model_id" ref="model_zvy_purchase_item"/>
-        <field name="domain_force">[('request_id.commission_case_ids.commission_expert_ids', 'in', user.id)]</field>
+        <field name="domain_force">['|', ('request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -214,9 +214,9 @@
     </record>
 
     <record id="rule_zvy_purchase_offer_commission_expert" model="ir.rule">
-        <field name="name">Offer: Commission Expert assigned case</field>
+        <field name="name">Offer: Commission Expert assigned case or tender</field>
         <field name="model_id" ref="model_zvy_purchase_offer"/>
-        <field name="domain_force">[('item_id.request_id.commission_case_ids.commission_expert_ids', 'in', user.id)]</field>
+        <field name="domain_force">['|', ('item_id.request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('item_id.request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -284,11 +284,40 @@
     </record>
 
     <record id="rule_zvy_purchase_tender_commission_expert" model="ir.rule">
-        <field name="name">Tender: Commission Expert assigned case on request</field>
+        <field name="name">Tender: Commission Expert assigned tender or case on request</field>
         <field name="model_id" ref="model_zvy_purchase_tender"/>
-        <field name="domain_force">[('request_id.commission_case_ids.commission_expert_ids', 'in', user.id)]</field>
+        <field name="domain_force">['|', ('commission_expert_id', '=', user.id), ('request_id.commission_case_ids.commission_expert_ids', 'in', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Portal: published tenders / items / validated or bid offers for the vendor -->
+    <record id="rule_zvy_purchase_tender_portal" model="ir.rule">
+        <field name="name">Tender: Portal vendor published with validated or bid offer</field>
+        <field name="model_id" ref="model_zvy_purchase_tender"/>
+        <field name="domain_force">[('state', '=', 'published'), ('item_ids.offer_ids', 'any', [('state', 'in', ['validated', 'bid']), ('vendor_id', 'child_of', [user.commercial_partner_id.id])])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
         <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_zvy_purchase_item_portal" model="ir.rule">
+        <field name="name">Item: Portal vendor on published tender</field>
+        <field name="model_id" ref="model_zvy_purchase_item"/>
+        <field name="domain_force">[('tender_ids.state', '=', 'published'), ('offer_ids', 'any', [('state', 'in', ['validated', 'bid']), ('vendor_id', 'child_of', [user.commercial_partner_id.id])])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_zvy_purchase_offer_portal" model="ir.rule">
+        <field name="name">Offer: Portal vendor validated or bid on published tender</field>
+        <field name="model_id" ref="model_zvy_purchase_offer"/>
+        <field name="domain_force">[('state', 'in', ['validated', 'bid']), ('vendor_id', 'child_of', [user.commercial_partner_id.id]), ('item_id.tender_ids.state', '=', 'published')]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>

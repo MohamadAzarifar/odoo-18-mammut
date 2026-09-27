@@ -21,7 +21,7 @@
                 <header>
                     <button
                         name="action_assign_commission_experts"
-                        string="Assign Experts"
+                        string="Assign"
                         type="object"
                         class="oe_highlight"
                         groups="zvy_purchase.group_commission_manager"

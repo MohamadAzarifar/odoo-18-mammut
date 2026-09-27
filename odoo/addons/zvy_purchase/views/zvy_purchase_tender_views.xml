@@ -8,7 +8,10 @@
                 <field name="name"/>
                 <field name="request_id"/>
                 <field name="company_id"/>
+                <field name="commission_expert_id"/>
+                <field name="end_date"/>
                 <field name="item_count" string="Items"/>
+                <field name="state" widget="badge" decoration-warning="state == 'in_review'" decoration-info="state == 'assigned'" decoration-primary="state == 'scheduled'" decoration-success="state == 'published'" decoration-muted="state == 'opened'"/>
             </list>
         </field>
     </record>
@@ -18,6 +21,37 @@
         <field name="model">zvy.purchase.tender</field>
         <field name="arch" type="xml">
             <form create="0" delete="0">
+                <header>
+                    <button
+                        name="action_assign_commission_expert"
+                        string="Assign"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_assign_commission_expert"/>
+                    <button
+                        name="action_schedule"
+                        string="Schedule"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_expert"
+                        invisible="not can_schedule"/>
+                    <button
+                        name="action_publish"
+                        string="Publish"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_expert"
+                        invisible="not can_publish"/>
+                    <button
+                        name="action_open"
+                        string="Open"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_open"/>
+                    <field name="state" widget="statusbar" statusbar_visible="in_review,assigned,scheduled,published,opened"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button
@@ -41,9 +75,15 @@
                         <group>
                             <field name="request_id" readonly="1"/>
                             <field name="company_id" readonly="1"/>
+                            <field name="commission_expert_id" readonly="1"/>
+                            <field name="end_date" readonly="1"/>
                         </group>
                         <group>
                             <field name="item_count" readonly="1"/>
+                            <field name="can_assign_commission_expert" invisible="1"/>
+                            <field name="can_schedule" invisible="1"/>
+                            <field name="can_publish" invisible="1"/>
+                            <field name="can_open" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -74,6 +114,16 @@
                 <field name="name"/>
                 <field name="request_id"/>
                 <field name="company_id"/>
+                <field name="commission_expert_id"/>
+                <filter name="filter_in_review" string="In Review" domain="[('state', '=', 'in_review')]"/>
+                <filter name="filter_assigned" string="Assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter name="filter_scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="filter_published" string="Published" domain="[('state', '=', 'published')]"/>
+                <filter name="filter_opened" string="Opened" domain="[('state', '=', 'opened')]"/>
+                <group>
+                    <filter name="groupby_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="groupby_commission_expert" string="Commission Expert" context="{'group_by': 'commission_expert_id'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -94,6 +144,23 @@
         </field>
     </record>
 
+    <record id="action_zvy_purchase_tender_expert" model="ir.actions.act_window">
+        <field name="name">Tenders</field>
+        <field name="res_model">zvy.purchase.tender</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('commission_expert_id', '=', uid)]</field>
+        <field name="context">{'create': False}</field>
+        <field name="search_view_id" ref="view_zvy_purchase_tender_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tenders assigned to you yet
+            </p>
+            <p>
+                Tenders assigned to you by a Commission Manager appear here.
+            </p>
+        </field>
+    </record>
+
     <menuitem
         id="menu_zvy_purchase_tender"
         name="Tenders"
@@ -102,5 +169,15 @@
         sequence="35"/>
     <record id="menu_zvy_purchase_tender" model="ir.ui.menu">
         <field name="groups_id" eval="[(6, 0, [ref('group_commission_manager')])]"/>
+    </record>
+
+    <menuitem
+        id="menu_zvy_purchase_tender_expert"
+        name="Tenders"
+        parent="menu_zvy_purchase_root"
+        action="action_zvy_purchase_tender_expert"
+        sequence="35"/>
+    <record id="menu_zvy_purchase_tender_expert" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('group_commission_expert')])]"/>
     </record>
 </odoo>

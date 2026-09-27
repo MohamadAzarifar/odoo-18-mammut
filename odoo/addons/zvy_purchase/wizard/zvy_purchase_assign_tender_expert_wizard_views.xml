@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_zvy_purchase_assign_commission_expert_wizard_form" model="ir.ui.view">
-        <field name="name">zvy.purchase.assign.commission.expert.wizard.form</field>
-        <field name="model">zvy.purchase.assign.commission.expert.wizard</field>
+    <record id="view_zvy_purchase_assign_tender_expert_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.assign.tender.expert.wizard.form</field>
+        <field name="model">zvy.purchase.assign.tender.expert.wizard</field>
         <field name="arch" type="xml">
             <form string="Assign">
                 <group>
-                    <field name="case_id"/>
+                    <field name="tender_id"/>
                     <field
-                        name="commission_expert_ids"
-                        widget="many2many_tags"
+                        name="commission_expert_id"
                         options="{'no_create': True, 'no_create_edit': True}"/>
                 </group>
                 <footer>

@@ -280,17 +280,18 @@
                                     <field name="name"/>
                                     <field name="create_uid" string="Creator" optional="show"/>
                                     <field name="can_edit" column_invisible="1"/>
+                                    <field name="show_commercial_fields" column_invisible="1"/>
                                     <field name="vendor_id" readonly="not can_edit"/>
                                     <field name="currency_id" column_invisible="1"/>
-                                    <field name="unit_price" readonly="not can_edit"/>
-                                    <field name="quantity" readonly="not can_edit"/>
-                                    <field name="total_price"/>
-                                    <field name="discount_percent_per_unit" readonly="not can_edit"/>
-                                    <field name="final_price"/>
-                                    <field name="deliver_time" optional="hide" readonly="not can_edit"/>
-                                    <field name="payment_method" optional="hide" readonly="not can_edit"/>
-                                    <field name="payment_duration" optional="hide" readonly="not can_edit"/>
-                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'" decoration-success="state == 'validated'" decoration-primary="state == 'selected'" decoration-danger="state == 'rejected'" decoration-muted="state == 'closed'" optional="show"/>
+                                    <field name="unit_price" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="quantity" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="total_price" invisible="not show_commercial_fields"/>
+                                    <field name="discount_percent_per_unit" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="final_price" invisible="not show_commercial_fields"/>
+                                    <field name="deliver_time" optional="hide" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="payment_method" optional="hide" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="payment_duration" optional="hide" readonly="not can_edit" invisible="not show_commercial_fields"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'" decoration-success="state == 'validated'" decoration-primary="state in ('selected', 'opened')" decoration-danger="state == 'rejected'" decoration-muted="state in ('closed', 'bid')" optional="show"/>
                                 </list>
                             </field>
                         </page>
@@ -311,16 +312,17 @@
                 <field name="product_id"/>
                 <field name="create_uid" string="Creator" optional="show"/>
                 <field name="vendor_id"/>
+                <field name="show_commercial_fields" column_invisible="1"/>
                 <field name="currency_id" column_invisible="1"/>
-                <field name="unit_price"/>
-                <field name="quantity"/>
-                <field name="total_price"/>
-                <field name="discount_percent_per_unit" optional="hide"/>
-                <field name="final_price"/>
-                <field name="deliver_time" optional="hide"/>
-                <field name="payment_method" optional="hide"/>
-                <field name="payment_duration" optional="hide"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'" decoration-success="state == 'validated'" decoration-primary="state == 'selected'" decoration-danger="state == 'rejected'" decoration-muted="state == 'closed'"/>
+                <field name="unit_price" invisible="not show_commercial_fields"/>
+                <field name="quantity" invisible="not show_commercial_fields"/>
+                <field name="total_price" invisible="not show_commercial_fields"/>
+                <field name="discount_percent_per_unit" optional="hide" invisible="not show_commercial_fields"/>
+                <field name="final_price" invisible="not show_commercial_fields"/>
+                <field name="deliver_time" optional="hide" invisible="not show_commercial_fields"/>
+                <field name="payment_method" optional="hide" invisible="not show_commercial_fields"/>
+                <field name="payment_duration" optional="hide" invisible="not show_commercial_fields"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'in_review'" decoration-success="state == 'validated'" decoration-primary="state in ('selected', 'opened')" decoration-danger="state == 'rejected'" decoration-muted="state in ('closed', 'bid')"/>
             </list>
         </field>
     </record>
@@ -338,6 +340,8 @@
                 <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="filter_in_review" string="In Review" domain="[('state', '=', 'in_review')]"/>
                 <filter name="filter_validated" string="Validated" domain="[('state', '=', 'validated')]"/>
+                <filter name="filter_bid" string="Bid" domain="[('state', '=', 'bid')]"/>
+                <filter name="filter_opened" string="Opened" domain="[('state', '=', 'opened')]"/>
                 <filter name="filter_selected" string="Selected" domain="[('state', '=', 'selected')]"/>
                 <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
                 <filter name="filter_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
@@ -379,8 +383,9 @@
                         invisible="not can_select_offers"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated,selected" invisible="state != 'selected'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated,closed" invisible="state != 'closed'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated,bid,opened" invisible="state not in ('bid', 'opened')"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated" invisible="state != 'validated'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated,rejected" invisible="state in ('validated', 'selected', 'closed')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_review,validated,rejected" invisible="state in ('validated', 'selected', 'closed', 'bid', 'opened')"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -394,6 +399,7 @@
                             <field name="can_edit" invisible="1"/>
                             <field name="can_submit" invisible="1"/>
                             <field name="can_select_offers" invisible="1"/>
+                            <field name="show_commercial_fields" invisible="1"/>
                             <field name="item_id" readonly="1" force_save="1"/>
                             <field name="product_id" readonly="1" string="Product"/>
                             <field name="create_uid" string="Creator" readonly="1"/>
@@ -403,7 +409,7 @@
                                 readonly="not can_edit"
                                 context="{'default_is_company': True, 'zvy_avl_product_id': product_id}"/>
                         </group>
-                        <group>
+                        <group invisible="not show_commercial_fields">
                             <field name="currency_id" invisible="1"/>
                             <field name="unit_price" readonly="not can_edit"/>
                             <field name="quantity" readonly="not can_edit"/>
@@ -415,7 +421,7 @@
                             <field name="final_price"/>
                         </group>
                     </group>
-                    <group string="Payment &amp; Delivery">
+                    <group string="Payment &amp; Delivery" invisible="not show_commercial_fields">
                         <group>
                             <field name="payment_method" readonly="not can_edit"/>
                             <field name="payment_duration" readonly="not can_edit"/>

@@ -106,7 +106,7 @@ class ZvyPurchaseCommissionCase(models.Model):
         )
         return {
             "type": "ir.actions.act_window",
-            "name": _("Assign Experts"),
+            "name": _("Assign"),
             "res_model": "zvy.purchase.assign.commission.expert.wizard",
             "res_id": wizard.id,
             "view_mode": "form",

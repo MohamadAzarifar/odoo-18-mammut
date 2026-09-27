@@ -22,6 +22,8 @@ access_product_product_commission_manager,product.product.commission.manager,pro
 access_zvy_purchase_assign_expert_wizard_cm,zvy.purchase.assign.expert.wizard.cm,model_zvy_purchase_assign_expert_wizard,group_commercial_manager,1,1,1,1
 access_zvy_purchase_assign_expert_wizard_line_cm,zvy.purchase.assign.expert.wizard.line.cm,model_zvy_purchase_assign_expert_wizard_line,group_commercial_manager,1,1,1,1
 access_zvy_purchase_assign_commission_expert_wizard_cm,zvy.purchase.assign.commission.expert.wizard.cm,model_zvy_purchase_assign_commission_expert_wizard,group_commission_manager,1,1,1,1
+access_zvy_purchase_assign_tender_expert_wizard_cm,zvy.purchase.assign.tender.expert.wizard.cm,model_zvy_purchase_assign_tender_expert_wizard,group_commission_manager,1,1,1,1
+access_zvy_purchase_schedule_tender_wizard_ce,zvy.purchase.schedule.tender.wizard.ce,model_zvy_purchase_schedule_tender_wizard,group_commission_expert,1,1,1,1
 access_zvy_purchase_back_to_draft_wizard_cm,zvy.purchase.back.to.draft.wizard.cm,model_zvy_purchase_back_to_draft_wizard,group_commercial_manager,1,1,1,1
 access_zvy_purchase_offer_reject_wizard_cm,zvy.purchase.offer.reject.wizard.cm,model_zvy_purchase_offer_reject_wizard,group_commercial_manager,1,1,1,1
 access_zvy_purchase_offer_select_wizard_cm,zvy.purchase.offer.select.wizard.cm,model_zvy_purchase_offer_select_wizard,group_commercial_manager,1,1,1,1
@@ -39,4 +41,9 @@ access_zvy_purchase_commission_case_commission_expert,zvy.purchase.commission.ca
 access_zvy_purchase_tender_commercial_manager,zvy.purchase.tender.commercial.manager,model_zvy_purchase_tender,group_commercial_manager,1,1,1,0
 access_zvy_purchase_tender_commission_manager,zvy.purchase.tender.commission.manager,model_zvy_purchase_tender,group_commission_manager,1,1,0,0
 access_zvy_purchase_tender_planner,zvy.purchase.tender.planner,model_zvy_purchase_tender,group_planner,1,0,0,0
-access_zvy_purchase_tender_commission_expert,zvy.purchase.tender.commission.expert,model_zvy_purchase_tender,group_commission_expert,1,0,0,0
+access_zvy_purchase_tender_commission_expert,zvy.purchase.tender.commission.expert,model_zvy_purchase_tender,group_commission_expert,1,1,0,0
+access_zvy_purchase_tender_portal,zvy.purchase.tender.portal,model_zvy_purchase_tender,base.group_portal,1,0,0,0
+access_zvy_purchase_item_portal,zvy.purchase.item.portal,model_zvy_purchase_item,base.group_portal,1,0,0,0
+access_zvy_purchase_offer_portal,zvy.purchase.offer.portal,model_zvy_purchase_offer,base.group_portal,1,1,0,0
+access_product_product_portal,product.product.portal,product.model_product_product,base.group_portal,1,0,0,0
+access_uom_uom_portal,uom.uom.portal,uom.model_uom_uom,base.group_portal,1,0,0,0

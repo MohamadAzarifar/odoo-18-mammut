@@ -272,7 +272,7 @@ it shows list of assigned commision experts to commission case.
 
 experts has access to commision menu item and sees only cases which assigned to them.
 
-also show an action button in commission case for commission manager to show a wizard for assign experts.
+also show an action button in commission case for commission manager to show a wizard for assign experts labeled Assign.
 
 ---
 
@@ -281,3 +281,33 @@ if a tendering purchase item is in a related tendering record, the status of pur
 only show tendering status in purchase item for tendering products. for enquiry products do not show tendering step.
 
 show the tendering step in statusbar before selected step.
+
+---
+
+a new tender record has status of In Review.
+
+an In Review tender record should be assigned to a commission expert by commission manager. (only one)
+
+when tender record is In Review, show an action button to commission manager labeled Assign, by clicking this button show a wizard to select commission expert by commission manager. after commission expert selected, change the status of tender to Assigned and show the name of commission expert in the tender.
+
+commission expert also has access to tender menu item, but only sees assigned tenders to them (not all tenders)
+
+---
+
+a tender record should have an attribute called End Date (datetime).
+when an tender record is in assigned status, show an action button labeled Schedule to assigned commission exprt.
+by clicking this button, show a wizard to select End Date.
+change status of tender to Scheduled.
+when tender status is Scheduled, show an action button only for assigned commission expert labeled Publish.
+
+---
+
+by clicking Publish by commission expert, show tenders purchase items to offer's vendors (Validated offers) in Portal (website).
+
+when offer sent by vendor, change the status of the offer to Bid.
+attributes of offer should be hidden for every roles when status of offer is Bid (only visible to vendor).
+vendor can edit offer until status of tender record is Published.
+keep editting until End Date or commision manager clicks Open action button.
+Open action button is only visible for commission manager when tender status is Published.
+after End Date or Open button clicked, prevent editting offers.
+by clicking Open, also show attributes of offers. also change status of offer and status of tender to Opened.

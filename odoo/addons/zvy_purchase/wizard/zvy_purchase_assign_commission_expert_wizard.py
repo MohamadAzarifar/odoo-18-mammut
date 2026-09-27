@@ -4,7 +4,7 @@ from odoo.exceptions import AccessError
 
 class ZvyPurchaseAssignCommissionExpertWizard(models.TransientModel):
     _name = "zvy.purchase.assign.commission.expert.wizard"
-    _description = "Assign Commission Experts"
+    _description = "Assign"
 
     case_id = fields.Many2one(
         comodel_name="zvy.purchase.commission.case",

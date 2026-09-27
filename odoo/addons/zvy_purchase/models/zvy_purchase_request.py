@@ -25,6 +25,10 @@ class ZvyPurchaseMailMixin(models.AbstractModel):
             return dict(field._description_selection(self.env)).get(value, value or "-")
         return value if value or value is False or value == 0 else "-"
 
+    def _zvy_parent_log_track_fnames(self, changes):
+        """Field names to include when mirroring track changes onto parent chatters."""
+        return list(changes)
+
     def _message_track(self, fields_iter, initial_values_dict):
         tracking = super()._message_track(fields_iter, initial_values_dict)
         if self.env.context.get("zvy_skip_parent_log"):
@@ -36,18 +40,28 @@ class ZvyPurchaseMailMixin(models.AbstractModel):
             request = record._zvy_mail_request()
             if not request or request == record:
                 continue
-            parts = []
+            log_fnames = record._zvy_parent_log_track_fnames(changes)
             initial = initial_values_dict.get(record.id) or {}
-            for fname in changes:
+            parts = []
+            for fname in log_fnames:
                 field = record._fields[fname]
                 old = record._zvy_format_track_value(field, initial.get(fname))
                 new = record._zvy_format_track_value(field, record[fname])
                 parts.append(f"{field.string}: {old} → {new}")
-            body = _(
-                "%(record)s: %(changes)s",
-                record=record.display_name,
-                changes="; ".join(parts),
-            )
+            if not parts:
+                if set(changes) - set(log_fnames):
+                    body = _(
+                        "%(record)s: Bid updated.",
+                        record=record.display_name,
+                    )
+                else:
+                    continue
+            else:
+                body = _(
+                    "%(record)s: %(changes)s",
+                    record=record.display_name,
+                    changes="; ".join(parts),
+                )
             request.with_context(zvy_skip_parent_log=True)._message_log(body=body)
             item = record.item_id if "item_id" in record._fields else False
             if item:
@@ -773,6 +787,13 @@ class ZvyPurchaseItem(models.Model):
         inverse_name="item_id",
         string="Offers",
     )
+    tender_ids = fields.Many2many(
+        comodel_name="zvy.purchase.tender",
+        relation="zvy_purchase_tender_item_rel",
+        column1="item_id",
+        column2="tender_id",
+        string="Tenders",
+    )
     offer_count = fields.Integer(
         string="Offers",
         compute="_compute_offer_count",
@@ -1288,12 +1309,24 @@ class ZvyPurchaseOffer(models.Model):
     )
     # Locked: in_review / validated / selected / closed. Editable: draft / rejected.
     _EDITABLE_STATES = ("draft", "rejected")
+    _PORTAL_BID_FIELDS = frozenset(
+        {
+            "unit_price",
+            "quantity",
+            "payment_method",
+            "payment_duration",
+            "deliver_time",
+            "discount_percent_per_unit",
+        }
+    )
 
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
             ("in_review", "In Review"),
             ("validated", "Validated"),
+            ("bid", "Bid"),
+            ("opened", "Opened"),
             ("selected", "Selected"),
             ("rejected", "Rejected"),
             ("closed", "Closed"),
@@ -1318,6 +1351,9 @@ class ZvyPurchaseOffer(models.Model):
     )
     can_select_offers = fields.Boolean(
         compute="_compute_can_select_offers",
+    )
+    show_commercial_fields = fields.Boolean(
+        compute="_compute_show_commercial_fields",
     )
 
     @api.model
@@ -1352,6 +1388,33 @@ class ZvyPurchaseOffer(models.Model):
                 and (not offer.create_uid or offer.create_uid == self.env.user)
             )
 
+    @api.depends("state")
+    @api.depends_context("uid")
+    def _compute_show_commercial_fields(self):
+        """Hide Bid commercial terms from internal users; portal vendors see them."""
+        is_portal = self.env.user.share
+        for offer in self:
+            if offer.state != "bid":
+                offer.show_commercial_fields = True
+            else:
+                offer.show_commercial_fields = bool(is_portal)
+
+    def _zvy_parent_log_track_fnames(self, changes):
+        """Omit sealed Bid commercial fields from item/request chatter summaries."""
+        if self.state == "bid":
+            return [fname for fname in changes if fname not in self._PORTAL_BID_FIELDS]
+        return super()._zvy_parent_log_track_fnames(changes)
+
+    def _track_filter_for_display(self, tracking_values):
+        """Hide sealed Bid commercial trackings from internal users in offer chatter."""
+        values = super()._track_filter_for_display(tracking_values)
+        if self.show_commercial_fields:
+            return values
+        sealed = self._PORTAL_BID_FIELDS
+        return values.filtered(
+            lambda track: not track.field_id or track.field_id.name not in sealed
+        )
+
     @api.depends("state", "create_uid", "item_state", "request_state")
     @api.depends_context("uid")
     def _compute_can_submit(self):
@@ -1383,21 +1446,67 @@ class ZvyPurchaseOffer(models.Model):
             )
 
     def _zvy_check_can_edit(self):
-        """Draft/Rejected: creator only. In Review/Validated/Selected/Closed: read-only."""
+        """Draft/Rejected: creator only. Other states (incl. Bid/Opened): read-only."""
         if self.env.su or self.env.context.get("zvy_skip_offer_edit_check"):
             return
         for offer in self:
             if offer.state not in self._EDITABLE_STATES:
                 raise AccessError(
                     _(
-                        "In Review, Validated, Selected, or Closed offers "
-                        "cannot be modified or deleted."
+                        "In Review, Validated, Bid, Opened, Selected, or Closed "
+                        "offers cannot be modified or deleted."
                     )
                 )
             if offer.create_uid and offer.create_uid != self.env.user:
                 raise AccessError(
                     _("Only the creator of an offer can modify or delete it.")
                 )
+
+    def _zvy_portal_published_tender(self):
+        """Return the published tender covering this offer's item, if any."""
+        self.ensure_one()
+        return self.item_id.tender_ids.filtered(lambda t: t.state == "published")[:1]
+
+    def _zvy_check_can_portal_bid(self):
+        """Portal vendor may update commercial fields on Validated/Bid offers
+        while the covering tender is published and bidding is open.
+        """
+        if self.env.su:
+            return
+        commercial = self.env.user.partner_id.commercial_partner_id
+        for offer in self:
+            if offer.state not in ("validated", "bid"):
+                raise UserError(
+                    _("Only Validated or Bid offers can be updated from the portal.")
+                )
+            if offer.vendor_id.commercial_partner_id != commercial:
+                raise AccessError(
+                    _("You can only update offers for your vendor.")
+                )
+            tender = offer._zvy_portal_published_tender()
+            if not tender:
+                raise AccessError(
+                    _("This offer is not on a published tender.")
+                )
+            if not tender._zvy_portal_bidding_open():
+                raise UserError(
+                    _("Bidding is closed for this tender.")
+                )
+
+    def _zvy_portal_update_bid(self, vals):
+        """Update commercial terms from the vendor portal; Validated → Bid."""
+        self.ensure_one()
+        self._zvy_check_can_portal_bid()
+        allowed = {
+            key: vals[key]
+            for key in self._PORTAL_BID_FIELDS
+            if key in vals
+        }
+        if self.state == "validated":
+            allowed["state"] = "bid"
+        if not allowed:
+            return True
+        return self.with_context(zvy_skip_offer_edit_check=True).write(allowed)
 
     def action_submit(self):
         self.ensure_one()

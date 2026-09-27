@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_menu_tender" name="Portal layout : tenders menu" inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'tender'" t-attf-class="breadcrumb-item #{'active ' if not tender else ''}">
+                <a t-if="tender" t-attf-href="/my/tenders?{{ keep_query() }}">Tenders</a>
+                <t t-else="">Tenders</t>
+            </li>
+            <li t-if="tender" class="breadcrumb-item active">
+                <t t-esc="tender.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_tender" name="Tenders" customize_show="True" inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_vendor_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_vendor_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/folder.svg'"/>
+                <t t-set="text">View published tenders and submit your bids</t>
+                <t t-set="title">Tenders</t>
+                <t t-set="url" t-value="'/my/tenders'"/>
+                <t t-set="placeholder_count" t-value="'tender_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_tenders" name="My Tenders">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Tenders</t>
+            </t>
+            <t t-if="not tenders">
+                <p class="alert alert-warning">There are currently no published tenders for your account.</p>
+            </t>
+            <t t-if="tenders" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Tender</th>
+                        <th>Purchase Request</th>
+                        <th class="text-end">End Date</th>
+                        <th class="text-end">Items</th>
+                    </tr>
+                </thead>
+                <t t-foreach="tenders" t-as="tender">
+                    <tr>
+                        <td>
+                            <a t-attf-href="/my/tenders/#{tender.id}">
+                                <t t-esc="tender.name"/>
+                            </a>
+                        </td>
+                        <td>
+                            <span t-field="tender.request_id"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="tender.end_date"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-esc="tender.item_count"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_tender" name="Tender">
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="zvy_purchase.group_commission_manager">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url" t-value="'/odoo/zvy.purchase.tender/%s' % tender.id"/>
+                </t>
+            </t>
+
+            <div class="container py-3">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h3 t-field="tender.name"/>
+                        <p class="mb-1">
+                            <strong>Purchase Request:</strong>
+                            <span t-field="tender.request_id"/>
+                        </p>
+                        <p class="mb-1">
+                            <strong>End Date:</strong>
+                            <span t-field="tender.end_date"/>
+                        </p>
+                        <p t-if="bidding_open" class="text-success mb-0">Bidding is open. Update your offer details below.</p>
+                        <p t-else="" class="text-muted mb-0">Bidding is closed for this tender.</p>
+                    </div>
+                </div>
+
+                <div t-if="success" class="alert alert-success" role="alert">
+                    Your offer has been updated.
+                </div>
+                <div t-if="error" class="alert alert-danger" role="alert">
+                    Your offer could not be updated. Please check the values and try again.
+                </div>
+
+                <t t-if="not offers">
+                    <p class="alert alert-warning">No validated offers for your vendor on this tender.</p>
+                </t>
+
+                <t t-foreach="offers" t-as="offer">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong t-field="offer.name"/>
+                                <span class="text-muted ms-2" t-field="offer.product_id"/>
+                            </div>
+                            <span t-if="offer.state == 'bid'" class="badge text-bg-secondary">Bid</span>
+                            <span t-else="" class="badge text-bg-success">Validated</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-3">
+                                <strong>Item:</strong>
+                                <span t-field="offer.item_id"/>
+                                —
+                                Qty requested:
+                                <span t-field="offer.item_id.product_qty"/>
+                                <span t-field="offer.item_id.product_uom_id"/>
+                            </p>
+                            <form
+                                t-attf-action="/my/tenders/#{tender.id}/offer/#{offer.id}"
+                                method="post"
+                                class="o_portal_tender_offer_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="unit_price_#{offer.id}">Unit Price</label>
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            class="form-control"
+                                            t-attf-id="unit_price_#{offer.id}"
+                                            name="unit_price"
+                                            t-att-value="offer.unit_price"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="quantity_#{offer.id}">Quantity</label>
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            class="form-control"
+                                            t-attf-id="quantity_#{offer.id}"
+                                            name="quantity"
+                                            t-att-value="offer.quantity"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="discount_#{offer.id}">Discount % / Unit</label>
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            class="form-control"
+                                            t-attf-id="discount_#{offer.id}"
+                                            name="discount_percent_per_unit"
+                                            t-att-value="offer.discount_percent_per_unit"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="payment_method_#{offer.id}">Payment Method</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            t-attf-id="payment_method_#{offer.id}"
+                                            name="payment_method"
+                                            t-att-value="offer.payment_method or ''"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="payment_duration_#{offer.id}">Payment Duration</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            t-attf-id="payment_duration_#{offer.id}"
+                                            name="payment_duration"
+                                            t-att-value="offer.payment_duration or ''"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" t-attf-for="deliver_time_#{offer.id}">Delivery Time</label>
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            t-attf-id="deliver_time_#{offer.id}"
+                                            name="deliver_time"
+                                            t-att-value="offer.deliver_time"
+                                            t-att-readonly="None if bidding_open else 'readonly'"
+                                            t-att-disabled="None if bidding_open else 'disabled'"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-0 text-muted">
+                                            Total:
+                                            <span t-field="offer.total_price"/>
+                                            —
+                                            Final:
+                                            <span t-field="offer.final_price"/>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6 text-end" t-if="bidding_open">
+                                        <button type="submit" class="btn btn-primary">
+                                            Update Offer
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>
