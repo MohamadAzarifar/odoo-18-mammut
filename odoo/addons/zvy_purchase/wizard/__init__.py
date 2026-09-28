@@ -6,3 +6,6 @@ from . import zvy_purchase_back_to_draft_wizard
 from . import zvy_purchase_offer_reject_wizard
 from . import zvy_purchase_offer_select_wizard
 from . import zvy_purchase_offer_select_reason_wizard
+from . import zvy_purchase_tender_select_wizard
+from . import zvy_purchase_order_create_wizard
+from . import zvy_purchase_commission_case_status_wizard

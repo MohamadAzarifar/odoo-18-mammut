@@ -46,6 +46,13 @@
                         groups="zvy_purchase.group_commercial_manager"
                         invisible="state != 'in_review' or not all_enquiry_items_selected"/>
                     <button
+                        name="action_tender_approval"
+                        string="Approval"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="not show_tender_approval_button or (state == 'in_review' and all_enquiry_items_selected)"/>
+                    <button
                         name="action_commission"
                         string="Commission"
                         type="object"
@@ -59,6 +66,13 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commercial_manager"
                         invisible="not show_tender_button"/>
+                    <button
+                        name="action_create_purchase_order"
+                        string="Create Purchase Order"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commercial_manager"
+                        invisible="not show_create_purchase_order_button"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_review,approval,commission"/>
                 </header>
                 <sheet>
@@ -87,6 +101,14 @@
                             invisible="tender_count == 0">
                             <field name="tender_count" widget="statinfo" string="Tenders"/>
                         </button>
+                        <button
+                            name="action_view_purchase_orders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            invisible="purchase_order_count == 0">
+                            <field name="purchase_order_count" widget="statinfo" string="Purchase Orders"/>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
@@ -99,8 +121,10 @@
                         <field name="create_uid" string="Creator" readonly="1"/>
                         <field name="can_edit_items" invisible="1"/>
                         <field name="all_enquiry_items_selected" invisible="1"/>
+                        <field name="show_tender_approval_button" invisible="1"/>
                         <field name="show_commission_button" invisible="1"/>
                         <field name="show_tender_button" invisible="1"/>
+                        <field name="show_create_purchase_order_button" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                     <group
@@ -127,7 +151,7 @@
                                     <field name="purchase_type_display"/>
                                     <field name="commercial_expert_ids" widget="many2many_tags" optional="show" readonly="1"/>
                                     <field name="offer_count" string="Offers"/>
-                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'" optional="show"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'" decoration-danger="state == 'ordered'" optional="show"/>
                                 </list>
                             </field>
                         </page>
@@ -147,12 +171,22 @@
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>
                                     <field name="company_id"/>
+                                    <field name="state" widget="badge"/>
                                     <field name="item_count" string="Items"/>
                                 </list>
                             </field>
                         </page>
                         <page string="Tender" name="tender">
                             <field name="tender_ids" readonly="1" create="0" delete="0">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="company_id"/>
+                                    <field name="item_count" string="Items"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Purchase Orders" name="purchase_orders">
+                            <field name="purchase_order_ids" readonly="1" create="0" delete="0">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>
                                     <field name="company_id"/>
@@ -179,7 +213,7 @@
                 <field name="product_uom_id"/>
                 <field name="purchase_type_display"/>
                 <field name="commercial_expert_ids" widget="many2many_tags" optional="show"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'" decoration-danger="state == 'ordered'"/>
             </list>
         </field>
     </record>
@@ -235,7 +269,7 @@
                     <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="draft,submitted,in_review,tendering,selected"
+                        statusbar_visible="draft,submitted,in_review,tendering,selected,ordered"
                         invisible="purchase_type_display != 'tendering'"/>
                 </header>
                 <sheet>

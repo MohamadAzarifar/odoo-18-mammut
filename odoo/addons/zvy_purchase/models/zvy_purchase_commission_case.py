@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 
 
 class ZvyPurchaseCommissionCase(models.Model):
@@ -25,6 +25,18 @@ class ZvyPurchaseCommissionCase(models.Model):
         store=True,
         readonly=True,
         index=True,
+    )
+    state = fields.Selection(
+        selection=[
+            ("in_review", "In Review"),
+            ("rejected", "Reject"),
+            ("approved", "Approve"),
+            ("correction", "Correction"),
+        ],
+        default="in_review",
+        required=True,
+        tracking=True,
+        copy=False,
     )
     item_ids = fields.Many2many(
         comodel_name="zvy.purchase.item",
@@ -54,19 +66,36 @@ class ZvyPurchaseCommissionCase(models.Model):
     can_assign_commission_experts = fields.Boolean(
         compute="_compute_can_assign_commission_experts",
     )
+    can_change_commission_case_status = fields.Boolean(
+        compute="_compute_can_change_commission_case_status",
+    )
 
     @api.depends("item_ids")
     def _compute_item_count(self):
         for case in self:
             case.item_count = len(case.item_ids)
 
+    @api.depends("state")
     @api.depends_context("uid")
     def _compute_can_assign_commission_experts(self):
         is_manager = self.env.user.has_group(
             "zvy_purchase.group_commission_manager"
         )
         for case in self:
-            case.can_assign_commission_experts = is_manager
+            case.can_assign_commission_experts = (
+                is_manager and case.state == "in_review"
+            )
+
+    @api.depends("state")
+    @api.depends_context("uid")
+    def _compute_can_change_commission_case_status(self):
+        is_manager = self.env.user.has_group(
+            "zvy_purchase.group_commission_manager"
+        )
+        for case in self:
+            case.can_change_commission_case_status = (
+                is_manager and case.state == "in_review"
+            )
 
     def _zvy_check_can_assign_commission_experts(self):
         if self.env.su:
@@ -75,6 +104,40 @@ class ZvyPurchaseCommissionCase(models.Model):
             raise AccessError(
                 _("Only a Commission Manager can assign commission experts.")
             )
+        if any(case.state != "in_review" for case in self):
+            raise UserError(
+                _("Commission experts can only be assigned when the case is In Review.")
+            )
+
+    def _zvy_check_can_change_commission_case_status(self):
+        if self.env.su:
+            return
+        if not self.env.user.has_group("zvy_purchase.group_commission_manager"):
+            raise AccessError(
+                _("Only a Commission Manager can change the commission case status.")
+            )
+        if any(case.state != "in_review" for case in self):
+            raise UserError(
+                _("Only commission cases in In Review can change status.")
+            )
+
+    def _zvy_action_open_status_wizard(self, target_state, title):
+        self.ensure_one()
+        self._zvy_check_can_change_commission_case_status()
+        wizard = self.env["zvy.purchase.commission.case.status.wizard"].create(
+            {
+                "case_id": self.id,
+                "target_state": target_state,
+            }
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": title,
+            "res_model": "zvy.purchase.commission.case.status.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -112,6 +175,15 @@ class ZvyPurchaseCommissionCase(models.Model):
             "view_mode": "form",
             "target": "new",
         }
+
+    def action_reject(self):
+        return self._zvy_action_open_status_wizard("rejected", _("Reject"))
+
+    def action_approve(self):
+        return self._zvy_action_open_status_wizard("approved", _("Approve"))
+
+    def action_correction(self):
+        return self._zvy_action_open_status_wizard("correction", _("Correction"))
 
     def action_open_purchase_request(self):
         self.ensure_one()

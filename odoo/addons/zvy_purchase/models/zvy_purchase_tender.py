@@ -43,7 +43,8 @@ class ZvyPurchaseTender(models.Model):
             ("assigned", "Assigned"),
             ("scheduled", "Scheduled"),
             ("published", "Published"),
-            ("opened", "Opened"),
+            ("evaluation", "Evaluation"),
+            ("closed", "Closed"),
         ],
         string="Status",
         default="in_review",
@@ -75,6 +76,8 @@ class ZvyPurchaseTender(models.Model):
     can_schedule = fields.Boolean(compute="_compute_can_schedule")
     can_publish = fields.Boolean(compute="_compute_can_publish")
     can_open = fields.Boolean(compute="_compute_can_open")
+    can_select = fields.Boolean(compute="_compute_can_select")
+    can_close = fields.Boolean(compute="_compute_can_close")
 
     @api.depends("item_ids")
     def _compute_item_count(self):
@@ -124,6 +127,24 @@ class ZvyPurchaseTender(models.Model):
         for tender in self:
             tender.can_open = bool(is_cm and tender.state == "published")
 
+    @api.depends("state")
+    @api.depends_context("uid")
+    def _compute_can_select(self):
+        is_cm = self.env.user.has_group(
+            "zvy_purchase.group_commission_manager"
+        )
+        for tender in self:
+            tender.can_select = bool(is_cm and tender.state == "evaluation")
+
+    @api.depends("state")
+    @api.depends_context("uid")
+    def _compute_can_close(self):
+        is_cm = self.env.user.has_group(
+            "zvy_purchase.group_commission_manager"
+        )
+        for tender in self:
+            tender.can_close = bool(is_cm and tender.state == "evaluation")
+
     def _zvy_check_can_assign_commission_expert(self):
         if self.env.su:
             return
@@ -139,6 +160,28 @@ class ZvyPurchaseTender(models.Model):
             raise AccessError(
                 _("Only a Commission Manager can open a tender.")
             )
+
+    def _zvy_check_can_select(self):
+        if self.env.su:
+            return
+        if not self.env.user.has_group("zvy_purchase.group_commission_manager"):
+            raise AccessError(
+                _("Only a Commission Manager can select offers on a tender.")
+            )
+
+    def _zvy_check_can_close(self):
+        if self.env.su:
+            return
+        if not self.env.user.has_group("zvy_purchase.group_commission_manager"):
+            raise AccessError(
+                _("Only a Commission Manager can close a tender.")
+            )
+
+    def _zvy_check_closed_readonly(self):
+        if self.env.su:
+            return
+        if any(tender.state == "closed" for tender in self):
+            raise UserError(_("A closed tender cannot be modified."))
 
     def _zvy_check_assigned_commission_expert(self):
         if self.env.su:
@@ -223,6 +266,7 @@ class ZvyPurchaseTender(models.Model):
         return tenders
 
     def write(self, vals):
+        self._zvy_check_closed_readonly()
         if "commission_expert_id" in vals:
             self._zvy_check_can_assign_commission_expert()
         self._zvy_check_commission_expert_write(vals)
@@ -291,13 +335,75 @@ class ZvyPurchaseTender(models.Model):
                 _("A tender can only be opened when it is Published.")
             )
         bid_offers = self.item_ids.offer_ids.filtered(lambda o: o.state == "bid")
-        self.write({"state": "opened"})
+        self.write({
+            "state": "evaluation",
+            "end_date": fields.Datetime.now(),
+        })
         if bid_offers:
             # Commission Manager has read-only offer ACL; elevate only for this
             # authorized Bid → Opened transition.
             bid_offers.sudo().with_context(zvy_skip_offer_edit_check=True).write(
                 {"state": "opened"}
             )
+        return True
+
+    def action_select(self):
+        self.ensure_one()
+        self._zvy_check_can_select()
+        if self.state != "evaluation":
+            raise UserError(
+                _("Offers can only be selected when the tender is Evaluation.")
+            )
+        decision_by_state = {
+            "opened": "opened",
+            "selected": "selected",
+            "closed": "closed",
+            "validated": "closed",
+        }
+        offers = self.item_ids.offer_ids.filtered(
+            lambda o: o.state in decision_by_state
+        ).sorted(key=lambda o: (o.item_id.id, o.id))
+        wizard = self.env["zvy.purchase.tender.select.wizard"].create(
+            {
+                "tender_id": self.id,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "offer_id": offer.id,
+                            "decision": decision_by_state[offer.state],
+                        },
+                    )
+                    for offer in offers
+                ],
+            }
+        )
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Select"),
+            "res_model": "zvy.purchase.tender.select.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
+
+    def action_close(self):
+        self.ensure_one()
+        self._zvy_check_can_close()
+        if self.state != "evaluation":
+            raise UserError(
+                _("A tender can only be closed when it is Evaluation.")
+            )
+        to_close = self.item_ids.offer_ids.filtered(
+            lambda offer: offer.state not in ("selected", "closed")
+        )
+        if to_close:
+            # Commission Manager has read-only offer ACL; elevate for Close.
+            to_close.sudo().with_context(zvy_skip_offer_edit_check=True).write(
+                {"state": "closed"}
+            )
+        self.write({"state": "closed"})
         return True
 
     def action_open_purchase_request(self):

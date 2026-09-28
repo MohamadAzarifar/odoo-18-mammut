@@ -103,6 +103,7 @@ class ZvyPurchaseRequest(models.Model):
         comodel_name="zvy.purchase.item",
         inverse_name="request_id",
         string="Purchase Items",
+        copy=True,
     )
     can_edit_items = fields.Boolean(
         compute="_compute_can_edit_items",
@@ -170,6 +171,21 @@ class ZvyPurchaseRequest(models.Model):
     )
     show_tender_button = fields.Boolean(
         compute="_compute_show_tender_button",
+    )
+    show_tender_approval_button = fields.Boolean(
+        compute="_compute_show_tender_approval_button",
+    )
+    purchase_order_ids = fields.One2many(
+        comodel_name="zvy.purchase.order",
+        inverse_name="request_id",
+        string="Purchase Orders",
+        copy=False,
+    )
+    purchase_order_count = fields.Integer(
+        compute="_compute_purchase_order_count",
+    )
+    show_create_purchase_order_button = fields.Boolean(
+        compute="_compute_show_create_purchase_order_button",
     )
 
     @api.depends("state", "create_uid")
@@ -277,6 +293,11 @@ class ZvyPurchaseRequest(models.Model):
         for request in self:
             request.tender_count = len(request.tender_ids)
 
+    @api.depends("purchase_order_ids")
+    def _compute_purchase_order_count(self):
+        for request in self:
+            request.purchase_order_count = len(request.purchase_order_ids)
+
     def _get_tendering_items(self):
         self.ensure_one()
         return self.item_ids.filtered(
@@ -290,6 +311,81 @@ class ZvyPurchaseRequest(models.Model):
             any(offer.state == "validated" for offer in item.offer_ids)
             for item in tendering_items
         )
+
+    def _tendering_items_pending_approval(self):
+        """Selected tendering items that are not on a non-refused approval."""
+        self.ensure_one()
+        selected = self.item_ids.filtered(
+            lambda item: item.purchase_type_display == "tendering"
+            and item.state == "selected"
+        )
+        return selected.filtered(
+            lambda item: not item.approval_request_ids.filtered(
+                lambda approval: approval.request_status != "refused"
+            )
+        )
+
+    def _purchase_order_eligible_items(self):
+        """Items ready for a custom purchase order.
+
+        Tendering items with Selected offer + Approved approval, or items on an
+        Approved commission case with Selected offer (case Approve is the gate),
+        and not already on a PO.
+        """
+        self.ensure_one()
+
+        def _has_selected_offer(item):
+            return any(offer.state == "selected" for offer in item.offer_ids)
+
+        def _has_approved_approval(item):
+            return any(
+                approval.request_status == "approved"
+                for approval in item.approval_request_ids
+            )
+
+        def _base_ready_tendering(item):
+            return (
+                not item.purchase_order_ids
+                and _has_selected_offer(item)
+                and _has_approved_approval(item)
+            )
+
+        def _base_ready_commission(item):
+            # Commission case Approve already required PR approvals; item M2M
+            # links may be missing on older Enquiry approvals (pre-1.82).
+            return not item.purchase_order_ids and _has_selected_offer(item)
+
+        tendering = self.item_ids.filtered(
+            lambda item: item.purchase_type_display == "tendering"
+            and _base_ready_tendering(item)
+        )
+        approved_case_items = self.commission_case_ids.filtered(
+            lambda case: case.state == "approved"
+        ).mapped("item_ids")
+        commission_path = approved_case_items.filtered(_base_ready_commission)
+        return tendering | commission_path
+
+    def _selected_offer_amount(self, items):
+        amount = 0.0
+        for item in items:
+            selected_offers = item.offer_ids.filtered(
+                lambda offer: offer.state == "selected"
+            )
+            amount += sum(selected_offers.mapped("final_price"))
+        return amount
+
+    @api.depends(
+        "item_ids.state",
+        "item_ids.purchase_type_display",
+        "item_ids.product_id.zvy_purchase_type_company_values",
+        "item_ids.product_id.zvy_need_commission_company_values",
+        "item_ids.approval_request_ids.request_status",
+    )
+    def _compute_show_tender_approval_button(self):
+        for request in self:
+            request.show_tender_approval_button = bool(
+                request._tendering_items_pending_approval()
+            )
 
     def _scale_needs_commission(self):
         self.ensure_one()
@@ -320,6 +416,7 @@ class ZvyPurchaseRequest(models.Model):
     @api.depends(
         "all_approvals_approved",
         "commission_case_ids",
+        "commission_case_ids.state",
         "operational_request_type",
         "non_operational_request_type",
         "company_id.zvy_purchase_scale",
@@ -330,12 +427,18 @@ class ZvyPurchaseRequest(models.Model):
     )
     def _compute_show_commission_button(self):
         for request in self:
+            has_correction_case = any(
+                case.state == "correction" for case in request.commission_case_ids
+            )
             show = bool(
-                request.all_approvals_approved
-                and not request.commission_case_ids
-                and (
-                    request._scale_needs_commission()
-                    or request._has_enquiry_commission_item()
+                has_correction_case
+                or (
+                    request.all_approvals_approved
+                    and not request.commission_case_ids
+                    and (
+                        request._scale_needs_commission()
+                        or request._has_enquiry_commission_item()
+                    )
                 )
             )
             request.show_commission_button = show
@@ -352,6 +455,23 @@ class ZvyPurchaseRequest(models.Model):
             request.show_tender_button = bool(
                 not request.tender_ids
                 and request._tendering_items_have_validated_offers()
+            )
+
+    @api.depends(
+        "item_ids.state",
+        "item_ids.purchase_type_display",
+        "item_ids.offer_ids.state",
+        "item_ids.approval_request_ids.request_status",
+        "item_ids.purchase_order_ids",
+        "item_ids.product_id.zvy_purchase_type_company_values",
+        "item_ids.product_id.zvy_need_commission_company_values",
+        "commission_case_ids.state",
+        "commission_case_ids.item_ids",
+    )
+    def _compute_show_create_purchase_order_button(self):
+        for request in self:
+            request.show_create_purchase_order_button = bool(
+                request._purchase_order_eligible_items()
             )
 
     def action_view_approvals(self):
@@ -386,6 +506,35 @@ class ZvyPurchaseRequest(models.Model):
             "domain": [("request_id", "=", self.id)],
             "context": {"default_request_id": self.id},
         }
+
+    def action_view_purchase_orders(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Purchase Orders"),
+            "res_model": "zvy.purchase.order",
+            "view_mode": "list,form",
+            "domain": [("request_id", "=", self.id)],
+            "context": {"default_request_id": self.id},
+        }
+
+    def action_create_purchase_order(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can create a purchase order.")
+            )
+        if not self.show_create_purchase_order_button:
+            raise UserError(
+                _(
+                    "Create Purchase Order is only available when a Tendering "
+                    "purchase item has a Selected offer and an Approved "
+                    "approval, or an item on an Approved commission case has "
+                    "a Selected offer, and the item is not already on a "
+                    "purchase order."
+                )
+            )
+        return self.env["zvy.purchase.order.create.wizard"]._action_open(self)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -535,6 +684,23 @@ class ZvyPurchaseRequest(models.Model):
             "operational": _("Operational"),
             "non_operational": _("Non-Operational"),
         }
+        operational_items = self.env["zvy.purchase.item"]
+        non_operational_items = self.env["zvy.purchase.item"]
+        enquiry_items = self.item_ids.filtered(
+            lambda item: item.purchase_type_display
+            and item.purchase_type_display != "tendering"
+            and item.state == "selected"
+        )
+        for item in enquiry_items:
+            product = item.product_id.sudo().with_company(self.company_id)
+            if product.zvy_operational:
+                operational_items |= item
+            else:
+                non_operational_items |= item
+        items_by_category = {
+            "operational": operational_items,
+            "non_operational": non_operational_items,
+        }
         specs = []
         for category, tier, amount in (
             (
@@ -570,7 +736,9 @@ class ZvyPurchaseRequest(models.Model):
                         tier=tier,
                     )
                 )
-            specs.append((category, label, rule, amount, tier))
+            specs.append(
+                (category, label, rule, amount, tier, items_by_category[category])
+            )
 
         if not specs:
             raise UserError(
@@ -579,13 +747,14 @@ class ZvyPurchaseRequest(models.Model):
 
         ApprovalRequest = self.env["approval.request"]
         created = ApprovalRequest
-        for _category, label, rule, amount, tier in specs:
+        for _category, label, rule, amount, tier, category_items in specs:
             vals = {
                 "name": _("%(request)s — %(category)s", request=self.name, category=label),
                 "category_id": rule.approval_category_id.id,
                 "request_owner_id": self.env.user.id,
                 "reference": self.name,
                 "zvy_purchase_request_id": self.id,
+                "zvy_purchase_item_ids": [(6, 0, category_items.ids)],
                 "reason": _(
                     "<p>Purchase Request %(request)s</p>"
                     "<p>%(category)s type: %(tier)s</p>"
@@ -611,16 +780,150 @@ class ZvyPurchaseRequest(models.Model):
         )
         return True
 
+    def action_tender_approval(self):
+        self.ensure_one()
+        if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
+            raise AccessError(
+                _("Only a Commercial Manager can request purchase approval.")
+            )
+        items = self._tendering_items_pending_approval()
+        if not items:
+            raise UserError(
+                _(
+                    "Approval is only available for Selected Tendering purchase "
+                    "items that are not already on an approval."
+                )
+            )
+        scale = self.env["zvy.purchase.scale"].search(
+            [("scale", "=", self.company_id.zvy_purchase_scale)],
+            limit=1,
+        )
+        if not scale:
+            raise UserError(
+                _(
+                    "No purchase scale is configured for company scale "
+                    "'%(scale)s'.",
+                    scale=self.company_id.zvy_purchase_scale,
+                )
+            )
+
+        operational_items = self.env["zvy.purchase.item"]
+        non_operational_items = self.env["zvy.purchase.item"]
+        for item in items:
+            product = item.product_id.sudo().with_company(self.company_id)
+            if product.zvy_operational:
+                operational_items |= item
+            else:
+                non_operational_items |= item
+
+        category_labels = {
+            "operational": _("Operational"),
+            "non_operational": _("Non-Operational"),
+        }
+        specs = []
+        for category, category_items in (
+            ("operational", operational_items),
+            ("non_operational", non_operational_items),
+        ):
+            if not category_items:
+                continue
+            label = category_labels[category]
+            amount = self._selected_offer_amount(category_items)
+            tier = scale._get_tier_for_amount(category, amount)
+            if not tier:
+                raise UserError(
+                    _(
+                        "No purchase rule found for %(category)s amount "
+                        "%(amount)s on the company scale.",
+                        category=label,
+                        amount=amount,
+                    )
+                )
+            rule = scale._get_rule(category, tier)
+            if not rule:
+                raise UserError(
+                    _(
+                        "No purchase rule found for %(category)s type "
+                        "%(tier)s on the company scale.",
+                        category=label,
+                        tier=tier,
+                    )
+                )
+            if not rule.approval_category_id:
+                raise UserError(
+                    _(
+                        "Set an Approver (Approval Type) on the %(category)s "
+                        "%(tier)s purchase rule before requesting approval.",
+                        category=label,
+                        tier=tier,
+                    )
+                )
+            specs.append((label, rule, amount, tier, category_items))
+
+        ApprovalRequest = self.env["approval.request"]
+        created = ApprovalRequest
+        for label, rule, amount, tier, category_items in specs:
+            vals = {
+                "name": _(
+                    "%(request)s — Tendering %(category)s",
+                    request=self.name,
+                    category=label,
+                ),
+                "category_id": rule.approval_category_id.id,
+                "request_owner_id": self.env.user.id,
+                "reference": self.name,
+                "zvy_purchase_request_id": self.id,
+                "zvy_purchase_item_ids": [(6, 0, category_items.ids)],
+                "reason": _(
+                    "<p>Purchase Request %(request)s</p>"
+                    "<p>Tendering %(category)s type: %(tier)s</p>"
+                    "<p>Amount: %(amount)s</p>"
+                    "<p>Purchase items: %(items)s</p>",
+                    request=self.name,
+                    category=label,
+                    tier=tier,
+                    amount=amount,
+                    items=", ".join(category_items.mapped("name")),
+                ),
+            }
+            if rule.approval_category_id.has_amount != "no":
+                vals["amount"] = amount
+            approval = ApprovalRequest.create(vals)
+            approval.action_confirm()
+            created |= approval
+
+        self._message_log(
+            body=_(
+                "Tendering approval requested: %(names)s",
+                names=", ".join(created.mapped("name")),
+            )
+        )
+        return True
+
     def action_commission(self):
         self.ensure_one()
         if not self.env.user.has_group("zvy_purchase.group_commercial_manager"):
             raise AccessError(
                 _("Only a Commercial Manager can request commission.")
             )
+        correction_cases = self.commission_case_ids.filtered(
+            lambda case: case.state == "correction"
+        )
+        if correction_cases:
+            case = correction_cases[0]
+            case.write({"state": "in_review"})
+            body = _(
+                "Commission case returned to In Review: %(name)s",
+                name=case.name,
+            )
+            self._message_log(body=body)
+            case._message_log(body=body)
+            return True
         if not self.show_commission_button:
             raise UserError(
                 _(
-                    "Commission is only available when all linked approvals "
+                    "Commission is only available when a linked commission "
+                    "case is in Correction, or when all linked approvals "
                     "are approved, no commission case exists yet, and either "
                     "the matched scale rule needs commission or the request "
                     "has an Enquiry / Commission item."
@@ -726,6 +1029,7 @@ class ZvyPurchaseItem(models.Model):
             ("in_review", "In Review"),
             ("tendering", "Tendering"),
             ("selected", "Selected"),
+            ("ordered", "Ordered"),
         ],
         default="draft",
         required=True,
@@ -793,6 +1097,22 @@ class ZvyPurchaseItem(models.Model):
         column1="item_id",
         column2="tender_id",
         string="Tenders",
+    )
+    purchase_order_ids = fields.Many2many(
+        comodel_name="zvy.purchase.order",
+        relation="zvy_purchase_order_item_rel",
+        column1="item_id",
+        column2="order_id",
+        string="Purchase Orders",
+        copy=False,
+    )
+    approval_request_ids = fields.Many2many(
+        comodel_name="approval.request",
+        relation="approval_request_zvy_purchase_item_rel",
+        column1="item_id",
+        column2="approval_id",
+        string="Approvals",
+        copy=False,
     )
     offer_count = fields.Integer(
         string="Offers",
@@ -1064,7 +1384,7 @@ class ZvyPurchaseItem(models.Model):
         if self.env.context.get("zvy_skip_item_state_sync"):
             return
         to_select = self.filtered(
-            lambda item: item.state != "selected"
+            lambda item: item.state not in ("selected", "ordered")
             and any(offer.state == "selected" for offer in item.offer_ids)
         )
         if to_select:
@@ -1084,7 +1404,8 @@ class ZvyPurchaseItem(models.Model):
         )
         linked_ids = set(tenders.mapped("item_ids").ids)
         to_tender = self.filtered(
-            lambda item: item.id in linked_ids and item.state != "tendering"
+            lambda item: item.id in linked_ids
+            and item.state not in ("tendering", "selected", "ordered")
         )
         if to_tender:
             to_tender.with_context(

@@ -11,7 +11,7 @@
                 <field name="commission_expert_id"/>
                 <field name="end_date"/>
                 <field name="item_count" string="Items"/>
-                <field name="state" widget="badge" decoration-warning="state == 'in_review'" decoration-info="state == 'assigned'" decoration-primary="state == 'scheduled'" decoration-success="state == 'published'" decoration-muted="state == 'opened'"/>
+                <field name="state" widget="badge" decoration-warning="state == 'in_review'" decoration-info="state == 'assigned'" decoration-primary="state == 'scheduled'" decoration-success="state == 'published'" decoration-muted="state in ('evaluation', 'closed')"/>
             </list>
         </field>
     </record>
@@ -50,7 +50,21 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commission_manager"
                         invisible="not can_open"/>
-                    <field name="state" widget="statusbar" statusbar_visible="in_review,assigned,scheduled,published,opened"/>
+                    <button
+                        name="action_select"
+                        string="Select"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_select"/>
+                    <button
+                        name="action_close"
+                        string="Close"
+                        type="object"
+                        class="oe_highlight"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_close"/>
+                    <field name="state" widget="statusbar" statusbar_visible="in_review,assigned,scheduled,published,evaluation,closed"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -84,6 +98,8 @@
                             <field name="can_schedule" invisible="1"/>
                             <field name="can_publish" invisible="1"/>
                             <field name="can_open" invisible="1"/>
+                            <field name="can_select" invisible="1"/>
+                            <field name="can_close" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -95,7 +111,7 @@
                                     <field name="purchase_type_display"/>
                                     <field name="product_qty"/>
                                     <field name="product_uom_id"/>
-                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'in_review'" decoration-muted="state == 'tendering'" decoration-primary="state == 'selected'" decoration-danger="state == 'ordered'"/>
                                 </list>
                             </field>
                         </page>
@@ -119,7 +135,8 @@
                 <filter name="filter_assigned" string="Assigned" domain="[('state', '=', 'assigned')]"/>
                 <filter name="filter_scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
                 <filter name="filter_published" string="Published" domain="[('state', '=', 'published')]"/>
-                <filter name="filter_opened" string="Opened" domain="[('state', '=', 'opened')]"/>
+                <filter name="filter_evaluation" string="Evaluation" domain="[('state', '=', 'evaluation')]"/>
+                <filter name="filter_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
                 <group>
                     <filter name="groupby_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="groupby_commission_expert" string="Commission Expert" context="{'group_by': 'commission_expert_id'}"/>

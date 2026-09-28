@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_order_create_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.order.create.wizard.form</field>
+        <field name="model">zvy.purchase.order.create.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Purchase Order">
+                <group>
+                    <field name="request_id"/>
+                    <field name="available_item_ids" invisible="1"/>
+                </group>
+                <field
+                    name="item_ids"
+                    nolabel="1"
+                    options="{'no_create': True}">
+                    <list create="0" delete="0">
+                        <field name="name"/>
+                        <field name="product_id"/>
+                        <field name="product_qty"/>
+                        <field name="product_uom_id"/>
+                        <field name="purchase_type_display"/>
+                        <field name="state" widget="badge"/>
+                    </list>
+                </field>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Create"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"/>
+                    <button special="cancel" string="Discard" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

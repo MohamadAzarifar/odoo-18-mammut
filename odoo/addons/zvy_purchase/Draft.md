@@ -212,6 +212,20 @@ when all Enquiry purchase items status are Selected:
 - show two calculated properties in purchase request (Operational Amount, Non-Operation Amount) screen which based on sum of Final Price of selected offers in not Tendering items for operational and non-operationl products.
 - show type of request in purchase request screen based on scale of company and threshold of the scale.
 
+when each of Tendering purchase items status are Selected:
+check if there should not be an approval for the purchase item (each approval request should access to purchase request and show the list of purchase items in the approval. two approval request could not have same purchase items, except when approval status was Refused).
+if ok, show Approval action button to commercial manager. by clicking approval button, create a new approval request containing the purchase items with Selected status and Tendering purchase type. purchase items should not have a previous approved approval request.
+
+---
+
+when at least on Tendering purchase item has approved approval, show an action button in purchase request for commercial manager to create purchase order (do not use odoo purchase module).
+by clicking, show a wizard which shows list of purchase items which has selected offer and has approved approval. list is multi-select and after selecting, create a new purchase order with linked purchase items. change the status of linked purchase items to Ordered.
+once linked to a PO, hide them from the wizard (button hides when none remain).
+
+---
+
+the duplicate purchase request should add purchase items too.
+
 ---
 
 the approver column in scale purchase rules should accept an approval type from approval addone as input.  
@@ -310,4 +324,48 @@ vendor can edit offer until status of tender record is Published.
 keep editting until End Date or commision manager clicks Open action button.
 Open action button is only visible for commission manager when tender status is Published.
 after End Date or Open button clicked, prevent editting offers.
-by clicking Open, also show attributes of offers. also change status of offer and status of tender to Opened.
+
+by clicking Open
+
+- show attributes of offers
+- change status of offer to Opened.
+- change status of tender to Evaluation
+- change End Date to the clicking Open time.
+
+---
+
+add a new action button in tender (labeled Select) for commission manager when tender status is Evaluation,
+by clicking Select, show a wizard to change status of Opened offer (Selected, Closed). for validated offers, change automatically to Closed. for each one, a description is mandatory.
+only one offer from a purchase item can be selected. if one selected, others become Closed.
+it is not mandatory to every purchase items should have a Selected (wizard could be closed without any Selected). but after clicking Select button, change Validated offers to Close. keep others Opened until an offer set as Selected.
+chane status of purchase items with selected offer to Selected.
+keep tender in Evaluation.
+until tender status is Evaluation, show all offers in the Selection wizard. so let the user (commission manager) change decision and status of offer.
+
+---
+
+when status of tender is Evaluation, show an action button for commission manager labeled Close.
+by clicking this button, change the status of tender to Closed.
+the tender is readonly when status is Closed.
+by closing a tender all offers status should change to Closed, except the Selected ones.
+
+---
+
+a new commission case status is In Review.
+
+show a new action button (labeled Reject) to commission manager in commission case form, next to Assign button.
+by clicking Reject action button by commission manager, change the status of commission case to Reject.
+
+show a new action button like Reject button, but labeled Approve.
+by clicking Approve by commission manager, change status of commission case to Approve.
+
+show a new action button like Approve button. name it Correction.
+by clicking Correction by commission manager, change status of commission case to Correction.
+
+show a wizard for a mandatory reason before changing status.
+
+when a purchase request has a commission case with status of Correction, show Commission button again to commercial manager. but instead of creating a new case, change status of commission case to In Review.
+
+when a purchase request has a commission case with status of Approve, show Create Purchase Order button again for commercial manager.
+by clicking, show a wizard which shows list of purchase items which has selected offer and has approved approval and if needed, approves commission cases. list is multi-select and after selecting, create a new purchase order with linked purchase items. change the status of linked purchase items to Ordered.
+once linked to a PO, hide them from the wizard (button hides when none remain).

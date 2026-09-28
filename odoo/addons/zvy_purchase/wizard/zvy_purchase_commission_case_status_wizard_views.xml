@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zvy_purchase_commission_case_status_wizard_form" model="ir.ui.view">
+        <field name="name">zvy.purchase.commission.case.status.wizard.form</field>
+        <field name="model">zvy.purchase.commission.case.status.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Change Status">
+                <group>
+                    <field name="case_id"/>
+                    <field name="target_state"/>
+                    <field name="reason" required="1" placeholder="Explain why this status is changing"/>
+                </group>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Confirm"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"/>
+                    <button special="cancel" string="Discard" class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

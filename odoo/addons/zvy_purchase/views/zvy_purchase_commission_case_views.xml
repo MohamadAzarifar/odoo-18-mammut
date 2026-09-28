@@ -8,6 +8,7 @@
                 <field name="name"/>
                 <field name="request_id"/>
                 <field name="company_id"/>
+                <field name="state" widget="badge"/>
                 <field name="item_count" string="Items"/>
             </list>
         </field>
@@ -26,6 +27,25 @@
                         class="oe_highlight"
                         groups="zvy_purchase.group_commission_manager"
                         invisible="not can_assign_commission_experts"/>
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_change_commission_case_status"/>
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_change_commission_case_status"/>
+                    <button
+                        name="action_correction"
+                        string="Correction"
+                        type="object"
+                        groups="zvy_purchase.group_commission_manager"
+                        invisible="not can_change_commission_case_status"/>
+                    <field name="state" widget="statusbar" statusbar_visible="in_review,rejected,approved,correction"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -54,6 +74,7 @@
                         <group>
                             <field name="item_count" readonly="1"/>
                             <field name="can_assign_commission_experts" invisible="1"/>
+                            <field name="can_change_commission_case_status" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -94,6 +115,23 @@
                 <field name="name"/>
                 <field name="request_id"/>
                 <field name="company_id"/>
+                <field name="state"/>
+                <filter
+                    name="filter_in_review"
+                    string="In Review"
+                    domain="[('state', '=', 'in_review')]"/>
+                <filter
+                    name="filter_rejected"
+                    string="Reject"
+                    domain="[('state', '=', 'rejected')]"/>
+                <filter
+                    name="filter_approved"
+                    string="Approve"
+                    domain="[('state', '=', 'approved')]"/>
+                <filter
+                    name="filter_correction"
+                    string="Correction"
+                    domain="[('state', '=', 'correction')]"/>
             </search>
         </field>
     </record>

@@ -1,6 +1,6 @@
 {
     "name": "Purchase",
-    "version": "1.76",
+    "version": "1.87",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
     "depends": ["product", "mail", "web", "approvals", "portal"],
@@ -12,6 +12,7 @@
         "views/zvy_purchase_request_views.xml",
         "views/zvy_purchase_commission_case_views.xml",
         "views/zvy_purchase_tender_views.xml",
+        "views/zvy_purchase_order_views.xml",
         "views/zvy_purchase_avl_views.xml",
         "views/zvy_purchase_scale_views.xml",
         "views/product_product_views.xml",
@@ -26,6 +27,9 @@
         "wizard/zvy_purchase_offer_reject_wizard_views.xml",
         "wizard/zvy_purchase_offer_select_wizard_views.xml",
         "wizard/zvy_purchase_offer_select_reason_wizard_views.xml",
+        "wizard/zvy_purchase_tender_select_wizard_views.xml",
+        "wizard/zvy_purchase_order_create_wizard_views.xml",
+        "wizard/zvy_purchase_commission_case_status_wizard_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
