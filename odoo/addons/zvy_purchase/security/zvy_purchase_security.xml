@@ -96,6 +96,101 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Purchase-linked Approvals visibility for commission roles (OR with core Approvals user rule) -->
+    <record id="rule_approval_request_commission_manager" model="ir.rule">
+        <field name="name">Approval Request: Commission Manager purchase-linked</field>
+        <field name="model_id" ref="approvals.model_approval_request"/>
+        <field name="domain_force">[('zvy_purchase_request_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_approval_request_commission_expert" model="ir.rule">
+        <field name="name">Approval Request: Commission Expert assigned case or tender PR</field>
+        <field name="model_id" ref="approvals.model_approval_request"/>
+        <field name="domain_force">['|', ('zvy_purchase_request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('zvy_purchase_request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_approval_product_line_commission_manager" model="ir.rule">
+        <field name="name">Approval Product Line: Commission Manager purchase-linked</field>
+        <field name="model_id" ref="approvals.model_approval_product_line"/>
+        <field name="domain_force">[('approval_request_id.zvy_purchase_request_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_approval_product_line_commission_expert" model="ir.rule">
+        <field name="name">Approval Product Line: Commission Expert assigned case or tender PR</field>
+        <field name="model_id" ref="approvals.model_approval_product_line"/>
+        <field name="domain_force">['|', ('approval_request_id.zvy_purchase_request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('approval_request_id.zvy_purchase_request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_approval_approver_commission_manager" model="ir.rule">
+        <field name="name">Approval Approver: Commission Manager purchase-linked</field>
+        <field name="model_id" ref="approvals.model_approval_approver"/>
+        <field name="domain_force">[('request_id.zvy_purchase_request_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_approval_approver_commission_expert" model="ir.rule">
+        <field name="name">Approval Approver: Commission Expert assigned case or tender PR</field>
+        <field name="model_id" ref="approvals.model_approval_approver"/>
+        <field name="domain_force">['|', ('request_id.zvy_purchase_request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('request_id.zvy_purchase_request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!--
+        Holding-wide: PR-linked approvals often live on a child company while
+        Commission users keep only the parent selected in the company switcher.
+        Soften Approvals multi-company rules so purchase-linked rows remain
+        visible; group rules (owner/approver/commission) still apply.
+        Use write() because the core rules are noupdate=1.
+    -->
+    <!--
+        Holding-wide: PR-linked approvals often live on a child company while
+        Commission users keep only the parent selected in the company switcher.
+        Soften Approvals multi-company rules so purchase-linked rows remain
+        visible; group rules (owner/approver/commission) still apply.
+        Forced via write() because core rules are noupdate=1 (also in
+        migrations/1.93/post-migrate.py).
+    -->
+    <function model="ir.rule" name="write">
+        <value eval="[ref('approvals.approval_request_rule')]"/>
+        <value eval="{'domain_force': '[\'|\', (\'company_id\', \'in\', company_ids), (\'zvy_purchase_request_id\', \'!=\', False)]'}"/>
+    </function>
+    <function model="ir.rule" name="write">
+        <value eval="[ref('approvals.approval_product_line_rule')]"/>
+        <value eval="{'domain_force': '[\'|\', (\'company_id\', \'in\', company_ids), (\'approval_request_id.zvy_purchase_request_id\', \'!=\', False)]'}"/>
+    </function>
+    <function model="ir.rule" name="write">
+        <value eval="[ref('approvals.approval_approver_rule')]"/>
+        <value eval="{'domain_force': '[\'|\', (\'company_id\', \'in\', company_ids), (\'request_id.zvy_purchase_request_id\', \'!=\', False)]'}"/>
+    </function>
+
     <!-- Holding-wide company read so Commission Manager can open PRs from any company -->
     <record id="rule_res_company_commission_manager" model="ir.rule">
         <field name="name">Company: Commission Manager all companies</field>
@@ -258,6 +353,16 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_zvy_purchase_commission_case_approval_approver" model="ir.rule">
+        <field name="name">Commission Case: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_commission_case"/>
+        <field name="domain_force">[('request_id.approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- Tender visibility -->
     <record id="rule_zvy_purchase_tender_commission_manager" model="ir.rule">
         <field name="name">Tender: Commission Manager all companies</field>
@@ -283,6 +388,16 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_zvy_purchase_tender_approval_approver" model="ir.rule">
+        <field name="name">Tender: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_tender"/>
+        <field name="domain_force">[('request_id.approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_zvy_purchase_order_commercial_manager" model="ir.rule">
         <field name="name">Purchase Order: Commercial Manager company request</field>
         <field name="model_id" ref="model_zvy_purchase_order"/>
@@ -295,6 +410,36 @@
         <field name="model_id" ref="model_zvy_purchase_order"/>
         <field name="domain_force">['&amp;', ('request_id.create_uid', '=', user.id), ('request_id.company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('group_planner'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_zvy_purchase_order_commission_manager" model="ir.rule">
+        <field name="name">Purchase Order: Commission Manager all companies</field>
+        <field name="model_id" ref="model_zvy_purchase_order"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_manager'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_zvy_purchase_order_commission_expert" model="ir.rule">
+        <field name="name">Purchase Order: Commission Expert assigned case or tender</field>
+        <field name="model_id" ref="model_zvy_purchase_order"/>
+        <field name="domain_force">['|', ('request_id.commission_case_ids.commission_expert_ids', 'in', user.id), ('request_id.tender_ids.commission_expert_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_commission_expert'))]"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_zvy_purchase_order_approval_approver" model="ir.rule">
+        <field name="name">Purchase Order: Approval sequence approver</field>
+        <field name="model_id" ref="model_zvy_purchase_order"/>
+        <field name="domain_force">[('request_id.approval_request_ids.approver_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>

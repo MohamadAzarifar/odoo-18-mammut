@@ -482,8 +482,22 @@ class ZvyPurchaseRequest(models.Model):
             "res_model": "approval.request",
             "view_mode": "list,form",
             "domain": [("zvy_purchase_request_id", "=", self.id)],
-            "context": {"default_zvy_purchase_request_id": self.id},
+            "context": {
+                "default_zvy_purchase_request_id": self.id,
+                "allowed_company_ids": self.env.user._zvy_purchase_allowed_company_ids(
+                    self.company_id
+                ),
+            },
         }
+
+    def get_formview_action(self, access_uid=None):
+        action = super().get_formview_action(access_uid=access_uid)
+        self.ensure_one()
+        user = self.env["res.users"].browse(access_uid) if access_uid else self.env.user
+        ctx = dict(action.get("context") or {})
+        ctx["allowed_company_ids"] = user._zvy_purchase_allowed_company_ids(self.company_id)
+        action["context"] = ctx
+        return action
 
     def action_view_commission_cases(self):
         self.ensure_one()

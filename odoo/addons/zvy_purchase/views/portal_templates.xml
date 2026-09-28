@@ -69,157 +69,233 @@
         </t>
     </template>
 
-    <template id="portal_my_tender" name="Tender">
-        <t t-call="portal.portal_layout">
+    <template id="portal_my_tender" name="Tender" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
             <t t-set="o_portal_fullwidth_alert" groups="zvy_purchase.group_commission_manager">
                 <t t-call="portal.portal_back_in_edit_mode">
                     <t t-set="backend_url" t-value="'/odoo/zvy.purchase.tender/%s' % tender.id"/>
                 </t>
             </t>
 
-            <div class="container py-3">
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <h3 t-field="tender.name"/>
-                        <p class="mb-1">
-                            <strong>Purchase Request:</strong>
-                            <span t-field="tender.request_id"/>
-                        </p>
-                        <p class="mb-1">
-                            <strong>End Date:</strong>
-                            <span t-field="tender.end_date"/>
-                        </p>
-                        <p t-if="bidding_open" class="text-success mb-0">Bidding is open. Update your offer details below.</p>
-                        <p t-else="" class="text-muted mb-0">Bidding is closed for this tender.</p>
-                    </div>
-                </div>
-
-                <div t-if="success" class="alert alert-success" role="alert">
-                    Your offer has been updated.
-                </div>
-                <div t-if="error" class="alert alert-danger" role="alert">
-                    Your offer could not be updated. Please check the values and try again.
-                </div>
-
-                <t t-if="not offers">
-                    <p class="alert alert-warning">No validated offers for your vendor on this tender.</p>
+            <div class="row o_portal_tender_sidebar">
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-4 col-xxl-3 d-print-none'"/>
+                    <t t-set="title">
+                        <h2 t-field="tender.name" class="mb-0 text-break"/>
+                    </t>
+                    <t t-set="entries">
+                        <div class="d-flex flex-column gap-3 mt-3">
+                            <div>
+                                <h6 class="small text-muted mb-1">End Date</h6>
+                                <div t-field="tender.end_date"/>
+                            </div>
+                            <div>
+                                <span t-if="bidding_open" class="badge text-bg-success">Bidding Open</span>
+                                <span t-else="" class="badge text-bg-secondary">Bidding Closed</span>
+                            </div>
+                            <div t-if="tender.request_id">
+                                <h6 class="small text-muted mb-1">Purchase Request</h6>
+                                <div t-field="tender.request_id"/>
+                            </div>
+                        </div>
+                    </t>
                 </t>
 
-                <t t-foreach="offers" t-as="offer">
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong t-field="offer.name"/>
-                                <span class="text-muted ms-2" t-field="offer.product_id"/>
-                            </div>
-                            <span t-if="offer.state == 'bid'" class="badge text-bg-secondary">Bid</span>
-                            <span t-else="" class="badge text-bg-success">Validated</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="mb-3">
-                                <strong>Item:</strong>
-                                <span t-field="offer.item_id"/>
-                                —
-                                Qty requested:
-                                <span t-field="offer.item_id.product_qty"/>
-                                <span t-field="offer.item_id.product_uom_id"/>
-                            </p>
-                            <form
-                                t-attf-action="/my/tenders/#{tender.id}/offer/#{offer.id}"
-                                method="post"
-                                class="o_portal_tender_offer_form">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="unit_price_#{offer.id}">Unit Price</label>
-                                        <input
-                                            type="number"
-                                            step="any"
-                                            class="form-control"
-                                            t-attf-id="unit_price_#{offer.id}"
-                                            name="unit_price"
-                                            t-att-value="offer.unit_price"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="quantity_#{offer.id}">Quantity</label>
-                                        <input
-                                            type="number"
-                                            step="any"
-                                            class="form-control"
-                                            t-attf-id="quantity_#{offer.id}"
-                                            name="quantity"
-                                            t-att-value="offer.quantity"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="discount_#{offer.id}">Discount % / Unit</label>
-                                        <input
-                                            type="number"
-                                            step="any"
-                                            class="form-control"
-                                            t-attf-id="discount_#{offer.id}"
-                                            name="discount_percent_per_unit"
-                                            t-att-value="offer.discount_percent_per_unit"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="payment_method_#{offer.id}">Payment Method</label>
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            t-attf-id="payment_method_#{offer.id}"
-                                            name="payment_method"
-                                            t-att-value="offer.payment_method or ''"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="payment_duration_#{offer.id}">Payment Duration</label>
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            t-attf-id="payment_duration_#{offer.id}"
-                                            name="payment_duration"
-                                            t-att-value="offer.payment_duration or ''"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label" t-attf-for="deliver_time_#{offer.id}">Delivery Time</label>
-                                        <input
-                                            type="date"
-                                            class="form-control"
-                                            t-attf-id="deliver_time_#{offer.id}"
-                                            name="deliver_time"
-                                            t-att-value="offer.deliver_time"
-                                            t-att-readonly="None if bidding_open else 'readonly'"
-                                            t-att-disabled="None if bidding_open else 'disabled'"/>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-0 text-muted">
-                                            Total:
-                                            <span t-field="offer.total_price"/>
-                                            —
-                                            Final:
-                                            <span t-field="offer.final_price"/>
-                                        </p>
-                                    </div>
-                                    <div class="col-md-6 text-end" t-if="bidding_open">
-                                        <button type="submit" class="btn btn-primary">
-                                            Update Offer
-                                        </button>
+                <div id="tender_content" class="o_portal_content col-12 col-lg-8 col-xxl-9">
+                    <div id="introduction" class="mt-5 mt-lg-0 pb-2 pt-0">
+                        <h2 class="my-0">
+                            Tender
+                            <em t-esc="tender.name"/>
+                        </h2>
+                    </div>
+
+                    <div t-if="bidding_open" class="alert alert-success alert-dismissible d-print-none" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"/>
+                        <strong>Bidding is open.</strong> Update your offer details below.
+                    </div>
+                    <div t-else="" class="alert alert-warning alert-dismissible d-print-none" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"/>
+                        <strong>Bidding is closed</strong> for this tender.
+                    </div>
+                    <div t-if="success" class="alert alert-success alert-dismissible d-print-none" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"/>
+                        Your offer has been updated.
+                    </div>
+                    <div t-if="error" class="alert alert-danger alert-dismissible d-print-none" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"/>
+                        Your offer could not be updated. Please check the values and try again.
+                    </div>
+
+                    <div t-if="not offers" class="alert alert-warning" role="alert">
+                        No validated offers for your vendor on this tender.
+                    </div>
+
+                    <t t-foreach="offers" t-as="offer">
+                        <div t-attf-id="offer_#{offer.id}" class="mt-4 pb-4 border-bottom">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <h4 class="mb-1">
+                                        <span t-field="offer.name"/>
+                                        <small class="text-muted ms-1" t-field="offer.product_id"/>
+                                    </h4>
+                                    <div class="text-muted">
+                                        <strong>Item:</strong>
+                                        <span t-field="offer.item_id"/>
+                                        —
+                                        Qty requested:
+                                        <span t-field="offer.item_id.product_qty"/>
+                                        <span t-field="offer.item_id.product_uom_id"/>
                                     </div>
                                 </div>
-                            </form>
+                                <span t-if="offer.state == 'bid'" class="badge text-bg-secondary">Bid</span>
+                                <span t-else="" class="badge text-bg-success">Validated</span>
+                            </div>
+
+                            <t t-if="bidding_open">
+                                <form
+                                    t-attf-action="/my/tenders/#{tender.id}/offer/#{offer.id}"
+                                    method="post"
+                                    class="o_portal_tender_offer_form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="row">
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="unit_price_#{offer.id}">Unit Price</label>
+                                            <div class="input-group">
+                                                <input
+                                                    type="text"
+                                                    inputmode="decimal"
+                                                    class="form-control o_zvy_unit_price_input"
+                                                    t-attf-id="unit_price_#{offer.id}"
+                                                    name="unit_price"
+                                                    t-att-value="format_unit_price.get(offer.id) or ''"
+                                                    required="required"
+                                                    autocomplete="off"/>
+                                                <span class="input-group-text" t-esc="offer.currency_id.symbol"/>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="quantity_#{offer.id}">Quantity</label>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                class="form-control"
+                                                t-attf-id="quantity_#{offer.id}"
+                                                name="quantity"
+                                                t-att-value="offer.quantity"
+                                                required="required"/>
+                                        </div>
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="discount_#{offer.id}">Discount % / Unit</label>
+                                            <div class="input-group">
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    class="form-control"
+                                                    t-attf-id="discount_#{offer.id}"
+                                                    name="discount_percent_per_unit"
+                                                    t-att-value="(offer.discount_percent_per_unit or 0.0) * 100"/>
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="payment_method_#{offer.id}">Payment Method</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                t-attf-id="payment_method_#{offer.id}"
+                                                name="payment_method"
+                                                t-att-value="offer.payment_method or ''"/>
+                                        </div>
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="payment_duration_#{offer.id}">Payment Duration</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                t-attf-id="payment_duration_#{offer.id}"
+                                                name="payment_duration"
+                                                t-att-value="offer.payment_duration or ''"/>
+                                        </div>
+                                        <div class="mb-3 col-md-4">
+                                            <label class="form-label" t-attf-for="deliver_time_#{offer.id}">Delivery Time</label>
+                                            <div class="input-group">
+                                                <input
+                                                    type="text"
+                                                    class="form-control datetimepicker-input o_zvy_deliver_time_input"
+                                                    t-attf-id="deliver_time_#{offer.id}"
+                                                    name="deliver_time"
+                                                    t-att-value="format_deliver_time.get(offer.id) or ''"
+                                                    data-widget="datetime-picker"
+                                                    data-widget-type="date"
+                                                    autocomplete="off"/>
+                                                <span class="input-group-text o_input_group_date_icon">
+                                                    <i class="fa fa-calendar" role="img" aria-label="Calendar"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <h6 class="small text-muted mb-1">Total</h6>
+                                                    <div t-field="offer.total_price"/>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h6 class="small text-muted mb-1">Final</h6>
+                                                    <div class="fw-bold" t-field="offer.final_price"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-md-6 d-flex align-items-end justify-content-md-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                Update Offer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </t>
+                            <t t-else="">
+                                <div class="row">
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Unit Price</h6>
+                                        <div t-field="offer.unit_price"/>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Quantity</h6>
+                                        <div t-esc="offer.quantity"/>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Discount % / Unit</h6>
+                                        <div>
+                                            <t t-esc="'%.2f' % ((offer.discount_percent_per_unit or 0.0) * 100)"/>%
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Payment Method</h6>
+                                        <div t-esc="offer.payment_method or '—'"/>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Payment Duration</h6>
+                                        <div t-esc="offer.payment_duration or '—'"/>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Delivery Time</h6>
+                                        <div t-if="offer.deliver_time" t-field="offer.deliver_time"/>
+                                        <div t-else="">—</div>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Total</h6>
+                                        <div t-field="offer.total_price"/>
+                                    </div>
+                                    <div class="mb-3 col-6 col-md-4">
+                                        <h6 class="small text-muted mb-1">Final</h6>
+                                        <div class="fw-bold" t-field="offer.final_price"/>
+                                    </div>
+                                </div>
+                            </t>
                         </div>
-                    </div>
-                </t>
+                    </t>
+                </div>
             </div>
-        </t>
+        </xpath>
     </template>
 
 </odoo>

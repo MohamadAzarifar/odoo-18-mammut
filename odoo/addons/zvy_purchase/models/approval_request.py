@@ -65,4 +65,9 @@ class ApprovalRequest(models.Model):
             "res_id": self.zvy_purchase_request_id.id,
             "view_mode": "form",
             "target": "current",
+            "context": {
+                "allowed_company_ids": self.env.user._zvy_purchase_allowed_company_ids(
+                    self.zvy_purchase_request_id.company_id
+                ),
+            },
         }

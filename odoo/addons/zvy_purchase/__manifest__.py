@@ -1,9 +1,16 @@
 {
     "name": "Purchase",
-    "version": "1.87",
+    "version": "1.94",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
-    "depends": ["product", "mail", "web", "approvals", "portal"],
+    "depends": [
+        "product",
+        "mail",
+        "web",
+        "approvals",
+        "portal",
+        "artarad_web_persian_calendar",
+    ],
     "data": [
         "security/zvy_purchase_security.xml",
         "security/ir.model.access.csv",
@@ -34,6 +41,28 @@
     "assets": {
         "web.assets_backend": [
             "zvy_purchase/static/src/js/purchase_item_one2many.js",
+        ],
+        # Must run before session.js deletes odoo.__session_info__ (minimal bundle).
+        "web.assets_frontend_minimal": [
+            (
+                "before",
+                "web/static/src/session.js",
+                "zvy_purchase/static/src/js/portal_calendar_type.js",
+            ),
+        ],
+        "web.assets_frontend": [
+            # Jalali date formats / picker on portal (artarad patches are backend-only by default)
+            (
+                "after",
+                "web/static/src/core/l10n/dates.js",
+                "artarad_web_persian_calendar/static/src/js/dates.js",
+            ),
+            (
+                "after",
+                "web/static/src/core/datetime/datetime_picker.js",
+                "artarad_web_persian_calendar/static/src/js/datetimepicker/datetime_picker.js",
+            ),
+            "zvy_purchase/static/src/js/portal_tender_form.js",
         ],
     },
     "application": True,

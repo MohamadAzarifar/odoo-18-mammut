@@ -52,11 +52,6 @@ class ZvyPurchaseOrder(models.Model):
 
     def action_open_purchase_request(self):
         self.ensure_one()
-        company = self.request_id.company_id
-        allowed = list(self.env.context.get("allowed_company_ids") or [])
-        if company.id in allowed:
-            allowed.remove(company.id)
-        allowed.insert(0, company.id)
         return {
             "type": "ir.actions.act_window",
             "name": _("Purchase Request"),
@@ -64,5 +59,9 @@ class ZvyPurchaseOrder(models.Model):
             "res_id": self.request_id.id,
             "view_mode": "form",
             "target": "current",
-            "context": {"allowed_company_ids": allowed},
+            "context": {
+                "allowed_company_ids": self.env.user._zvy_purchase_allowed_company_ids(
+                    self.request_id.company_id
+                ),
+            },
         }
