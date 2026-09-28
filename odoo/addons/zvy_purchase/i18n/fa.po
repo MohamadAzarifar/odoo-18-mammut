@@ -1,0 +1,2593 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* zvy_purchase
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e-20251003\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-28 06:06+0000\n"
+"PO-Revision-Date: 2026-09-28 06:06+0000\n"
+"Last-Translator: \n"
+"Language-Team: Persian\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "%(record)s: %(changes)s"
+msgstr "%(record)s: %(changes)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "%(record)s: Bid updated."
+msgstr "%(record)s: پیشنهاد به‌روزرسانی شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "%(request)s — %(category)s"
+msgstr "%(request)s — %(category)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "%(request)s — Tendering %(category)s"
+msgstr "%(request)s — مناقصه‌ای %(category)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"<p>Purchase Request %(request)s</p><p>%(category)s type: "
+"%(tier)s</p><p>Amount: %(amount)s</p>"
+msgstr ""
+"<p>درخواست خرید %(request)s</p><p>نوع %(category)s: %(tier)s</p><p>مبلغ: "
+"%(amount)s</p>"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"<p>Purchase Request %(request)s</p><p>Tendering %(category)s type: "
+"%(tier)s</p><p>Amount: %(amount)s</p><p>Purchase items: %(items)s</p>"
+msgstr ""
+"<p>درخواست خرید %(request)s</p><p>نوع مناقصه‌ای %(category)s: "
+"%(tier)s</p><p>مبلغ: %(amount)s</p><p>اقلام خرید: %(items)s</p>"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_approval_request_form_zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "<span class=\"o_stat_text\">Purchase Request</span>"
+msgstr "<span class=\"o_stat_text\">درخواست خرید</span>"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "<strong>End Date:</strong>"
+msgstr "<strong>تاریخ پایان:</strong>"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "<strong>Item:</strong>"
+msgstr "<strong>قلم:</strong>"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "<strong>Purchase Request:</strong>"
+msgstr "<strong>درخواست خرید:</strong>"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "A closed tender cannot be modified."
+msgstr "مناقصه بسته‌شده قابل تغییر نیست."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_assign_tender_expert_wizard.py:0
+msgid "A commission expert can only be assigned when the tender is In Review."
+msgstr "کارشناس کمیسیون فقط زمانی قابل تخصیص است که مناقصه در حال بررسی باشد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid ""
+"A description is required when changing an offer to Selected or Closed."
+msgstr "هنگام تغییر پیشنهاد به انتخاب‌شده یا بسته‌شده، توضیحات الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_commission_case_status_wizard.py:0
+msgid "A reason is required to change the status."
+msgstr "برای تغییر وضعیت، دلیل الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_reject_wizard.py:0
+msgid "A reason is required to reject the offer."
+msgstr "برای رد پیشنهاد، دلیل الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_reason_wizard.py:0
+msgid "A reason is required to select the offer."
+msgstr "برای انتخاب پیشنهاد، دلیل الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_back_to_draft_wizard.py:0
+msgid "A reason is required to send the purchase request back to draft."
+msgstr "برای بازگرداندن درخواست خرید به پیش‌نویس، دلیل الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "A tender can only be closed when it is Evaluation."
+msgstr "مناقصه فقط در وضعیت ارزیابی قابل بستن است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "A tender can only be opened when it is Published."
+msgstr "مناقصه فقط در وضعیت منتشرشده قابل گشایش است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "A tender can only be published when it is Scheduled."
+msgstr "مناقصه فقط در وضعیت زمان‌بندی‌شده قابل انتشار است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_schedule_tender_wizard.py:0
+msgid "A tender can only be scheduled when it is Assigned."
+msgstr "مناقصه فقط در وضعیت تخصیص‌یافته قابل زمان‌بندی است."
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_avl
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_avl
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_avl
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_avl_form
+msgid "AVL"
+msgstr "فهرست فروشندگان تأییدشده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_needaction
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_needaction
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_needaction
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_needaction
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_needaction
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_needaction
+msgid "Action Needed"
+msgstr "اقدام لازم"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__advance_guarantee
+msgid "Advance Payment Guarantee"
+msgstr "ضمانت پیش‌پرداخت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__all_approvals_approved
+msgid "All Approvals Approved"
+msgstr "همه تصویب‌ها تأیید شده‌اند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__all_enquiry_items_selected
+msgid "All Enquiry Items Selected"
+msgstr "همه اقلام استعلام انتخاب شده‌اند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__allowed_vendor_ids
+msgid "Allowed Vendor"
+msgstr "فروشنده مجاز"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__announcement
+msgid "Announcement"
+msgstr "اعلام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__state__approval
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Approval"
+msgstr "تصویب"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_approval_request
+msgid "Approval Request"
+msgstr "درخواست مصوبه"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__approval_request_count
+msgid "Approval Request Count"
+msgstr "تعداد درخواست تصویب"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Approval Summary"
+msgstr "خلاصه تصویب"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Approval is only available for Selected Tendering purchase items that are "
+"not already on an approval."
+msgstr ""
+"تصویب فقط برای اقلام خرید مناقصه‌ای انتخاب‌شده‌ای که هنوز در تصویب نیستند در"
+" دسترس است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Approval is only available when all Enquiry purchase items are Selected."
+msgstr ""
+"تصویب فقط زمانی در دسترس است که همه اقلام خرید استعلام انتخاب‌شده باشند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Approval is only available while the purchase request is In Review."
+msgstr "تصویب فقط وقتی درخواست خرید در حال بررسی است در دسترس است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Approval requested: %(names)s"
+msgstr "درخواست تصویب: %(names)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__approval_request_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__approval_request_ids
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Approvals"
+msgstr "تصویب‌ها"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case__state__approved
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case_status_wizard__target_state__approved
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_search
+msgid "Approve"
+msgstr "تأیید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__approval_category_id
+msgid "Approver"
+msgstr "تصویب‌کننده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_assign_commission_expert_wizard
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_assign_tender_expert_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_commission_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_tender_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Assign"
+msgstr "تخصیص"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_assign_expert_wizard
+msgid "Assign Commercial Experts"
+msgstr "تخصیص کارشناسان بازرگانی"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_assign_expert_wizard_line
+msgid "Assign Commercial Experts Line"
+msgstr "سطر تخصیص کارشناسان بازرگانی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Assign Expert"
+msgstr "تخصیص کارشناس"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Assign Expert is not available once all Enquiry purchase items are Selected."
+msgstr "تخصیص کارشناس پس از انتخاب همه اقلام خرید استعلام در دسترس نیست."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Assign Expert is only available when the purchase request is in review."
+msgstr "تخصیص کارشناس فقط وقتی درخواست خرید در حال بررسی است در دسترس است."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__assigned
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Assigned"
+msgstr "تخصیص‌یافته"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_attachment_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_attachment_count
+msgid "Attachment Count"
+msgstr "تعداد پیوست"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__available_item_ids
+msgid "Available Items"
+msgstr "اقلام موجود"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_back_to_draft_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_back_to_draft_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Back to Draft"
+msgstr "بازگشت به پیش‌نویس"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Back to Draft is not available once all Enquiry purchase items are Selected."
+msgstr "بازگشت به پیش‌نویس پس از انتخاب همه اقلام خرید استعلام در دسترس نیست."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__bid
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+msgid "Bid"
+msgstr "پیشنهاد قیمت"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Bidding is closed for this tender."
+msgstr "مهلت پیشنهاد برای این مناقصه بسته شده است."
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Bidding is open. Update your offer details below."
+msgstr "مهلت پیشنهاد باز است. جزئیات پیشنهاد خود را در زیر به‌روز کنید."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_add_offers
+msgid "Can Add Offers"
+msgstr "می‌تواند پیشنهاد اضافه کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_assign_commission_expert
+msgid "Can Assign Commission Expert"
+msgstr "می‌تواند کارشناس کمیسیون تخصیص دهد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__can_assign_commission_experts
+msgid "Can Assign Commission Experts"
+msgstr "می‌تواند کارشناسان کمیسیون تخصیص دهد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_assign_experts
+msgid "Can Assign Experts"
+msgstr "می‌تواند کارشناسان تخصیص دهد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__can_change_commission_case_status
+msgid "Can Change Commission Case Status"
+msgstr "می‌تواند وضعیت پرونده کمیسیون را تغییر دهد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_close
+msgid "Can Close"
+msgstr "می‌تواند ببندد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_edit
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__can_edit
+msgid "Can Edit"
+msgstr "قابل ویرایش"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__can_edit_items
+msgid "Can Edit Items"
+msgstr "می‌تواند اقلام را ویرایش کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_open
+msgid "Can Open"
+msgstr "می‌تواند بگشاید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_publish
+msgid "Can Publish"
+msgstr "می‌تواند منتشر کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_schedule
+msgid "Can Schedule"
+msgstr "می‌تواند زمان‌بندی کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__can_select
+msgid "Can Select"
+msgstr "می‌تواند انتخاب کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_select_offers
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__can_select_offers
+msgid "Can Select Offers"
+msgstr "می‌تواند پیشنهادها را انتخاب کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__can_submit
+msgid "Can Submit"
+msgstr "می‌تواند ارسال کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_submit_offers
+msgid "Can Submit Offers"
+msgstr "می‌تواند پیشنهادها را ارسال کند"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__can_validate_offers
+msgid "Can Validate Offers"
+msgstr "می‌تواند پیشنهادها را تأیید کند"
+
+#. module: zvy_purchase
+#: model:res.groups,comment:zvy_purchase.group_commission_expert
+msgid ""
+"Can be assigned on commission cases; sees only assigned cases via the "
+"Commission menu."
+msgstr ""
+"قابل تخصیص روی پرونده‌های کمیسیون؛ فقط پرونده‌های تخصیص‌یافته را از منوی "
+"کمیسیون می‌بیند."
+
+#. module: zvy_purchase
+#: model:res.groups,comment:zvy_purchase.group_commercial_expert
+msgid "Can be assigned on purchase items as a commercial expert."
+msgstr "قابل تخصیص روی اقلام خرید به‌عنوان کارشناس بازرگانی."
+
+#. module: zvy_purchase
+#: model:res.groups,comment:zvy_purchase.group_commission_manager
+msgid ""
+"Can change product purchase type and need-commission flags; read-only access"
+" to all purchase requests and commission cases across companies."
+msgstr ""
+"می‌تواند نوع خرید محصول و پرچم‌های نیاز به کمیسیون را تغییر دهد؛ دسترسی "
+"فقط‌خواندنی به همه درخواست‌های خرید و پرونده‌های کمیسیون در همه شرکت‌ها."
+
+#. module: zvy_purchase
+#: model:res.groups,comment:zvy_purchase.group_commercial_manager
+msgid ""
+"Can create purchase requests and items; sees all requests in the company."
+msgstr ""
+"می‌تواند درخواست خرید و اقلام ایجاد کند؛ همه درخواست‌های شرکت را می‌بیند."
+
+#. module: zvy_purchase
+#: model:res.groups,comment:zvy_purchase.group_planner
+msgid "Can create purchase requests and items; sees only own requests."
+msgstr ""
+"می‌تواند درخواست خرید و اقلام ایجاد کند؛ فقط درخواست‌های خود را می‌بیند."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__case_id
+msgid "Case"
+msgstr "پرونده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__product_uom_category_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__category
+msgid "Category"
+msgstr "دسته"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_status_wizard_form
+msgid "Change Status"
+msgstr "تغییر وضعیت"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_wizard_form
+msgid "Choose one validated offer"
+msgstr "یک پیشنهاد تأییدشده انتخاب کنید"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Close"
+msgstr "بستن"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__closed
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__closed
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender_select_wizard_line__decision__closed
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Closed"
+msgstr "بسته‌شده"
+
+#. module: zvy_purchase
+#: model:res.groups,name:zvy_purchase.group_commercial_expert
+msgid "Commercial Expert"
+msgstr "کارشناس بازرگانی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__commercial_expert_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__commercial_expert_ids
+msgid "Commercial Experts"
+msgstr "کارشناسان بازرگانی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Commercial Experts can add offers only when both the purchase request and "
+"the purchase item are in review."
+msgstr ""
+"کارشناسان بازرگانی فقط وقتی درخواست خرید و قلم خرید هر دو در حال بررسی هستند"
+" می‌توانند پیشنهاد اضافه کنند."
+
+#. module: zvy_purchase
+#: model:res.groups,name:zvy_purchase.group_commercial_manager
+msgid "Commercial Manager"
+msgstr "مدیر بازرگانی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_assign_expert_wizard.py:0
+msgid ""
+"Commercial experts can only be assigned from this wizard when the purchase "
+"request is in review."
+msgstr ""
+"کارشناسان بازرگانی فقط وقتی درخواست خرید در حال بررسی است از این ویزارد قابل"
+" تخصیص هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_commission_case
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__state__commission
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_commission_case
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Commission"
+msgstr "کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_commission_case
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__case_id
+msgid "Commission Case"
+msgstr "پرونده کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__commission_case_count
+msgid "Commission Case Count"
+msgstr "تعداد پرونده کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_commission_case_status_wizard
+msgid "Commission Case Status Change"
+msgstr "تغییر وضعیت پرونده کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__commission_case_ids
+msgid "Commission Cases"
+msgstr "پرونده‌های کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__commission_expert_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__commission_expert_id
+#: model:res.groups,name:zvy_purchase.group_commission_expert
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Commission Expert"
+msgstr "کارشناس کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__commission_expert_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__commission_expert_ids
+msgid "Commission Experts"
+msgstr "کارشناسان کمیسیون"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "Commission Experts can only update End Date and Status on tenders."
+msgstr ""
+"کارشناسان کمیسیون فقط می‌توانند تاریخ پایان و وضعیت مناقصه‌ها را به‌روز "
+"کنند."
+
+#. module: zvy_purchase
+#: model:res.groups,name:zvy_purchase.group_commission_manager
+msgid "Commission Manager"
+msgstr "مدیر کمیسیون"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Commission case created: %(name)s"
+msgstr "پرونده کمیسیون ایجاد شد: %(name)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Commission case returned to In Review: %(name)s"
+msgstr "پرونده کمیسیون به در حال بررسی بازگشت: %(name)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_commission_case_status_wizard.py:0
+msgid "Commission case set to %s. Reason: %s"
+msgstr "پرونده کمیسیون به %s تغییر یافت. دلیل: %s"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_commission_case
+msgid ""
+"Commission cases are created from a Purchase Request via the Commission "
+"button."
+msgstr ""
+"پرونده‌های کمیسیون از درخواست خرید از طریق دکمه کمیسیون ایجاد می‌شوند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+msgid "Commission experts can only be assigned when the case is In Review."
+msgstr "کارشناسان کمیسیون فقط وقتی پرونده در حال بررسی است قابل تخصیص هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Commission is only available when a linked commission case is in Correction,"
+" or when all linked approvals are approved, no commission case exists yet, "
+"and either the matched scale rule needs commission or the request has an "
+"Enquiry / Commission item."
+msgstr ""
+"کمیسیون فقط وقتی در دسترس است که پرونده کمیسیون مرتبط در وضعیت اصلاح باشد، "
+"یا همه تصویب‌های مرتبط تأیید شده باشند، هنوز پرونده کمیسیونی وجود نداشته "
+"باشد، و قانون مقیاس مربوطه نیاز به کمیسیون داشته باشد یا درخواست دارای قلم "
+"استعلام / کمیسیون باشد."
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_res_company
+msgid "Companies"
+msgstr "شرکت‌ها"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__company_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__company_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__company_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__company_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__company_id
+msgid "Company"
+msgstr "شرکت"
+
+#. module: zvy_purchase
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_config
+msgid "Configuration"
+msgstr "پیکربندی"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_scale
+msgid "Configure purchase rules for each company scale"
+msgstr "قوانین خرید را برای هر مقیاس شرکت پیکربندی کنید"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_status_wizard_form
+msgid "Confirm"
+msgstr "تأیید"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_avl
+msgid "Connect a vendor to a product"
+msgstr "یک فروشنده را به محصول متصل کنید"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_res_partner
+msgid "Contact"
+msgstr "مخاطب"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__product_uom_category_id
+msgid ""
+"Conversion between Units of Measure can only occur if they belong to the "
+"same category. The conversion will be made based on the ratios."
+msgstr ""
+"تبدیل بین واحدهای اندازه‌گیری فقط وقتی ممکن است که به یک دسته تعلق داشته "
+"باشند. تبدیل بر اساس نسبت‌ها انجام می‌شود."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case__state__correction
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case_status_wizard__target_state__correction
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_search
+msgid "Correction"
+msgstr "اصلاح"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_create_wizard_form
+msgid "Create"
+msgstr "ایجاد"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_order_create_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Create Purchase Order"
+msgstr "ایجاد سفارش خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Create Purchase Order is only available when a Tendering purchase item has a"
+" Selected offer and an Approved approval, or an item on an Approved "
+"commission case has a Selected offer, and the item is not already on a "
+"purchase order."
+msgstr ""
+"ایجاد سفارش خرید فقط وقتی در دسترس است که قلم خرید مناقصه‌ای دارای پیشنهاد "
+"انتخاب‌شده و تصویب تأییدشده باشد، یا قلم روی پرونده کمیسیون تأییدشده دارای "
+"پیشنهاد انتخاب‌شده باشد، و قلم هنوز روی سفارش خرید نباشد."
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_request
+msgid "Create a purchase request"
+msgstr "یک درخواست خرید ایجاد کنید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__request_create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__create_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__create_uid
+msgid "Created by"
+msgstr "ایجادشده توسط"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__create_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__create_date
+msgid "Created on"
+msgstr "ایجادشده در"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_list
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_list
+msgid "Creator"
+msgstr "ایجادکننده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__currency_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__currency_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__currency_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__currency_id
+msgid "Currency"
+msgstr "ارز"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__decision
+msgid "Decision"
+msgstr "تصمیم"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__deliver_time
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Delivery Time"
+msgstr "زمان تحویل"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__description
+msgid "Description"
+msgstr "توضیحات"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_commission_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_assign_tender_expert_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_back_to_draft_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_status_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_reason_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_create_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_schedule_tender_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_select_wizard_form
+msgid "Discard"
+msgstr "انصراف"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__discount_percent_per_unit
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Discount % / Unit"
+msgstr "تخفیف ٪ / واحد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__discount_percent_per_unit
+msgid "Discount rate per unit as a decimal fraction (e.g. 0.1 for 10%)."
+msgstr "نرخ تخفیف به ازای هر واحد به صورت کسر اعشاری (مثلاً ۰٫۱ برای ۱۰٪)."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__display_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__display_name
+msgid "Display Name"
+msgstr "نام نمایشی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__draft
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__draft
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__state__draft
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_search
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#. module: zvy_purchase
+#: model:ir.model.constraint,message:zvy_purchase.constraint_zvy_purchase_scale_scale_uniq
+msgid "Each company scale may only be configured once."
+msgstr "هر مقیاس شرکت فقط یک‌بار قابل پیکربندی است."
+
+#. module: zvy_purchase
+#: model:ir.model.constraint,message:zvy_purchase.constraint_zvy_purchase_scale_rule_scale_category_tier_uniq
+msgid "Each scale may only have one rule per category and purchase type."
+msgstr "هر مقیاس فقط یک قانون به ازای هر دسته و نوع خرید می‌تواند داشته باشد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/controllers/portal.py:0
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__end_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__end_date
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+msgid "End Date"
+msgstr "تاریخ پایان"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_schedule_tender_wizard.py:0
+msgid "End Date is required."
+msgstr "تاریخ پایان الزامی است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_schedule_tender_wizard.py:0
+msgid "End Date must be in the future."
+msgstr "تاریخ پایان باید در آینده باشد."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__product_product__zvy_purchase_type__enquiry
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__purchase_type_display__enquiry
+msgid "Enquiry"
+msgstr "استعلام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__purchase_type_display__enquiry_commission
+msgid "Enquiry / Commission"
+msgstr "استعلام / کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__evaluation
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Evaluation"
+msgstr "ارزیابی"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+msgid "Experts"
+msgstr "کارشناسان"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_reject_wizard_form
+msgid "Explain why this offer is rejected"
+msgstr "دلیل رد این پیشنهاد را توضیح دهید"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_reason_wizard_form
+msgid "Explain why this offer is selected"
+msgstr "دلیل انتخاب این پیشنهاد را توضیح دهید"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_back_to_draft_wizard_form
+msgid "Explain why this request is returned to draft"
+msgstr "دلیل بازگشت این درخواست به پیش‌نویس را توضیح دهید"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_status_wizard_form
+msgid "Explain why this status is changing"
+msgstr "دلیل تغییر این وضعیت را توضیح دهید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__final_price
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__final_price
+msgid "Final Price"
+msgstr "قیمت نهایی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_follower_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_follower_ids
+msgid "Followers"
+msgstr "دنبال‌کنندگان"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_partner_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "دنبال‌کنندگان (شرکا)"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__non_operational_request_type__grand
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__operational_request_type__grand
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__tier__grand
+msgid "Grand"
+msgstr "کلان"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_ir_http
+msgid "HTTP Routing"
+msgstr "مسیریابی HTTP"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__has_message
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__has_message
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__has_message
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__has_message
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__has_message
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__has_message
+msgid "Has Message"
+msgstr "دارای پیام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__payment_method
+msgid "How payment is made (cash, cheque, credit, …)."
+msgstr "نحوه پرداخت (نقد، چک، اعتبار، …)."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__id
+msgid "ID"
+msgstr "شناسه"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__message_needaction
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__message_needaction
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__message_needaction
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__message_needaction
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__message_needaction
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "در صورت انتخاب، پیام‌های جدید نیازمند توجه شما هستند."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__message_has_sms_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__message_has_sms_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__message_has_sms_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__message_has_sms_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__message_has_sms_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__message_has_error
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "در صورت انتخاب، برخی پیام‌ها خطای ارسال دارند."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case__state__in_review
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__in_review
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__in_review
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__state__in_review
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__in_review
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "In Review"
+msgstr "در حال بررسی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"In Review, Validated, Bid, Opened, Selected, or Closed offers cannot be "
+"modified or deleted."
+msgstr ""
+"پیشنهادهای در حال بررسی، تأییدشده، پیشنهاد قیمت، گشوده‌شده، انتخاب‌شده یا "
+"بسته‌شده قابل تغییر یا حذف نیستند."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_is_follower
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_is_follower
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_is_follower
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_is_follower
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_is_follower
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_is_follower
+msgid "Is Follower"
+msgstr "دنبال‌کننده است"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__item_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__item_id
+msgid "Item"
+msgstr "قلم"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__item_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__item_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__item_count
+msgid "Item Count"
+msgstr "تعداد اقلام"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_list
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_list
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_list
+msgid "Items"
+msgstr "اقلام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__write_uid
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "آخرین به‌روزرسانی توسط"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_commission_expert_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__write_date
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "آخرین به‌روزرسانی در"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__res_company__zvy_purchase_scale__major
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__non_operational_request_type__major
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__operational_request_type__major
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale__scale__major
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__tier__major
+#: model:zvy.purchase.scale,name:zvy_purchase.scale_major
+msgid "Major"
+msgstr "عمده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__res_company__zvy_purchase_scale__medium
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__non_operational_request_type__medium
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__operational_request_type__medium
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale__scale__medium
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__tier__medium
+#: model:zvy.purchase.scale,name:zvy_purchase.scale_medium
+msgid "Medium"
+msgstr "متوسط"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_has_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_has_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_has_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_has_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_has_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_has_error
+msgid "Message Delivery error"
+msgstr "خطای ارسال پیام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_ids
+msgid "Messages"
+msgstr "پیام‌ها"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__res_company__zvy_purchase_scale__minor
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale__scale__minor
+#: model:zvy.purchase.scale,name:zvy_purchase.scale_minor
+msgid "Minor"
+msgstr "جزئی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__name
+msgid "Name"
+msgstr "شماره"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__need_commission
+msgid "Need Commission"
+msgstr "نیاز به کمیسیون"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/product_product.py:0
+msgid "Need Commission cannot be set when Purchase Type is Tendering."
+msgstr "وقتی نوع خرید مناقصه‌ای است، نیاز به کمیسیون قابل تنظیم نیست."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_need_commission
+msgid "Need Commission?"
+msgstr "نیاز به کمیسیون؟"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/controllers/portal.py:0
+msgid "Newest"
+msgstr "جدیدترین"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_wizard_form
+msgid "Next"
+msgstr "بعدی"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_commission_case
+msgid "No commission cases yet"
+msgstr "هنوز پرونده کمیسیونی وجود ندارد"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_offer
+msgid "No offers to display"
+msgstr "پیشنهادی برای نمایش وجود ندارد"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_product
+msgid "No products found"
+msgstr "محصولی یافت نشد"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_item_to_review
+msgid "No purchase items assigned to you"
+msgstr "قلم خریدی به شما تخصیص داده نشده است"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_order
+msgid "No purchase orders yet"
+msgstr "هنوز سفارش خریدی وجود ندارد"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"No purchase rule found for %(category)s amount %(amount)s on the company "
+"scale."
+msgstr ""
+"قانون خریدی برای مبلغ %(category)s برابر %(amount)s در مقیاس شرکت یافت نشد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"No purchase rule found for %(category)s type %(tier)s on the company scale."
+msgstr ""
+"قانون خریدی برای نوع %(category)s برابر %(tier)s در مقیاس شرکت یافت نشد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "No purchase scale is configured for company scale '%(scale)s'."
+msgstr "مقیاس خریدی برای مقیاس شرکت «%(scale)s» پیکربندی نشده است."
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_tender_expert
+msgid "No tenders assigned to you yet"
+msgstr "هنوز مناقصه‌ای به شما تخصیص داده نشده است"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_tender
+msgid "No tenders yet"
+msgstr "هنوز مناقصه‌ای وجود ندارد"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "No validated offers for your vendor on this tender."
+msgstr "پیشنهاد تأییدشده‌ای برای فروشنده شما در این مناقصه وجود ندارد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__category__non_operational
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_company_form_zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_scale_form
+msgid "Non-Operational"
+msgstr "غیرعملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__non_operational_amount
+msgid "Non-Operational Amount"
+msgstr "مبلغ غیرعملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_res_company__zvy_purchase_non_operational_rule_ids
+msgid "Non-Operational Purchase Rules"
+msgstr "قوانین خرید غیرعملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__non_operational_rule_ids
+msgid "Non-Operational Rules"
+msgstr "قوانین غیرعملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__non_operational_request_type
+msgid "Non-Operational Type"
+msgstr "نوع غیرعملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_needaction_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_needaction_counter
+msgid "Number of Actions"
+msgstr "تعداد اقدامات"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_has_error_counter
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_has_error_counter
+msgid "Number of errors"
+msgstr "تعداد خطاها"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__message_needaction_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__message_needaction_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__message_needaction_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__message_needaction_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__message_needaction_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "تعداد پیام‌های نیازمند اقدام"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__message_has_error_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__message_has_error_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__message_has_error_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__message_has_error_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__message_has_error_counter
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "تعداد پیام‌های دارای خطای ارسال"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_offer
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__offer_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__offer_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__selected_offer_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__offer_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+msgid "Offer"
+msgstr "پیشنهاد"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Offer %(offer)s created with vendor %(vendor)s."
+msgstr "پیشنهاد %(offer)s با فروشنده %(vendor)s ایجاد شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer %(offer)s is not available for tender selection."
+msgstr "پیشنهاد %(offer)s برای انتخاب مناقصه در دسترس نیست."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Offer %s deleted."
+msgstr "پیشنهاد %s حذف شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer closed after selection of %(offer)s."
+msgstr "پیشنهاد پس از انتخاب %(offer)s بسته شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer closed after tender Select."
+msgstr "پیشنهاد پس از انتخاب مناقصه بسته شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer closed. Reason: %s"
+msgstr "پیشنهاد بسته شد. دلیل: %s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_reject_wizard.py:0
+msgid "Offer rejected. Reason: %s"
+msgstr "پیشنهاد رد شد. دلیل: %s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer selected. Reason: %s"
+msgstr "پیشنهاد انتخاب شد. دلیل: %s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_reason_wizard.py:0
+msgid "Offer selected: %(offer)s. Reason: %(reason)s"
+msgstr "پیشنهاد انتخاب شد: %(offer)s. دلیل: %(reason)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offer set to Opened."
+msgstr "پیشنهاد به گشوده‌شده تغییر یافت."
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_offer
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__offer_count
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__offer_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__line_ids
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_offer
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Offers"
+msgstr "پیشنهادها"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Offers can only be selected when the tender is Evaluation."
+msgstr "پیشنهادها فقط وقتی مناقصه در ارزیابی است قابل انتخاب هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Offers can only be submitted when the purchase request and purchase item are"
+" In Review."
+msgstr ""
+"پیشنهادها فقط وقتی درخواست خرید و قلم خرید در حال بررسی هستند قابل ارسال "
+"هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_reason_wizard.py:0
+msgid "Offers closed after selection of %(offer)s: %(closed)s."
+msgstr "پیشنهادها پس از انتخاب %(offer)s بسته شدند: %(closed)s."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only Commercial Experts and Commercial Managers can add offers."
+msgstr "فقط کارشناسان و مدیران بازرگانی می‌توانند پیشنهاد اضافه کنند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/product_product.py:0
+msgid ""
+"Only Commission Managers can change Purchase Type, Need Commission, and "
+"Operational."
+msgstr ""
+"فقط مدیران کمیسیون می‌توانند نوع خرید، نیاز به کمیسیون و عملیاتی را تغییر "
+"دهند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only Validated or Bid offers can be updated from the portal."
+msgstr ""
+"فقط پیشنهادهای تأییدشده یا پیشنهاد قیمت از پورتال قابل به‌روزرسانی هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_assign_expert_wizard.py:0
+msgid "Only a Commercial Manager can assign commercial experts."
+msgstr "فقط مدیر بازرگانی می‌تواند کارشناسان بازرگانی را تخصیص دهد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+msgid "Only a Commercial Manager can create a purchase order."
+msgstr "فقط مدیر بازرگانی می‌تواند سفارش خرید ایجاد کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only a Commercial Manager can create a tender."
+msgstr "فقط مدیر بازرگانی می‌تواند مناقصه ایجاد کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_reject_wizard.py:0
+msgid "Only a Commercial Manager can reject an offer."
+msgstr "فقط مدیر بازرگانی می‌تواند پیشنهاد را رد کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only a Commercial Manager can request commission."
+msgstr "فقط مدیر بازرگانی می‌تواند کمیسیون درخواست کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only a Commercial Manager can request purchase approval."
+msgstr "فقط مدیر بازرگانی می‌تواند تصویب خرید درخواست کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_reason_wizard.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "Only a Commercial Manager can select an offer."
+msgstr "فقط مدیر بازرگانی می‌تواند پیشنهاد را انتخاب کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_back_to_draft_wizard.py:0
+msgid "Only a Commercial Manager can send a purchase request back to draft."
+msgstr "فقط مدیر بازرگانی می‌تواند درخواست خرید را به پیش‌نویس بازگرداند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only a Commercial Manager can validate an offer."
+msgstr "فقط مدیر بازرگانی می‌تواند پیشنهاد را تأیید کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only a Commercial Manager can validate offers on this purchase item."
+msgstr "فقط مدیر بازرگانی می‌تواند پیشنهادهای این قلم خرید را تأیید کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_assign_tender_expert_wizard.py:0
+msgid "Only a Commission Manager can assign a commission expert."
+msgstr "فقط مدیر کمیسیون می‌تواند کارشناس کمیسیون را تخصیص دهد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_assign_commission_expert_wizard.py:0
+msgid "Only a Commission Manager can assign commission experts."
+msgstr "فقط مدیر کمیسیون می‌تواند کارشناسان کمیسیون را تخصیص دهد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_commission_case_status_wizard.py:0
+msgid "Only a Commission Manager can change the commission case status."
+msgstr "فقط مدیر کمیسیون می‌تواند وضعیت پرونده کمیسیون را تغییر دهد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "Only a Commission Manager can close a tender."
+msgstr "فقط مدیر کمیسیون می‌تواند مناقصه را ببندد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "Only a Commission Manager can open a tender."
+msgstr "فقط مدیر کمیسیون می‌تواند مناقصه را بگشاید."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "Only a Commission Manager can select offers on a tender."
+msgstr "فقط مدیر کمیسیون می‌تواند پیشنهادهای مناقصه را انتخاب کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Only an assigned Commercial Expert can submit offers on this purchase item."
+msgstr ""
+"فقط کارشناس بازرگانی تخصیص‌یافته می‌تواند پیشنهادهای این قلم خرید را ارسال "
+"کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_commission_case_status_wizard.py:0
+msgid "Only commission cases in In Review can change status."
+msgstr "فقط پرونده‌های کمیسیون در حال بررسی می‌توانند وضعیت را تغییر دهند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only draft or rejected offers can be submitted."
+msgstr "فقط پیشنهادهای پیش‌نویس یا ردشده قابل ارسال هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only draft purchase requests can be sent for review."
+msgstr "فقط درخواست‌های خرید پیش‌نویس قابل ارسال برای بررسی هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_reject_wizard.py:0
+msgid "Only offers in review can be rejected."
+msgstr "فقط پیشنهادهای در حال بررسی قابل رد هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only offers in review can be validated."
+msgstr "فقط پیشنهادهای در حال بررسی قابل تأیید هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_tender_select_wizard.py:0
+msgid "Only one offer can be Selected per purchase item (%(item)s)."
+msgstr "برای هر قلم خرید فقط یک پیشنهاد می‌تواند انتخاب‌شده باشد (%(item)s)."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_back_to_draft_wizard.py:0
+msgid "Only purchase requests in review can be sent back to draft."
+msgstr "فقط درخواست‌های خرید در حال بررسی قابل بازگشت به پیش‌نویس هستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid ""
+"Only the assigned Commission Expert can schedule or publish this tender."
+msgstr ""
+"فقط کارشناس کمیسیون تخصیص‌یافته می‌تواند این مناقصه را زمان‌بندی یا منتشر "
+"کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only the creator of an offer can modify or delete it."
+msgstr "فقط ایجادکننده پیشنهاد می‌تواند آن را تغییر یا حذف کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only the creator of an offer can submit it."
+msgstr "فقط ایجادکننده پیشنهاد می‌تواند آن را ارسال کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Only the creator of the purchase request can add or edit its purchase items."
+msgstr ""
+"فقط ایجادکننده درخواست خرید می‌تواند اقلام خرید آن را اضافه یا ویرایش کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Only the creator of the purchase request can send it for review."
+msgstr "فقط ایجادکننده درخواست خرید می‌تواند آن را برای بررسی ارسال کند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_reason_wizard.py:0
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "Only validated offers can be selected."
+msgstr "فقط پیشنهادهای تأییدشده قابل انتخاب هستند."
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Open"
+msgstr "گشایش"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__is_open_ended
+msgid "Open-Ended"
+msgstr "باز / بدون سقف"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__opened
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender_select_wizard_line__decision__opened
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+msgid "Opened"
+msgstr "گشوده‌شده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_operational
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__category__operational
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_company_form_zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_scale_form
+msgid "Operational"
+msgstr "عملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__operational_amount
+msgid "Operational Amount"
+msgstr "مبلغ عملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_res_company__zvy_purchase_operational_rule_ids
+msgid "Operational Purchase Rules"
+msgstr "قوانین خرید عملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__operational_rule_ids
+msgid "Operational Rules"
+msgstr "قوانین عملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__operational_request_type
+msgid "Operational Type"
+msgstr "نوع عملیاتی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__ordered
+msgid "Ordered"
+msgstr "سفارش‌داده‌شده"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+msgid "Payment & Delivery"
+msgstr "پرداخت و تحویل"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__payment_duration
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Payment Duration"
+msgstr "مدت پرداخت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__payment_method
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Payment Method"
+msgstr "روش پرداخت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__payment_duration
+msgid "Payment terms duration (e.g. 30 days, 60 days, …)."
+msgstr "مدت شرایط پرداخت (مثلاً ۳۰ روز، ۶۰ روز، …)."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__performance_guarantee
+msgid "Performance Guarantee"
+msgstr "ضمانت حسن انجام کار"
+
+#. module: zvy_purchase
+#: model:res.groups,name:zvy_purchase.group_planner
+msgid "Planner"
+msgstr "برنامه‌ریز"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "Please select exactly one offer."
+msgstr "لطفاً دقیقاً یک پیشنهاد انتخاب کنید."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__product_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__product_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__product_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__product_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_avl_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_product_form
+msgid "Product"
+msgstr "محصول"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_product_product
+msgid "Product Variant"
+msgstr "گونه محصول"
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_product
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_product
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_product_list
+msgid "Products"
+msgstr "محصولات"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Publish"
+msgstr "انتشار"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__published
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Published"
+msgstr "منتشرشده"
+
+#. module: zvy_purchase
+#: model:ir.module.category,name:zvy_purchase.module_category_zvy_purchase
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_root
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_product_product_form_zvy_purchase
+msgid "Purchase"
+msgstr "خرید"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_item
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__item_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__item_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__item_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+msgid "Purchase Item"
+msgstr "قلم خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Purchase Item %(item)s created with product %(product)s (%(qty)s %(uom)s)."
+msgstr "قلم خرید %(item)s با محصول %(product)s (%(qty)s %(uom)s) ایجاد شد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Purchase Item %s deleted."
+msgstr "قلم خرید %s حذف شد."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_approval_request__zvy_purchase_item_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__line_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__item_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__item_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__item_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__item_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__item_ids
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_approval_request_form_zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_order_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Purchase Items"
+msgstr "اقلام خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_order
+msgid "Purchase Order"
+msgstr "سفارش خرید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__purchase_order_count
+msgid "Purchase Order Count"
+msgstr "تعداد سفارش خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_order
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__purchase_order_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__purchase_order_ids
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Purchase Orders"
+msgstr "سفارش‌های خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/approval_request.py:0
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: code:addons/zvy_purchase/models/zvy_purchase_order.py:0
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_request
+#: model:ir.model.fields,field_description:zvy_purchase.field_approval_request__zvy_purchase_request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__request_name
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order_create_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__request_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Purchase Request"
+msgstr "درخواست خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Purchase Request created."
+msgstr "درخواست خرید ایجاد شد."
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_request
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_request
+msgid "Purchase Requests"
+msgstr "درخواست‌های خرید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__rule_ids
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_company_form_zvy_purchase
+msgid "Purchase Rules"
+msgstr "قوانین خرید"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_scale
+msgid "Purchase Scale"
+msgstr "مقیاس خرید"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_scale_rule
+msgid "Purchase Scale Rule"
+msgstr "قانون مقیاس خرید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_purchase_type
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__purchase_type_display
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__tier
+msgid "Purchase Type"
+msgstr "نوع خرید"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_mail_mixin
+msgid "Purchase chatter helpers"
+msgstr "کمک‌کننده‌های گفتگوی خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/approval_request.py:0
+msgid ""
+"Purchase items %(items)s are already on approval %(approval)s. A purchase "
+"item can be submitted again only when that approval is Refused."
+msgstr ""
+"اقلام خرید %(items)s از قبل روی تصویب %(approval)s هستند. قلم خرید فقط وقتی "
+"آن تصویب رد شده باشد دوباره قابل ارسال است."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Purchase items can no longer be edited once the request is in review."
+msgstr ""
+"پس از قرار گرفتن درخواست در حال بررسی، اقلام خرید دیگر قابل ویرایش نیستند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+msgid "Purchase order created: %(name)s (%(items)s)"
+msgstr "سفارش خرید ایجاد شد: %(name)s (%(items)s)"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_order
+msgid ""
+"Purchase orders are created from a Purchase Request via the Create Purchase "
+"Order button."
+msgstr ""
+"سفارش‌های خرید از درخواست خرید از طریق دکمه ایجاد سفارش خرید ایجاد می‌شوند."
+
+#. module: zvy_purchase
+#: model:ir.module.category,description:zvy_purchase.module_category_zvy_purchase
+msgid "Purchase requests, AVL, and product purchase attributes."
+msgstr "درخواست‌های خرید، فهرست فروشندگان تأییدشده و ویژگی‌های خرید محصول."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__product_qty
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__quantity
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Quantity"
+msgstr "تعداد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__reason
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__reason
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_reject_wizard__reason
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_reason_wizard__reason
+msgid "Reason"
+msgstr "دلیل"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/controllers/portal.py:0
+msgid "Reference"
+msgstr "مرجع"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_commission_case.py:0
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case__state__rejected
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_commission_case_status_wizard__target_state__rejected
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_commission_case_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_reject_wizard_form
+msgid "Reject"
+msgstr "رد"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_offer_reject_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_reject_wizard_form
+msgid "Reject Offer"
+msgstr "رد پیشنهاد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__rejected
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+msgid "Rejected"
+msgstr "ردشده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_back_to_draft_wizard__request_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__request_id
+msgid "Request"
+msgstr "درخواست"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__request_state
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__request_state
+msgid "Request Status"
+msgstr "وضعیت درخواست"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__required_documents
+msgid "Required Documents"
+msgstr "مدارک مورد نیاز"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__message_has_sms_error
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطای ارسال پیامک"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_res_company__zvy_purchase_scale
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale__scale
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__scale_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_scale_form
+msgid "Scale"
+msgstr "مقیاس"
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_scale
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_scale
+msgid "Scales"
+msgstr "مقیاس‌ها"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_schedule_tender_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_schedule_tender_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+msgid "Schedule"
+msgstr "زمان‌بندی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender__state__scheduled
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Scheduled"
+msgstr "زمان‌بندی‌شده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_reason_wizard_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_select_wizard_form
+msgid "Select"
+msgstr "انتخاب"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_offer_select_wizard
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_wizard_form
+msgid "Select Offer"
+msgstr "انتخاب پیشنهاد"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_offer_select_reason_wizard
+msgid "Select Offer Reason"
+msgstr "دلیل انتخاب پیشنهاد"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_tender_select_wizard
+msgid "Select Tender Offers"
+msgstr "انتخاب پیشنهادهای مناقصه"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_tender_select_wizard_line
+msgid "Select Tender Offers Line"
+msgstr "سطر انتخاب پیشنهادهای مناقصه"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+msgid ""
+"Select at least one purchase item that is either Tendering with a Selected "
+"offer and Approved approval, or on an Approved commission case with a "
+"Selected offer, and is not already on a purchase order."
+msgstr ""
+"حداقل یک قلم خرید انتخاب کنید که یا مناقصه‌ای با پیشنهاد انتخاب‌شده و تصویب "
+"تأییدشده باشد، یا روی پرونده کمیسیون تأییدشده با پیشنهاد انتخاب‌شده باشد، و "
+"هنوز روی سفارش خرید نباشد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Select is only available when the offer is Validated."
+msgstr "انتخاب فقط وقتی پیشنهاد تأییدشده است در دسترس است."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__selected
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__selected
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_tender_select_wizard_line__decision__selected
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_search
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+msgid "Selected"
+msgstr "انتخاب‌شده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Selecting an offer is not available for Tendering purchase type."
+msgstr "انتخاب پیشنهاد برای نوع خرید مناقصه‌ای در دسترس نیست."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_select_reason_wizard_form
+msgid "Selection Reason"
+msgstr "دلیل انتخاب"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Send"
+msgstr "ارسال"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_back_to_draft_wizard.py:0
+msgid "Sent back to draft. Reason: %s"
+msgstr "به پیش‌نویس بازگردانده شد. دلیل: %s"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__sequence
+msgid "Sequence"
+msgstr "توالی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__sequence_number
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__sequence_number
+msgid "Sequence Number"
+msgstr "شماره توالی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Set an Approver (Approval Type) on the %(category)s %(tier)s purchase rule "
+"before requesting approval."
+msgstr ""
+"قبل از درخواست تصویب، تصویب‌کننده (نوع تصویب) را روی قانون خرید %(category)s"
+" %(tier)s تنظیم کنید."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_tender.py:0
+msgid "Set an End Date before publishing the tender."
+msgstr "قبل از انتشار مناقصه، تاریخ پایان را تنظیم کنید."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__show_commercial_fields
+msgid "Show Commercial Fields"
+msgstr "نمایش فیلدهای بازرگانی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__show_commission_button
+msgid "Show Commission Button"
+msgstr "نمایش دکمه کمیسیون"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__show_create_purchase_order_button
+msgid "Show Create Purchase Order Button"
+msgstr "نمایش دکمه ایجاد سفارش خرید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__show_tender_approval_button
+msgid "Show Tender Approval Button"
+msgstr "نمایش دکمه تصویب مناقصه"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__show_tender_button
+msgid "Show Tender Button"
+msgstr "نمایش دکمه مناقصه"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__non_operational_request_type__small
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_request__operational_request_type__small
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_scale_rule__tier__small
+msgid "Small"
+msgstr "کوچک"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__state
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__state
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__item_state
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__state
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__state
+msgid "State"
+msgstr "وضعیت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__state
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_tender_search
+msgid "Status"
+msgstr "وضعیت"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+msgid "Submit"
+msgstr "ثبت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__submitted
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_search
+msgid "Submitted"
+msgstr "ارسال‌شده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Submitted own offers to In Review: %(offers)s."
+msgstr "پیشنهادهای خود به در حال بررسی ارسال شد: %(offers)s."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case_status_wizard__target_state
+msgid "Target State"
+msgstr "وضعیت هدف"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_tender
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_tender_expert_wizard__tender_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_schedule_tender_wizard__tender_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard__tender_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Tender"
+msgstr "مناقصه"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__tender_count
+msgid "Tender Count"
+msgstr "تعداد مناقصه"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Tender created: %(name)s"
+msgstr "مناقصه ایجاد شد: %(name)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid ""
+"Tender is only available when the request has Tendering purchase items, "
+"every Tendering item has at least one Validated offer, and no tender exists "
+"yet."
+msgstr ""
+"مناقصه فقط وقتی در دسترس است که درخواست دارای اقلام خرید مناقصه‌ای باشد، هر "
+"قلم مناقصه‌ای حداقل یک پیشنهاد تأییدشده داشته باشد، و هنوز مناقصه‌ای وجود "
+"نداشته باشد."
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__product_product__zvy_purchase_type__tendering
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__purchase_type_display__tendering
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_item__state__tendering
+msgid "Tendering"
+msgstr "مناقصه‌ای"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Tendering approval requested: %(names)s"
+msgstr "درخواست تصویب مناقصه‌ای: %(names)s"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_tender
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_tender_expert
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__tender_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__tender_ids
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_tender
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_tender_expert
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_home_menu_tender
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_home_tender
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_request_form
+msgid "Tenders"
+msgstr "مناقصه‌ها"
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_tender
+msgid "Tenders are created from a Purchase Request via the Tender button."
+msgstr "مناقصه‌ها از درخواست خرید از طریق دکمه مناقصه ایجاد می‌شوند."
+
+#. module: zvy_purchase
+#: model_terms:ir.actions.act_window,help:zvy_purchase.action_zvy_purchase_tender_expert
+msgid "Tenders assigned to you by a Commission Manager appear here."
+msgstr ""
+"مناقصه‌های تخصیص‌یافته به شما توسط مدیر کمیسیون اینجا نمایش داده می‌شوند."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "The selected offer does not belong to this purchase item."
+msgstr "پیشنهاد انتخاب‌شده متعلق به این قلم خرید نیست."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "The selected offer is not available."
+msgstr "پیشنهاد انتخاب‌شده در دسترس نیست."
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tenders
+msgid "There are currently no published tenders for your account."
+msgstr "در حال حاضر مناقصه منتشرشده‌ای برای حساب شما وجود ندارد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_order_create_wizard.py:0
+msgid ""
+"There are no purchase items ready for a purchase order (Tendering with "
+"Selected offer + Approved approval, or items on an Approved commission case "
+"with a Selected offer, and not already on a purchase order)."
+msgstr ""
+"قلم خریدی آماده برای سفارش خرید وجود ندارد (مناقصه‌ای با پیشنهاد انتخاب‌شده "
+"+ تصویب تأییدشده، یا اقلام روی پرونده کمیسیون تأییدشده با پیشنهاد "
+"انتخاب‌شده، و هنوز روی سفارش خرید نباشد)."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/wizard/zvy_purchase_offer_select_wizard.py:0
+msgid "There are no validated offers to select."
+msgstr "پیشنهاد تأییدشده‌ای برای انتخاب وجود ندارد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "There is no Operational or Non-Operational amount to approve."
+msgstr "مبلغ عملیاتی یا غیرعملیاتی برای تصویب وجود ندارد."
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "This offer is not on a published tender."
+msgstr "این پیشنهاد روی مناقصه منتشرشده نیست."
+
+#. module: zvy_purchase
+#: model:ir.model.constraint,message:zvy_purchase.constraint_zvy_purchase_avl_vendor_product_uniq
+msgid "This vendor is already listed for this product."
+msgstr "این فروشنده از قبل برای این محصول ثبت شده است."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_scale_rule__amount_max
+msgid "Threshold"
+msgstr "آستانه"
+
+#. module: zvy_purchase
+#: model:ir.actions.act_window,name:zvy_purchase.action_zvy_purchase_item_to_review
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_item_to_review
+msgid "To Review"
+msgstr "برای بررسی"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__total_price
+msgid "Total Price"
+msgstr "قیمت کل"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Total:"
+msgstr "جمع:"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__unit_price
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Unit Price"
+msgstr "قیمت واحد"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__product_uom_id
+msgid "Unit of Measure"
+msgstr "واحد اندازه‌گیری"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Update Offer"
+msgstr "به‌روزرسانی پیشنهاد"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_res_users
+msgid "User"
+msgstr "کاربر"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_item_form
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_form
+msgid "Validate"
+msgstr "تأیید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields.selection,name:zvy_purchase.selection__zvy_purchase_offer__state__validated
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_offer_search
+msgid "Validated"
+msgstr "تأییدشده"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer_select_wizard__available_offer_ids
+msgid "Validated Offers"
+msgstr "پیشنهادهای تأییدشده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "Validated offers: %(offers)s."
+msgstr "پیشنهادهای تأییدشده: %(offers)s."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_avl__vendor_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__vendor_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__vendor_id
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.view_zvy_purchase_avl_search
+msgid "Vendor"
+msgstr "فروشنده"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_home_tender
+msgid "View published tenders and submit your bids"
+msgstr "مناقصه‌های منتشرشده را ببینید و پیشنهاد خود را ارسال کنید"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_commission_case__website_message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_item__website_message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_offer__website_message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_order__website_message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_request__website_message_ids
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender__website_message_ids
+msgid "Website Messages"
+msgstr "پیام‌های وب‌سایت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_commission_case__website_message_ids
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_item__website_message_ids
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_offer__website_message_ids
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_order__website_message_ids
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_request__website_message_ids
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_tender__website_message_ids
+msgid "Website communication history"
+msgstr "تاریخچه ارتباط وب‌سایت"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,help:zvy_purchase.field_zvy_purchase_scale_rule__is_open_ended
+msgid "When set, the threshold is above amount_max rather than up to it."
+msgstr "در صورت تنظیم، آستانه بالاتر از amount_max است نه تا آن."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_assign_expert_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:zvy_purchase.field_zvy_purchase_tender_select_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "ویزارد"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_request.py:0
+msgid "You can only update offers for your vendor."
+msgstr "فقط می‌توانید پیشنهادهای فروشنده خود را به‌روز کنید."
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid ""
+"Your offer could not be updated. Please check the values and try again."
+msgstr ""
+"پیشنهاد شما به‌روز نشد. لطفاً مقادیر را بررسی کرده و دوباره تلاش کنید."
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid "Your offer has been updated."
+msgstr "پیشنهاد شما به‌روز شد."
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_need_commission_company_values
+msgid "Zvy Need Commission Company Values"
+msgstr "مقادیر شرکتی نیاز به کمیسیون Zvy"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_operational_company_values
+msgid "Zvy Operational Company Values"
+msgstr "مقادیر شرکتی عملیاتی Zvy"
+
+#. module: zvy_purchase
+#: model:ir.model.fields,field_description:zvy_purchase.field_product_product__zvy_purchase_type_company_values
+msgid "Zvy Purchase Type Company Values"
+msgstr "مقادیر شرکتی نوع خرید Zvy"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid ""
+"—\n"
+"                                            Final:"
+msgstr ""
+"—\n"
+"                                            نهایی:"
+
+#. module: zvy_purchase
+#: model_terms:ir.ui.view,arch_db:zvy_purchase.portal_my_tender
+msgid ""
+"—\n"
+"                                Qty requested:"
+msgstr ""
+"—\n"
+"                                تعداد درخواستی:"
