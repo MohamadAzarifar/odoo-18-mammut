@@ -4,6 +4,7 @@ from . import zvy_purchase_scale
 from . import zvy_purchase_commission_case
 from . import zvy_purchase_tender
 from . import zvy_purchase_order
+from . import zvy_purchase_dashboard
 from . import product_product
 from . import res_partner
 from . import res_company

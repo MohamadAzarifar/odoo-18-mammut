@@ -369,3 +369,9 @@ when a purchase request has a commission case with status of Correction, show Co
 when a purchase request has a commission case with status of Approve, show Create Purchase Order button again for commercial manager.
 by clicking, show a wizard which shows list of purchase items which has selected offer and has approved approval and if needed, approves commission cases. list is multi-select and after selecting, create a new purchase order with linked purchase items. change the status of linked purchase items to Ordered.
 once linked to a PO, hide them from the wizard (button hides when none remain).
+
+---
+
+add a new menu item for all roles labeled Dashboard.
+the dashboard should be the first route opens in purchase app.
+dashboard contain cards to show reports and links to records based on roles (commercial manager, commission manager, commercial experts, commission experts, planners).

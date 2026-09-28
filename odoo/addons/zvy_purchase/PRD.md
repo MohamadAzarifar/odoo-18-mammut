@@ -188,6 +188,7 @@ Rules implied by the draft:
 
 ### FR-4 — Navigation
 
+- Purchase opens on a **Dashboard** menu (first under the Purchase app) for all five roles (Planner, Commercial Manager, Commercial Expert, Commission Manager, Commission Expert). Each card is a mini report (count, share of model total, doughnut of queue vs other, 14-day create trend) with an icon and a **Check** button that opens the filtered list of related records (not a formal reporting module).
 - From a request, users can see all items and, for each item, its offers.
 - Product and vendor are standard Odoo records (catalog / contact), not free text.
 - Purchase has a **To Review** menu. It lists Purchase Items where the current user is one of the Commercial Experts.

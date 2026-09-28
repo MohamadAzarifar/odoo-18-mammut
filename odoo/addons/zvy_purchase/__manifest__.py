@@ -1,6 +1,6 @@
 {
     "name": "Purchase",
-    "version": "1.94",
+    "version": "1.96",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
     "depends": [
@@ -17,6 +17,7 @@
         "data/ir_sequence_data.xml",
         "data/zvy_purchase_scale_data.xml",
         "views/zvy_purchase_request_views.xml",
+        "views/zvy_purchase_dashboard_views.xml",
         "views/zvy_purchase_commission_case_views.xml",
         "views/zvy_purchase_tender_views.xml",
         "views/zvy_purchase_order_views.xml",
@@ -41,6 +42,9 @@
     "assets": {
         "web.assets_backend": [
             "zvy_purchase/static/src/js/purchase_item_one2many.js",
+            "zvy_purchase/static/src/js/purchase_dashboard.js",
+            "zvy_purchase/static/src/xml/purchase_dashboard.xml",
+            "zvy_purchase/static/src/scss/purchase_dashboard.scss",
         ],
         # Must run before session.js deletes odoo.__session_info__ (minimal bundle).
         "web.assets_frontend_minimal": [

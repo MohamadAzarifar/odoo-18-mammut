@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="zvy_purchase.PurchaseDashboardCard">
+        <div class="o_zvy_purchase_dashboard_card border bg-view rounded">
+            <div class="o_zvy_purchase_dashboard_card_header d-flex align-items-center gap-2 mb-2">
+                <i t-attf-class="fa {{ props.card.icon }} fa-lg text-primary" role="img" t-att-title="props.card.title"/>
+                <span class="fw-bold text-truncate" t-esc="props.card.title"/>
+            </div>
+            <div class="o_zvy_purchase_dashboard_card_stats mb-2">
+                <div class="o_zvy_purchase_dashboard_card_count" t-esc="props.card.count"/>
+                <div class="text-muted small">
+                    <t t-esc="ofLabel"/>
+                    <t t-esc="props.card.total"/>
+                    ·
+                    <t t-esc="props.card.share"/>%
+                </div>
+            </div>
+            <div class="o_zvy_purchase_dashboard_card_charts d-flex gap-2 mb-3">
+                <div class="o_zvy_purchase_dashboard_chart_wrap flex-grow-1">
+                    <canvas t-ref="doughnut"/>
+                </div>
+                <div class="o_zvy_purchase_dashboard_chart_wrap flex-grow-1">
+                    <canvas t-ref="line"/>
+                    <div class="text-muted text-center o_zvy_purchase_dashboard_chart_caption" t-esc="last14DaysLabel"/>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary w-100" t-on-click="onCheckClick" t-esc="checkLabel"/>
+        </div>
+    </t>
+
+    <t t-name="zvy_purchase.PurchaseDashboard">
+        <Layout display="display" className="'o_zvy_purchase_dashboard'">
+            <div class="o_zvy_purchase_dashboard_content p-3">
+                <t t-if="!state.cards.length">
+                    <div class="text-muted" t-esc="emptyLabel"/>
+                </t>
+                <div t-else="" class="o_zvy_purchase_dashboard_grid">
+                    <PurchaseDashboardCard
+                        t-foreach="state.cards"
+                        t-as="card"
+                        t-key="card.key"
+                        card="card"
+                        onCheck.bind="openCard"/>
+                </div>
+            </div>
+        </Layout>
+    </t>
+</templates>

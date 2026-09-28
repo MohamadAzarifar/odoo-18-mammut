@@ -2591,3 +2591,152 @@ msgid ""
 msgstr ""
 "—\n"
 "                                تعداد درخواستی:"
+
+#. module: zvy_purchase
+#: model:ir.actions.client,name:zvy_purchase.action_zvy_purchase_dashboard
+#: model:ir.ui.menu,name:zvy_purchase.menu_zvy_purchase_dashboard
+msgid "Dashboard"
+msgstr "داشبورد"
+
+#. module: zvy_purchase
+#: model:ir.model,name:zvy_purchase.model_zvy_purchase_dashboard
+msgid "Purchase Dashboard"
+msgstr "داشبورد خرید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Draft Requests"
+msgstr "درخواست‌های پیش‌نویس"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Requests In Review"
+msgstr "درخواست‌های در حال بررسی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Requests Approval"
+msgstr "درخواست‌های تأیید"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Requests Commission"
+msgstr "درخواست‌های کمیسیون"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Offers In Review"
+msgstr "پیشنهادهای در حال بررسی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Offers Validated"
+msgstr "پیشنهادهای تأییدشده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Assigned Items"
+msgstr "اقلام تخصیص‌یافته"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My Draft Offers"
+msgstr "پیشنهادهای پیش‌نویس من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My Rejected Offers"
+msgstr "پیشنهادهای ردشده من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My In Review Offers"
+msgstr "پیشنهادهای در حال بررسی من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Cases In Review"
+msgstr "پرونده‌های در حال بررسی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Tenders In Review"
+msgstr "مناقصه‌های در حال بررسی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Tenders Published"
+msgstr "مناقصه‌های منتشرشده"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Tenders Evaluation"
+msgstr "مناقصه‌های در ارزیابی"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My Tenders Assigned"
+msgstr "مناقصه‌های تخصیص‌یافته من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My Tenders Scheduled"
+msgstr "مناقصه‌های زمان‌بندی‌شده من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "My Cases In Review"
+msgstr "پرونده‌های در حال بررسی من"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "This queue"
+msgstr "این صف"
+
+#. module: zvy_purchase
+#. odoo-python
+#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
+msgid "Other"
+msgstr "سایر"
+
+#. module: zvy_purchase
+#. odoo-javascript
+#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
+msgid "of"
+msgstr "از"
+
+#. module: zvy_purchase
+#. odoo-javascript
+#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
+msgid "Last 14 days"
+msgstr "۱۴ روز اخیر"
+
+#. module: zvy_purchase
+#. odoo-javascript
+#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
+msgid "Check"
+msgstr "بررسی"
+
+#. module: zvy_purchase
+#. odoo-javascript
+#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
+msgid "No work queues for your role."
+msgstr "صف کاری برای نقش شما وجود ندارد."

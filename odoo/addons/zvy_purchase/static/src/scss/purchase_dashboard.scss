@@ -1,0 +1,45 @@
+.o_zvy_purchase_dashboard {
+    .o_zvy_purchase_dashboard_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+
+    .o_zvy_purchase_dashboard_card {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1.1rem 1.1rem;
+        box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.04);
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+            border-color: var(--primary, #714b67) !important;
+        }
+    }
+
+    .o_zvy_purchase_dashboard_card_count {
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1.15;
+    }
+
+    .o_zvy_purchase_dashboard_card_charts {
+        min-height: 88px;
+    }
+
+    .o_zvy_purchase_dashboard_chart_wrap {
+        position: relative;
+        height: 88px;
+
+        canvas {
+            max-height: 72px;
+        }
+    }
+
+    .o_zvy_purchase_dashboard_chart_caption {
+        font-size: 0.7rem;
+        line-height: 1;
+        margin-top: 0.15rem;
+    }
+}
