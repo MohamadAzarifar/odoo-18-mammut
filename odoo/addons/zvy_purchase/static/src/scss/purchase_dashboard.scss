@@ -1,7 +1,7 @@
 .o_zvy_purchase_dashboard {
     .o_zvy_purchase_dashboard_grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 1rem;
     }
 
@@ -19,27 +19,8 @@
     }
 
     .o_zvy_purchase_dashboard_card_count {
-        font-size: 2rem;
+        font-size: 2.25rem;
         font-weight: 600;
         line-height: 1.15;
-    }
-
-    .o_zvy_purchase_dashboard_card_charts {
-        min-height: 88px;
-    }
-
-    .o_zvy_purchase_dashboard_chart_wrap {
-        position: relative;
-        height: 88px;
-
-        canvas {
-            max-height: 72px;
-        }
-    }
-
-    .o_zvy_purchase_dashboard_chart_caption {
-        font-size: 0.7rem;
-        line-height: 1;
-        margin-top: 0.15rem;
     }
 }

@@ -6,24 +6,7 @@
                 <i t-attf-class="fa {{ props.card.icon }} fa-lg text-primary" role="img" t-att-title="props.card.title"/>
                 <span class="fw-bold text-truncate" t-esc="props.card.title"/>
             </div>
-            <div class="o_zvy_purchase_dashboard_card_stats mb-2">
-                <div class="o_zvy_purchase_dashboard_card_count" t-esc="props.card.count"/>
-                <div class="text-muted small">
-                    <t t-esc="ofLabel"/>
-                    <t t-esc="props.card.total"/>
-                    ·
-                    <t t-esc="props.card.share"/>%
-                </div>
-            </div>
-            <div class="o_zvy_purchase_dashboard_card_charts d-flex gap-2 mb-3">
-                <div class="o_zvy_purchase_dashboard_chart_wrap flex-grow-1">
-                    <canvas t-ref="doughnut"/>
-                </div>
-                <div class="o_zvy_purchase_dashboard_chart_wrap flex-grow-1">
-                    <canvas t-ref="line"/>
-                    <div class="text-muted text-center o_zvy_purchase_dashboard_chart_caption" t-esc="last14DaysLabel"/>
-                </div>
-            </div>
+            <div class="o_zvy_purchase_dashboard_card_count mb-3" t-esc="props.card.count"/>
             <button type="button" class="btn btn-primary w-100" t-on-click="onCheckClick" t-esc="checkLabel"/>
         </div>
     </t>

@@ -2706,30 +2706,6 @@ msgid "My Cases In Review"
 msgstr "پرونده‌های در حال بررسی من"
 
 #. module: zvy_purchase
-#. odoo-python
-#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
-msgid "This queue"
-msgstr "این صف"
-
-#. module: zvy_purchase
-#. odoo-python
-#: code:addons/zvy_purchase/models/zvy_purchase_dashboard.py:0
-msgid "Other"
-msgstr "سایر"
-
-#. module: zvy_purchase
-#. odoo-javascript
-#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
-msgid "of"
-msgstr "از"
-
-#. module: zvy_purchase
-#. odoo-javascript
-#: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
-msgid "Last 14 days"
-msgstr "۱۴ روز اخیر"
-
-#. module: zvy_purchase
 #. odoo-javascript
 #: code:addons/zvy_purchase/static/src/js/purchase_dashboard.js:0
 msgid "Check"

@@ -1,6 +1,6 @@
 {
     "name": "Purchase",
-    "version": "1.96",
+    "version": "1.98",
     "category": "Inventory/Purchase",
     "summary": "Purchase requests with items and vendor offers",
     "depends": [

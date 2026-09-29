@@ -1,7 +1,4 @@
-from datetime import timedelta
-
-from odoo import _, api, fields, models
-from odoo.tools.misc import format_date
+from odoo import _, api, models
 
 
 CARD_ICONS = {
@@ -30,45 +27,8 @@ class ZvyPurchaseDashboard(models.AbstractModel):
     _description = "Purchase Dashboard"
 
     @api.model
-    def _queue_line_series(self, res_model, domain, days=14):
-        """Daily create_date counts for domain over the last ``days`` calendar days."""
-        today = fields.Date.context_today(self)
-        start = today - timedelta(days=days - 1)
-        start_dt = fields.Datetime.to_datetime(start)
-        grouped = self.env[res_model].read_group(
-            domain + [("create_date", ">=", start_dt)],
-            ["create_date"],
-            ["create_date:day"],
-            orderby="create_date:day",
-            lazy=False,
-        )
-        by_day = {}
-        for row in grouped:
-            day_value = row.get("create_date:day")
-            if not day_value:
-                continue
-            # read_group day label is a localized string; use range start when present
-            day_date = row.get("__range", {}).get("create_date:day", {}).get("from")
-            if day_date:
-                day_key = fields.Date.to_date(day_date)
-            else:
-                try:
-                    day_key = fields.Date.to_date(day_value)
-                except (ValueError, TypeError):
-                    continue
-            by_day[day_key] = row.get("__count") or row.get("create_date_count") or 0
-
-        labels = []
-        values = []
-        for offset in range(days):
-            day = start + timedelta(days=offset)
-            labels.append(format_date(self.env, day, date_format="MM-dd"))
-            values.append(by_day.get(day, 0))
-        return {"labels": labels, "values": values}
-
-    @api.model
     def get_dashboard_cards(self):
-        """Return role-based work-queue cards (counts, charts, domains for list actions)."""
+        """Return role-based work-queue cards (counts + domains for list actions)."""
         user = self.env.user
         uid = self.env.uid
         cards = []
@@ -78,26 +38,14 @@ class ZvyPurchaseDashboard(models.AbstractModel):
             if key in seen:
                 return
             seen.add(key)
-            Model = self.env[res_model]
-            count = Model.search_count(domain)
-            total = Model.search_count([])
-            share = round(100.0 * count / total) if total else 0
-            others = max(total - count, 0)
             cards.append(
                 {
                     "key": key,
                     "title": title,
                     "icon": CARD_ICONS.get(key, "fa-circle-o"),
-                    "count": count,
-                    "total": total,
-                    "share": share,
+                    "count": self.env[res_model].search_count(domain),
                     "res_model": res_model,
                     "domain": domain,
-                    "doughnut": {
-                        "labels": [_("This queue"), _("Other")],
-                        "values": [count, others],
-                    },
-                    "line": self._queue_line_series(res_model, domain),
                 }
             )
 
